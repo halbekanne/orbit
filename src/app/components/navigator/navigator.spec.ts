@@ -45,7 +45,7 @@ describe('NavigatorComponent – collapse logic', () => {
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    TestBed.flushEffects();
+    TestBed.tick();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.tickets).toBe(true);
   });
@@ -55,7 +55,7 @@ describe('NavigatorComponent – collapse logic', () => {
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.togglePrs();
-    TestBed.flushEffects();
+    TestBed.tick();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.prs).toBe(true);
   });
@@ -65,7 +65,7 @@ describe('NavigatorComponent – collapse logic', () => {
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTodos();
-    TestBed.flushEffects();
+    TestBed.tick();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.todos).toBe(true);
   });
@@ -75,9 +75,9 @@ describe('NavigatorComponent – collapse logic', () => {
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    TestBed.flushEffects();
+    TestBed.tick();
     comp.toggleTickets();
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(comp.ticketsCollapsed()).toBe(false);
   });
 });

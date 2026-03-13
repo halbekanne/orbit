@@ -54,6 +54,13 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
 
+## Testing
+
+- **Test runner:** Vitest via `@angular/build:unit-test` — run with `ng test --no-watch`
+- **No Zone.js** — this project is fully zoneless. Do NOT use `fakeAsync` or `tick` from `@angular/core/testing`
+- **Flushing effects:** Use `TestBed.tick()` to flush pending signal effects in tests (`flushEffects()` is deprecated)
+- **Component tests:** Use `TestBed.configureTestingModule({ imports: [MyComponent] })` — no `NgModule` needed
+
 ---
 
 ## Project Identity
