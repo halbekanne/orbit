@@ -23,7 +23,7 @@
         aria-controls="navigator-tickets-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="tickets-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aktuelle Tickets</h2>
+          <span id="tickets-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aktuelle Tickets</span>
           @if (data.tickets().length > 0) {
             <span
               class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
@@ -75,7 +75,7 @@
         aria-controls="navigator-prs-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="prs-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pull Requests</h2>
+          <span id="prs-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pull Requests</span>
           @if (data.awaitingReviewCount() > 0) {
             <span
               class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold"
@@ -127,7 +127,7 @@
         aria-controls="navigator-todos-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meine Todos</h2>
+          <span id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meine Todos</span>
           @if (data.pendingTodoCount() > 0) {
             <span
               class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
