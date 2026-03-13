@@ -6,7 +6,7 @@
 
 **Architecture:** Three boolean signals in `NavigatorComponent` (initialized from localStorage) drive `[hidden]` on section content and chevron rotation. An `effect()` writes state back to localStorage on every change. No new service or component needed.
 
-**Tech Stack:** Angular 20+ signals, `effect()`, `[hidden]` binding, Tailwind CSS, Karma/Jasmine
+**Tech Stack:** Angular 21 signals, `effect()`, `[hidden]` binding, Tailwind CSS, Vitest (zoneless — use `TestBed.flushEffects()` not `fakeAsync`/`tick`)
 
 ---
 
@@ -20,8 +20,7 @@
 - [ ] **Step 1: Create the spec file**
 
 ```ts
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { NavigatorComponent } from './navigator';
 
 describe('NavigatorComponent – collapse logic', () => {
@@ -63,53 +62,53 @@ describe('NavigatorComponent – collapse logic', () => {
     expect(comp.todosCollapsed()).toBe(false);
   });
 
-  it('persists collapsed state to localStorage when toggleTickets is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when toggleTickets is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.tickets).toBe(true);
-  }));
+  });
 
-  it('persists collapsed state to localStorage when togglePrs is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when togglePrs is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.togglePrs();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.prs).toBe(true);
-  }));
+  });
 
-  it('persists collapsed state to localStorage when toggleTodos is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when toggleTodos is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTodos();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.todos).toBe(true);
-  }));
+  });
 
-  it('toggles signal back to false on second call', fakeAsync(() => {
+  it('toggles signal back to false on second call', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     expect(comp.ticketsCollapsed()).toBe(false);
-  }));
+  });
 });
 ```
 
 - [ ] **Step 2: Run tests to confirm they fail**
 
 ```bash
-ng test --include="**/navigator.spec.ts" --watch=false
+ng test --no-watch
 ```
 
 Expected: FAIL — `NavigatorComponent` exists but `ticketsCollapsed`, `prsCollapsed`, `todosCollapsed`, `toggleTickets`, `togglePrs`, `toggleTodos` are not yet defined.
@@ -207,7 +206,7 @@ export class NavigatorComponent {
 - [ ] **Step 2: Run the tests — they should now pass**
 
 ```bash
-ng test --include="**/navigator.spec.ts" --watch=false
+ng test --no-watch
 ```
 
 Expected: All 7 tests PASS.
@@ -414,7 +413,7 @@ Key changes:
 - [ ] **Step 2: Run the full test suite to confirm nothing is broken**
 
 ```bash
-ng test --watch=false
+ng test --no-watch
 ```
 
 Expected: All tests PASS (navigator spec + existing app spec).

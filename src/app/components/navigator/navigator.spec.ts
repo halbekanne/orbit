@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NavigatorComponent } from './navigator';
 
 describe('NavigatorComponent – collapse logic', () => {
@@ -40,44 +40,44 @@ describe('NavigatorComponent – collapse logic', () => {
     expect(comp.todosCollapsed()).toBe(false);
   });
 
-  it('persists collapsed state to localStorage when toggleTickets is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when toggleTickets is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.tickets).toBe(true);
-  }));
+  });
 
-  it('persists collapsed state to localStorage when togglePrs is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when togglePrs is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.togglePrs();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.prs).toBe(true);
-  }));
+  });
 
-  it('persists collapsed state to localStorage when toggleTodos is called', fakeAsync(() => {
+  it('persists collapsed state to localStorage when toggleTodos is called', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTodos();
-    tick();
+    TestBed.flushEffects();
     const saved = JSON.parse(localStorage.getItem('orbit.navigator.collapsed')!);
     expect(saved.todos).toBe(true);
-  }));
+  });
 
-  it('toggles signal back to false on second call', fakeAsync(() => {
+  it('toggles signal back to false on second call', () => {
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
     fixture.detectChanges();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     comp.toggleTickets();
-    tick();
+    TestBed.flushEffects();
     expect(comp.ticketsCollapsed()).toBe(false);
-  }));
+  });
 });
