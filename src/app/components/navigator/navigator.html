@@ -1,0 +1,79 @@
+<nav class="flex flex-col h-full" aria-label="Arbeits-Navigator">
+  <div class="px-4 py-3 border-b border-stone-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center shrink-0" aria-hidden="true">
+          <div class="w-2.5 h-2.5 rounded-full border-2 border-white"></div>
+        </div>
+        <span class="font-semibold text-stone-800 text-sm tracking-wide">Orbit</span>
+      </div>
+      <span class="text-xs text-stone-400">Dein Command Center</span>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+
+    <section aria-labelledby="tickets-heading">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <h2 id="tickets-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aktuelle Tickets</h2>
+        <span class="text-xs text-stone-400">Jira</span>
+      </div>
+      <ul class="space-y-1.5" role="list">
+        @for (ticket of data.tickets(); track ticket.id) {
+          <li>
+            <app-ticket-card
+              [ticket]="ticket"
+              [selected]="isSelected(ticket)"
+              (select)="selectItem($event)"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="prs-heading">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <h2 id="prs-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pull Requests</h2>
+        <div class="flex items-center gap-2">
+          @if (data.awaitingReviewCount() > 0) {
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold" [attr.aria-label]="data.awaitingReviewCount() + ' ausstehende Reviews'">{{ data.awaitingReviewCount() }}</span>
+          }
+          <span class="text-xs text-stone-400">Bitbucket</span>
+        </div>
+      </div>
+      <ul class="space-y-1.5" role="list">
+        @for (pr of data.pullRequests(); track pr.id) {
+          <li>
+            <app-pr-card
+              [pr]="pr"
+              [selected]="isSelected(pr)"
+              (select)="selectItem($event)"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="todos-heading">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <h2 id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meine Todos</h2>
+        @if (data.pendingTodoCount() > 0) {
+          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold" [attr.aria-label]="data.pendingTodoCount() + ' offene Todos'">{{ data.pendingTodoCount() }}</span>
+        }
+      </div>
+      <ul class="space-y-1.5" role="list">
+        @for (todo of data.todos(); track todo.id) {
+          <li>
+            <app-todo-card
+              [todo]="todo"
+              [selected]="isSelected(todo)"
+              (select)="selectItem($event)"
+              (toggle)="toggleTodo($event)"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+
+  </div>
+</nav>

@@ -1,0 +1,33 @@
+<main class="h-full flex flex-col" aria-label="Arbeitsbereich">
+  @let item = data.selectedItem();
+
+  @if (!item) {
+    <div class="flex-1 flex items-center justify-center">
+      <div class="text-center max-w-sm">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+          <div class="w-7 h-7 rounded-full border-4 border-indigo-400"></div>
+        </div>
+        <h2 class="text-lg font-semibold text-stone-800 mb-1">Bereit loszulegen?</h2>
+        <p class="text-sm text-stone-400 leading-relaxed">Wähle ein Ticket, einen Pull Request oder ein Todo aus der linken Spalte, um die Details hier anzuzeigen.</p>
+      </div>
+    </div>
+  }
+
+  @if (item?.type === 'ticket') {
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <app-ticket-detail [ticket]="$any(item)" />
+    </div>
+  }
+
+  @if (item?.type === 'pr') {
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <app-pr-detail [pr]="$any(item)" />
+    </div>
+  }
+
+  @if (item?.type === 'todo') {
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <app-todo-detail [todo]="$any(item)" />
+    </div>
+  }
+</main>
