@@ -61,12 +61,14 @@
           <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold" [attr.aria-label]="data.pendingTodoCount() + ' offene Todos'">{{ data.pendingTodoCount() }}</span>
         }
       </div>
+      <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
       <ul class="space-y-1.5" role="list">
         @for (todo of data.todos(); track todo.id) {
           <li>
             <app-todo-card
               [todo]="todo"
               [selected]="isSelected(todo)"
+              [highlighted]="data.lastAddedId() === todo.id"
               (select)="selectItem($event)"
               (toggle)="toggleTodo($event)"
             />

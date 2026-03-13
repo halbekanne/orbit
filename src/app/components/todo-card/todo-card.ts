@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Todo } from '../../models/work-item.model';
 
 @Component({
@@ -8,11 +8,7 @@ import { Todo } from '../../models/work-item.model';
     <button
       type="button"
       class="group w-full text-left rounded-lg border px-3 py-2.5 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      [class]="selected()
-        ? 'bg-indigo-50 border-indigo-300 shadow-sm'
-        : todo().done
-          ? 'bg-stone-50 border-stone-150 opacity-60'
-          : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm'"
+      [class]="cardClasses()"
       (click)="select.emit(todo())"
       [attr.aria-pressed]="selected()"
       [attr.aria-label]="todo().title"
@@ -42,6 +38,16 @@ import { Todo } from '../../models/work-item.model';
 export class TodoCardComponent {
   todo = input.required<Todo>();
   selected = input(false);
+  highlighted = input(false);
   select = output<Todo>();
   toggle = output<string>();
+
+  cardClasses = computed(() => {
+    const base = this.selected()
+      ? 'bg-indigo-50 border-indigo-300 shadow-sm'
+      : this.todo().done
+        ? 'bg-stone-50 border-stone-150 opacity-60'
+        : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm';
+    return this.highlighted() ? `${base} animate-highlight` : base;
+  });
 }

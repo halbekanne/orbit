@@ -172,6 +172,8 @@ export class WorkDataService {
   ]);
 
   readonly selectedItem = signal<WorkItem | null>(null);
+  readonly lastAddedId = signal<string | null>(null);
+  private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly pendingTodoCount = computed(() => this.todos().filter(t => !t.done).length);
   readonly awaitingReviewCount = computed(() => this.pullRequests().filter(pr => pr.status === 'Awaiting Review').length);
@@ -180,16 +182,19 @@ export class WorkDataService {
     this.selectedItem.set(item);
   }
 
-  addTodo(title: string, description: string): void {
+  addTodo(title: string, description?: string): void {
     const todo: Todo = {
       type: 'todo',
       id: `td-${Date.now()}`,
       title,
-      description,
+      description: description ?? '',
       done: false,
       createdAt: new Date().toISOString(),
     };
     this.todos.update(todos => [todo, ...todos]);
+    if (this.highlightTimer !== null) clearTimeout(this.highlightTimer);
+    this.lastAddedId.set(todo.id);
+    this.highlightTimer = setTimeout(() => this.lastAddedId.set(null), 500);
   }
 
   toggleTodo(id: string): void {

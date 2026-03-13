@@ -1,5 +1,17 @@
 @import 'tailwindcss';
 
+@keyframes highlight-flash {
+  0%   { box-shadow: 0 0 0 0 rgb(99 102 241 / 0.35); }
+  50%  { box-shadow: 0 0 0 6px rgb(99 102 241 / 0.15); }
+  100% { box-shadow: 0 0 0 0 rgb(99 102 241 / 0); }
+}
+
+@layer utilities {
+  .animate-highlight {
+    animation: highlight-flash 140ms ease-out forwards;
+  }
+}
+
 @layer base {
   html, body {
     height: 100%;
