@@ -13,6 +13,10 @@
 }
 
 @layer base {
+  button, [role="button"], label[for], summary, a[href] {
+    cursor: pointer;
+  }
+
   html, body {
     height: 100%;
     margin: 0;
