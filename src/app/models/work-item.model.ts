@@ -15,7 +15,6 @@ export interface JiraTicket {
   dueDate: string | null;
   updatedAt: string;
   url: string;
-  overdue: boolean;
 }
 
 export interface PullRequest {
