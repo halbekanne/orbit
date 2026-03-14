@@ -59,7 +59,7 @@ function get(url) {
 async function run() {
   const mockServer = spawn('node', ['mock-server/index.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockServer);
-  mockServer.on('exit', (code) => { if (code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
+  mockServer.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
 
   const proxy = spawn('node', ['proxy/index.js'], {
     cwd: ROOT,
@@ -67,7 +67,7 @@ async function run() {
     env: { ...process.env, JIRA_BASE_URL: 'http://localhost:6202', JIRA_API_KEY: 'smoke-test-token' },
   });
   children.push(proxy);
-  proxy.on('exit', (code) => { if (code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
+  proxy.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
 
   try {
     await Promise.all([waitForPort(6202), waitForPort(6201)]);
