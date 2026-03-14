@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
 
 @Component({
@@ -13,7 +13,7 @@ import { JiraTicket } from '../../models/work-item.model';
               <span class="font-mono text-sm font-bold text-indigo-600 tracking-wide">{{ ticket().key }}</span>
               <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="statusClass()">{{ ticket().status }}</span>
               <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="priorityClass()">{{ ticket().priority }}</span>
-              @if (ticket().overdue) {
+              @if (isOverdue()) {
                 <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700">Überfällig</span>
               }
             </div>
@@ -44,7 +44,7 @@ import { JiraTicket } from '../../models/work-item.model';
           </div>
           <div>
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Fälligkeitsdatum</dt>
-            <dd class="text-sm font-medium" [class]="ticket().overdue ? 'text-red-600' : 'text-stone-700'">
+            <dd class="text-sm font-medium" [class]="isOverdue() ? 'text-red-600' : 'text-stone-700'">
               {{ ticket().dueDate ?? 'Kein Datum' }}
             </dd>
           </div>
@@ -64,6 +64,12 @@ import { JiraTicket } from '../../models/work-item.model';
 })
 export class TicketDetailComponent {
   ticket = input.required<JiraTicket>();
+
+  isOverdue = computed(() => {
+    const due = this.ticket().dueDate;
+    if (!due) return false;
+    return new Date(due) < new Date(new Date().toDateString());
+  });
 
   formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });

@@ -17,7 +17,6 @@ export class WorkDataService {
       dueDate: '2026-03-13',
       updatedAt: '2026-03-13T09:15:00',
       url: 'https://jira.example.com/browse/VERS-2847',
-      overdue: false,
     },
     {
       type: 'ticket',
@@ -32,7 +31,6 @@ export class WorkDataService {
       dueDate: '2026-03-20',
       updatedAt: '2026-03-12T16:30:00',
       url: 'https://jira.example.com/browse/VERS-2801',
-      overdue: false,
     },
     {
       type: 'ticket',
@@ -47,7 +45,6 @@ export class WorkDataService {
       dueDate: '2026-03-10',
       updatedAt: '2026-03-13T08:00:00',
       url: 'https://jira.example.com/browse/VERS-2799',
-      overdue: true,
     },
     {
       type: 'ticket',
@@ -62,7 +59,6 @@ export class WorkDataService {
       dueDate: '2026-04-01',
       updatedAt: '2026-03-11T14:20:00',
       url: 'https://jira.example.com/browse/VERS-2756',
-      overdue: false,
     },
     {
       type: 'ticket',
@@ -77,7 +73,6 @@ export class WorkDataService {
       dueDate: '2026-03-25',
       updatedAt: '2026-03-10T11:00:00',
       url: 'https://jira.example.com/browse/VERS-2823',
-      overdue: false,
     },
   ]);
 

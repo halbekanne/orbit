@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
 
 @Component({
@@ -20,7 +20,7 @@ import { JiraTicket } from '../../models/work-item.model';
           <span class="font-mono text-xs font-semibold tracking-wide" [class]="selected() ? 'text-indigo-600' : 'text-stone-400'">
             {{ ticket().key }}
           </span>
-          @if (ticket().overdue) {
+          @if (isOverdue()) {
             <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700">Überfällig</span>
           }
         </div>
@@ -53,6 +53,12 @@ export class TicketCardComponent {
   ticket = input.required<JiraTicket>();
   selected = input(false);
   select = output<JiraTicket>();
+
+  isOverdue = computed(() => {
+    const due = this.ticket().dueDate;
+    if (!due) return false;
+    return new Date(due) < new Date(new Date().toDateString());
+  });
 
   statusClass() {
     const map: Record<string, string> = {
