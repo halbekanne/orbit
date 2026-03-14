@@ -9,7 +9,8 @@
     "mock": "node mock-server/index.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "smoke-test": "node smoke-test/index.js"
   },
   "private": true,
   "packageManager": "npm@10.9.2",
