@@ -1,80 +1,28 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { JiraTicket, PullRequest, Todo, WorkItem } from '../models/work-item.model';
+import { JiraService } from './jira.service';
 
 @Injectable({ providedIn: 'root' })
 export class WorkDataService {
-  readonly tickets = signal<JiraTicket[]>([
-    {
-      type: 'ticket',
-      id: 't1',
-      key: 'VERS-2847',
-      summary: 'Frontend-Integration: Neues Kunden-Dashboard',
-      status: 'In Progress',
-      priority: 'High',
-      assignee: 'Dominik M.',
-      reporter: 'Sarah K.',
-      description: 'Implementierung des neuen Kunden-Dashboards gemäß Figma-Design. Anbindung an die bestehende REST-API für Vertragsdaten. Responsives Layout für alle Breakpoints sicherstellen.\n\nAkzeptanzkriterien:\n- Dashboard lädt in unter 2 Sekunden\n- Alle Vertragsdaten werden korrekt angezeigt\n- Mobile-Ansicht ist vollständig nutzbar',
-      dueDate: '2026-03-13',
-      updatedAt: '2026-03-13T09:15:00',
-      url: 'https://jira.example.com/browse/VERS-2847',
-    },
-    {
-      type: 'ticket',
-      id: 't2',
-      key: 'VERS-2801',
-      summary: 'API-Anbindung: Schadensmeldung Formular',
-      status: 'In Progress',
-      priority: 'Medium',
-      assignee: 'Dominik M.',
-      reporter: 'Thomas B.',
-      description: 'REST-API Integration für das Schadensmeldungs-Formular. Backend-Endpunkte sind bereits verfügbar. Frontend-Validierung und Fehlerbehandlung müssen noch implementiert werden.\n\nEndpoints:\n- POST /api/v2/claims\n- GET /api/v2/claims/{id}/status',
-      dueDate: '2026-03-20',
-      updatedAt: '2026-03-12T16:30:00',
-      url: 'https://jira.example.com/browse/VERS-2801',
-    },
-    {
-      type: 'ticket',
-      id: 't3',
-      key: 'VERS-2799',
-      summary: 'Bug: Login-Fehler bei SSO-Weiterleitung',
-      status: 'In Review',
-      priority: 'High',
-      assignee: 'Dominik M.',
-      reporter: 'Anna L.',
-      description: 'Nach dem SSO-Login über den Azure AD werden Nutzer nicht korrekt weitergeleitet. Der Redirect-Loop tritt auf, wenn die Session abgelaufen ist.\n\nReproduktion:\n1. Session ablaufen lassen\n2. Auf geschützte Seite navigieren\n3. SSO-Login durchführen\n4. → Loop tritt auf',
-      dueDate: '2026-03-10',
-      updatedAt: '2026-03-13T08:00:00',
-      url: 'https://jira.example.com/browse/VERS-2799',
-    },
-    {
-      type: 'ticket',
-      id: 't4',
-      key: 'VERS-2756',
-      summary: 'Refactoring: Angular 21 Migration',
-      status: 'In Progress',
-      priority: 'Low',
-      assignee: 'Dominik M.',
-      reporter: 'Dominik M.',
-      description: 'Schrittweise Migration auf Angular 21. Fokus auf Signal-basierte State-Management Patterns und die neuen Control Flow Blöcke (@if, @for).\n\nFortschritt:\n- ✓ Core-Module migriert\n- ✓ Routing auf neue API umgestellt\n- → Komponenten-Migration läuft',
-      dueDate: '2026-04-01',
-      updatedAt: '2026-03-11T14:20:00',
-      url: 'https://jira.example.com/browse/VERS-2756',
-    },
-    {
-      type: 'ticket',
-      id: 't5',
-      key: 'VERS-2823',
-      summary: 'Unit Tests: PolicyService Coverage erhöhen',
-      status: 'In Progress',
-      priority: 'Medium',
-      assignee: 'Dominik M.',
-      reporter: 'Sarah K.',
-      description: 'Test-Coverage für den PolicyService von aktuell 42% auf mindestens 80% erhöhen. Fehlende Edge-Cases abdecken, insbesondere bei der Vertragslaufzeit-Berechnung.',
-      dueDate: '2026-03-25',
-      updatedAt: '2026-03-10T11:00:00',
-      url: 'https://jira.example.com/browse/VERS-2823',
-    },
-  ]);
+  private readonly jira = inject(JiraService);
+
+  readonly ticketsLoading = signal(true);
+  readonly ticketsError = signal(false);
+
+  private readonly tickets$ = this.jira.getAssignedActiveTickets().pipe(
+    tap(() => this.ticketsLoading.set(false)),
+    catchError(err => {
+      console.error('Failed to load Jira tickets:', err);
+      this.ticketsError.set(true);
+      this.ticketsLoading.set(false);
+      return of([] as JiraTicket[]);
+    }),
+  );
+
+  readonly tickets = toSignal(this.tickets$, { initialValue: [] as JiraTicket[] });
 
   readonly pullRequests = signal<PullRequest[]>([
     {
@@ -88,7 +36,7 @@ export class WorkDataService {
       commentCount: 2,
       updatedAt: '2026-03-13T10:30:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/412',
-      description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).\n\nÄnderungen:\n- Neue NavComponent mit Signal-basiertem State\n- ARIA-Labels für alle interaktiven Elemente\n- E2E Tests mit Playwright',
+      description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
     },
     {
       type: 'pr',
@@ -101,7 +49,7 @@ export class WorkDataService {
       commentCount: 0,
       updatedAt: '2026-03-13T08:45:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/415',
-      description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen und den State vor dem Redirect zu speichern.',
+      description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
     },
     {
       type: 'pr',
@@ -114,7 +62,7 @@ export class WorkDataService {
       commentCount: 5,
       updatedAt: '2026-03-12T15:00:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-shared-lib/pull-requests/89',
-      description: 'Dependency-Updates auf die neuesten stabilen Versionen. Betrifft Angular, RxJS und alle Dev-Dependencies. Breaking Changes wurden geprüft und angepasst.',
+      description: 'Dependency-Updates auf die neuesten stabilen Versionen.',
     },
     {
       type: 'pr',
@@ -127,7 +75,7 @@ export class WorkDataService {
       commentCount: 3,
       updatedAt: '2026-03-11T17:20:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/408',
-      description: 'SEPA-Lastschriftmandat Formular mit vollständiger Validierung. Reactive Forms, IBAN-Validierung via Bibliothek, Fehlerbehandlung.',
+      description: 'SEPA-Lastschriftmandat Formular mit vollständiger Validierung.',
     },
   ]);
 
@@ -144,7 +92,7 @@ export class WorkDataService {
       type: 'todo',
       id: 'td2',
       title: 'PR-Review Block im Kalender eintragen',
-      description: 'Täglich 14:00-15:00 Uhr als festen Block für Code Reviews reservieren, damit PRs nicht liegen bleiben.',
+      description: 'Täglich 14:00-15:00 Uhr als festen Block für Code Reviews reservieren.',
       done: false,
       createdAt: '2026-03-12T16:00:00',
     },

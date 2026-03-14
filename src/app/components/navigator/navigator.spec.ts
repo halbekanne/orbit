@@ -1,11 +1,31 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { WorkDataService } from '../../services/work-data.service';
 import { NavigatorComponent } from './navigator';
+
+const mockWorkDataService = {
+  tickets: signal([]),
+  ticketsLoading: signal(false),
+  ticketsError: signal(false),
+  pullRequests: signal([]),
+  todos: signal([]),
+  selectedItem: signal(null),
+  lastAddedId: signal(null),
+  pendingTodoCount: signal(0),
+  awaitingReviewCount: signal(0),
+  select: () => {},
+  addTodo: () => {},
+  toggleTodo: () => {},
+};
 
 describe('NavigatorComponent – collapse logic', () => {
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [NavigatorComponent],
+      providers: [
+        { provide: WorkDataService, useValue: mockWorkDataService },
+      ],
     }).compileComponents();
   });
 
