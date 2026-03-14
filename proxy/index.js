@@ -16,10 +16,10 @@ const PORT = 6201;
 app.use(cors({ origin: 'http://localhost:6200' }));
 
 app.use(
-  '/rest',
   createProxyMiddleware({
     target: JIRA_BASE_URL,
     changeOrigin: true,
+    pathFilter: '/rest',
     on: {
       proxyReq: (proxyReq) => {
         proxyReq.setHeader('Authorization', `Bearer ${JIRA_API_KEY}`);
