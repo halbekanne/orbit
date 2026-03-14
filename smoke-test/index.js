@@ -13,6 +13,12 @@ function cleanup() {
   }
 }
 
+function fail(err) {
+  console.error(`❌ Smoke test failed: ${err.message}`);
+  cleanup();
+  process.exit(1);
+}
+
 function waitForPort(port, retries = 20, delay = 300) {
   return new Promise((resolve, reject) => {
     const attempt = (remaining) => {
@@ -53,9 +59,15 @@ function get(url) {
 async function run() {
   const mockServer = spawn('node', ['mock-server/index.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockServer);
+  mockServer.on('exit', (code) => { if (code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
 
-  const proxy = spawn('node', ['proxy/index.js'], { cwd: ROOT, stdio: 'pipe' });
+  const proxy = spawn('node', ['proxy/index.js'], {
+    cwd: ROOT,
+    stdio: 'pipe',
+    env: { ...process.env, JIRA_BASE_URL: 'http://localhost:6202', JIRA_API_KEY: 'smoke-test-token' },
+  });
   children.push(proxy);
+  proxy.on('exit', (code) => { if (code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
 
   try {
     await Promise.all([waitForPort(6202), waitForPort(6201)]);
@@ -80,9 +92,7 @@ async function run() {
     cleanup();
     process.exit(0);
   } catch (err) {
-    console.error(`❌ Smoke test failed: ${err.message}`);
-    cleanup();
-    process.exit(1);
+    fail(err);
   }
 }
 
