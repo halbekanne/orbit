@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { JiraTicket, PrStatus, PullRequest, Todo, WorkItem } from '../models/work-item.model';
 import { JiraService } from './jira.service';
 import { BitbucketService } from './bitbucket.service';
@@ -33,8 +33,8 @@ export class WorkDataService {
   readonly pullRequests = computed(() => {
     const statusOrder: Record<PrStatus, number> = {
       'Awaiting Review': 0,
-      'Changes Requested': 1,
-      'Needs Re-review': 2,
+      'Needs Re-review': 1,
+      'Changes Requested': 2,
       'Approved by Others': 3,
       'Approved': 4,
     };
@@ -54,7 +54,28 @@ export class WorkDataService {
             this.pullRequestsLoading.set(false);
             return of([] as PullRequest[]);
           }),
-        ).subscribe(prs => this._rawPullRequests.set(prs));
+        ).subscribe(prs => {
+          this._rawPullRequests.set(prs);
+
+          const needsWorkPrs = prs.filter(pr => pr.myReviewStatus === 'Changes Requested');
+          if (needsWorkPrs.length === 0) return;
+
+          forkJoin(
+            needsWorkPrs.map(pr =>
+              this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
+                catchError(() => of('Changes Requested' as const))
+              )
+            )
+          ).subscribe(results => {
+            const enrichedPrs = new Map(needsWorkPrs.map((pr, i) => [pr, results[i]]));
+            this._rawPullRequests.update(all =>
+              all.map(pr => {
+                const enriched = enrichedPrs.get(pr);
+                return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+              })
+            );
+          });
+        });
       });
     });
   }
@@ -99,7 +120,11 @@ export class WorkDataService {
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly pendingTodoCount = computed(() => this.todos().filter(t => !t.done).length);
-  readonly awaitingReviewCount = computed(() => this.pullRequests().filter(pr => pr.myReviewStatus === 'Awaiting Review').length);
+  readonly awaitingReviewCount = computed(() =>
+    this.pullRequests().filter(
+      pr => pr.myReviewStatus === 'Awaiting Review' || pr.myReviewStatus === 'Needs Re-review'
+    ).length
+  );
 
   select(item: WorkItem): void {
     this.selectedItem.set(item);

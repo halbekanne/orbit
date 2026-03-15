@@ -138,12 +138,94 @@ describe('WorkDataService — pullRequests loading', () => {
     expect(service.pullRequests()).toEqual([]);
   });
 
-  it('awaitingReviewCount counts PRs with myReviewStatus Awaiting Review', () => {
-    const prs = [makePr('Awaiting Review'), makePr('Awaiting Review'), makePr('Approved')];
-    const mockBitbucket = { getReviewerPullRequests: () => of(prs) };
+  it('awaitingReviewCount counts Awaiting Review and Needs Re-review PRs', () => {
+    const prs = [makePr('Awaiting Review'), makePr('Needs Re-review'), makePr('Approved')];
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of(prs),
+      getReviewerPrActivityStatus: () => of('Changes Requested' as const),
+    };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     const service = TestBed.inject(WorkDataService);
     TestBed.tick();
     expect(service.awaitingReviewCount()).toBe(2);
+  });
+});
+
+describe('WorkDataService — enrichment', () => {
+  const mockJira = { getAssignedActiveTickets: () => of([]) };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    TestBed.overrideProvider(JiraService, { useValue: mockJira });
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('patches a Changes Requested PR to Needs Re-review when activity check returns Needs Re-review', () => {
+    const pr = makePr('Changes Requested');
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of([pr]),
+      getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
+    };
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    const service = TestBed.inject(WorkDataService);
+    TestBed.tick();
+    expect(service.pullRequests()[0].myReviewStatus).toBe('Needs Re-review');
+  });
+
+  it('keeps a Changes Requested PR as Changes Requested when activity check returns Changes Requested', () => {
+    const pr = makePr('Changes Requested');
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of([pr]),
+      getReviewerPrActivityStatus: () => of('Changes Requested' as const),
+    };
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    const service = TestBed.inject(WorkDataService);
+    TestBed.tick();
+    expect(service.pullRequests()[0].myReviewStatus).toBe('Changes Requested');
+  });
+
+  it('does not affect PRs with other statuses during enrichment', () => {
+    const awaiting = makePr('Awaiting Review');
+    const changesRequested = makePr('Changes Requested');
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of([awaiting, changesRequested]),
+      getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
+    };
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    const service = TestBed.inject(WorkDataService);
+    TestBed.tick();
+    const statuses = service.pullRequests().map(pr => pr.myReviewStatus);
+    expect(statuses).toContain('Awaiting Review');
+    expect(statuses).toContain('Needs Re-review');
+    expect(statuses).not.toContain('Changes Requested');
+  });
+
+  it('does not call getReviewerPrActivityStatus when no Changes Requested PRs exist', () => {
+    const activitySpy = vi.fn().mockReturnValue(of('Changes Requested' as const));
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of([makePr('Awaiting Review')]),
+      getReviewerPrActivityStatus: activitySpy,
+    };
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    TestBed.inject(WorkDataService);
+    TestBed.tick();
+    expect(activitySpy).not.toHaveBeenCalled();
+  });
+
+  it('sorts Needs Re-review before Changes Requested after enrichment promotes one PR', () => {
+    const pr1 = { ...makePr('Changes Requested'), id: 'P/repo/1' };
+    const pr2 = { ...makePr('Changes Requested'), id: 'P/repo/2' };
+    const mockBitbucket = {
+      getReviewerPullRequests: () => of([pr1, pr2]),
+      getReviewerPrActivityStatus: (pr: Pick<PullRequest, 'prNumber' | 'toRef'>) =>
+        of((pr as PullRequest).id === 'P/repo/2' ? ('Needs Re-review' as const) : ('Changes Requested' as const)),
+    };
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    const service = TestBed.inject(WorkDataService);
+    TestBed.tick();
+    const sorted = service.pullRequests();
+    expect(sorted[0].myReviewStatus).toBe('Needs Re-review');
+    expect(sorted[1].myReviewStatus).toBe('Changes Requested');
   });
 });
