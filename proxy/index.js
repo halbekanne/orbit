@@ -3,10 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const { JIRA_BASE_URL, JIRA_API_KEY } = process.env;
+const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY } = process.env;
 
-if (!JIRA_BASE_URL || !JIRA_API_KEY) {
-  console.error('ERROR: JIRA_BASE_URL and JIRA_API_KEY must be set in .env');
+if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY) {
+  console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL and BITBUCKET_API_KEY must be set in .env');
   process.exit(1);
 }
 
@@ -19,7 +19,8 @@ app.use(
   createProxyMiddleware({
     target: JIRA_BASE_URL,
     changeOrigin: true,
-    pathFilter: '/rest',
+    pathFilter: '/jira',
+    pathRewrite: { '^/jira': '' },
     on: {
       proxyReq: (proxyReq) => {
         proxyReq.setHeader('Authorization', `Bearer ${JIRA_API_KEY}`);
@@ -28,6 +29,22 @@ app.use(
   }),
 );
 
+app.use(
+  createProxyMiddleware({
+    target: BITBUCKET_BASE_URL,
+    changeOrigin: true,
+    pathFilter: '/bitbucket',
+    pathRewrite: { '^/bitbucket': '' },
+    on: {
+      proxyReq: (proxyReq) => {
+        proxyReq.setHeader('Authorization', `Bearer ${BITBUCKET_API_KEY}`);
+      },
+    },
+  }),
+);
+
 app.listen(PORT, () => {
-  console.log(`Proxy running at http://localhost:${PORT} → ${JIRA_BASE_URL}`);
+  console.log(`Proxy running at http://localhost:${PORT}`);
+  console.log(`  /jira/**      → ${JIRA_BASE_URL}`);
+  console.log(`  /bitbucket/** → ${BITBUCKET_BASE_URL}`);
 });

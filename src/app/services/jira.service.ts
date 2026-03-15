@@ -112,7 +112,7 @@ function extractComments(raw: JiraIssueFields['comment']): JiraIssueCommentRaw[]
 @Injectable({ providedIn: 'root' })
 export class JiraService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.proxyUrl}/rest/api/2`;
+  private readonly baseUrl = `${environment.proxyUrl}/jira/rest/api/2`;
 
   getAssignedActiveTickets(): Observable<JiraTicket[]> {
     const params = new HttpParams()
