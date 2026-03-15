@@ -14,7 +14,7 @@
   }
 
   @if (item?.type === 'ticket') {
-    <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+    <div class="flex-1 overflow-y-auto">
       <app-ticket-detail [ticket]="$any(item)" />
     </div>
   }
