@@ -514,6 +514,15 @@ app.get('/rest/api/2/search', (_req, res) => {
   });
 });
 
+app.get('/rest/api/2/issue/:key', (req, res) => {
+  const issue = mockIssues.find(i => i.key === req.params.key);
+  if (!issue) {
+    res.status(404).json({ errorMessages: ['Issue Does Not Exist'], errors: {} });
+    return;
+  }
+  res.json(issue);
+});
+
 app.listen(PORT, () => {
   console.log(`Mock Jira server running at http://localhost:${PORT}`);
 });
