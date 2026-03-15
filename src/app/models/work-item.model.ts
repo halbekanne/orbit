@@ -1,6 +1,6 @@
 export type TicketStatus = 'In Progress' | 'In Review' | 'To Do' | 'Done';
 export type TicketPriority = 'High' | 'Medium' | 'Low';
-export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Approved' | 'Approved by Others';
+export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Needs Re-review' | 'Approved' | 'Approved by Others';
 export type PrState = 'OPEN' | 'MERGED' | 'DECLINED' | 'SUPERSEDED';
 
 export interface PrUser {

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import {
   PullRequest,
   PrStatus,
@@ -79,6 +79,17 @@ interface BitbucketPrPageRaw {
   isLastPage: boolean;
 }
 
+interface BitbucketActivityRaw {
+  action: string;
+  user: BitbucketUserRaw;
+  reviewedStatus?: 'APPROVED' | 'NEEDS_WORK' | 'UNAPPROVED';
+}
+
+interface BitbucketActivityPageRaw {
+  values: BitbucketActivityRaw[];
+  isLastPage: boolean;
+}
+
 function mapReviewStatus(status: 'APPROVED' | 'UNAPPROVED' | 'NEEDS_WORK'): PrStatus {
   if (status === 'APPROVED') return 'Approved';
   if (status === 'NEEDS_WORK') return 'Changes Requested';
@@ -147,6 +158,35 @@ export class BitbucketService {
               .set('limit', '50'),
           })
           .pipe(map(page => page.values.map(pr => this.mapPr(pr, config.bitbucketUserSlug))))
+      )
+    );
+  }
+
+  getReviewerPrActivityStatus(pr: Pick<PullRequest, 'prNumber' | 'toRef'>): Observable<'Changes Requested' | 'Needs Re-review'> {
+    const { projectKey } = pr.toRef.repository;
+    const repoSlug = pr.toRef.repository.slug;
+    const prId = pr.prNumber;
+
+    return this.config$.pipe(
+      switchMap(config =>
+        this.http
+          .get<BitbucketActivityPageRaw>(
+            `${this.baseUrl}/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}/activities`
+          )
+          .pipe(
+            map(page => {
+              const activities = page.values;
+              const needsWorkIndex = activities.findIndex(
+                a =>
+                  a.action === 'REVIEWED' &&
+                  a.user.slug === config.bitbucketUserSlug &&
+                  a.reviewedStatus === 'NEEDS_WORK'
+              );
+              if (needsWorkIndex === -1) return 'Changes Requested' as const;
+              return needsWorkIndex > 0 ? ('Needs Re-review' as const) : ('Changes Requested' as const);
+            }),
+            catchError(() => of('Changes Requested' as const))
+          )
       )
     );
   }

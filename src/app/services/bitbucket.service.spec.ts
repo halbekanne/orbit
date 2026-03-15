@@ -144,3 +144,95 @@ describe('BitbucketService', () => {
     expect(result![0].myReviewStatus).toBe('Approved by Others');
   });
 });
+
+const makePrRef = (): Pick<PullRequest, 'prNumber' | 'toRef'> => ({
+  prNumber: 89,
+  toRef: {
+    id: 'refs/heads/main',
+    displayId: 'main',
+    latestCommit: 'f6g7h8i9',
+    repository: {
+      id: 2,
+      slug: 'versicherung-shared-lib',
+      name: 'versicherung-shared-lib',
+      projectKey: 'SL',
+      projectName: 'Versicherung Shared Lib',
+      browseUrl: '',
+    },
+  },
+});
+
+const makeActivity = (action: string, slug: string, reviewedStatus?: 'APPROVED' | 'NEEDS_WORK' | 'UNAPPROVED') => ({
+  action,
+  user: { id: 1, name: slug, slug, displayName: 'User', emailAddress: `${slug}@example.org`, active: true, type: 'NORMAL' },
+  ...(reviewedStatus !== undefined ? { reviewedStatus } : {}),
+});
+
+const flushActivity = (httpTesting: HttpTestingController, activities: ReturnType<typeof makeActivity>[]) => {
+  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+  httpTesting
+    .expectOne(req => req.url.includes('/activities'))
+    .flush({ values: activities, isLastPage: true });
+};
+
+describe('BitbucketService — getReviewerPrActivityStatus', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('returns Changes Requested when NEEDS_WORK is the newest activity', () => {
+    let result: string | undefined;
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    flushActivity(httpTesting, [
+      makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
+      makeActivity('COMMENTED', 'sarah.kowalski'),
+    ]);
+    expect(result).toBe('Changes Requested');
+  });
+
+  it('returns Needs Re-review when a newer activity follows the NEEDS_WORK review', () => {
+    let result: string | undefined;
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    flushActivity(httpTesting, [
+      makeActivity('COMMENTED', 'anna.lehmann'),
+      makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
+    ]);
+    expect(result).toBe('Needs Re-review');
+  });
+
+  it('returns Changes Requested when no NEEDS_WORK review exists', () => {
+    let result: string | undefined;
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    flushActivity(httpTesting, [
+      makeActivity('COMMENTED', 'dominik.mueller'),
+    ]);
+    expect(result).toBe('Changes Requested');
+  });
+
+  it('returns Changes Requested on API error', () => {
+    let result: string | undefined;
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    httpTesting
+      .expectOne(req => req.url.includes('/activities'))
+      .flush('error', { status: 500, statusText: 'Internal Server Error' });
+    expect(result).toBe('Changes Requested');
+  });
+
+  it('requests the correct activities URL', () => {
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe();
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const req = httpTesting.expectOne(req => req.url.includes('/activities'));
+    expect(req.request.url).toContain('/projects/SL/repos/versicherung-shared-lib/pull-requests/89/activities');
+    req.flush({ values: [], isLastPage: true });
+  });
+});

@@ -34,8 +34,9 @@ export class WorkDataService {
     const statusOrder: Record<PrStatus, number> = {
       'Awaiting Review': 0,
       'Changes Requested': 1,
-      'Approved by Others': 2,
-      'Approved': 3,
+      'Needs Re-review': 2,
+      'Approved by Others': 3,
+      'Approved': 4,
     };
     return this._rawPullRequests()
       .filter(pr => pr.myReviewStatus !== 'Approved')
