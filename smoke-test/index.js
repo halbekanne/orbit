@@ -61,6 +61,10 @@ async function run() {
   children.push(mockServer);
   mockServer.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
 
+  const mockBitbucket = spawn('node', ['mock-server/bitbucket.js'], { cwd: ROOT, stdio: 'pipe' });
+  children.push(mockBitbucket);
+  mockBitbucket.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`)); });
+
   const proxy = spawn('node', ['proxy/index.js'], {
     cwd: ROOT,
     stdio: 'pipe',
@@ -76,7 +80,7 @@ async function run() {
   proxy.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
 
   try {
-    await Promise.all([waitForPort(6202), waitForPort(6201)]);
+    await Promise.all([waitForPort(6202), waitForPort(6203), waitForPort(6201)]);
 
     const url =
       'http://localhost:6201/jira/rest/api/2/search?jql=assignee%20%3D%20currentUser()%20AND%20statusCategory%20%3D%20%22In%20Progress%22';
@@ -92,6 +96,21 @@ async function run() {
 
     if (data.issues.length < 1) {
       throw new Error(`Expected at least 1 issue, got ${data.issues.length}`);
+    }
+
+    const bbUrl = 'http://localhost:6201/bitbucket/rest/api/1.0/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
+    const { status: bbStatus, data: bbData } = await get(bbUrl);
+
+    if (bbStatus !== 200) {
+      throw new Error(`Bitbucket: Expected status 200, got ${bbStatus}`);
+    }
+
+    if (!Array.isArray(bbData.values)) {
+      throw new Error(`Bitbucket: Response missing "values" array`);
+    }
+
+    if (bbData.values.length < 1) {
+      throw new Error(`Bitbucket: Expected at least 1 PR, got ${bbData.values.length}`);
     }
 
     console.log('✅ Smoke test passed');

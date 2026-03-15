@@ -16,10 +16,10 @@ const PORT = 6201;
 app.use(cors({ origin: 'http://localhost:6200' }));
 
 app.use(
+  '/jira',
   createProxyMiddleware({
     target: JIRA_BASE_URL,
     changeOrigin: true,
-    pathFilter: '/jira',
     pathRewrite: { '^/jira': '' },
     on: {
       proxyReq: (proxyReq) => {
@@ -30,10 +30,10 @@ app.use(
 );
 
 app.use(
+  '/bitbucket',
   createProxyMiddleware({
     target: BITBUCKET_BASE_URL,
     changeOrigin: true,
-    pathFilter: '/bitbucket',
     pathRewrite: { '^/bitbucket': '' },
     on: {
       proxyReq: (proxyReq) => {
