@@ -28,7 +28,7 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 - Row 2: summary (bold, full text, no truncation)
 - Row 3: "Zugewiesen" label + avatar initials (computed from display name) + assignee display name
 
-**Assignee display:** `JiraTicket.assignee` is a plain `string` (the display name). Avatar initials are derived by taking the first letter of each word. When assignee is `'Unbeauftragt'` (the existing fallback for unassigned tickets), render only the label and name with no avatar.
+**Assignee display:** `JiraTicket.assignee` is a plain `string` (the display name). Avatar initials are derived by taking the first letter of each word. When assignee is unassigned, render the label and the text "Nicht zugeordnet" with no avatar. Note: the existing `JiraService` maps missing assignees to `'Unbeauftragt'` — this must be updated to `'Nicht zugeordnet'` as part of this feature.
 
 **Body** (white background):
 - Full Jira ticket description, rendered via the existing `JiraMarkupPipe`
@@ -132,7 +132,7 @@ User selects PR
 | Key regex matches non-existent ticket (e.g. `TEST-1-local`) | Jira returns 404 → `'error'` state |
 | Jira ticket description is empty | Body section does not render; no empty box |
 | Jira ticket fetch fails (network / permissions) | `'error'` state — distinct from `'no-ticket'` |
-| Assignee is unassigned | `JiraTicket.assignee` is `'Unbeauftragt'`; render label + name, omit avatar |
+| Assignee is unassigned | Render "Nicht zugeordnet" with no avatar |
 
 ---
 
