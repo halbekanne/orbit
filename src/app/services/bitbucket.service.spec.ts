@@ -125,7 +125,8 @@ describe('BitbucketService', () => {
     flushRequests(httpTesting, 'UNAPPROVED');
     const pr = result![0];
     expect(pr.type).toBe('pr');
-    expect(pr.id).toBe(412);
+    expect(pr.id).toBe('VF/versicherung-frontend/412');
+    expect(pr.prNumber).toBe(412);
     expect(pr.title).toBe('feat: test PR');
     expect(pr.fromRef.displayId).toBe('feature/test');
     expect(pr.fromRef.repository.slug).toBe('versicherung-frontend');

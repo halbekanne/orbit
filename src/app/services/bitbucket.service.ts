@@ -159,7 +159,8 @@ export class BitbucketService {
 
     return {
       type: 'pr',
-      id: raw.id,
+      id: `${raw.toRef.repository.project.key}/${raw.toRef.repository.slug}/${raw.id}`,
+      prNumber: raw.id,
       title: raw.title,
       description: raw.description ?? '',
       state: raw.state as PullRequest['state'],

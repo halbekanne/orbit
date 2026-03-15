@@ -42,7 +42,8 @@ function setup(tickets$: Observable<JiraTicket[]>): WorkDataService {
 
 const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review'): PullRequest => ({
   type: 'pr',
-  id: 1,
+  id: 'P/repo/1',
+  prNumber: 1,
   title: 'Test PR',
   description: '',
   state: 'OPEN',

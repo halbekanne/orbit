@@ -7,7 +7,7 @@ import { PullRequest } from '../../models/work-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe],
   template: `
-    <article class="h-full flex flex-col" [attr.aria-label]="'PR #' + pr().id + ': ' + pr().title">
+    <article class="h-full flex flex-col" [attr.aria-label]="'PR #' + pr().prNumber + ': ' + pr().title">
       <header class="pb-5 border-b border-stone-200">
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">

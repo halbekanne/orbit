@@ -87,7 +87,8 @@ export interface JiraTicket {
 
 export interface PullRequest {
   type: 'pr';
-  id: number;
+  id: string;
+  prNumber: number;
   title: string;
   description: string;
   state: PrState;
