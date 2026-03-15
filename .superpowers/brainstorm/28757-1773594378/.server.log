@@ -1,0 +1,6 @@
+{"type":"server-started","port":60902,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60902","screen_dir":"/Users/dominik/dev/other/orbit/.superpowers/brainstorm/28757-1773594378"}
+{"type":"screen-added","file":"/Users/dominik/dev/other/orbit/.superpowers/brainstorm/28757-1773594378/layout-approaches.html"}
+{"type":"screen-added","file":"/Users/dominik/dev/other/orbit/.superpowers/brainstorm/28757-1773594378/jira-card-detail.html"}
+{"type":"screen-added","file":"/Users/dominik/dev/other/orbit/.superpowers/brainstorm/28757-1773594378/jira-card-with-desc.html"}
+{"type":"screen-added","file":"/Users/dominik/dev/other/orbit/.superpowers/brainstorm/28757-1773594378/waiting-1.html"}
+{"type":"server-stopped","reason":"idle timeout"}

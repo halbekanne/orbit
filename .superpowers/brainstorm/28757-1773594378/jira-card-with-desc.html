@@ -1,0 +1,179 @@
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fafaf9; margin: 0; }
+  .mockup-wrap { max-width: 600px; margin: 0 auto; }
+  .label { font-size: 11px; color: #a8a29e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+
+  .pr-shell { background: white; border: 1px solid #e7e5e4; border-radius: 10px; overflow: hidden; font-size: 12px; }
+
+  .pr-header { padding: 14px 16px 12px; border-bottom: 1px solid #e7e5e4; }
+  .pr-badge-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; font-weight: 500; }
+  .badge-repo { background: #f5f5f4; color: #78716c; }
+  .badge-approved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; border-radius: 999px; }
+  .pr-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .pr-title { font-size: 15px; font-weight: 600; color: #1c1917; line-height: 1.35; }
+  .open-btn { flex-shrink: 0; font-size: 11px; color: #57534e; border: 1px solid #e7e5e4; border-radius: 7px; padding: 5px 10px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-weight: 500; }
+
+  .pr-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px 16px; border-bottom: 1px solid #e7e5e4; }
+  .meta-item dt { font-size: 9.5px; font-weight: 600; color: #a8a29e; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .meta-item dd { font-size: 11.5px; color: #44403c; font-weight: 500; }
+  .meta-item dd.mono { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; }
+
+  .pr-body { padding: 14px 16px; }
+  .section-label { font-size: 10px; font-weight: 700; color: #a8a29e; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+
+  /* ── Issue type badge ── */
+  .issue-type-badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 600; line-height: 1; border: 1px solid; }
+  .issue-type-badge svg { width: 10px; height: 10px; flex-shrink: 0; }
+  .type-bug   { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+  .type-story { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .type-task  { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
+
+  /* ── Status pill ── */
+  .status-pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 7px; font-size: 10px; font-weight: 600; border: 1px solid; line-height: 1.4; }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .status-progress { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+  .status-progress .status-dot { background: #6366f1; }
+  .status-review  { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+  .status-review .status-dot { background: #f59e0b; }
+
+  /* ── Jira card ── */
+  .jira-card { border: 1.5px solid #e0e7ff; background: #f8f9ff; border-radius: 8px; margin-bottom: 14px; overflow: hidden; }
+
+  /* Compact header — always visible, never scrolled past */
+  .jira-card-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e0e7ff;
+    background: #f0f3ff;
+  }
+  .jira-header-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .jira-key { font-family: 'SF Mono', Menlo, monospace; font-size: 11px; font-weight: 700; color: #4f46e5; }
+
+  /* Open-in-Jira lives in the header so it's never below the fold */
+  .jira-open-btn {
+    margin-left: auto; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; color: #6366f1; font-weight: 600;
+    border: 1px solid #c7d2fe; border-radius: 6px;
+    padding: 3px 8px; background: white; line-height: 1;
+  }
+  .jira-open-btn svg { width: 9px; height: 9px; }
+
+  .jira-summary { font-size: 13px; font-weight: 600; color: #1c1917; line-height: 1.4; margin-bottom: 7px; }
+
+  .jira-assignee { display: flex; align-items: center; gap: 5px; }
+  .assignee-avatar {
+    width: 18px; height: 18px; border-radius: 50%; background: #e0e7ff; color: #6366f1;
+    font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .assignee-label { font-size: 10px; color: #a8a29e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 3px; }
+  .assignee-name { font-size: 11.5px; color: #44403c; font-weight: 500; }
+
+  /* Description body — scrollable if long */
+  .jira-card-body { padding: 10px 12px; }
+  .desc-line { height: 8px; background: #e2e6f8; border-radius: 4px; margin-bottom: 5px; }
+  .desc-line-light { height: 8px; background: #f0f3ff; border-radius: 4px; margin-bottom: 5px; }
+
+  /* PR description */
+  .pr-desc-line { height: 8px; background: #f5f5f4; border-radius: 4px; margin-bottom: 5px; }
+</style>
+
+<h2>Jira-Karte — mit Beschreibung</h2>
+<p class="subtitle">Alle Infos im Header, Beschreibung darunter zum Lesen</p>
+
+<div class="mockup-wrap">
+  <div class="label">PR-Detailansicht</div>
+  <div class="pr-shell">
+
+    <!-- PR header -->
+    <div class="pr-header">
+      <div class="pr-badge-row">
+        <span class="badge badge-repo">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>
+          payments-service
+        </span>
+        <span class="badge badge-approved">✓ Approved</span>
+      </div>
+      <div class="pr-header-row">
+        <div class="pr-title">VERS-842: Fix payment timeout on retry logic</div>
+        <div class="open-btn">
+          In Bitbucket öffnen
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PR meta -->
+    <div class="pr-meta">
+      <dl class="meta-item"><dt>Autor</dt><dd>M. Weber</dd></dl>
+      <dl class="meta-item"><dt>Branch</dt><dd class="mono">feature/VERS-842</dd></dl>
+      <dl class="meta-item"><dt>Kommentare</dt><dd>4</dd></dl>
+      <dl class="meta-item"><dt>Aktualisiert</dt><dd>14.03.2025</dd></dl>
+    </div>
+
+    <!-- Body -->
+    <div class="pr-body">
+      <div class="section-label">Jira-Ticket</div>
+
+      <div class="jira-card">
+
+        <!-- ★ Compact header — type · key · status · open-btn on one line, then summary + assignee -->
+        <div class="jira-card-header">
+
+          <div class="jira-header-top">
+            <span class="issue-type-badge type-bug">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
+              Bug
+            </span>
+            <span class="jira-key">VERS-842</span>
+            <span class="status-pill status-progress">
+              <span class="status-dot"></span>
+              In Progress
+            </span>
+            <a href="#" class="jira-open-btn">
+              In Jira öffnen
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            </a>
+          </div>
+
+          <div class="jira-summary">Zahlungs-Timeout bei erneutem Versuch beheben</div>
+
+          <div class="jira-assignee">
+            <span class="assignee-label">Zugewiesen</span>
+            <div class="assignee-avatar">MW</div>
+            <span class="assignee-name">Markus Weber</span>
+          </div>
+
+        </div>
+
+        <!-- Description body -->
+        <div class="jira-card-body">
+          <div class="section-label" style="margin-bottom:6px">Beschreibung</div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:91%"></div>
+          <div class="desc-line" style="width:96%"></div>
+          <div class="desc-line-light" style="width:80%"></div>
+          <div style="height:6px"></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:88%"></div>
+          <div class="desc-line-light" style="width:60%"></div>
+        </div>
+
+      </div>
+
+      <!-- PR description below -->
+      <div class="section-label">Beschreibung</div>
+      <div class="pr-desc-line" style="width:100%"></div>
+      <div class="pr-desc-line" style="width:90%"></div>
+      <div class="pr-desc-line" style="width:82%"></div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:16px;padding:10px 14px;background:#f5f5f4;border-radius:8px;font-size:11.5px;color:#57534e;line-height:1.6;">
+    <strong style="color:#292524">Aufbau:</strong>
+    Der Jira-Karten-Header (Typ · Key · Status · „In Jira öffnen" + Summary + Zugewiesen) ist immer sofort sichtbar — kein Scrollen nötig.
+    Die Beschreibung folgt darunter als Lese-Block. Danach kommt wie bisher die PR-Beschreibung.
+  </div>
+</div>

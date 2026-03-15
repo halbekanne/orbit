@@ -1,0 +1,256 @@
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fafaf9; margin: 0; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0; }
+
+  .card {
+    background: white;
+    border: 2px solid #e7e5e4;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: #a5b4fc; box-shadow: 0 4px 16px rgba(99,102,241,0.1); }
+  .card.selected { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.2); }
+  .card-label {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px 0;
+  }
+  .card-label .letter {
+    width: 24px; height: 24px; border-radius: 50%; background: #f5f5f4;
+    border: 1.5px solid #d6d3d1; color: #78716c; font-size: 12px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .card.selected .card-label .letter { background: #6366f1; border-color: #6366f1; color: white; }
+  .card-label .name { font-size: 13px; font-weight: 600; color: #292524; }
+
+  .mockup-wrap { padding: 14px; }
+
+  /* Shared mock PR detail styles */
+  .pr-shell {
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    font-size: 11.5px;
+    overflow: hidden;
+  }
+  .pr-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e7e5e4;
+    background: white;
+  }
+  .pr-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .pr-badge-row { display: flex; gap: 5px; margin-bottom: 4px; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 500; }
+  .badge-repo { background: #f5f5f4; color: #78716c; }
+  .badge-approved { background: #dcfce7; color: #166534; }
+  .badge-waiting { background: #fef3c7; color: #92400e; }
+  .pr-title { font-size: 13px; font-weight: 600; color: #1c1917; line-height: 1.3; }
+  .open-btn { flex-shrink: 0; font-size: 10px; color: #78716c; border: 1px solid #e7e5e4; border-radius: 6px; padding: 3px 8px; white-space: nowrap; }
+
+  .pr-meta {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; padding: 8px 12px; border-bottom: 1px solid #e7e5e4;
+  }
+  .meta-item dt { font-size: 9px; font-weight: 600; color: #a8a29e; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .meta-item dd { font-size: 10.5px; color: #44403c; font-weight: 500; }
+  .meta-item dd.mono { font-family: 'SF Mono', Menlo, monospace; font-size: 10px; }
+
+  .pr-body { padding: 10px 12px; }
+  .section-label { font-size: 9px; font-weight: 600; color: #a8a29e; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .desc-line { height: 7px; background: #f5f5f4; border-radius: 3px; margin-bottom: 4px; }
+
+  /* Jira card styles */
+  .jira-card {
+    border: 1.5px solid #e0e7ff;
+    background: #f5f7ff;
+    border-radius: 7px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+  .jira-card-header { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .jira-key { font-family: 'SF Mono', Menlo, monospace; font-size: 10px; font-weight: 700; color: #4f46e5; background: #e0e7ff; padding: 1px 5px; border-radius: 3px; }
+  .jira-status { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; }
+  .jira-status-progress { background: #dbeafe; color: #1d4ed8; }
+  .jira-status-review { background: #fef3c7; color: #92400e; }
+  .jira-priority { font-size: 9px; color: #78716c; margin-left: auto; }
+  .jira-summary { font-size: 11px; font-weight: 600; color: #1c1917; line-height: 1.3; margin-bottom: 4px; }
+  .jira-desc-line { height: 6px; background: #dde3f5; border-radius: 3px; margin-bottom: 3px; }
+  .jira-open-link { font-size: 9.5px; color: #6366f1; font-weight: 500; margin-top: 6px; display: inline-flex; align-items: center; gap: 3px; }
+
+  /* Option B: split */
+  .split-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .split-left { border-right: 1px solid #e7e5e4; padding: 10px 12px; }
+  .split-right { padding: 10px 12px; background: #fafaf9; }
+
+  /* Option C: collapsed */
+  .jira-accordion {
+    border: 1.5px solid #e0e7ff;
+    background: white;
+    border-radius: 7px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .jira-accordion-header {
+    display: flex; align-items: center; gap: 6px; padding: 7px 10px;
+    background: #f5f7ff; cursor: pointer;
+  }
+  .jira-accordion-body { padding: 8px 10px; border-top: 1px solid #e0e7ff; }
+  .chevron { font-size: 10px; margin-left: auto; color: #a5b4fc; }
+
+  .card-desc { font-size: 11px; color: #78716c; line-height: 1.5; padding: 0 14px 14px; margin-top: 4px; }
+</style>
+
+<h2>Wie soll die Jira-Info in der PR-Detailansicht erscheinen?</h2>
+<p class="subtitle">Drei Layout-Ansätze — klick auf die, die sich am besten anfühlt</p>
+
+<div class="cards" data-multiselect>
+
+  <!-- OPTION A: Inline card above description -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-label">
+      <div class="letter">A</div>
+      <div class="name">Eingebettete Jira-Karte</div>
+    </div>
+    <div class="mockup-wrap">
+      <div class="pr-shell">
+        <div class="pr-header">
+          <div class="pr-badge-row">
+            <span class="badge badge-repo">⑂ payments-service</span>
+            <span class="badge badge-approved">✓ Approved</span>
+          </div>
+          <div class="pr-header-top">
+            <div class="pr-title">VERS-842: Fix payment timeout on retry</div>
+            <div class="open-btn">↗ Bitbucket</div>
+          </div>
+        </div>
+        <div class="pr-meta">
+          <dl class="meta-item"><dt>Autor</dt><dd>M. Weber</dd></dl>
+          <dl class="meta-item"><dt>Branch</dt><dd class="mono">feature/VERS-842</dd></dl>
+          <dl class="meta-item"><dt>Kommentare</dt><dd>4</dd></dl>
+          <dl class="meta-item"><dt>Aktualisiert</dt><dd>14.03.2025</dd></dl>
+        </div>
+        <div class="pr-body">
+          <div class="jira-card">
+            <div class="jira-card-header">
+              <span class="jira-key">VERS-842</span>
+              <span class="jira-status jira-status-progress">In Progress</span>
+              <span class="jira-priority">⬆ High</span>
+            </div>
+            <div class="jira-summary">Zahlungs-Timeout bei erneutem Versuch beheben</div>
+            <div class="jira-desc-line" style="width:100%"></div>
+            <div class="jira-desc-line" style="width:85%"></div>
+            <div class="jira-desc-line" style="width:70%"></div>
+            <div class="jira-open-link">In Jira öffnen ↗</div>
+          </div>
+          <div class="section-label">Beschreibung</div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:90%"></div>
+          <div class="desc-line" style="width:75%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-desc">Jira-Kontext direkt über der Beschreibung — kein Scrollen, alles auf einen Blick. Klare visuelle Trennung durch eigene Karte.</div>
+  </div>
+
+  <!-- OPTION B: Side-by-side split -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-label">
+      <div class="letter">B</div>
+      <div class="name">Geteilte Ansicht</div>
+    </div>
+    <div class="mockup-wrap">
+      <div class="pr-shell">
+        <div class="pr-header">
+          <div class="pr-badge-row">
+            <span class="badge badge-repo">⑂ payments-service</span>
+            <span class="badge badge-approved">✓ Approved</span>
+          </div>
+          <div class="pr-header-top">
+            <div class="pr-title">VERS-842: Fix payment timeout on retry</div>
+            <div class="open-btn">↗ Bitbucket</div>
+          </div>
+        </div>
+        <div class="pr-meta">
+          <dl class="meta-item"><dt>Autor</dt><dd>M. Weber</dd></dl>
+          <dl class="meta-item"><dt>Branch</dt><dd class="mono">feature/VERS-842</dd></dl>
+          <dl class="meta-item"><dt>Kommentare</dt><dd>4</dd></dl>
+          <dl class="meta-item"><dt>Aktualisiert</dt><dd>14.03.2025</dd></dl>
+        </div>
+        <div class="split-layout">
+          <div class="split-left">
+            <div class="section-label">Beschreibung</div>
+            <div class="desc-line" style="width:100%"></div>
+            <div class="desc-line" style="width:90%"></div>
+            <div class="desc-line" style="width:75%"></div>
+            <div class="desc-line" style="width:95%"></div>
+            <div class="desc-line" style="width:60%"></div>
+          </div>
+          <div class="split-right">
+            <div class="section-label">Jira-Ticket</div>
+            <div class="jira-card-header" style="margin-bottom:5px">
+              <span class="jira-key">VERS-842</span>
+              <span class="jira-status jira-status-progress">In Progress</span>
+            </div>
+            <div class="jira-summary">Zahlungs-Timeout bei erneutem Versuch beheben</div>
+            <div class="jira-desc-line" style="width:100%"></div>
+            <div class="jira-desc-line" style="width:80%"></div>
+            <div class="jira-open-link">In Jira öffnen ↗</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-desc">PR-Beschreibung und Jira-Ticket nebeneinander. Ideal zum Vergleichen — aber enger Platz in der Spalte.</div>
+  </div>
+
+  <!-- OPTION C: Collapsible accordion -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-label">
+      <div class="letter">C</div>
+      <div class="name">Aufklappbarer Bereich</div>
+    </div>
+    <div class="mockup-wrap">
+      <div class="pr-shell">
+        <div class="pr-header">
+          <div class="pr-badge-row">
+            <span class="badge badge-repo">⑂ payments-service</span>
+            <span class="badge badge-approved">✓ Approved</span>
+          </div>
+          <div class="pr-header-top">
+            <div class="pr-title">VERS-842: Fix payment timeout on retry</div>
+            <div class="open-btn">↗ Bitbucket</div>
+          </div>
+        </div>
+        <div class="pr-meta">
+          <dl class="meta-item"><dt>Autor</dt><dd>M. Weber</dd></dl>
+          <dl class="meta-item"><dt>Branch</dt><dd class="mono">feature/VERS-842</dd></dl>
+          <dl class="meta-item"><dt>Kommentare</dt><dd>4</dd></dl>
+          <dl class="meta-item"><dt>Aktualisiert</dt><dd>14.03.2025</dd></dl>
+        </div>
+        <div class="pr-body">
+          <div class="jira-accordion">
+            <div class="jira-accordion-header">
+              <span class="jira-key">VERS-842</span>
+              <span class="jira-status jira-status-progress" style="font-size:9px;padding:1px 5px;border-radius:3px;background:#dbeafe;color:#1d4ed8;font-weight:600;">In Progress</span>
+              <span style="font-size:11px;color:#44403c;font-weight:500;margin-left:4px;">Zahlungs-Timeout beheben</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="jira-accordion-body">
+              <div class="jira-desc-line" style="width:100%"></div>
+              <div class="jira-desc-line" style="width:85%"></div>
+              <div class="jira-open-link">In Jira öffnen ↗</div>
+            </div>
+          </div>
+          <div class="section-label">Beschreibung</div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:90%"></div>
+          <div class="desc-line" style="width:80%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-desc">Jira-Info immer sichtbar als kompakte Zeile — per Klick ausklappbar für Details. Wenig Platz, volle Info auf Wunsch.</div>
+  </div>
+
+</div>

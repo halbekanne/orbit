@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, switchMap } from 'rxjs';
@@ -100,7 +100,5 @@ export class PrDetailComponent {
     { initialValue: 'loading' as const },
   );
 
-  statusClass(): string {
-    return prStatusClass(this.pr().myReviewStatus);
-  }
+  readonly statusClass = computed(() => prStatusClass(this.pr().myReviewStatus));
 }
