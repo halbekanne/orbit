@@ -105,17 +105,23 @@
         </div>
       </button>
       <div id="navigator-prs-content" [hidden]="prsCollapsed()">
-        <ul class="space-y-1.5" role="list">
-          @for (pr of data.pullRequests(); track pr.id) {
-            <li>
-              <app-pr-card
-                [pr]="pr"
-                [selected]="isSelected(pr)"
-                (select)="selectItem($event)"
-              />
-            </li>
-          }
-        </ul>
+        @if (data.pullRequestsLoading()) {
+          <p class="px-1 py-2 text-xs text-stone-400" aria-live="polite">Pull Requests werden geladen…</p>
+        } @else if (data.pullRequestsError()) {
+          <p class="px-1 py-2 text-xs text-red-500" role="alert">Pull Requests konnten nicht geladen werden.</p>
+        } @else {
+          <ul class="space-y-1.5" role="list">
+            @for (pr of data.pullRequests(); track pr.id) {
+              <li>
+                <app-pr-card
+                  [pr]="pr"
+                  [selected]="isSelected(pr)"
+                  (select)="selectItem($event)"
+                />
+              </li>
+            }
+          </ul>
+        }
       </div>
     </section>
 

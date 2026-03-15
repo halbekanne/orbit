@@ -8,6 +8,8 @@ const mockWorkDataService = {
   ticketsLoading: signal(false),
   ticketsError: signal(false),
   pullRequests: signal([]),
+  pullRequestsLoading: signal(false),
+  pullRequestsError: signal(false),
   todos: signal([]),
   selectedItem: signal(null),
   lastAddedId: signal(null),

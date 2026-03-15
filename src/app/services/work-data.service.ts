@@ -1,13 +1,15 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { JiraTicket, PullRequest, Todo, WorkItem } from '../models/work-item.model';
 import { JiraService } from './jira.service';
+import { BitbucketService } from './bitbucket.service';
 
 @Injectable({ providedIn: 'root' })
 export class WorkDataService {
   private readonly jira = inject(JiraService);
+  private readonly bitbucket = inject(BitbucketService);
 
   readonly ticketsLoading = signal(true);
   readonly ticketsError = signal(false);
@@ -24,7 +26,25 @@ export class WorkDataService {
 
   readonly tickets = toSignal(this.tickets$, { initialValue: [] as JiraTicket[] });
 
+  readonly pullRequestsLoading = signal(true);
+  readonly pullRequestsError = signal(false);
   readonly pullRequests = signal<PullRequest[]>([]);
+
+  constructor() {
+    effect(() => {
+      untracked(() => {
+        this.bitbucket.getReviewerPullRequests().pipe(
+          tap(() => this.pullRequestsLoading.set(false)),
+          catchError(err => {
+            console.error('Failed to load Bitbucket pull requests:', err);
+            this.pullRequestsError.set(true);
+            this.pullRequestsLoading.set(false);
+            return of([] as PullRequest[]);
+          }),
+        ).subscribe(prs => this.pullRequests.set(prs));
+      });
+    });
+  }
 
   readonly todos = signal<Todo[]>([
     {
