@@ -523,6 +523,18 @@ app.get('/rest/api/2/issue/:key', (req, res) => {
   res.json(issue);
 });
 
+const ALL_USERS = [U1, U2, U3, U4, U5, UNASSIGNED];
+
+app.get('/rest/api/2/user', (req, res) => {
+  const username = req.query.username;
+  const user = ALL_USERS.find(u => u.name === username);
+  if (!user) {
+    res.status(404).json({ errorMessages: [`User '${username}' does not exist or you do not have permission to view it.`], errors: {} });
+    return;
+  }
+  res.json(user);
+});
+
 app.listen(PORT, () => {
   console.log(`Mock Jira server running at http://localhost:${PORT}`);
 });
