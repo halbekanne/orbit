@@ -26,11 +26,14 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 **Header** (always visible, tinted `#f0f3ff` background):
 - Row 1: issue type icon-badge · monospace key · status pill · "In Jira öffnen" button (right-aligned)
 - Row 2: summary (bold, full text, no truncation)
-- Row 3: "Zugewiesen" label + avatar initials + assignee display name
+- Row 3: "Zugewiesen" label + avatar initials (computed from display name) + assignee display name
+
+**Assignee display:** `JiraTicket.assignee` is a plain `string` (the display name). Avatar initials are derived by taking the first letter of each word. When assignee is `'Unbeauftragt'` (the existing fallback for unassigned tickets), render only the label and name with no avatar.
 
 **Body** (white background):
 - Full Jira ticket description, rendered via the existing `JiraMarkupPipe`
 - No truncation, no scroll limit — rendered in full
+- If description is empty, the body section does not render at all — no empty box
 
 **Issue type badges** match the existing `TicketCardComponent` style exactly:
 - Bug → red (`bg-red-50 text-red-600 border-red-200`)
@@ -42,14 +45,25 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 
 ### States
 
+The component input uses string literals rather than `null` for all non-data states to avoid JS `null` ambiguity:
+
 | State | Trigger | Display |
 |---|---|---|
 | `'loading'` | Key found, fetch in flight | Skeleton placeholders for key, status, summary |
 | `JiraTicket` | Fetch succeeded | Full card as described above |
-| `null` | No key detected in branch name or title | Muted placeholder: "Kein Jira-Ticket gefunden" |
-| `'error'` | Key found, fetch failed (network error, 404, permissions) | Error state: "Ticket konnte nicht geladen werden" — visually distinct from null |
+| `'no-ticket'` | No key detected in branch name or title | Muted placeholder: "Kein Jira-Ticket gefunden" |
+| `'error'` | Key found, fetch failed (network error, 404, permissions) | Error state: "Ticket konnte nicht geladen werden" — visually distinct from `'no-ticket'` |
 
-The `null` and `error` states are intentionally different. `null` means no ticket was linked. `error` means a ticket was linked but could not be loaded — useful signal to the user that something went wrong and a reload may help.
+The `'no-ticket'` and `'error'` states are intentionally different. `'no-ticket'` means no ticket was linked. `'error'` means a ticket was linked but could not be loaded — a useful signal that a reload may help.
+
+### Accessibility
+
+`JiraPrCardComponent` must meet the project's WCAG AA requirement:
+
+- The Jira card section is wrapped in a `<section>` with an `aria-label="Jira-Ticket"` heading
+- The skeleton loading state sets `aria-busy="true"` on the card container and `aria-label="Lade Jira-Ticket"` for screen readers
+- The "In Jira öffnen" button carries `aria-label="Öffne [KEY] in Jira"` (matching the pattern in `TicketCardComponent`)
+- The `'no-ticket'` and `'error'` placeholder texts are wrapped in `<p>` elements with appropriate `role="status"` to announce state changes
 
 ---
 
@@ -64,7 +78,7 @@ A pure utility function. Tries in order:
 
 Returns the first match found, or `null` if neither contains a key.
 
-Co-located with other PR utilities (e.g. alongside `prStatusClass`). Pure function with no dependencies — fully unit-testable.
+Co-located with other PR utilities (alongside `prStatusClass`). Pure function with no dependencies — fully unit-testable.
 
 ### `JiraService` — new method
 
@@ -72,14 +86,14 @@ Co-located with other PR utilities (e.g. alongside `prStatusClass`). Pure functi
 getTicketByKey(key: string): Observable<JiraTicket>
 ```
 
-Calls `GET /jira/rest/api/2/issue/{key}` with the same field set as the existing search endpoint. Reuses the existing `mapIssue()` helper — no new mapping logic needed.
+Calls `GET /jira/rest/api/2/issue/{key}` with the same field set as the existing search endpoint. Calls the existing private `mapIssue()` method internally — it is in the same class, so no visibility change is needed.
 
 ### New component — `JiraPrCardComponent`
 
 Standalone component. Single input:
 
 ```ts
-ticket = input.required<JiraTicket | null | 'loading' | 'error'>();
+ticket = input.required<JiraTicket | 'loading' | 'no-ticket' | 'error'>();
 ```
 
 Renders the appropriate state. Contains all card markup and issue type / status badge logic (mirroring `TicketCardComponent`). No outputs needed.
@@ -87,12 +101,10 @@ Renders the appropriate state. Contains all card markup and issue type / status 
 ### Modified — `PrDetailComponent`
 
 - Injects `JiraService`
-- Runs `extractJiraKey(pr())` reactively
-- Triggers `getTicketByKey()` lazily via `effect()` when a PR is selected
-- Stores result in a local signal typed `JiraTicket | null | 'loading' | 'error'`
-- In-flight requests are cancelled via `takeUntilDestroyed` when the PR input changes (prevents stale data)
-- Passes the signal value to `<app-jira-pr-card>`
+- Uses `toObservable(pr)` + `switchMap` + `toSignal()` to reactively derive the Jira card state. `switchMap` ensures any in-flight request is automatically cancelled when the `pr` input changes — preventing stale data from a previous PR appearing in the new view.
+- The resulting signal is typed `JiraTicket | 'loading' | 'no-ticket' | 'error'` and passed directly to `<app-jira-pr-card>`
 - No structural changes to the rest of the template
+- The existing `statusClass()` method in `PrDetailComponent` is pre-existing and not migrated to `computed()` as part of this feature — it is out of scope
 
 ---
 
@@ -100,13 +112,14 @@ Renders the appropriate state. Contains all card markup and issue type / status 
 
 ```
 User selects PR
-  → PrDetailComponent receives pr() input
-  → extractJiraKey(pr()) → key: string | null
-      → null: pass null to JiraPrCardComponent → "Kein Jira-Ticket gefunden"
-      → key found: set state to 'loading', call JiraService.getTicketByKey(key)
-          → success: set state to JiraTicket
-          → error: set state to 'error'
-  → JiraPrCardComponent renders appropriate state
+  → PrDetailComponent: toObservable(pr) emits new PullRequest
+  → extractJiraKey(pr) → key: string | null
+      → null: emit 'no-ticket' → JiraPrCardComponent shows "Kein Jira-Ticket gefunden"
+      → key found: emit 'loading', switchMap to JiraService.getTicketByKey(key)
+          → success: emit JiraTicket
+          → error: emit 'error'
+  → toSignal() keeps signal in sync
+  → JiraPrCardComponent renders the current state
 ```
 
 ---
@@ -115,10 +128,11 @@ User selects PR
 
 | Case | Behaviour |
 |---|---|
-| PR switches while fetch in flight | `takeUntilDestroyed` cancels the request; new fetch starts for the new PR |
+| PR switches while fetch in flight | `switchMap` cancels the previous request automatically; new fetch starts for the new PR |
 | Key regex matches non-existent ticket (e.g. `TEST-1-local`) | Jira returns 404 → `'error'` state |
-| Jira ticket description is empty | Description section does not render; no empty box |
-| Jira ticket fetch fails (network / permissions) | `'error'` state — distinct from `null` |
+| Jira ticket description is empty | Body section does not render; no empty box |
+| Jira ticket fetch fails (network / permissions) | `'error'` state — distinct from `'no-ticket'` |
+| Assignee is unassigned | `JiraTicket.assignee` is `'Unbeauftragt'`; render label + name, omit avatar |
 
 ---
 
