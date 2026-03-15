@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { PullRequest } from '../../models/work-item.model';
 import { prStatusClass } from '../pr-status-class';
+import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe],
+  imports: [DatePipe, JiraMarkupPipe],
   template: `
     <article class="h-full flex flex-col" [attr.aria-label]="'PR #' + pr().prNumber + ': ' + pr().title">
       <header class="pb-5 border-b border-stone-200">
@@ -61,7 +62,7 @@ import { prStatusClass } from '../pr-status-class';
 
       <div class="flex-1 py-5 overflow-y-auto">
         <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Beschreibung</h2>
-        <div class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">{{ pr().description }}</div>
+        <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
       </div>
     </article>
   `,

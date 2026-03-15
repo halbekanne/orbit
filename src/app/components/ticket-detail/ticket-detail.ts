@@ -100,7 +100,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
       <section class="px-6 py-5 border-b border-stone-100" aria-labelledby="desc-heading">
         <h2 id="desc-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Beschreibung</h2>
         @if (ticket().description) {
-          <div class="jira-description" [innerHTML]="ticket().description | jiraMarkup"></div>
+          <div class="jira-markup" [innerHTML]="ticket().description | jiraMarkup"></div>
         } @else {
           <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
         }
@@ -194,7 +194,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                     <span class="text-xs font-semibold text-stone-600">{{ comment.author }}</span>
                     <span class="text-xs text-stone-400">{{ formatDate(comment.createdAt) }}</span>
                   </div>
-                  <div class="jira-description" [innerHTML]="comment.body | jiraMarkup"></div>
+                  <div class="jira-markup" [innerHTML]="comment.body | jiraMarkup"></div>
                 </div>
               }
             </div>

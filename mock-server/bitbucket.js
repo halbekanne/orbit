@@ -69,7 +69,7 @@ const mockPullRequests = [
   {
     id: 412,
     title: 'feat: Add customer portal navigation component',
-    description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
+    description: 'h2. Übersicht\nImplementiert die neue Navigation für das Kundenportal.\n\nh2. Änderungen\n* Responsive Sidebar mit Kollaps-Funktion\n* Breadcrumbs für alle Unterseiten\n* Accessibility-Verbesserungen (WCAG AA)\n\nh2. Technische Details\nDie Komponente nutzt das neue [Angular Router API|https://angular.dev/guide/routing] und ist vollständig mit {{aria-label}} und {{role}}-Attributen ausgestattet.\n\n{code:title=navigation.component.ts}\n@Component({\n  selector: \'app-nav\',\n  standalone: true,\n})\nexport class NavigationComponent {}\n{code}',
     state: 'OPEN',
     open: true,
     closed: false,
@@ -87,7 +87,7 @@ const mockPullRequests = [
   {
     id: 415,
     title: 'fix: Resolve SSO redirect loop on session expiry',
-    description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
+    description: 'h2. Problem\nBehebt den SSO-Redirect-Loop (*VERS-2799*). Der {{AuthGuard}} erkannte abgelaufene Sessions nicht korrekt und leitete den Nutzer in eine Endlosschleife.\n\nh2. Ursache\nbq. Der Token-Refresh wurde ausgelöst, bevor die Session-Validierung abgeschlossen war.\n\nh2. Lösung\n# {{AuthGuard}} prüft jetzt zuerst den Session-Status\n# Bei abgelaufener Session wird direkt zum Login weitergeleitet\n# Token-Refresh nur noch bei gültiger Session',
     state: 'OPEN',
     open: true,
     closed: false,
@@ -105,7 +105,7 @@ const mockPullRequests = [
   {
     id: 89,
     title: 'chore: Update Angular and dependencies to latest',
-    description: 'Dependency-Updates auf die neuesten stabilen Versionen. Alle Tests laufen durch.',
+    description: 'h2. Aktualisierte Pakete\n|| Paket || Alt || Neu ||\n| {{@angular/core}} | 19.2.0 | 20.0.1 |\n| {{typescript}} | 5.4.5 | 5.8.3 |\n| {{rxjs}} | 7.8.1 | 7.8.2 |\n\nAlle Tests laufen durch. _Breaking Changes_ wurden geprüft und sind nicht betroffen.',
     state: 'OPEN',
     open: true,
     closed: false,
