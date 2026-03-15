@@ -1,5 +1,19 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import hljs from 'highlight.js/lib/core';
+import typescript from 'highlight.js/lib/languages/typescript';
+import javascript from 'highlight.js/lib/languages/javascript';
+import xml from 'highlight.js/lib/languages/xml';
+import bash from 'highlight.js/lib/languages/bash';
+import java from 'highlight.js/lib/languages/java';
+import plaintext from 'highlight.js/lib/languages/plaintext';
+
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('java', java);
+hljs.registerLanguage('plaintext', plaintext);
 
 @Pipe({ name: 'jiraMarkup' })
 export class JiraMarkupPipe implements PipeTransform {
@@ -26,7 +40,12 @@ function extractBlocks(text: string, stash: string[]): string {
   text = text.replace(/\{code(?::([^}]*))?\}([\s\S]*?)\{code\}/gi, (_, params, inner) => {
     const title = extractParam(params, 'title');
     const titleHtml = title ? `<div class="jira-code-title">${escapeHtml(title)}</div>` : '';
-    return protect(`<pre class="jira-code-block">${titleHtml}<code>${escapeHtml(inner.trim())}</code></pre>`);
+    const lang = (extractParam(params, 'language') ?? params?.split(/[|,]/)[0]?.trim() ?? '').toLowerCase();
+    const code = inner.trim();
+    const highlighted = lang && hljs.getLanguage(lang)
+      ? hljs.highlight(code, { language: lang }).value
+      : hljs.highlightAuto(code, ['typescript', 'javascript', 'java', 'xml', 'bash']).value;
+    return protect(`<pre class="jira-code-block">${titleHtml}<code class="hljs">${highlighted}</code></pre>`);
   });
 
   text = text.replace(/\{noformat[^}]*\}([\s\S]*?)\{noformat\}/gi, (_, inner) =>
