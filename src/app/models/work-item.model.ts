@@ -1,6 +1,41 @@
 export type TicketStatus = 'In Progress' | 'In Review' | 'To Do' | 'Done';
 export type TicketPriority = 'High' | 'Medium' | 'Low';
 export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Approved';
+export type PrState = 'OPEN' | 'MERGED' | 'DECLINED' | 'SUPERSEDED';
+
+export interface PrUser {
+  id: number;
+  name: string;
+  displayName: string;
+  emailAddress: string;
+  slug: string;
+  active: boolean;
+  type: string;
+  profileUrl: string;
+}
+
+export interface PrRepository {
+  id: number;
+  slug: string;
+  name: string;
+  projectKey: string;
+  projectName: string;
+  browseUrl: string;
+}
+
+export interface PrRef {
+  id: string;
+  displayId: string;
+  latestCommit: string;
+  repository: PrRepository;
+}
+
+export interface PrParticipant {
+  user: PrUser;
+  role: 'AUTHOR' | 'REVIEWER' | 'PARTICIPANT';
+  approved: boolean;
+  status: 'APPROVED' | 'UNAPPROVED' | 'NEEDS_WORK';
+}
 
 export interface JiraTicketComment {
   id: string;
@@ -52,16 +87,24 @@ export interface JiraTicket {
 
 export interface PullRequest {
   type: 'pr';
-  id: string;
+  id: number;
   title: string;
-  repo: string;
-  branch: string;
-  author: string;
-  status: PrStatus;
-  commentCount: number;
-  updatedAt: string;
-  url: string;
   description: string;
+  state: PrState;
+  open: boolean;
+  closed: boolean;
+  locked: boolean;
+  createdDate: number;
+  updatedDate: number;
+  fromRef: PrRef;
+  toRef: PrRef;
+  author: PrParticipant;
+  reviewers: PrParticipant[];
+  participants: PrParticipant[];
+  commentCount: number;
+  openTaskCount: number;
+  url: string;
+  myReviewStatus: PrStatus;
 }
 
 export interface Todo {

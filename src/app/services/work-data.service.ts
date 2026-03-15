@@ -24,60 +24,7 @@ export class WorkDataService {
 
   readonly tickets = toSignal(this.tickets$, { initialValue: [] as JiraTicket[] });
 
-  readonly pullRequests = signal<PullRequest[]>([
-    {
-      type: 'pr',
-      id: 'pr1',
-      title: 'feat: Add customer portal navigation component',
-      repo: 'versicherung-frontend',
-      branch: 'feature/customer-portal-nav',
-      author: 'sarah.kowalski',
-      status: 'Awaiting Review',
-      commentCount: 2,
-      updatedAt: '2026-03-13T10:30:00',
-      url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/412',
-      description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
-    },
-    {
-      type: 'pr',
-      id: 'pr2',
-      title: 'fix: Resolve SSO redirect loop on session expiry',
-      repo: 'versicherung-frontend',
-      branch: 'fix/sso-redirect-loop',
-      author: 'thomas.bauer',
-      status: 'Awaiting Review',
-      commentCount: 0,
-      updatedAt: '2026-03-13T08:45:00',
-      url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/415',
-      description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
-    },
-    {
-      type: 'pr',
-      id: 'pr3',
-      title: 'chore: Update Angular and dependencies to latest',
-      repo: 'versicherung-shared-lib',
-      branch: 'chore/dependency-updates',
-      author: 'anna.lehmann',
-      status: 'Changes Requested',
-      commentCount: 5,
-      updatedAt: '2026-03-12T15:00:00',
-      url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-shared-lib/pull-requests/89',
-      description: 'Dependency-Updates auf die neuesten stabilen Versionen.',
-    },
-    {
-      type: 'pr',
-      id: 'pr4',
-      title: 'feat: Implement SEPA mandate form with validation',
-      repo: 'versicherung-frontend',
-      branch: 'feature/sepa-mandate',
-      author: 'michael.hoffmann',
-      status: 'Approved',
-      commentCount: 3,
-      updatedAt: '2026-03-11T17:20:00',
-      url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/408',
-      description: 'SEPA-Lastschriftmandat Formular mit vollständiger Validierung.',
-    },
-  ]);
+  readonly pullRequests = signal<PullRequest[]>([]);
 
   readonly todos = signal<Todo[]>([
     {
@@ -119,7 +66,7 @@ export class WorkDataService {
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly pendingTodoCount = computed(() => this.todos().filter(t => !t.done).length);
-  readonly awaitingReviewCount = computed(() => this.pullRequests().filter(pr => pr.status === 'Awaiting Review').length);
+  readonly awaitingReviewCount = computed(() => this.pullRequests().filter(pr => pr.myReviewStatus === 'Awaiting Review').length);
 
   select(item: WorkItem): void {
     this.selectedItem.set(item);
