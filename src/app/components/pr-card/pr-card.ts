@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { PullRequest } from '../../models/work-item.model';
+import { PullRequest, PrStatus } from '../../models/work-item.model';
 
 @Component({
   selector: 'app-pr-card',
@@ -32,7 +32,11 @@ import { PullRequest } from '../../models/work-item.model';
       <p class="mt-1 text-sm font-medium leading-snug text-stone-800 line-clamp-2">{{ pr().title }}</p>
 
       <div class="mt-2 flex items-center justify-between gap-2">
-        <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium" [class]="statusClass()">
+        <span
+          class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium"
+          [class]="statusClass()"
+          [attr.aria-label]="pr().myReviewStatus === 'Needs Re-review' ? 'Erneut prüfen' : null"
+        >
           {{ pr().myReviewStatus }}
         </span>
         @if (pr().commentCount > 0) {
@@ -50,13 +54,14 @@ export class PrCardComponent {
   selected = input(false);
   select = output<PullRequest>();
 
-  statusClass() {
-    const map: Record<string, string> = {
+  statusClass(): string {
+    const map: Record<PrStatus, string> = {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
-      'Changes Requested': 'bg-red-100 text-red-700',
+      'Needs Re-review': 'bg-amber-100 text-amber-700',
+      'Changes Requested': 'bg-stone-100 text-stone-500',
       'Approved': 'bg-emerald-100 text-emerald-700',
       'Approved by Others': 'bg-stone-100 text-stone-500',
     };
-    return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
+    return map[this.pr().myReviewStatus];
   }
 }

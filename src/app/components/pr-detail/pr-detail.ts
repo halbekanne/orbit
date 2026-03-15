@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { PullRequest } from '../../models/work-item.model';
+import { PullRequest, PrStatus } from '../../models/work-item.model';
 
 @Component({
   selector: 'app-pr-detail',
@@ -16,7 +16,11 @@ import { PullRequest } from '../../models/work-item.model';
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>
                 {{ pr().fromRef.repository.slug }}
               </span>
-              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="statusClass()">{{ pr().myReviewStatus }}</span>
+              <span
+                class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                [class]="statusClass()"
+                [attr.aria-label]="pr().myReviewStatus === 'Needs Re-review' ? 'Erneut prüfen' : null"
+              >{{ pr().myReviewStatus }}</span>
             </div>
             <h1 class="text-xl font-semibold text-stone-900 leading-snug">{{ pr().title }}</h1>
           </div>
@@ -65,12 +69,13 @@ export class PrDetailComponent {
   pr = input.required<PullRequest>();
 
   statusClass(): string {
-    const map: Record<string, string> = {
+    const map: Record<PrStatus, string> = {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
-      'Changes Requested': 'bg-red-100 text-red-700',
+      'Needs Re-review': 'bg-amber-100 text-amber-700',
+      'Changes Requested': 'bg-stone-100 text-stone-500',
       'Approved': 'bg-emerald-100 text-emerald-700',
       'Approved by Others': 'bg-stone-100 text-stone-500',
     };
-    return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
+    return map[this.pr().myReviewStatus];
   }
 }
