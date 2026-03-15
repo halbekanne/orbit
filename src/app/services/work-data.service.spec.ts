@@ -50,6 +50,7 @@ const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review
   open: true,
   closed: false,
   locked: false,
+  isDraft: false,
   createdDate: 0,
   updatedDate: 0,
   fromRef: {

@@ -63,6 +63,7 @@ interface BitbucketPrRaw {
   open: boolean;
   closed: boolean;
   locked: boolean;
+  draft?: boolean;
   createdDate: number;
   updatedDate: number;
   fromRef: BitbucketRefRaw;
@@ -212,6 +213,7 @@ export class BitbucketService {
       open: raw.open,
       closed: raw.closed,
       locked: raw.locked,
+      isDraft: raw.draft ?? false,
       createdDate: raw.createdDate,
       updatedDate: raw.updatedDate,
       fromRef: mapRef(raw.fromRef),

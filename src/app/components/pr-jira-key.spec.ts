@@ -6,7 +6,7 @@ function makePr(branch: string, title: string): PullRequest {
     type: 'pr', id: '1', prNumber: 1,
     title,
     description: '',
-    state: 'OPEN', open: true, closed: false, locked: false,
+    state: 'OPEN', open: true, closed: false, locked: false, isDraft: false,
     createdDate: 0, updatedDate: 0,
     fromRef: {
       id: `refs/heads/${branch}`, displayId: branch,

@@ -95,6 +95,7 @@ export interface PullRequest {
   open: boolean;
   closed: boolean;
   locked: boolean;
+  isDraft: boolean;
   createdDate: number;
   updatedDate: number;
   fromRef: PrRef;

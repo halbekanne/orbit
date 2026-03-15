@@ -101,8 +101,8 @@ export class TicketCardComponent {
 
   statusStripeClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-500',
-      'In Review': 'bg-amber-400',
+      'In Progress': 'bg-indigo-400',
+      'In Review': 'bg-indigo-400',
       'Done': 'bg-emerald-500',
       'To Do': 'bg-stone-300',
     };
@@ -112,7 +112,7 @@ export class TicketCardComponent {
   statusBadgeClass(): string {
     const map: Record<string, string> = {
       'In Progress': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'In Review': 'bg-amber-50 text-amber-700 border-amber-200',
+      'In Review': 'bg-indigo-50 text-indigo-700 border-indigo-200',
       'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200',
       'To Do': 'bg-stone-100 text-stone-500 border-stone-200',
     };
@@ -121,8 +121,8 @@ export class TicketCardComponent {
 
   statusDotClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-500',
-      'In Review': 'bg-amber-400',
+      'In Progress': 'bg-indigo-400',
+      'In Review': 'bg-indigo-400',
       'Done': 'bg-emerald-500',
       'To Do': 'bg-stone-400',
     };
