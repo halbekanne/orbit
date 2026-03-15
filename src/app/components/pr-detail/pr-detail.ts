@@ -1,20 +1,22 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { PullRequest } from '../../models/work-item.model';
 
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe],
   template: `
-    <article class="h-full flex flex-col" [attr.aria-label]="'PR: ' + pr().title">
+    <article class="h-full flex flex-col" [attr.aria-label]="'PR #' + pr().id + ': ' + pr().title">
       <header class="pb-5 border-b border-stone-200">
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2 flex-wrap">
               <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium bg-stone-100 text-stone-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>
-                {{ pr().repo }}
+                {{ pr().fromRef.repository.slug }}
               </span>
-              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="statusClass()">{{ pr().status }}</span>
+              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="statusClass()">{{ pr().myReviewStatus }}</span>
             </div>
             <h1 class="text-xl font-semibold text-stone-900 leading-snug">{{ pr().title }}</h1>
           </div>
@@ -35,11 +37,11 @@ import { PullRequest } from '../../models/work-item.model';
         <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Autor</dt>
-            <dd class="text-sm text-stone-700 font-medium">{{ pr().author }}</dd>
+            <dd class="text-sm text-stone-700 font-medium">{{ pr().author.user.displayName }}</dd>
           </div>
           <div>
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Branch</dt>
-            <dd class="text-sm text-stone-700 font-mono truncate">{{ pr().branch }}</dd>
+            <dd class="text-sm text-stone-700 font-mono truncate">{{ pr().fromRef.displayId }}</dd>
           </div>
           <div>
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Kommentare</dt>
@@ -47,7 +49,7 @@ import { PullRequest } from '../../models/work-item.model';
           </div>
           <div>
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Aktualisiert</dt>
-            <dd class="text-sm text-stone-700">{{ formatDate(pr().updatedAt) }}</dd>
+            <dd class="text-sm text-stone-700">{{ pr().updatedDate | date:'dd.MM.yyyy' }}</dd>
           </div>
         </dl>
       </div>
@@ -62,16 +64,12 @@ import { PullRequest } from '../../models/work-item.model';
 export class PrDetailComponent {
   pr = input.required<PullRequest>();
 
-  formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
   statusClass(): string {
     const map: Record<string, string> = {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
       'Changes Requested': 'bg-red-100 text-red-700',
       'Approved': 'bg-emerald-100 text-emerald-700',
     };
-    return map[this.pr().status] ?? 'bg-stone-100 text-stone-600';
+    return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
   }
 }
