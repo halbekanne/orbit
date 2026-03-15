@@ -88,7 +88,7 @@ describe('JiraService', () => {
     }]);
   });
 
-  it('maps null priority to Medium and null assignee to fallback string', () => {
+  it('maps null priority to Medium and null assignee to "Nicht zugeordnet"', () => {
     let result: JiraTicket[] | undefined;
     service.getAssignedActiveTickets().subscribe(tickets => (result = tickets));
 
@@ -122,7 +122,7 @@ describe('JiraService', () => {
     });
 
     expect(result![0].priority).toBe('Medium');
-    expect(result![0].assignee).toBe('Unbeauftragt');
+    expect(result![0].assignee).toBe('Nicht zugeordnet');
     expect(result![0].dueDate).toBeNull();
     expect(result![0].description).toBe('');
   });
@@ -155,5 +155,33 @@ describe('JiraService', () => {
     const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
     req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
     expect(error).toBeTruthy();
+  });
+
+  it('getTicketByKey fetches a single issue by key', () => {
+    let result: JiraTicket | undefined;
+    service.getTicketByKey('VERS-42').subscribe(ticket => (result = ticket));
+
+    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/issue/VERS-42'));
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      id: '10042', key: 'VERS-42',
+      self: 'http://localhost:6202/rest/api/2/issue/10042',
+      fields: {
+        summary: 'Fix the login', issuetype: { name: 'Bug' },
+        status: { name: 'In Progress', statusCategory: { key: 'indeterminate', name: 'In Progress' } },
+        priority: { name: 'High' },
+        assignee: { displayName: 'Anna B.', name: 'anna' },
+        reporter: null, creator: null,
+        description: 'Some description', duedate: null,
+        created: '2026-01-01T00:00:00.000+0000', updated: '2026-03-01T00:00:00.000+0000',
+        labels: [], project: { key: 'VERS', name: 'Versicherung' },
+        components: [], comment: [], attachment: [], issuelinks: [], subtasks: [],
+      },
+    });
+
+    expect(result!.key).toBe('VERS-42');
+    expect(result!.summary).toBe('Fix the login');
+    expect(result!.issueType).toBe('Bug');
+    expect(result!.assignee).toBe('Anna B.');
   });
 });

@@ -125,6 +125,16 @@ export class JiraService {
       .pipe(map(response => response.issues.map(issue => this.mapIssue(issue))));
   }
 
+  getTicketByKey(key: string): Observable<JiraTicket> {
+    const params = new HttpParams().set(
+      'fields',
+      'summary,description,status,priority,issuetype,assignee,reporter,creator,duedate,created,updated,labels,project,components,comment,attachment,issuelinks,subtasks,parent,customfield_10014',
+    );
+    return this.http
+      .get<JiraIssueRaw>(`${this.baseUrl}/issue/${key}`, { params })
+      .pipe(map(issue => this.mapIssue(issue)));
+  }
+
   private mapIssue(issue: JiraIssueRaw): JiraTicket {
     const baseUrl = issue.self.split('/rest/')[0];
     const fields = issue.fields;
@@ -195,7 +205,7 @@ export class JiraService {
       issueType: fields.issuetype?.name ?? 'Task',
       status: mapStatus(fields.status.name, fields.status.statusCategory.key),
       priority: mapPriority(fields.priority?.name),
-      assignee: fields.assignee?.displayName ?? 'Unbeauftragt',
+      assignee: fields.assignee?.displayName ?? 'Nicht zugeordnet',
       reporter: fields.reporter?.displayName ?? '',
       creator: fields.creator?.displayName ?? '',
       description: fields.description ?? '',
