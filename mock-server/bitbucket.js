@@ -121,6 +121,24 @@ const mockPullRequests = [
     links: { self: [{ href: `${BASE}/projects/SL/repos/versicherung-shared-lib/pull-requests/89` }] },
   },
   {
+    id: 91,
+    title: 'refactor: Extract policy calculation to shared service',
+    description: 'Refactoring der Berechnungslogik in einen gemeinsamen Service. Ermöglicht Wiederverwendung in anderen Formularen.',
+    state: 'OPEN',
+    open: true,
+    closed: false,
+    locked: false,
+    createdDate: 1741521600000,
+    updatedDate: 1741953000000,
+    fromRef: makeRef('refactor/policy-calculation', 'd4e5f6a1', REPO_SL),
+    toRef: makeRef('main', 'f6g7h8i9', REPO_SL),
+    author: makeParticipant(MICHAEL, 'AUTHOR', 'UNAPPROVED'),
+    reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'NEEDS_WORK')],
+    participants: [],
+    properties: { commentCount: 3, openTaskCount: 0 },
+    links: { self: [{ href: `${BASE}/projects/SL/repos/versicherung-shared-lib/pull-requests/91` }] },
+  },
+  {
     id: 408,
     title: 'feat: Implement SEPA mandate form with validation',
     description: 'SEPA-Lastschriftmandat Formular mit vollständiger clientseitiger Validierung. IBAN-Format, BIC, Pflichtfelder.',
@@ -149,6 +167,58 @@ app.get('/rest/api/latest/dashboard/pull-requests', (_req, res) => {
     start: 0,
   });
 });
+
+const ACTIVITIES_FIXTURES = {
+  89: {
+    values: [
+      {
+        action: 'REVIEWED',
+        user: CURRENT_USER,
+        reviewedStatus: 'NEEDS_WORK',
+      },
+      {
+        action: 'COMMENTED',
+        user: ANNA,
+      },
+      {
+        action: 'OPENED',
+        user: ANNA,
+      },
+    ],
+    isLastPage: true,
+  },
+  91: {
+    values: [
+      {
+        action: 'COMMENTED',
+        user: MICHAEL,
+      },
+      {
+        action: 'REVIEWED',
+        user: CURRENT_USER,
+        reviewedStatus: 'NEEDS_WORK',
+      },
+      {
+        action: 'OPENED',
+        user: MICHAEL,
+      },
+    ],
+    isLastPage: true,
+  },
+};
+
+app.get(
+  '/rest/api/latest/projects/:projectKey/repos/:repoSlug/pull-requests/:prId/activities',
+  (req, res) => {
+    const prId = parseInt(req.params.prId, 10);
+    const fixture = ACTIVITIES_FIXTURES[prId];
+    if (fixture) {
+      res.json(fixture);
+    } else {
+      res.json({ values: [], isLastPage: true });
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Mock Bitbucket server running at http://localhost:${PORT}`);
