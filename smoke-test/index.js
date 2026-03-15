@@ -57,14 +57,20 @@ function get(url) {
 }
 
 async function run() {
-  const mockServer = spawn('node', ['mock-server/index.js'], { cwd: ROOT, stdio: 'pipe' });
+  const mockServer = spawn('node', ['mock-server/jira.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockServer);
   mockServer.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
 
   const proxy = spawn('node', ['proxy/index.js'], {
     cwd: ROOT,
     stdio: 'pipe',
-    env: { ...process.env, JIRA_BASE_URL: 'http://localhost:6202', JIRA_API_KEY: 'smoke-test-token' },
+    env: {
+      ...process.env,
+      JIRA_BASE_URL: 'http://localhost:6202',
+      JIRA_API_KEY: 'smoke-test-token',
+      BITBUCKET_BASE_URL: 'http://localhost:6203',
+      BITBUCKET_API_KEY: 'smoke-test-token',
+    },
   });
   children.push(proxy);
   proxy.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
@@ -73,7 +79,7 @@ async function run() {
     await Promise.all([waitForPort(6202), waitForPort(6201)]);
 
     const url =
-      'http://localhost:6201/rest/api/2/search?jql=assignee%20%3D%20currentUser()%20AND%20statusCategory%20%3D%20%22In%20Progress%22';
+      'http://localhost:6201/jira/rest/api/2/search?jql=assignee%20%3D%20currentUser()%20AND%20statusCategory%20%3D%20%22In%20Progress%22';
     const { status, data } = await get(url);
 
     if (status !== 200) {
