@@ -24,7 +24,7 @@ interface BitbucketUserRaw {
   emailAddress: string;
   active: boolean;
   type: string;
-  links: { self: BitbucketLinkRaw[] };
+  links?: { self: BitbucketLinkRaw[] };
 }
 
 interface BitbucketProjectRaw {
@@ -38,7 +38,7 @@ interface BitbucketRepositoryRaw {
   slug: string;
   name: string;
   project: BitbucketProjectRaw;
-  links: { self: BitbucketLinkRaw[] };
+  links?: { self: BitbucketLinkRaw[] };
 }
 
 interface BitbucketRefRaw {
