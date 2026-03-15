@@ -92,7 +92,6 @@ export class PrDetailComponent {
         return concat(
           of('loading' as const),
           this.jiraService.getTicketByKey(key).pipe(
-            map(ticket => ticket as JiraTicket),
             catchError(() => of('error' as const)),
           ),
         );
