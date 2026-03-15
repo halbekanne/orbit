@@ -139,7 +139,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
             <button
               class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
               (click)="toggleSection('relations')"
-              [attr.aria-expanded]="expandedSection() === 'relations'"
+              [attr.aria-expanded]="expandedSections().has('relations')"
               aria-controls="relations-content"
             >
               <div class="flex items-center gap-2">
@@ -148,12 +148,12 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
               </div>
               <svg
                 class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
-                [class.rotate-180]="expandedSection() === 'relations'"
+                [class.rotate-180]="expandedSections().has('relations')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
               ><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            @if (expandedSection() === 'relations') {
+            @if (expandedSections().has('relations')) {
               <div id="relations-content" class="px-6 pb-4 space-y-2.5">
                 @for (rel of ticket().relations; track rel.key) {
                   <div class="flex items-baseline gap-2">
@@ -183,7 +183,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
             <button
               class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
               (click)="toggleSection('comments')"
-              [attr.aria-expanded]="expandedSection() === 'comments'"
+              [attr.aria-expanded]="expandedSections().has('comments')"
               aria-controls="comments-content"
             >
               <div class="flex items-center gap-2">
@@ -192,12 +192,12 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
               </div>
               <svg
                 class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
-                [class.rotate-180]="expandedSection() === 'comments'"
+                [class.rotate-180]="expandedSections().has('comments')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
               ><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            @if (expandedSection() === 'comments') {
+            @if (expandedSections().has('comments')) {
               <div id="comments-content" class="px-6 pb-4 space-y-4">
                 @for (comment of ticket().comments; track comment.id) {
                   <div class="border-l-2 border-stone-200 pl-3">
@@ -221,7 +221,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
             <button
               class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
               (click)="toggleSection('attachments')"
-              [attr.aria-expanded]="expandedSection() === 'attachments'"
+              [attr.aria-expanded]="expandedSections().has('attachments')"
               aria-controls="attachments-content"
             >
               <div class="flex items-center gap-2">
@@ -230,12 +230,12 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
               </div>
               <svg
                 class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
-                [class.rotate-180]="expandedSection() === 'attachments'"
+                [class.rotate-180]="expandedSections().has('attachments')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
               ><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            @if (expandedSection() === 'attachments') {
+            @if (expandedSections().has('attachments')) {
               <div id="attachments-content" class="px-6 pb-4">
                 <div class="grid grid-cols-3 gap-2">
                   @for (attachment of ticket().attachments; track attachment.id) {
@@ -273,7 +273,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 export class TicketDetailComponent {
   ticket = input.required<JiraTicket>();
 
-  expandedSection = signal<CollapsibleSection | null>(null);
+  expandedSections = signal<Set<CollapsibleSection>>(new Set(['relations', 'comments', 'attachments']));
 
   issueTypeKey = computed(() => {
     const t = this.ticket().issueType.toLowerCase();
@@ -285,7 +285,11 @@ export class TicketDetailComponent {
   });
 
   toggleSection(section: CollapsibleSection): void {
-    this.expandedSection.update(current => current === section ? null : section);
+    this.expandedSections.update(current => {
+      const next = new Set(current);
+      next.has(section) ? next.delete(section) : next.add(section);
+      return next;
+    });
   }
 
   formatDate(iso: string): string {
