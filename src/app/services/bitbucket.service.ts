@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import {
   PullRequest,
   PrStatus,
@@ -130,11 +130,15 @@ function mapParticipant(raw: BitbucketParticipantRaw): PrParticipant {
 @Injectable({ providedIn: 'root' })
 export class BitbucketService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.proxyUrl}/bitbucket/rest/api/1.0`;
+  private readonly baseUrl = `${environment.proxyUrl}/bitbucket/rest/api/latest`;
+
+  private readonly config$ = this.http
+    .get<{ bitbucketUserSlug: string }>(`${environment.proxyUrl}/config`)
+    .pipe(shareReplay(1));
 
   getReviewerPullRequests(): Observable<PullRequest[]> {
-    return this.http.get<BitbucketUserRaw>(`${this.baseUrl}/myself`).pipe(
-      switchMap(myself =>
+    return this.config$.pipe(
+      switchMap(config =>
         this.http
           .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
             params: new HttpParams()
@@ -142,7 +146,7 @@ export class BitbucketService {
               .set('state', 'OPEN')
               .set('limit', '50'),
           })
-          .pipe(map(page => page.values.map(pr => this.mapPr(pr, myself.slug))))
+          .pipe(map(page => page.values.map(pr => this.mapPr(pr, config.bitbucketUserSlug))))
       )
     );
   }

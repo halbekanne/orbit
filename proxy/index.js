@@ -3,10 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY } = process.env;
+const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG } = process.env;
 
-if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY) {
-  console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL and BITBUCKET_API_KEY must be set in .env');
+if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY || !BITBUCKET_USER_SLUG) {
+  console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY and BITBUCKET_USER_SLUG must be set in .env');
   process.exit(1);
 }
 
@@ -14,6 +14,11 @@ const app = express();
 const PORT = 6201;
 
 app.use(cors({ origin: 'http://localhost:6200' }));
+app.use(express.json());
+
+app.get('/config', (_req, res) => {
+  res.json({ bitbucketUserSlug: BITBUCKET_USER_SLUG });
+});
 
 app.use(
   '/jira',

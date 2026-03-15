@@ -140,11 +140,7 @@ const mockPullRequests = [
   },
 ];
 
-app.get('/rest/api/1.0/myself', (_req, res) => {
-  res.json(CURRENT_USER);
-});
-
-app.get('/rest/api/1.0/dashboard/pull-requests', (_req, res) => {
+app.get('/rest/api/latest/dashboard/pull-requests', (_req, res) => {
   res.json({
     size: mockPullRequests.length,
     limit: 25,

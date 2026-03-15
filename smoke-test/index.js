@@ -74,6 +74,7 @@ async function run() {
       JIRA_API_KEY: 'smoke-test-token',
       BITBUCKET_BASE_URL: 'http://localhost:6203',
       BITBUCKET_API_KEY: 'smoke-test-token',
+      BITBUCKET_USER_SLUG: 'dominik.mueller',
     },
   });
   children.push(proxy);
@@ -98,7 +99,7 @@ async function run() {
       throw new Error(`Expected at least 1 issue, got ${data.issues.length}`);
     }
 
-    const bbUrl = 'http://localhost:6201/bitbucket/rest/api/1.0/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
+    const bbUrl = 'http://localhost:6201/bitbucket/rest/api/latest/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
     const { status: bbStatus, data: bbData } = await get(bbUrl);
 
     if (bbStatus !== 200) {

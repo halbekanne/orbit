@@ -4,17 +4,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { BitbucketService } from './bitbucket.service';
 import { PullRequest } from '../models/work-item.model';
 
-const mockMyself = {
-  id: 42,
-  name: 'dominik.mueller',
-  slug: 'dominik.mueller',
-  displayName: 'Dominik Müller',
-  emailAddress: 'dominik.mueller@example.org',
-  active: true,
-  type: 'NORMAL',
-  links: { self: [{ href: 'http://localhost:6203/users/dominik.mueller' }] },
-};
-
 const makeRepo = () => ({
   id: 1,
   slug: 'versicherung-frontend',
@@ -75,8 +64,12 @@ const makePrRaw = (reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED') => 
   links: { self: [{ href: 'http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412' }] },
 });
 
-const flushRequests = (httpTesting: HttpTestingController, reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED') => {
-  httpTesting.expectOne(req => req.url.includes('/myself')).flush(mockMyself);
+const flushRequests = (
+  httpTesting: HttpTestingController,
+  reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
+  slug = 'dominik.mueller',
+) => {
+  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: slug });
   httpTesting
     .expectOne(req => req.url.includes('dashboard/pull-requests'))
     .flush({ values: [makePrRaw(reviewerStatus)], isLastPage: true });
@@ -96,9 +89,9 @@ describe('BitbucketService', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('calls /myself then /dashboard/pull-requests', () => {
+  it('calls /config then /dashboard/pull-requests with correct params', () => {
     service.getReviewerPullRequests().subscribe();
-    httpTesting.expectOne(req => req.url.includes('/myself')).flush(mockMyself);
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const prReq = httpTesting.expectOne(req => req.url.includes('dashboard/pull-requests'));
     expect(prReq.request.params.get('role')).toBe('REVIEWER');
     expect(prReq.request.params.get('state')).toBe('OPEN');
@@ -143,16 +136,10 @@ describe('BitbucketService', () => {
     expect(pr.url).toBe('http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412');
   });
 
-  it('falls back to Awaiting Review when current user is not in reviewers', () => {
+  it('falls back to Awaiting Review when configured slug is not in reviewers', () => {
     let result: PullRequest[] | undefined;
     service.getReviewerPullRequests().subscribe(prs => (result = prs));
-    httpTesting.expectOne(req => req.url.includes('/myself')).flush({
-      ...mockMyself,
-      slug: 'someone-else',
-    });
-    httpTesting
-      .expectOne(req => req.url.includes('dashboard/pull-requests'))
-      .flush({ values: [makePrRaw('APPROVED')], isLastPage: true });
+    flushRequests(httpTesting, 'APPROVED', 'someone-else');
     expect(result![0].myReviewStatus).toBe('Awaiting Review');
   });
 });
