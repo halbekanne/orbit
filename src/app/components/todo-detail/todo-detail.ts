@@ -6,7 +6,7 @@ import { WorkDataService } from '../../services/work-data.service';
   selector: 'app-todo-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article class="h-full flex flex-col" [attr.aria-label]="'Todo: ' + todo().title">
+    <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Todo: ' + todo().title">
       <header class="pb-5 border-b border-stone-200">
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
