@@ -30,6 +30,8 @@ orbit/
 ├── mock-server/
 │   ├── jira.js                      (renamed from index.js — no logic changes)
 │   └── bitbucket.js                 (new — mock Bitbucket API on port 6203)
+├── smoke-test/
+│   └── index.js                     (updated — new mock filename, env vars, proxy path)
 ├── src/
 │   ├── environments/
 │   │   ├── environment.ts           (unchanged — proxyUrl: '')
@@ -63,11 +65,11 @@ orbit/
 
 ## 4. Proxy (`proxy/index.js`)
 
-Two `createProxyMiddleware` instances, one per service. All four env vars are required on startup — the proxy exits with a clear error message if any are missing.
+The current `pathFilter: '/rest'` approach is replaced entirely. The new proxy uses two `createProxyMiddleware` instances with `pathFilter` set to the service prefix and `pathRewrite` to strip it before forwarding. All four env vars are required on startup — the proxy exits with a clear error message if any are missing.
 
 ```
-/jira/**      → pathRewrite strips /jira      → JIRA_BASE_URL      + Authorization: Bearer JIRA_API_KEY
-/bitbucket/** → pathRewrite strips /bitbucket → BITBUCKET_BASE_URL + Authorization: Bearer BITBUCKET_API_KEY
+/jira/**      → pathFilter: '/jira',      pathRewrite: { '^/jira': '' }      → JIRA_BASE_URL      + Authorization: Bearer JIRA_API_KEY
+/bitbucket/** → pathFilter: '/bitbucket', pathRewrite: { '^/bitbucket': '' } → BITBUCKET_BASE_URL + Authorization: Bearer BITBUCKET_API_KEY
 ```
 
 CORS remains restricted to `http://localhost:6200`.
@@ -107,9 +109,9 @@ Ignores all query parameters. Returns a fixed list of open PRs in full Bitbucket
 Each PR in `values` contains:
 - **Identity:** `id` (number), `title`, `description`, `state` (`OPEN`), `open`, `closed`, `locked`
 - **Dates:** `createdDate`, `updatedDate` (Unix timestamps in ms)
-- **Refs:** `fromRef` and `toRef` — each with `id` (full ref), `displayId` (branch name), `latestCommit`, and a nested `repository` (slug, name, project key/name, browse URL)
+- **Refs:** `fromRef` and `toRef` — each with `id` (full ref), `displayId` (branch name), `latestCommit`, and a nested `repository` (`id` (number), `slug`, `name`, `project.key`, `project.name`, browse URL via `links.self[0].href`)
 - **People:** `author` (participant object), `reviewers` (array of participant objects), `participants`
-- **Participant shape:** `user` (id, name, displayName, emailAddress, slug, active, type, profileUrl), `role`, `approved`, `status`
+- **Participant shape:** `user` (`id`, `name`, `displayName`, `emailAddress`, `slug`, `active`, `type`, `links.self[0].href` for profile URL), `role`, `approved`, `status`
 - **Metadata:** `properties.commentCount`, `properties.openTaskCount`
 - **Links:** `links.self[0].href` (URL to the PR)
 
@@ -118,6 +120,8 @@ Each PR in `values` contains:
 ## 6. PullRequest Model (`work-item.model.ts`)
 
 The existing flat `PullRequest` interface is replaced with a rich model that closely mirrors the Bitbucket API response. Supporting types are added.
+
+**Breaking change: `PullRequest.id` changes from `string` to `number`.** Because `WorkItem = JiraTicket | PullRequest | Todo`, the `id` field on the `WorkItem` union becomes `string | number`. Every call site that reads `.id` on a `WorkItem` or `PullRequest` — including `WorkDataService.selectedItem`, component comparisons, and any DOM `id` attributes — must be audited and updated. The implementer must search the entire codebase for `.id` usage on these types.
 
 ```typescript
 export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Approved';
@@ -131,7 +135,7 @@ export interface PrUser {
   slug: string;
   active: boolean;
   type: string;
-  profileUrl: string;
+  profileUrl: string;   // mapped from user.links.self[0].href in the raw API response
 }
 
 export interface PrRepository {
@@ -140,7 +144,7 @@ export interface PrRepository {
   name: string;
   projectKey: string;
   projectName: string;
-  browseUrl: string;
+  browseUrl: string;    // mapped from repository.links.self[0].href in the raw API response
 }
 
 export interface PrRef {
@@ -213,9 +217,10 @@ export class BitbucketService {
 }
 ```
 
-Raw interfaces (private to the file, same pattern as `jira.service.ts`):
-- `BitbucketUserRaw` — `/myself` response shape
-- `BitbucketPrRepositoryRaw`, `BitbucketPrRefRaw`, `BitbucketPrParticipantRaw`
+Raw interfaces (private to the file, same pattern as `jira.service.ts`). `profileUrl` and `browseUrl` are derived in `mapPr` from the nested `links.self[0].href` fields on user and repository objects respectively in the raw response:
+- `BitbucketUserRaw` — `/myself` response shape; must include `slug: string` at the top level (the `/myself` endpoint returns a flat user object, not a participant wrapper), plus `links.self[0].href`
+- `BitbucketPrRepositoryRaw` — includes `id`, `slug`, `name`, `project.key`, `project.name`, `links.self[0].href`
+- `BitbucketPrRefRaw`, `BitbucketPrParticipantRaw`
 - `BitbucketPrRaw` — full PR object shape
 - `BitbucketPrPageRaw` — paged wrapper `{ values: BitbucketPrRaw[]; isLastPage: boolean }`
 
@@ -251,7 +256,7 @@ readonly pullRequests = toSignal(
 );
 ```
 
-`awaitingReviewCount` is updated to read `myReviewStatus` instead of `status`.
+`awaitingReviewCount` is updated from `pr.status === 'Awaiting Review'` to `pr.myReviewStatus === 'Awaiting Review'`. The old `pr.status` field no longer exists on the model — this is a TypeScript compile error that must be fixed as part of this change.
 
 The UI shows a loading state while `pullRequestsLoading` is `true` and an error message ("Pull Requests konnten nicht geladen werden") when `pullRequestsError` is `true`. PRs and todos remain functional when Bitbucket is unreachable.
 
@@ -261,18 +266,36 @@ The UI shows a loading state while `pullRequestsLoading` is `true` and an error 
 
 `pr-card` and `pr-detail` receive minor template updates to use the new model field paths. No visual changes.
 
-| Old field | New field |
-|---|---|
-| `pr.repo` | `pr.fromRef.repository.slug` |
-| `pr.branch` | `pr.fromRef.displayId` |
-| `pr.author` | `pr.author.user.displayName` |
-| `pr.status` | `pr.myReviewStatus` |
-| `pr.updatedAt` | `pr.updatedDate` (timestamp ms, formatted via `DatePipe`) |
-| `pr.id` (string) | `pr.id` (number) |
+**Template bindings:**
+
+| Old field | New field | Component |
+|---|---|---|
+| `pr.repo` | `pr.fromRef.repository.slug` | both |
+| `pr.branch` | `pr.fromRef.displayId` | both |
+| `pr.author` | `pr.author.user.displayName` | both |
+| `pr.status` | `pr.myReviewStatus` | both |
+| `pr.updatedAt` | `pr.updatedDate` (timestamp ms, formatted via `DatePipe`) | `pr-detail` only |
+| `pr.id` (string) | `pr.id` (number) | both |
+
+**Method bodies:** Both `pr-card` and `pr-detail` contain a `statusClass()` method that reads `this.pr().status`. This must be updated to `this.pr().myReviewStatus` in both files — the template binding change alone is not sufficient.
+
+**Date formatting:** `pr-detail` currently has a local `formatDate(iso: string)` helper. This method is removed entirely. The template is updated to use Angular's `DatePipe` directly: `{{ pr.updatedDate | date:'dd.MM.yyyy' }}`. `DatePipe` accepts a Unix millisecond timestamp (`number`) natively. `pr-card` does not render the date and requires no date-related changes.
 
 ---
 
-## 11. npm Scripts
+## 11. Smoke Test Update (`smoke-test/index.js`)
+
+The smoke test spawns mock and proxy processes and asserts against them. Three changes are required:
+1. The spawned mock process changes from `node mock-server/index.js` to `node mock-server/jira.js`.
+2. The env vars passed to the proxy process must include all four vars: `JIRA_BASE_URL`, `JIRA_API_KEY`, `BITBUCKET_BASE_URL` (set to `http://localhost:6203`), and `BITBUCKET_API_KEY`.
+3. The existing Jira assertion URL changes from `/rest/api/2/search` to `/jira/rest/api/2/search`.
+4. A second child process is spawned for `node mock-server/bitbucket.js` (port 6203). A second assertion is added: `GET /bitbucket/rest/api/1.0/dashboard/pull-requests` via the proxy on port 6201, asserting a 200 response with a `values` array.
+
+---
+
+## 12. npm Scripts
+
+The following scripts change (other existing scripts — `build`, `watch`, `test`, `smoke-test` — are unchanged):
 
 ```json
 "start": "concurrently \"ng serve --port 6200\" \"node proxy/index.js\" \"node mock-server/jira.js\" \"node mock-server/bitbucket.js\"",
@@ -282,12 +305,14 @@ The UI shows a loading state while `pullRequestsLoading` is `true` and an error 
 "mock:bitbucket": "node mock-server/bitbucket.js"
 ```
 
+The old `"mock": "node mock-server/index.js"` script is removed.
+
 `npm start` — full dev environment with both mock servers.
 `npm run start:real` — proxy + Angular only, points at real servers configured in `.env`.
 
 ---
 
-## 12. Error Handling
+## 13. Error Handling
 
 | Layer | Behaviour |
 |---|---|
@@ -299,7 +324,7 @@ The UI shows a loading state while `pullRequestsLoading` is `true` and an error 
 
 ---
 
-## 13. Out of Scope
+## 14. Out of Scope
 
 - Pagination (mock always returns all PRs; service fetches up to 50)
 - PR diff / file views
