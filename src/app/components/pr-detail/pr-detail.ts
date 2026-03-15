@@ -69,6 +69,7 @@ export class PrDetailComponent {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
       'Changes Requested': 'bg-red-100 text-red-700',
       'Approved': 'bg-emerald-100 text-emerald-700',
+      'Approved by Others': 'bg-stone-100 text-stone-500',
     };
     return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
   }

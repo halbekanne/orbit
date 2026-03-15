@@ -137,10 +137,10 @@ describe('BitbucketService', () => {
     expect(pr.url).toBe('http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412');
   });
 
-  it('falls back to Awaiting Review when configured slug is not in reviewers', () => {
+  it('returns Approved by Others when configured slug is not in reviewers but another reviewer approved', () => {
     let result: PullRequest[] | undefined;
     service.getReviewerPullRequests().subscribe(prs => (result = prs));
     flushRequests(httpTesting, 'APPROVED', 'someone-else');
-    expect(result![0].myReviewStatus).toBe('Awaiting Review');
+    expect(result![0].myReviewStatus).toBe('Approved by Others');
   });
 });

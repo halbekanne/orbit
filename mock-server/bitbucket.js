@@ -97,7 +97,7 @@ const mockPullRequests = [
     fromRef: makeRef('fix/sso-redirect-loop', 'b2c3d4e5', REPO_VF),
     toRef: makeRef('main', 'e5f6g7h8', REPO_VF),
     author: makeParticipant(THOMAS, 'AUTHOR', 'UNAPPROVED'),
-    reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'UNAPPROVED')],
+    reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'UNAPPROVED'), makeParticipant(ANNA, 'REVIEWER', 'APPROVED')],
     participants: [],
     properties: { commentCount: 0, openTaskCount: 0 },
     links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/415` }] },

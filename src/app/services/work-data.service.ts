@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject, effect, untracked } from '@angula
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { JiraTicket, PullRequest, Todo, WorkItem } from '../models/work-item.model';
+import { JiraTicket, PrStatus, PullRequest, Todo, WorkItem } from '../models/work-item.model';
 import { JiraService } from './jira.service';
 import { BitbucketService } from './bitbucket.service';
 
@@ -28,7 +28,19 @@ export class WorkDataService {
 
   readonly pullRequestsLoading = signal(true);
   readonly pullRequestsError = signal(false);
-  readonly pullRequests = signal<PullRequest[]>([]);
+  private readonly _rawPullRequests = signal<PullRequest[]>([]);
+
+  readonly pullRequests = computed(() => {
+    const statusOrder: Record<PrStatus, number> = {
+      'Awaiting Review': 0,
+      'Changes Requested': 1,
+      'Approved by Others': 2,
+      'Approved': 3,
+    };
+    return this._rawPullRequests()
+      .filter(pr => pr.myReviewStatus !== 'Approved')
+      .sort((a, b) => statusOrder[a.myReviewStatus] - statusOrder[b.myReviewStatus]);
+  });
 
   constructor() {
     effect(() => {
@@ -41,7 +53,7 @@ export class WorkDataService {
             this.pullRequestsLoading.set(false);
             return of([] as PullRequest[]);
           }),
-        ).subscribe(prs => this.pullRequests.set(prs));
+        ).subscribe(prs => this._rawPullRequests.set(prs));
       });
     });
   }

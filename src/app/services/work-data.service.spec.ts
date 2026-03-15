@@ -121,7 +121,7 @@ describe('WorkDataService — pullRequests loading', () => {
   });
 
   it('populates pullRequests from BitbucketService', () => {
-    const pr = makePr('Approved');
+    const pr = makePr('Awaiting Review');
     const mockBitbucket = { getReviewerPullRequests: () => of([pr]) };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     const service = TestBed.inject(WorkDataService);

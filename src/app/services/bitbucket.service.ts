@@ -157,6 +157,11 @@ export class BitbucketService {
       ? mapReviewStatus(reviewer.status)
       : 'Awaiting Review';
 
+    const otherApproved = raw.reviewers.some(r => r.user.slug !== currentUserSlug && r.approved);
+    const finalStatus: PrStatus = myReviewStatus === 'Awaiting Review' && otherApproved
+      ? 'Approved by Others'
+      : myReviewStatus;
+
     return {
       type: 'pr',
       id: `${raw.toRef.repository.project.key}/${raw.toRef.repository.slug}/${raw.id}`,
@@ -177,7 +182,7 @@ export class BitbucketService {
       commentCount: raw.properties?.commentCount ?? 0,
       openTaskCount: raw.properties?.openTaskCount ?? 0,
       url: raw.links?.self?.[0]?.href ?? '',
-      myReviewStatus,
+      myReviewStatus: finalStatus,
     };
   }
 }
