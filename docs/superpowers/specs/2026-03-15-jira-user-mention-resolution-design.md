@@ -46,6 +46,10 @@ Called once per unknown slug, in parallel via `forkJoin`.
 - Applies to: `description`, all `comment.body` fields on every ticket fetch (`getAssignedActiveTickets`, `getTicketByKey`).
 - Does **not** apply to: issue summaries, labels, or any other field (mentions only appear in description/comments).
 
+## Mock Server
+
+`mock-server/jira.js` currently has no `/rest/api/2/user` endpoint. One must be added to support local development and testing. The mock server already defines users `U1`–`U5` and `UNASSIGNED`, and mock issue descriptions/comments already contain mentions like `[~1]`, `[~2]`, `[~5]`. The new endpoint should handle `GET /rest/api/2/user?username=:slug` and return the matching user object (or 404 if not found).
+
 ## What Does Not Change
 
 - `JiraMarkupPipe` — no modifications
