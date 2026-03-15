@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { PullRequest, PrStatus } from '../../models/work-item.model';
+import { PullRequest } from '../../models/work-item.model';
+import { prStatusClass } from '../pr-status-class';
 
 @Component({
   selector: 'app-pr-card',
@@ -55,13 +56,6 @@ export class PrCardComponent {
   select = output<PullRequest>();
 
   statusClass(): string {
-    const map: Record<PrStatus, string> = {
-      'Awaiting Review': 'bg-amber-100 text-amber-700',
-      'Needs Re-review': 'bg-amber-100 text-amber-700',
-      'Changes Requested': 'bg-stone-100 text-stone-500',
-      'Approved': 'bg-emerald-100 text-emerald-700',
-      'Approved by Others': 'bg-stone-100 text-stone-500',
-    };
-    return map[this.pr().myReviewStatus];
+    return prStatusClass(this.pr().myReviewStatus);
   }
 }
