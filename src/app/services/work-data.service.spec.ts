@@ -40,9 +40,9 @@ function setup(tickets$: Observable<JiraTicket[]>): WorkDataService {
   return TestBed.inject(WorkDataService);
 }
 
-const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review'): PullRequest => ({
+const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review', id = 'P/repo/1'): PullRequest => ({
   type: 'pr',
-  id: 'P/repo/1',
+  id,
   prNumber: 1,
   title: 'Test PR',
   description: '',
@@ -186,8 +186,8 @@ describe('WorkDataService — enrichment', () => {
   });
 
   it('does not affect PRs with other statuses during enrichment', () => {
-    const awaiting = makePr('Awaiting Review');
-    const changesRequested = makePr('Changes Requested');
+    const awaiting = makePr('Awaiting Review', 'P/repo/1');
+    const changesRequested = makePr('Changes Requested', 'P/repo/2');
     const mockBitbucket = {
       getReviewerPullRequests: () => of([awaiting, changesRequested]),
       getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
@@ -214,8 +214,8 @@ describe('WorkDataService — enrichment', () => {
   });
 
   it('sorts Needs Re-review before Changes Requested after enrichment promotes one PR', () => {
-    const pr1 = { ...makePr('Changes Requested'), id: 'P/repo/1' };
-    const pr2 = { ...makePr('Changes Requested'), id: 'P/repo/2' };
+    const pr1 = makePr('Changes Requested', 'P/repo/1');
+    const pr2 = makePr('Changes Requested', 'P/repo/2');
     const mockBitbucket = {
       getReviewerPullRequests: () => of([pr1, pr2]),
       getReviewerPrActivityStatus: (pr: Pick<PullRequest, 'prNumber' | 'toRef'>) =>

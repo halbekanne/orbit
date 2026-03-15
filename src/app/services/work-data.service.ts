@@ -67,10 +67,10 @@ export class WorkDataService {
               )
             )
           ).subscribe(results => {
-            const enrichedPrs = new Map(needsWorkPrs.map((pr, i) => [pr, results[i]]));
+            const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
             this._rawPullRequests.update(all =>
               all.map(pr => {
-                const enriched = enrichedPrs.get(pr);
+                const enriched = statusById.get(pr.id);
                 return enriched ? { ...pr, myReviewStatus: enriched } : pr;
               })
             );
