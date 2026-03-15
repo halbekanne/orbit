@@ -16,7 +16,7 @@ import { PullRequest } from '../../models/work-item.model';
       [attr.aria-label]="'PR: ' + pr().title"
     >
       <div class="flex items-start justify-between gap-2">
-        <span class="text-xs font-medium text-stone-400 truncate">{{ pr().repo }}</span>
+        <span class="text-xs font-medium text-stone-400 truncate">{{ pr().fromRef.repository.slug }}</span>
         <a
           [href]="pr().url"
           target="_blank"
@@ -33,7 +33,7 @@ import { PullRequest } from '../../models/work-item.model';
 
       <div class="mt-2 flex items-center justify-between gap-2">
         <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium" [class]="statusClass()">
-          {{ pr().status }}
+          {{ pr().myReviewStatus }}
         </span>
         @if (pr().commentCount > 0) {
           <span class="flex items-center gap-1 text-xs text-stone-400">
@@ -56,6 +56,6 @@ export class PrCardComponent {
       'Changes Requested': 'bg-red-100 text-red-700',
       'Approved': 'bg-emerald-100 text-emerald-700',
     };
-    return map[this.pr().status] ?? 'bg-stone-100 text-stone-600';
+    return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
   }
 }
