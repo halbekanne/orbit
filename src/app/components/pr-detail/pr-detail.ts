@@ -1,13 +1,18 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { PullRequest } from '../../models/work-item.model';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, concat, map, of, switchMap } from 'rxjs';
+import { PullRequest, JiraTicket } from '../../models/work-item.model';
 import { prStatusClass } from '../pr-status-class';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
+import { JiraService } from '../../services/jira.service';
+import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
+import { extractJiraKey } from '../pr-jira-key';
 
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, JiraMarkupPipe],
+  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent],
   template: `
     <article class="h-full flex flex-col" [attr.aria-label]="'PR #' + pr().prNumber + ': ' + pr().title">
       <header class="pb-5 border-b border-stone-200">
@@ -60,15 +65,41 @@ import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
         </dl>
       </div>
 
-      <div class="flex-1 py-5 overflow-y-auto">
-        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Beschreibung</h2>
-        <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
+      <div class="flex-1 py-5 overflow-y-auto space-y-5">
+        <div>
+          <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Jira-Ticket</h2>
+          <app-jira-pr-card [ticket]="jiraTicket()" />
+        </div>
+
+        <div>
+          <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Beschreibung</h2>
+          <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
+        </div>
       </div>
     </article>
   `,
 })
 export class PrDetailComponent {
   pr = input.required<PullRequest>();
+
+  private readonly jiraService = inject(JiraService);
+
+  readonly jiraTicket = toSignal(
+    toObservable(this.pr).pipe(
+      map(pr => extractJiraKey(pr)),
+      switchMap(key => {
+        if (!key) return of('no-ticket' as const);
+        return concat(
+          of('loading' as const),
+          this.jiraService.getTicketByKey(key).pipe(
+            map(ticket => ticket as JiraTicket),
+            catchError(() => of('error' as const)),
+          ),
+        );
+      }),
+    ),
+    { initialValue: 'loading' as const },
+  );
 
   statusClass(): string {
     return prStatusClass(this.pr().myReviewStatus);
