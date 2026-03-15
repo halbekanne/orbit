@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import {
   JiraTicket,
   JiraTicketComment,
@@ -113,6 +113,40 @@ function extractComments(raw: JiraIssueFields['comment']): JiraIssueCommentRaw[]
 export class JiraService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/jira/rest/api/2`;
+  private readonly userDisplayNameCache = new Map<string, string>();
+
+  private resolveUserMentions(texts: string[]): Observable<void> {
+    const allSlugs = new Set<string>();
+    for (const text of texts) {
+      for (const [, slug] of text.matchAll(/\[~([^\]]+)\]/g)) {
+        allSlugs.add(slug);
+      }
+    }
+    const unknown = [...allSlugs].filter(s => !this.userDisplayNameCache.has(s));
+    if (!unknown.length) return of(undefined);
+    return forkJoin(
+      unknown.map(slug =>
+        this.http
+          .get<{ displayName: string }>(`${this.baseUrl}/user`, {
+            params: new HttpParams().set('username', slug),
+          })
+          .pipe(catchError(() => of(null)))
+      )
+    ).pipe(
+      map(results => {
+        results.forEach((result, i) => {
+          if (result) this.userDisplayNameCache.set(unknown[i], result.displayName);
+        });
+      })
+    );
+  }
+
+  private resolveMentionsInText(text: string): string {
+    return text.replace(/\[~([^\]]+)\]/g, (match, slug) => {
+      const name = this.userDisplayNameCache.get(slug);
+      return name ? `[~${name}]` : match;
+    });
+  }
 
   getAssignedActiveTickets(): Observable<JiraTicket[]> {
     const params = new HttpParams()
@@ -120,9 +154,26 @@ export class JiraService {
       .set('maxResults', '50')
       .set('fields', 'summary,description,status,priority,issuetype,assignee,reporter,creator,duedate,created,updated,labels,project,components,comment,attachment,issuelinks,subtasks,parent,customfield_10014');
 
-    return this.http
-      .get<JiraSearchResponse>(`${this.baseUrl}/search`, { params })
-      .pipe(map(response => response.issues.map(issue => this.mapIssue(issue))));
+    return this.http.get<JiraSearchResponse>(`${this.baseUrl}/search`, { params }).pipe(
+      switchMap(response => {
+        const texts = response.issues.flatMap(issue => [
+          issue.fields.description ?? '',
+          ...extractComments(issue.fields.comment).map(c => c.body),
+        ]);
+        return this.resolveUserMentions(texts).pipe(map(() => response));
+      }),
+      map(response => {
+        for (const issue of response.issues) {
+          if (issue.fields.description) {
+            issue.fields.description = this.resolveMentionsInText(issue.fields.description);
+          }
+          for (const comment of extractComments(issue.fields.comment)) {
+            comment.body = this.resolveMentionsInText(comment.body);
+          }
+        }
+        return response.issues.map(issue => this.mapIssue(issue));
+      }),
+    );
   }
 
   getTicketByKey(key: string): Observable<JiraTicket> {
@@ -130,9 +181,24 @@ export class JiraService {
       'fields',
       'summary,description,status,priority,issuetype,assignee,reporter,creator,duedate,created,updated,labels,project,components,comment,attachment,issuelinks,subtasks,parent,customfield_10014',
     );
-    return this.http
-      .get<JiraIssueRaw>(`${this.baseUrl}/issue/${key}`, { params })
-      .pipe(map(issue => this.mapIssue(issue)));
+    return this.http.get<JiraIssueRaw>(`${this.baseUrl}/issue/${key}`, { params }).pipe(
+      switchMap(issue => {
+        const texts = [
+          issue.fields.description ?? '',
+          ...extractComments(issue.fields.comment).map(c => c.body),
+        ];
+        return this.resolveUserMentions(texts).pipe(map(() => issue));
+      }),
+      map(issue => {
+        if (issue.fields.description) {
+          issue.fields.description = this.resolveMentionsInText(issue.fields.description);
+        }
+        for (const comment of extractComments(issue.fields.comment)) {
+          comment.body = this.resolveMentionsInText(comment.body);
+        }
+        return this.mapIssue(issue);
+      }),
+    );
   }
 
   private mapIssue(issue: JiraIssueRaw): JiraTicket {
