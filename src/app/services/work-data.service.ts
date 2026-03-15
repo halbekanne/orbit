@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { JiraTicket, PrStatus, PullRequest, Todo, WorkItem } from '../models/work-item.model';
 import { JiraService } from './jira.service';
@@ -47,35 +47,39 @@ export class WorkDataService {
     effect(() => {
       untracked(() => {
         this.bitbucket.getReviewerPullRequests().pipe(
-          tap(() => this.pullRequestsLoading.set(false)),
+          tap(prs => {
+            this.pullRequestsLoading.set(false);
+            this._rawPullRequests.set(prs);
+          }),
+          switchMap(prs => {
+            const needsWorkPrs = prs.filter(pr => pr.myReviewStatus === 'Changes Requested');
+            if (needsWorkPrs.length === 0) return of(null);
+
+            return forkJoin(
+              needsWorkPrs.map(pr =>
+                this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
+                  catchError(() => of('Changes Requested' as const))
+                )
+              )
+            ).pipe(
+              tap(results => {
+                const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update(all =>
+                  all.map(pr => {
+                    const enriched = statusById.get(pr.id);
+                    return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+                  })
+                );
+              })
+            );
+          }),
           catchError(err => {
             console.error('Failed to load Bitbucket pull requests:', err);
             this.pullRequestsError.set(true);
             this.pullRequestsLoading.set(false);
-            return of([] as PullRequest[]);
+            return of(null);
           }),
-        ).subscribe(prs => {
-          this._rawPullRequests.set(prs);
-
-          const needsWorkPrs = prs.filter(pr => pr.myReviewStatus === 'Changes Requested');
-          if (needsWorkPrs.length === 0) return;
-
-          forkJoin(
-            needsWorkPrs.map(pr =>
-              this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
-                catchError(() => of('Changes Requested' as const))
-              )
-            )
-          ).subscribe(results => {
-            const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
-            this._rawPullRequests.update(all =>
-              all.map(pr => {
-                const enriched = statusById.get(pr.id);
-                return enriched ? { ...pr, myReviewStatus: enriched } : pr;
-              })
-            );
-          });
-        });
+        ).subscribe();
       });
     });
   }
