@@ -30,4 +30,10 @@
       <app-todo-detail [todo]="$any(item)" />
     </div>
   }
+
+  @if (item?.type === 'idea') {
+    <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <app-idea-detail [idea]="$any(item)" />
+    </div>
+  }
 </main>

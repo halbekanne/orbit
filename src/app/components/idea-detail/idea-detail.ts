@@ -1,0 +1,140 @@
+import { ChangeDetectionStrategy, Component, inject, input, signal, effect } from '@angular/core';
+import { Idea } from '../../models/work-item.model';
+import { IdeaService } from '../../services/idea.service';
+import { WorkDataService } from '../../services/work-data.service';
+
+@Component({
+  selector: 'app-idea-detail',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
+      <header class="pb-5 border-b border-stone-200">
+        <div class="flex items-start gap-2 mb-2">
+          <span class="text-lg" aria-hidden="true">💡</span>
+          <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+            [class]="idea().status === 'wont-do' ? 'bg-stone-100 text-stone-500' : 'bg-indigo-100 text-indigo-700'">
+            {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
+          </span>
+        </div>
+
+        @if (editingTitle()) {
+          <input
+            type="text"
+            class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-indigo-400 focus:outline-none"
+            [value]="draftTitle()"
+            (input)="draftTitle.set($any($event.target).value)"
+            (blur)="saveTitle()"
+            (keydown)="onTitleKeydown($event)"
+            aria-label="Titel bearbeiten"
+          />
+        } @else {
+          <h1
+            class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-indigo-700 transition-colors"
+            [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''"
+            (click)="startEditTitle()"
+            tabindex="0"
+            (keydown.enter)="startEditTitle()"
+            aria-label="Titel anklicken zum Bearbeiten"
+          >{{ idea().title }}</h1>
+        }
+      </header>
+
+      <div class="py-5 border-b border-stone-200">
+        <dl>
+          <div>
+            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
+            <dd class="text-sm text-stone-700">{{ formatDate(idea().createdAt) }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="flex-1 py-5 overflow-y-auto">
+        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Notizen</h2>
+
+        @if (editingDescription()) {
+          <textarea
+            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-indigo-400 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-none"
+            [value]="draftDescription()"
+            (input)="draftDescription.set($any($event.target).value)"
+            (blur)="saveDescription()"
+            (keydown)="onDescriptionKeydown($event)"
+            aria-label="Notizen bearbeiten"
+          ></textarea>
+          <p class="text-xs text-stone-400 mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
+        } @else {
+          <div
+            class="text-sm text-stone-700 leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-stone-50 rounded-md p-1 -m-1 transition-colors"
+            (click)="startEditDescription()"
+            tabindex="0"
+            (keydown.enter)="startEditDescription()"
+            [attr.aria-label]="idea().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
+          >
+            @if (idea().description) {
+              {{ idea().description }}
+            } @else {
+              <span class="text-stone-400 italic">Notizen hinzufügen…</span>
+            }
+          </div>
+        }
+      </div>
+    </article>
+  `,
+})
+export class IdeaDetailComponent {
+  idea = input.required<Idea>();
+  private readonly ideaService = inject(IdeaService);
+  private readonly workData = inject(WorkDataService);
+
+  editingTitle = signal(false);
+  editingDescription = signal(false);
+  draftTitle = signal('');
+  draftDescription = signal('');
+
+  constructor() {
+    effect(() => {
+      const i = this.idea();
+      this.draftTitle.set(i.title);
+      this.draftDescription.set(i.description);
+      this.editingTitle.set(false);
+      this.editingDescription.set(false);
+    });
+  }
+
+  startEditTitle(): void { this.draftTitle.set(this.idea().title); this.editingTitle.set(true); }
+
+  saveTitle(): void {
+    const val = this.draftTitle().trim();
+    if (val && val !== this.idea().title) {
+      const updated = { ...this.idea(), title: val };
+      this.ideaService.update(updated);
+      this.workData.selectedItem.set(updated);
+    }
+    this.editingTitle.set(false);
+  }
+
+  onTitleKeydown(e: KeyboardEvent): void {
+    if (e.key === 'Enter') { e.preventDefault(); this.saveTitle(); }
+    if (e.key === 'Escape') { this.editingTitle.set(false); }
+  }
+
+  startEditDescription(): void { this.draftDescription.set(this.idea().description); this.editingDescription.set(true); }
+
+  saveDescription(): void {
+    const val = this.draftDescription().trim();
+    if (val !== this.idea().description) {
+      const updated = { ...this.idea(), description: val };
+      this.ideaService.update(updated);
+      this.workData.selectedItem.set(updated);
+    }
+    this.editingDescription.set(false);
+  }
+
+  onDescriptionKeydown(e: KeyboardEvent): void {
+    if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
+    if (e.key === 'Escape') { this.editingDescription.set(false); }
+  }
+
+  formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+}
