@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { NavigatorComponent } from './components/navigator/navigator';
 import { WorkbenchComponent } from './components/workbench/workbench';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
+import { ActionRailComponent } from './components/action-rail/action-rail';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NavigatorComponent, WorkbenchComponent, QuickCaptureComponent],
+  imports: [NavigatorComponent, WorkbenchComponent, QuickCaptureComponent, ActionRailComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: {

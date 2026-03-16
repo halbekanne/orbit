@@ -54,16 +54,6 @@ import { extractJiraKey } from '../pr-jira-key';
                 }
               </div>
 
-              <a
-                [href]="pr().url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-stone-200 px-2.5 py-1.5 text-xs font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                aria-label="Öffne PR in Bitbucket"
-              >
-                In Bitbucket öffnen
-                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-              </a>
             </div>
 
             <h1 class="text-lg font-semibold text-stone-900 leading-snug mb-3">{{ pr().title }}</h1>
