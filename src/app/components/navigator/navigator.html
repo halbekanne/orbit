@@ -136,11 +136,11 @@
       >
         <div class="flex items-center gap-2">
           <span id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meine Todos</span>
-          @if (data.pendingTodoCount() > 0) {
+          @if (todoService.pendingCount() > 0) {
             <span
               class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-              [attr.aria-label]="data.pendingTodoCount() + ' offene Todos'"
-            >{{ data.pendingTodoCount() }}</span>
+              [attr.aria-label]="todoService.pendingCount() + ' offene Todos'"
+            >{{ todoService.pendingCount() }}</span>
           }
         </div>
         <svg
@@ -162,14 +162,12 @@
       <div id="navigator-todos-content" [hidden]="todosCollapsed()">
         <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
         <ul class="space-y-1.5" role="list">
-          @for (todo of data.todos(); track todo.id) {
+          @for (todo of todoService.openTodos(); track todo.id) {
             <li>
               <app-todo-card
                 [todo]="todo"
                 [selected]="isSelected(todo)"
-                [highlighted]="data.lastAddedId() === todo.id"
                 (select)="selectItem($event)"
-                (toggle)="toggleTodo($event)"
               />
             </li>
           }

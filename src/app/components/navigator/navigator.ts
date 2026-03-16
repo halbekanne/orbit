@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { WorkDataService } from '../../services/work-data.service';
+import { TodoService } from '../../services/todo.service';
 import { WorkItem } from '../../models/work-item.model';
 import { TicketCardComponent } from '../ticket-card/ticket-card';
 import { PrCardComponent } from '../pr-card/pr-card';
@@ -23,6 +24,7 @@ interface CollapsedState {
 })
 export class NavigatorComponent {
   protected readonly data = inject(WorkDataService);
+  protected readonly todoService = inject(TodoService);
 
   private readonly savedCollapsed = this.loadCollapsed();
 
@@ -68,11 +70,7 @@ export class NavigatorComponent {
     this.data.select(item);
   }
 
-  toggleTodo(id: string): void {
-    this.data.toggleTodo(id);
-  }
-
   addTodo(title: string): void {
-    this.data.addTodo(title);
+    this.todoService.add(title);
   }
 }

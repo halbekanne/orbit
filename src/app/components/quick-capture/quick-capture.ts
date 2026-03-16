@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { WorkDataService } from '../../services/work-data.service';
+import { TodoService } from '../../services/todo.service';
 
 @Component({
   selector: 'app-quick-capture',
@@ -39,6 +40,7 @@ export class QuickCaptureComponent {
   close = output<void>();
 
   private readonly data = inject(WorkDataService);
+  private readonly todoService = inject(TodoService);
   private inputEl = viewChild<ElementRef<HTMLInputElement>>('inputEl');
 
   constructor() {
@@ -57,7 +59,7 @@ export class QuickCaptureComponent {
     if (e.key === 'Enter') {
       const value = this.inputEl()?.nativeElement.value.trim() ?? '';
       if (value) {
-        this.data.addTodo(value);
+        this.todoService.add(value);
       }
       this.close.emit();
     } else if (e.key === 'Escape') {
