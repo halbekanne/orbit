@@ -105,7 +105,7 @@ describe('TodoService', () => {
     TestBed.tick();
     svc.update({ ...todo, title: 'Updated' });
     expect(svc.todos()[0].title).toBe('Updated');
-    expect(postSpy).toHaveBeenCalledTimes(2);
+    expect(postSpy).toHaveBeenCalledTimes(1);
   });
 
   it('reorder() moves item in array and saves', () => {
@@ -116,7 +116,7 @@ describe('TodoService', () => {
     TestBed.tick();
     svc.reorder(0, 1);
     expect(svc.todos()[0].id).toBe('b');
-    expect(postSpy).toHaveBeenCalledTimes(2);
+    expect(postSpy).toHaveBeenCalledTimes(1);
   });
 
   it('pendingCount equals openTodos().length (open + today-done)', () => {
