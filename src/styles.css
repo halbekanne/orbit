@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'highlight.js/styles/github.css';
+@import 'diff2html/bundles/css/diff2html.min.css';
 
 @keyframes highlight-flash {
   0%   { box-shadow: 0 0 0 0 rgb(99 102 241 / 0.35); }
