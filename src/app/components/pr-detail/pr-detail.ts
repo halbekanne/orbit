@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, switchMap } from 'rxjs';
@@ -11,6 +11,22 @@ import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { extractJiraKey } from '../pr-jira-key';
 import * as Diff2Html from 'diff2html';
 import { ColorSchemeType } from 'diff2html/lib/types';
+import hljs from 'highlight.js/lib/core';
+import typescript from 'highlight.js/lib/languages/typescript';
+import javascript from 'highlight.js/lib/languages/javascript';
+import xml from 'highlight.js/lib/languages/xml';
+import css from 'highlight.js/lib/languages/css';
+import scss from 'highlight.js/lib/languages/scss';
+import json from 'highlight.js/lib/languages/json';
+import yaml from 'highlight.js/lib/languages/yaml';
+import ini from 'highlight.js/lib/languages/ini';
+import java from 'highlight.js/lib/languages/java';
+import python from 'highlight.js/lib/languages/python';
+import groovy from 'highlight.js/lib/languages/groovy';
+import dockerfile from 'highlight.js/lib/languages/dockerfile';
+import markdown from 'highlight.js/lib/languages/markdown';
+import bash from 'highlight.js/lib/languages/bash';
+import plaintext from 'highlight.js/lib/languages/plaintext';
 
 @Component({
   selector: 'app-pr-detail',
@@ -169,11 +185,38 @@ import { ColorSchemeType } from 'diff2html/lib/types';
   `,
 })
 export class PrDetailComponent {
+  private static hljsRegistered = false;
+
   pr = input.required<PullRequest>();
 
   private readonly jiraService = inject(JiraService);
   private readonly bitbucketService = inject(BitbucketService);
   private readonly sanitizer = inject(DomSanitizer);
+
+  private readonly diffContainer = viewChild<ElementRef<HTMLElement>>('diffContainer');
+
+  constructor() {
+    if (!PrDetailComponent.hljsRegistered) {
+      hljs.registerLanguage('typescript', typescript);
+      hljs.registerLanguage('javascript', javascript);
+      hljs.registerLanguage('xml', xml);
+      hljs.registerLanguage('html', xml);
+      hljs.registerLanguage('css', css);
+      hljs.registerLanguage('scss', scss);
+      hljs.registerLanguage('json', json);
+      hljs.registerLanguage('yaml', yaml);
+      hljs.registerLanguage('ini', ini);
+      hljs.registerLanguage('toml', ini);
+      hljs.registerLanguage('java', java);
+      hljs.registerLanguage('python', python);
+      hljs.registerLanguage('groovy', groovy);
+      hljs.registerLanguage('dockerfile', dockerfile);
+      hljs.registerLanguage('markdown', markdown);
+      hljs.registerLanguage('bash', bash);
+      hljs.registerLanguage('plaintext', plaintext);
+      PrDetailComponent.hljsRegistered = true;
+    }
+  }
 
   readonly jiraTicket = toSignal(
     toObservable(this.pr).pipe(
@@ -230,6 +273,18 @@ export class PrDetailComponent {
   toggleDiff() {
     this.diffExpanded.update(v => !v);
   }
+
+  private highlightEffect = effect(() => {
+    const container = this.diffContainer();
+    if (!container) return;
+    const html = this.diffHtml();
+    if (!html) return;
+    setTimeout(() => {
+      container.nativeElement.querySelectorAll('code:not(.hljs)').forEach((block) => {
+        hljs.highlightElement(block as HTMLElement);
+      });
+    });
+  });
 
   authorInitials = computed(() =>
     this.pr().author.user.displayName
