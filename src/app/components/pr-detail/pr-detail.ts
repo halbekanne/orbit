@@ -1,12 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, switchMap } from 'rxjs';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PullRequest, PrStatus } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
+import { BitbucketService } from '../../services/bitbucket.service';
 import { JiraService } from '../../services/jira.service';
 import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { extractJiraKey } from '../pr-jira-key';
+import * as Diff2Html from 'diff2html';
+import { ColorSchemeType } from 'diff2html/lib/types';
 
 @Component({
   selector: 'app-pr-detail',
@@ -131,6 +135,35 @@ import { extractJiraKey } from '../pr-jira-key';
         </div>
       </section>
 
+      <section class="border-b border-stone-100" aria-labelledby="pr-diff-heading">
+        <div class="max-w-2xl mx-auto px-6 py-4">
+          <h2 id="pr-diff-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Änderungen</h2>
+          @if (diffData() === 'loading') {
+            <p class="text-sm text-stone-400 animate-pulse">Änderungen laden...</p>
+          } @else if (diffData() === 'error') {
+            <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
+          } @else if (diffFileCount() === 0) {
+            <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
+          } @else {
+            <button
+              (click)="toggleDiff()"
+              class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-stone-600 bg-stone-50 border border-stone-200 rounded hover:bg-stone-100 transition-colors"
+              [attr.aria-expanded]="diffExpanded()"
+              aria-controls="pr-diff-content"
+            >
+              @if (diffExpanded()) {
+                Änderungen ausblenden
+              } @else {
+                Änderungen anzeigen ({{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }})
+              }
+            </button>
+            @if (diffExpanded()) {
+              <div #diffContainer id="pr-diff-content" class="mt-3 overflow-x-auto rounded border border-stone-200" [innerHTML]="diffHtml()"></div>
+            }
+          }
+        </div>
+      </section>
+
       <div class="h-6" aria-hidden="true"></div>
     </article>
   `,
@@ -139,6 +172,8 @@ export class PrDetailComponent {
   pr = input.required<PullRequest>();
 
   private readonly jiraService = inject(JiraService);
+  private readonly bitbucketService = inject(BitbucketService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly jiraTicket = toSignal(
     toObservable(this.pr).pipe(
@@ -155,6 +190,46 @@ export class PrDetailComponent {
     ),
     { initialValue: 'loading' as const },
   );
+
+  readonly diffExpanded = signal(false);
+
+  readonly diffData = toSignal(
+    toObservable(this.pr).pipe(
+      switchMap(pr =>
+        concat(
+          of('loading' as const),
+          this.bitbucketService.getPullRequestDiff(pr).pipe(
+            catchError(() => of('error' as const)),
+          ),
+        )
+      ),
+    ),
+    { initialValue: 'loading' as const },
+  );
+
+  readonly diffFileCount = computed(() => {
+    const data = this.diffData();
+    if (data === 'loading' || data === 'error') return 0;
+    return Diff2Html.parse(data).length;
+  });
+
+  readonly diffHtml = computed((): SafeHtml | null => {
+    if (!this.diffExpanded()) return null;
+    const data = this.diffData();
+    if (data === 'loading' || data === 'error') return null;
+    const html = Diff2Html.html(data, {
+      outputFormat: 'line-by-line',
+      drawFileList: false,
+      matching: 'lines',
+      diffStyle: 'word',
+      colorScheme: ColorSchemeType.LIGHT,
+    });
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  });
+
+  toggleDiff() {
+    this.diffExpanded.update(v => !v);
+  }
 
   authorInitials = computed(() =>
     this.pr().author.user.displayName
