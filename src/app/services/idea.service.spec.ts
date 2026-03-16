@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { IdeaService } from './idea.service';
 import { Idea } from '../models/work-item.model';
 
@@ -27,10 +27,13 @@ function setup(http: Partial<{ get: unknown; post: unknown }>) {
 describe('IdeaService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  it('ideasLoading starts true, becomes false after load', () => {
-    const svc = setup({ get: () => of([]), post: () => of([]) });
+  it('ideasLoading starts true when load is pending', () => {
+    const svc = setup({ get: () => new Observable(), post: () => of([]) });
     expect(svc.ideasLoading()).toBe(true);
-    TestBed.tick();
+  });
+
+  it('ideasLoading becomes false after load', () => {
+    const svc = setup({ get: () => of([]), post: () => of([]) });
     expect(svc.ideasLoading()).toBe(false);
   });
 

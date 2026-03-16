@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { TodoService } from './todo.service';
 import { Todo } from '../models/work-item.model';
 
@@ -29,10 +29,13 @@ function setup(http: Partial<{ get: unknown; post: unknown }>) {
 describe('TodoService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
-  it('todosLoading starts true, becomes false after load', () => {
-    const svc = setup({ get: () => of([]), post: () => of([]) });
+  it('todosLoading starts true when load is pending', () => {
+    const svc = setup({ get: () => new Observable(), post: () => of([]) });
     expect(svc.todosLoading()).toBe(true);
-    TestBed.tick();
+  });
+
+  it('todosLoading becomes false after load', () => {
+    const svc = setup({ get: () => of([]), post: () => of([]) });
     expect(svc.todosLoading()).toBe(false);
   });
 
