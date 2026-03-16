@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError, Observable } from 'rxjs';
-import { JiraTicket, PullRequest } from '../models/work-item.model';
+import { Idea, JiraTicket, PullRequest, Todo } from '../models/work-item.model';
 import { JiraService } from './jira.service';
 import { BitbucketService } from './bitbucket.service';
 import { WorkDataService } from './work-data.service';
+import { IdeaService } from './idea.service';
+import { TodoService } from './todo.service';
 
 const mockTicket: JiraTicket = {
   type: 'ticket',
@@ -228,5 +230,79 @@ describe('WorkDataService — enrichment', () => {
     const sorted = service.pullRequests();
     expect(sorted[0].myReviewStatus).toBe('Needs Re-review');
     expect(sorted[1].myReviewStatus).toBe('Changes Requested');
+  });
+});
+
+describe('WorkDataService — coordinator', () => {
+  const mockJira = { getAssignedActiveTickets: () => of([]) };
+  const mockBitbucket = { getReviewerPullRequests: () => of([]) };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('promoteToTodo marks idea as wont-do and adds a new todo', () => {
+    const idea: Idea = {
+      type: 'idea', id: 'i1', title: 'Idea', description: 'desc',
+      status: 'active', createdAt: '2026-03-16T00:00:00',
+    };
+
+    const updatedIdeas: Idea[] = [];
+    const addedTodos: Todo[] = [];
+
+    const mockIdea = {
+      update: (i: Idea) => updatedIdeas.push(i),
+      add: (_title: string, _desc: string): Todo => {
+        const t: Todo = { type: 'todo', id: 'new1', title: _title, description: _desc, status: 'open', urgent: false, createdAt: '', completedAt: null };
+        addedTodos.push(t);
+        return t;
+      },
+    };
+    const mockTodo = {
+      add: mockIdea.add,
+    };
+
+    TestBed.configureTestingModule({});
+    TestBed.overrideProvider(JiraService, { useValue: mockJira });
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
+    TestBed.overrideProvider(TodoService, { useValue: mockTodo });
+
+    const svc = TestBed.inject(WorkDataService);
+    svc.promoteToTodo(idea);
+
+    expect(updatedIdeas[0]).toEqual({ ...idea, status: 'wont-do' });
+    expect(addedTodos[0].title).toBe('Idea');
+  });
+
+  it('demoteToIdea removes todo and adds a new idea', () => {
+    const todo: Todo = {
+      type: 'todo', id: 'td1', title: 'Task', description: 'desc',
+      status: 'open', urgent: false, createdAt: '', completedAt: null,
+    };
+
+    const removedIds: string[] = [];
+    const addedIdeas: Idea[] = [];
+
+    const mockTodo = {
+      remove: (id: string) => removedIds.push(id),
+    };
+    const mockIdea = {
+      add: (_title: string, _desc: string): Idea => {
+        const i: Idea = { type: 'idea', id: 'new1', title: _title, description: _desc, status: 'active', createdAt: '' };
+        addedIdeas.push(i);
+        return i;
+      },
+    };
+
+    TestBed.configureTestingModule({});
+    TestBed.overrideProvider(JiraService, { useValue: mockJira });
+    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
+    TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
+    TestBed.overrideProvider(TodoService, { useValue: mockTodo });
+
+    const svc = TestBed.inject(WorkDataService);
+    svc.demoteToIdea(todo);
+
+    expect(removedIds).toContain('td1');
+    expect(addedIdeas[0].title).toBe('Task');
   });
 });
