@@ -192,6 +192,15 @@ export class BitbucketService {
     );
   }
 
+  getPullRequestDiff(pr: Pick<PullRequest, 'prNumber' | 'toRef'>): Observable<string> {
+    const { projectKey } = pr.toRef.repository;
+    const repoSlug = pr.toRef.repository.slug;
+    return this.http.get(
+      `${this.baseUrl}/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pr.prNumber}.diff`,
+      { responseType: 'text' },
+    );
+  }
+
   private mapPr(raw: BitbucketPrRaw, currentUserSlug: string): PullRequest {
     const reviewer = raw.reviewers.find(r => r.user.slug === currentUserSlug);
     const myReviewStatus: PrStatus = reviewer

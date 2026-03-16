@@ -236,3 +236,37 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
     req.flush({ values: [], isLastPage: true });
   });
 });
+
+describe('BitbucketService — getPullRequestDiff', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('requests the correct diff URL with text responseType', () => {
+    let result: string | undefined;
+    service.getPullRequestDiff(makePrRef()).subscribe(d => (result = d));
+    const req = httpTesting.expectOne(r => r.url.includes('pull-requests/89.diff'));
+    expect(req.request.url).toContain('/projects/SL/repos/versicherung-shared-lib/pull-requests/89.diff');
+    expect(req.request.responseType).toBe('text');
+    req.flush('diff --git a/file.ts b/file.ts');
+    expect(result).toBe('diff --git a/file.ts b/file.ts');
+  });
+
+  it('propagates errors', () => {
+    let error: unknown;
+    service.getPullRequestDiff(makePrRef()).subscribe({ error: e => (error = e) });
+    httpTesting
+      .expectOne(r => r.url.includes('pull-requests/89.diff'))
+      .flush('error', { status: 500, statusText: 'Internal Server Error' });
+    expect(error).toBeTruthy();
+  });
+});
