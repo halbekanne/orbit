@@ -40,6 +40,7 @@ interface Todo {
   status: 'open' | 'done' | 'wont-do';  // replaces done: boolean
   urgent: boolean;
   createdAt: string;
+  completedAt: string | null;            // set when status becomes 'done', null otherwise
 }
 ```
 
@@ -107,14 +108,15 @@ Owns all todo state and todo-only mutations.
 | Member | Type | Description |
 |---|---|---|
 | `todos` | `signal<Todo[]>` | Full array from BFF; position = order |
-| `openTodos` | `computed` | `status === 'open'`, urgent items first |
-| `doneTodos` | `computed` | `status === 'done'` |
+| `today` | `private readonly string` | `new Date().toDateString()` captured once at service construction — not reactive |
+| `openTodos` | `computed` | `status === 'open'` OR (`status === 'done'` AND `completedAt` is today) — urgent open items first, then non-urgent open items, then today's completed items at the bottom |
+| `doneTodos` | `computed` | `status === 'done'` AND `completedAt` is before today |
 | `wontDoTodos` | `computed` | `status === 'wont-do'` |
 | `pendingCount` | `computed` | `openTodos().length` |
 | `todosLoading` | `signal<boolean>` | True during initial load |
 | `todosError` | `signal<boolean>` | True if load failed |
 | `load()` | method | Fetches from BFF on init |
-| `add(title, description?)` | method | Prepends new todo with `status: 'open'`, `urgent: false`; saves |
+| `add(title, description?)` | method | Prepends new todo with `status: 'open'`, `urgent: false`, `completedAt: null`; saves |
 | `update(todo: Todo)` | method | Replaces item by id in array; saves |
 | `reorder(fromIndex, toIndex)` | method | Moves item in array; saves |
 | `save()` | private method | POSTs full array to BFF |
@@ -260,7 +262,7 @@ interface CollapsedState {
   prs: boolean;
   todos: boolean;       // open todos section
   todosDone: boolean;   // "Erledigt" sub-section
-  todosWontDo: boolean; // "Nicht erledigt" sub-section
+  todosWontDo: boolean; // "Nicht verfolgt" sub-section
   ideas: boolean;       // active ideas section
   ideasWontDo: boolean; // "Nicht verfolgt" sub-section
 }
@@ -271,8 +273,8 @@ Default (no saved state): all `false`. The `effect()` and `loadCollapsed()` in `
 **Navigator section order:**
 1. Aktuelle Tickets (Jira)
 2. Pull Requests (Bitbucket)
-3. Aufgaben — open todos (draggable), then collapsed "Erledigt (n)" and "Nicht erledigt (n)"
-4. Ideen — active ideas (draggable), then collapsed "Nicht verfolgt (n)"
+3. Aufgaben — open todos + today's completed todos (draggable open items only), then collapsed "Erledigt (n)" (completed before today) and "Nicht verfolgt (n)" (won't-do)
+4. Ideen — active ideas (draggable), then collapsed "Nicht verfolgt (n)" (won't-do)
 
 ### QuickCaptureComponent
 
@@ -323,7 +325,9 @@ Animation sequence:
 1. Checkbox bounce (0.5s, cubic-bezier spring)
 2. Confetti particle burst from the checkbox (12 particles, 6 colors, 0.65s)
 3. Ascending 3-note chime (do–mi–sol via Web Audio API)
-4. Card fades and slides into the collapsed "Erledigt" section
+4. Card remains in the list, styled as done (strikethrough, faded, green checkbox)
+
+**Today's completed todos stay in the list until the next load.** This keeps today's wins visible — the user can see evidence of progress throughout the day. On next load, any todo with `completedAt` before today moves to the collapsed "Erledigt" pile automatically. "Today" is evaluated once at `TodoService` construction (`new Date().toDateString()`) and not re-evaluated until the next page load.
 
 This is intentionally more elaborate than other interactions — it is the dopamine close, the reward for finishing a task. Motion is deliberate here, not decorative.
 
@@ -339,7 +343,7 @@ No animation. The item moves to the collapsed section with muted stone-400 styli
 
 ### Collapsed sections
 
-- "Erledigt (n)", "Nicht erledigt (n)", "Nicht verfolgt (n)" are collapsed by default
+- "Erledigt (n)", "Nicht verfolgt (n)", "Nicht verfolgt (n)" are collapsed by default
 - Expand on click, persist state in `localStorage` under `orbit.navigator.collapsed`
 - Done/won't-do items: strikethrough title, faded opacity, no drag handle
 
