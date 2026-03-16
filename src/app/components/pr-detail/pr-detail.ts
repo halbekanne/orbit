@@ -155,7 +155,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         <div class="max-w-2xl mx-auto px-6 py-4">
           <h2 id="pr-diff-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Änderungen</h2>
           @if (diffData() === 'loading') {
-            <p class="text-sm text-stone-400 animate-pulse">Änderungen laden...</p>
+            <p class="text-sm text-stone-400 italic">Änderungen laden...</p>
           } @else if (diffData() === 'error') {
             <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
           } @else if (diffFileCount() === 0) {
@@ -250,17 +250,19 @@ export class PrDetailComponent {
     { initialValue: 'loading' as const },
   );
 
-  readonly diffFileCount = computed(() => {
+  private readonly diffParsed = computed(() => {
     const data = this.diffData();
-    if (data === 'loading' || data === 'error') return 0;
-    return Diff2Html.parse(data).length;
+    if (data === 'loading' || data === 'error') return null;
+    return Diff2Html.parse(data);
   });
+
+  readonly diffFileCount = computed(() => this.diffParsed()?.length ?? 0);
 
   readonly diffHtml = computed((): SafeHtml | null => {
     if (!this.diffExpanded()) return null;
-    const data = this.diffData();
-    if (data === 'loading' || data === 'error') return null;
-    const html = Diff2Html.html(data, {
+    const parsed = this.diffParsed();
+    if (!parsed) return null;
+    const html = Diff2Html.html(parsed, {
       outputFormat: 'line-by-line',
       drawFileList: false,
       matching: 'lines',
