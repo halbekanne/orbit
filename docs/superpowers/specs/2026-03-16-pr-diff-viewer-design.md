@@ -79,8 +79,13 @@ Constructs the URL from `pr.toRef.repository.projectKey`, `pr.toRef.repository.s
 | Error | Hidden | "Änderungen konnten nicht geladen werden." |
 | Loaded + Collapsed | "Änderungen anzeigen (X Dateien)" | Hidden |
 | Loaded + Expanded | "Änderungen ausblenden" | diff2html rendered HTML |
+| Empty diff | Hidden | "Keine Änderungen vorhanden." muted text |
 
 No animation on expand/collapse — instant show/hide per low-motion principle.
+
+### Security
+
+diff2html generates HTML that is injected via `[innerHTML]`. Angular's default sanitizer will strip some of this markup. Use `DomSanitizer.bypassSecurityTrustHtml()` to mark the diff2html output as trusted. This is safe because the input is a unified diff string from our own backend (proxy or mock server), not user-generated content.
 
 ### CSS
 
