@@ -114,8 +114,19 @@ export interface Todo {
   id: string;
   title: string;
   description: string;
-  done: boolean;
+  status: 'open' | 'done' | 'wont-do';
+  urgent: boolean;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export interface Idea {
+  type: 'idea';
+  id: string;
+  title: string;
+  description: string;
+  status: 'active' | 'wont-do';
   createdAt: string;
 }
 
-export type WorkItem = JiraTicket | PullRequest | Todo;
+export type WorkItem = JiraTicket | PullRequest | Todo | Idea;
