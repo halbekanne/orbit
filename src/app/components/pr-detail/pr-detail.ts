@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, injec
 import { DatePipe } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, switchMap } from 'rxjs';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PullRequest, PrStatus } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { BitbucketService } from '../../services/bitbucket.service';
@@ -10,6 +9,7 @@ import { JiraService } from '../../services/jira.service';
 import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { extractJiraKey } from '../pr-jira-key';
 import * as Diff2Html from 'diff2html';
+import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
 import { ColorSchemeType } from 'diff2html/lib/types';
 import hljs from 'highlight.js/lib/core';
 import typescript from 'highlight.js/lib/languages/typescript';
@@ -174,7 +174,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               }
             </button>
             @if (diffExpanded()) {
-              <div #diffContainer id="pr-diff-content" class="mt-3 overflow-x-auto rounded border border-stone-200" [innerHTML]="diffHtml()"></div>
+              <div #diffContainer id="pr-diff-content" class="mt-3 overflow-x-auto rounded border border-stone-200"></div>
             }
           }
         </div>
@@ -191,7 +191,6 @@ export class PrDetailComponent {
 
   private readonly jiraService = inject(JiraService);
   private readonly bitbucketService = inject(BitbucketService);
-  private readonly sanitizer = inject(DomSanitizer);
 
   private readonly diffContainer = viewChild<ElementRef<HTMLElement>>('diffContainer');
 
@@ -258,33 +257,26 @@ export class PrDetailComponent {
 
   readonly diffFileCount = computed(() => this.diffParsed()?.length ?? 0);
 
-  readonly diffHtml = computed((): SafeHtml | null => {
-    if (!this.diffExpanded()) return null;
-    const parsed = this.diffParsed();
-    if (!parsed) return null;
-    const html = Diff2Html.html(parsed, {
-      outputFormat: 'line-by-line',
-      drawFileList: false,
-      matching: 'lines',
-      diffStyle: 'word',
-      colorScheme: ColorSchemeType.LIGHT,
-    });
-    return this.sanitizer.bypassSecurityTrustHtml(html);
-  });
-
   toggleDiff() {
     this.diffExpanded.update(v => !v);
   }
 
-  private highlightEffect = effect(() => {
+  private renderEffect = effect(() => {
     const container = this.diffContainer();
     if (!container) return;
-    const html = this.diffHtml();
-    if (!html) return;
+    if (!this.diffExpanded()) return;
+    const data = this.diffData();
+    if (data === 'loading' || data === 'error') return;
     setTimeout(() => {
-      container.nativeElement.querySelectorAll('code:not(.hljs)').forEach((block) => {
-        hljs.highlightElement(block as HTMLElement);
-      });
+      const ui = new Diff2HtmlUI(container.nativeElement, data, {
+        outputFormat: 'line-by-line',
+        drawFileList: false,
+        matching: 'lines',
+        diffStyle: 'word',
+        colorScheme: ColorSchemeType.LIGHT,
+      }, hljs);
+      ui.draw();
+      ui.highlightCode();
     });
   });
 

@@ -28,6 +28,15 @@
   }
 }
 
+/* ── diff2html fixes ──────────────────────────────────────────────── */
+.d2h-wrapper .d2h-diff-table tr {
+  position: relative;
+}
+
+.d2h-wrapper .d2h-file-header.d2h-sticky-header {
+  position: static;
+}
+
 /* ── Jira wiki markup ─────────────────────────────────────────────── */
 .jira-markup { color: rgb(68 64 60); font-size: 0.875rem; line-height: 1.625; }
 
