@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal, effect } from '@angular/core';
 import { Todo } from '../../models/work-item.model';
+import { TodoService } from '../../services/todo.service';
 import { WorkDataService } from '../../services/work-data.service';
 
 @Component({
@@ -8,32 +9,42 @@ import { WorkDataService } from '../../services/work-data.service';
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Todo: ' + todo().title">
       <header class="pb-5 border-b border-stone-200">
-        <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2">
-              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="todo().done ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'">
-                {{ todo().done ? 'Erledigt' : 'Offen' }}
+              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                [class]="statusBadgeClass()">
+                {{ statusLabel() }}
               </span>
+              @if (todo().urgent) {
+                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-800 border border-amber-300">
+                  Dringend
+                </span>
+              }
             </div>
-            <h1 class="text-xl font-semibold text-stone-900 leading-snug" [class]="todo().done ? 'line-through text-stone-400' : ''">{{ todo().title }}</h1>
-          </div>
-          <button
-            type="button"
-            class="shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-            [class]="todo().done
-              ? 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-              : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
-            (click)="data.toggleTodo(todo().id)"
-            [attr.aria-label]="todo().done ? 'Als offen markieren' : 'Als erledigt markieren'"
-          >
-            @if (todo().done) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/></svg>
-              Wieder öffnen
+
+            @if (editingTitle()) {
+              <input
+                #titleInput
+                type="text"
+                class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-indigo-400 focus:outline-none"
+                [value]="draftTitle()"
+                (input)="draftTitle.set($any($event.target).value)"
+                (blur)="saveTitle()"
+                (keydown)="onTitleKeydown($event)"
+                aria-label="Titel bearbeiten"
+              />
             } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-              Erledigt
+              <h1
+                class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-indigo-700 transition-colors"
+                [class]="todo().status === 'done' ? 'line-through text-stone-400' : ''"
+                (click)="startEditTitle()"
+                tabindex="0"
+                (keydown.enter)="startEditTitle()"
+                aria-label="Titel anklicken zum Bearbeiten"
+              >{{ todo().title }}</h1>
             }
-          </button>
+          </div>
         </div>
       </header>
 
@@ -43,13 +54,42 @@ import { WorkDataService } from '../../services/work-data.service';
             <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
             <dd class="text-sm text-stone-700">{{ formatDate(todo().createdAt) }}</dd>
           </div>
+          @if (todo().completedAt) {
+            <div>
+              <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erledigt am</dt>
+              <dd class="text-sm text-stone-700">{{ formatDate(todo().completedAt!) }}</dd>
+            </div>
+          }
         </dl>
       </div>
 
       <div class="flex-1 py-5 overflow-y-auto">
-        @if (todo().description) {
-          <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Notizen</h2>
-          <div class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">{{ todo().description }}</div>
+        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Notizen</h2>
+
+        @if (editingDescription()) {
+          <textarea
+            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-indigo-400 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-none"
+            [value]="draftDescription()"
+            (input)="draftDescription.set($any($event.target).value)"
+            (blur)="saveDescription()"
+            (keydown)="onDescriptionKeydown($event)"
+            aria-label="Notizen bearbeiten"
+          ></textarea>
+          <p class="text-xs text-stone-400 mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
+        } @else {
+          <div
+            class="text-sm text-stone-700 leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-stone-50 rounded-md p-1 -m-1 transition-colors"
+            (click)="startEditDescription()"
+            tabindex="0"
+            (keydown.enter)="startEditDescription()"
+            [attr.aria-label]="todo().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
+          >
+            @if (todo().description) {
+              {{ todo().description }}
+            } @else {
+              <span class="text-stone-400 italic">Notizen hinzufügen…</span>
+            }
+          </div>
         }
       </div>
     </article>
@@ -57,7 +97,79 @@ import { WorkDataService } from '../../services/work-data.service';
 })
 export class TodoDetailComponent {
   todo = input.required<Todo>();
-  protected readonly data = inject(WorkDataService);
+  private readonly todoService = inject(TodoService);
+  private readonly workData = inject(WorkDataService);
+
+  editingTitle = signal(false);
+  editingDescription = signal(false);
+  draftTitle = signal('');
+  draftDescription = signal('');
+
+  constructor() {
+    effect(() => {
+      const t = this.todo();
+      this.draftTitle.set(t.title);
+      this.draftDescription.set(t.description);
+      this.editingTitle.set(false);
+      this.editingDescription.set(false);
+    });
+  }
+
+  statusBadgeClass(): string {
+    switch (this.todo().status) {
+      case 'done': return 'bg-emerald-100 text-emerald-700';
+      case 'wont-do': return 'bg-stone-100 text-stone-500';
+      default: return 'bg-indigo-100 text-indigo-700';
+    }
+  }
+
+  statusLabel(): string {
+    switch (this.todo().status) {
+      case 'done': return 'Erledigt';
+      case 'wont-do': return 'Nicht verfolgt';
+      default: return 'Offen';
+    }
+  }
+
+  startEditTitle(): void {
+    this.draftTitle.set(this.todo().title);
+    this.editingTitle.set(true);
+  }
+
+  saveTitle(): void {
+    const val = this.draftTitle().trim();
+    if (val && val !== this.todo().title) {
+      const updated = { ...this.todo(), title: val };
+      this.todoService.update(updated);
+      this.workData.selectedItem.set(updated);
+    }
+    this.editingTitle.set(false);
+  }
+
+  onTitleKeydown(e: KeyboardEvent): void {
+    if (e.key === 'Enter') { e.preventDefault(); this.saveTitle(); }
+    if (e.key === 'Escape') { this.editingTitle.set(false); }
+  }
+
+  startEditDescription(): void {
+    this.draftDescription.set(this.todo().description);
+    this.editingDescription.set(true);
+  }
+
+  saveDescription(): void {
+    const val = this.draftDescription().trim();
+    if (val !== this.todo().description) {
+      const updated = { ...this.todo(), description: val };
+      this.todoService.update(updated);
+      this.workData.selectedItem.set(updated);
+    }
+    this.editingDescription.set(false);
+  }
+
+  onDescriptionKeydown(e: KeyboardEvent): void {
+    if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
+    if (e.key === 'Escape') { this.editingDescription.set(false); }
+  }
 
   formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
