@@ -62,11 +62,14 @@ Added to `.env`:
   "jiraTicket": {
     "key": "DS-1234",
     "summary": "...",
-    "description": "...",
-    "acceptanceCriteria": "..."
+    "description": "..."
   }
 }
 ```
+
+Note: The existing `JiraTicket` model has no dedicated `acceptanceCriteria` field. In Jira, acceptance criteria are typically embedded in the `description` field. Agent 1's prompt instructs it to extract acceptance criteria from the description text. The frontend sends `key`, `summary`, and `description` from the resolved `JiraTicket` object — no new Jira fields are needed.
+
+**Body size limit:** The default `express.json()` limit (100KB) is too small for large diffs. The `/api/cosi/review` route must use `express.json({ limit: '2mb' })` to accommodate large PRs.
 
 **Response body:**
 
@@ -84,9 +87,12 @@ Added to `.env`:
     }
   ],
   "summary": "3 Findings: 1 Critical, 1 Important, 1 Minor",
+  "warnings": ["Agent 1 (AC Alignment) fehlgeschlagen — nur Code-Qualität geprüft."],
   "reviewedAt": "2026-03-18T14:30:00Z"
 }
 ```
+
+The `warnings` array is empty on success. When a specialist agent fails, a human-readable warning string is appended so the user knows the review was partial.
 
 **Orchestration logic:**
 
@@ -99,7 +105,7 @@ Added to `.env`:
 **Error handling:**
 
 - If all CoSi calls fail → return HTTP 502 with error message
-- If one specialist agent fails → consolidator works with partial results, response includes a note
+- If one specialist agent fails → consolidator works with partial results, a warning string is added to the `warnings` array in the response
 - Request timeout: 30 seconds per CoSi call
 
 ### Code Organization
@@ -107,7 +113,7 @@ Added to `.env`:
 New file: `proxy/cosi.js`
 
 Contains:
-- `callCoSi(contents, systemInstruction, generationConfig)` — shared helper for raw CoSi API calls via `fetch` with `x-api-key` header
+- `callCoSi(contents, systemInstruction, generationConfig)` — shared helper for raw CoSi API calls via `fetch` with `x-api-key` header. All calls include `responseMimeType: "application/json"` in `generationConfig` to enforce structured JSON output from Gemini and prevent markdown-wrapped responses.
 - `SYSTEM_PROMPTS` — the three agent system instructions
 - `runReview(diff, jiraTicket)` — orchestration function (fan-out → consolidate → return)
 
@@ -173,7 +179,7 @@ RULES:
 New service: `src/app/services/cosi-review.service.ts`
 
 - `providedIn: 'root'`
-- **State signal:** `reviewState: signal<'idle' | 'loading' | ReviewResult | 'error'>('idle')`
+- **State signal:** `reviewState: signal<ReviewState>('idle')` using a tagged union (see type below)
 - **Method:** `requestReview(pr: PullRequest, diff: string, jiraTicket: JiraTicket): void`
   - Sets state to `'loading'`
   - POST to `{proxyUrl}/api/cosi/review` with diff and jira ticket data
@@ -181,7 +187,7 @@ New service: `src/app/services/cosi-review.service.ts`
   - On error: sets state to `'error'`
 - Resets to `'idle'` when selected PR changes
 
-### ReviewResult Type
+### Types
 
 ```typescript
 interface ReviewFinding {
@@ -197,9 +203,18 @@ interface ReviewFinding {
 interface ReviewResult {
   findings: ReviewFinding[];
   summary: string;
+  warnings: string[];
   reviewedAt: string;
 }
+
+type ReviewState =
+  | 'idle'
+  | 'loading'
+  | { status: 'result'; data: ReviewResult }
+  | { status: 'error'; message: string };
 ```
+
+Consumers check state via string comparison for `'idle'` / `'loading'`, and via `status` property for result/error objects. This avoids ambiguous `typeof` checks.
 
 ## Frontend — UI
 
@@ -213,7 +228,12 @@ When a PR is selected, a new button appears (in addition to "In Bitbucket öffne
 | `loading` | "Review läuft..." | disabled, subtle text pulse |
 | result / error | "Erneut reviewen" | stone/neutral |
 
-Disabled when diff is still loading or review is in progress.
+**Enable/disable logic (single source of truth):** The button is disabled when:
+- Diff is still loading (`diffData() === 'loading'`)
+- Jira ticket is still loading (`jiraTicket() === 'loading'`)
+- Review is already in progress (`reviewState === 'loading'`)
+
+If no Jira ticket is linked (`jiraTicket() === 'no-ticket'`), the button is still enabled — the review runs with Agent 2 only.
 
 The button calls `cosiReviewService.requestReview()` with the current PR's diff data and resolved Jira ticket.
 
@@ -247,7 +267,7 @@ Each finding renders as:
 
 ### Jira Ticket Data for Review
 
-The PR detail already resolves the linked Jira ticket via `extractJiraKey()` (from `pr-jira-key.ts`) → `jiraService.getTicketByKey()`. The review button is only enabled when both the diff and the Jira ticket have loaded. If no Jira ticket is linked, the review still runs with Agent 2 (code quality) only — Agent 1 is skipped.
+The PR detail already resolves the linked Jira ticket via `extractJiraKey()` (from `pr-jira-key.ts`) → `jiraService.getTicketByKey()`. If no Jira ticket is linked, the review still runs with Agent 2 (code quality) only — Agent 1 is skipped, and a warning is included in the response.
 
 ## Testing Strategy
 
