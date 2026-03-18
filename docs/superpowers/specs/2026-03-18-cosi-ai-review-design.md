@@ -2,7 +2,7 @@
 
 ## Overview
 
-Add an on-demand, AI-powered code review feature to Orbit's PR detail view. When viewing a Bitbucket pull request, the user can trigger a review via a button in the action rail. The review uses the company's CoSi API (Gemini 2.5 Flash via Vertex AI proxy) to analyze the PR diff against the linked Jira ticket's acceptance criteria and check for code quality issues. Results appear as a scannable, expandable findings list in the PR detail view.
+Add an on-demand, AI-powered code review feature to Orbit's PR detail view. When viewing a Bitbucket pull request, the user can trigger a review via a button in the action rail. The review uses the company's CoSi API (Gemini 2.5 Flash via Vertex AI proxy) to analyze the PR diff against the linked Jira ticket's Akzeptanzkriterien and check for code quality issues. Results appear as a scannable, expandable findings list in the PR detail view.
 
 ### Constraints
 
@@ -14,7 +14,7 @@ Add an on-demand, AI-powered code review feature to Orbit's PR detail view. When
 ### First Vertical Slice
 
 Two specialist review agents:
-1. **AC Alignment** — compares diff against Jira ticket acceptance criteria
+1. **AK-Abgleich** — compares diff against Jira ticket Akzeptanzkriterien
 2. **Code Quality** — checks structure, readability, TypeScript/Lit best practices
 
 Future agents (design tokens, component API consistency, accessibility) will slot into the same architecture but are out of scope for this iteration.
@@ -26,7 +26,7 @@ Future agents (design tokens, component API consistency, accessibility) will slo
 ```
 User clicks "KI-Review starten" button in action rail
   → CosiReviewService sends POST { diff, jiraTicket } to Express proxy
-  → Proxy fires Agent 1 (AC) + Agent 2 (Code Quality) in parallel to CoSi API
+  → Proxy fires Agent 1 (AK) + Agent 2 (Code Quality) in parallel to CoSi API
   → Proxy collects both JSON results
   → Proxy sends combined findings to Agent 3 (Consolidator)
   → Proxy returns structured JSON to frontend
@@ -67,7 +67,7 @@ Added to `.env`:
 }
 ```
 
-Note: The existing `JiraTicket` model has no dedicated `acceptanceCriteria` field. In Jira, acceptance criteria are typically embedded in the `description` field. Agent 1's prompt instructs it to extract acceptance criteria from the description text. The frontend sends `key`, `summary`, and `description` from the resolved `JiraTicket` object — no new Jira fields are needed.
+Note: The existing `JiraTicket` model has no dedicated field for Akzeptanzkriterien. In Jira, AK are typically embedded in the `description` field. Agent 1's prompt instructs it to extract Akzeptanzkriterien from the description text. The frontend sends `key`, `summary`, and `description` from the resolved `JiraTicket` object — no new Jira fields are needed.
 
 **Body size limit:** The default `express.json()` limit (100KB) is too small for large diffs. The `/api/cosi/review` route must use `express.json({ limit: '2mb' })` to accommodate large PRs.
 
@@ -78,16 +78,16 @@ Note: The existing `JiraTicket` model has no dedicated `acceptanceCriteria` fiel
   "findings": [
     {
       "severity": "critical" | "important" | "minor",
-      "category": "ac-alignment" | "code-quality",
-      "title": "Fehlerfall aus AC #3 nicht behandelt",
+      "category": "ak-abgleich" | "code-quality",
+      "title": "Fehlerfall aus AK #3 nicht behandelt",
       "file": "src/components/button.ts",
       "line": 42,
-      "detail": "AC #3 fordert Fehlerbehandlung wenn der API-Call fehlschlägt...",
+      "detail": "AK #3 fordert Fehlerbehandlung wenn der API-Call fehlschlägt...",
       "suggestion": "Try-catch Block mit Fallback-UI hinzufügen."
     }
   ],
   "summary": "3 Findings: 1 Critical, 1 Important, 1 Minor",
-  "warnings": ["Agent 1 (AC Alignment) fehlgeschlagen — nur Code-Qualität geprüft."],
+  "warnings": ["Agent 1 (AK-Abgleich) fehlgeschlagen — nur Code-Qualität geprüft."],
   "reviewedAt": "2026-03-18T14:30:00Z"
 }
 ```
@@ -136,16 +136,16 @@ RULES:
 - Findings without a concrete location in the diff are not findings — discard them.
 ```
 
-### Agent 1 — AC Alignment
+### Agent 1 — AK-Abgleich
 
 - **Temperature:** 0.2 (deterministic comparison task)
 - **Input:** Jira ticket JSON + PR diff
-- **Task:** Compare diff against acceptance criteria. Identify gaps — fully missing, partially implemented, or slightly divergent.
+- **Task:** Compare diff against Akzeptanzkriterien. Identify gaps — fully missing, partially implemented, or slightly divergent.
 - **Output:** `{ "findings": [...] }` with severity, title, file, line, detail, suggestion
 - **Severity guide:**
-  - critical: AC completely unaddressed — feature/behavior missing entirely
-  - important: AC partially addressed — key edge case or scenario missing
-  - minor: AC addressed but implementation differs in a small way
+  - critical: AK completely unaddressed — feature/behavior missing entirely
+  - important: AK partially addressed — key edge case or scenario missing
+  - minor: AK addressed but implementation differs in a small way
 - **Scope restriction:** Must NOT comment on code quality, style, or structure
 
 ### Agent 2 — Code Quality
@@ -158,7 +158,7 @@ RULES:
   - critical: Bug, data loss risk, or broken functionality
   - important: Structural problem, poor error handling, significant readability issue
   - minor: Naming, minor style, small improvement opportunity
-- **Scope restriction:** Must NOT check acceptance criteria, design tokens, or accessibility
+- **Scope restriction:** Must NOT check Akzeptanzkriterien, design tokens, or accessibility
 
 ### Agent 3 — Consolidator
 
@@ -192,7 +192,7 @@ New service: `src/app/services/cosi-review.service.ts`
 ```typescript
 interface ReviewFinding {
   severity: 'critical' | 'important' | 'minor';
-  category: 'ac-alignment' | 'code-quality';
+  category: 'ak-abgleich' | 'code-quality';
   title: string;
   file: string;
   line: number;
