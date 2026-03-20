@@ -22,7 +22,7 @@ describe('ReviewFindingsComponent', () => {
     return fixture;
   }
 
-  it('does not render content when idle', () => {
+  it('does not render when idle', () => {
     const fixture = setup('idle');
     expect(fixture.nativeElement.querySelector('[aria-labelledby="pr-review-heading"]')).toBeNull();
   });
@@ -46,64 +46,119 @@ describe('ReviewFindingsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Keine Auffälligkeiten gefunden');
   });
 
-  it('renders findings as list items', () => {
+  it('groups findings by file', () => {
     const fixture = setup({
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
         findings: [
-          makeFinding({ severity: 'critical', title: 'Critical bug' }),
-          makeFinding({ severity: 'minor', title: 'Small thing' }),
+          makeFinding({ file: 'a.ts', severity: 'critical' }),
+          makeFinding({ file: 'b.ts', severity: 'important' }),
+          makeFinding({ file: 'a.ts', severity: 'minor' }),
         ],
-        summary: '2 Auffälligkeiten',
+        summary: '3 findings',
         warnings: [],
         reviewedAt: '',
       },
     });
-    const listItems = fixture.nativeElement.querySelectorAll('[role="listitem"]');
-    expect(listItems.length).toBe(2);
+    const groups = fixture.nativeElement.querySelectorAll('[data-file-group]');
+    expect(groups.length).toBe(2);
   });
 
-  it('expands critical findings by default', () => {
+  it('expands file groups with critical findings by default', () => {
     const fixture = setup({
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [makeFinding({ severity: 'critical', detail: 'Critical detail text' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        findings: [
+          makeFinding({ file: 'critical.ts', severity: 'critical', title: 'Critical bug' }),
+        ],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
-    expect(fixture.nativeElement.textContent).toContain('Critical detail text');
+    const group = fixture.nativeElement.querySelector('[data-file-group]');
+    const button = group.querySelector('button');
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(fixture.nativeElement.textContent).toContain('Critical bug');
   });
 
-  it('collapses non-critical findings by default', () => {
+  it('collapses file groups without critical findings by default', () => {
     const fixture = setup({
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [makeFinding({ severity: 'minor', detail: 'Minor detail text' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        findings: [
+          makeFinding({ file: 'minor.ts', severity: 'minor', detail: 'Minor detail text' }),
+        ],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
-    expect(fixture.nativeElement.textContent).not.toContain('Minor detail text');
+    const group = fixture.nativeElement.querySelector('[data-file-group]');
+    const button = group.querySelector('button');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('toggles finding detail on click', () => {
+  it('toggles file group on header click', () => {
     const fixture = setup({
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [makeFinding({ severity: 'minor', detail: 'Toggled detail' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        findings: [
+          makeFinding({ file: 'minor.ts', severity: 'minor', title: 'Toggled finding' }),
+        ],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
-    expect(fixture.nativeElement.textContent).not.toContain('Toggled detail');
+    const button = fixture.nativeElement.querySelector('[data-file-group] button');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
 
-    const button = fixture.nativeElement.querySelector('[role="listitem"] button');
     button.click();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Toggled detail');
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(fixture.nativeElement.textContent).toContain('Toggled finding');
+  });
+
+  it('shows severity dots in file group header', () => {
+    const fixture = setup({
+      status: 'result',
+      pipeline: createInitialPipeline(),
+      data: {
+        findings: [
+          makeFinding({ file: 'a.ts', severity: 'critical' }),
+          makeFinding({ file: 'a.ts', severity: 'minor' }),
+        ],
+        summary: '2',
+        warnings: [],
+        reviewedAt: '',
+      },
+    });
+    const dots = fixture.nativeElement.querySelectorAll('[data-severity-dot]');
+    expect(dots.length).toBe(2);
+  });
+
+  it('shows inline code in detail text', () => {
+    const fixture = setup({
+      status: 'result',
+      pipeline: createInitialPipeline(),
+      data: {
+        findings: [
+          makeFinding({ file: 'a.ts', severity: 'critical', detail: 'Use `ngOnInit` instead' }),
+        ],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
+      },
+    });
+    const codeEl = fixture.nativeElement.querySelector('code');
+    expect(codeEl).toBeTruthy();
+    expect(codeEl.textContent).toContain('ngOnInit');
   });
 
   it('shows warnings when present', () => {
@@ -120,17 +175,22 @@ describe('ReviewFindingsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Agent 1 fehlgeschlagen');
   });
 
-  it('shows summary text', () => {
+  it('sorts file groups by highest severity', () => {
     const fixture = setup({
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [makeFinding()],
-        summary: '1 Auffälligkeit: 0 Kritisch, 1 Wichtig, 0 Gering',
+        findings: [
+          makeFinding({ file: 'minor-file.ts', severity: 'minor' }),
+          makeFinding({ file: 'critical-file.ts', severity: 'critical' }),
+        ],
+        summary: '2',
         warnings: [],
         reviewedAt: '',
       },
     });
-    expect(fixture.nativeElement.textContent).toContain('1 Auffälligkeit');
+    const groups = fixture.nativeElement.querySelectorAll('[data-file-group]');
+    expect(groups[0].getAttribute('data-file-group')).toBe('critical-file.ts');
+    expect(groups[1].getAttribute('data-file-group')).toBe('minor-file.ts');
   });
 });
