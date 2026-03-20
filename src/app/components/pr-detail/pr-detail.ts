@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, concat, map, of, switchMap } from 'rxjs';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, concat, map, of, skip, switchMap } from 'rxjs';
 import { PullRequest, PrStatus } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { BitbucketService } from '../../services/bitbucket.service';
 import { JiraService } from '../../services/jira.service';
 import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
+import { ReviewFindingsComponent } from '../review-findings/review-findings';
+import { CosiReviewService } from '../../services/cosi-review.service';
 import { extractJiraKey } from '../pr-jira-key';
 import * as Diff2Html from 'diff2html';
 import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
@@ -31,7 +33,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent],
+  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent],
   styles: [`
     @keyframes prFadeIn {
       from { opacity: 0; }
@@ -151,6 +153,8 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </div>
       </section>
 
+      <app-review-findings [reviewState]="cosiReview.reviewState()" />
+
       <section class="border-b border-stone-100" aria-labelledby="pr-diff-heading">
         <div class="max-w-2xl mx-auto px-6 py-4">
           <h2 id="pr-diff-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Änderungen</h2>
@@ -191,6 +195,8 @@ export class PrDetailComponent {
 
   private readonly jiraService = inject(JiraService);
   private readonly bitbucketService = inject(BitbucketService);
+  protected readonly cosiReview = inject(CosiReviewService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly diffContainer = viewChild<ElementRef<HTMLElement>>('diffContainer');
 
@@ -215,6 +221,21 @@ export class PrDetailComponent {
       hljs.registerLanguage('plaintext', plaintext);
       PrDetailComponent.hljsRegistered = true;
     }
+
+    this.cosiReview.reviewRequested$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => {
+      const diff = this.diffData();
+      if (diff === 'loading' || diff === 'error') return;
+      const ticket = this.jiraTicket();
+      const resolvedTicket = (ticket !== 'loading' && ticket !== 'error' && ticket !== 'no-ticket') ? ticket : null;
+      this.cosiReview.requestReview(diff, resolvedTicket);
+    });
+
+    toObservable(this.pr).pipe(
+      skip(1),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => this.cosiReview.reset());
   }
 
   readonly jiraTicket = toSignal(
@@ -256,6 +277,16 @@ export class PrDetailComponent {
   });
 
   readonly diffFileCount = computed(() => this.diffParsed()?.length ?? 0);
+
+  private readonly dataReady = computed(() => {
+    const diff = this.diffData();
+    const ticket = this.jiraTicket();
+    return diff !== 'loading' && diff !== 'error' && ticket !== 'loading';
+  });
+
+  private dataReadyEffect = effect(() => {
+    this.cosiReview.canReview.set(this.dataReady());
+  });
 
   toggleDiff() {
     this.diffExpanded.update(v => !v);

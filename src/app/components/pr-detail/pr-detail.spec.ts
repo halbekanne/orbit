@@ -4,7 +4,9 @@ import { of, Subject, throwError } from 'rxjs';
 import { PrDetailComponent } from './pr-detail';
 import { JiraService } from '../../services/jira.service';
 import { BitbucketService } from '../../services/bitbucket.service';
+import { CosiReviewService } from '../../services/cosi-review.service';
 import { PullRequest, JiraTicket } from '../../models/work-item.model';
+import { signal } from '@angular/core';
 
 const basePr: PullRequest = {
   type: 'pr', id: '1', prNumber: 1,
@@ -65,15 +67,28 @@ describe('PrDetailComponent', () => {
   let fixture: ComponentFixture<PrDetailComponent>;
   const getTicketByKey = vi.fn();
   const getPullRequestDiff = vi.fn();
+  const mockCosiReview = {
+    reviewState: signal<import('../../models/review.model').ReviewState>('idle'),
+    canReview: signal(false),
+    reviewRequested$: new Subject<void>(),
+    triggerReview: vi.fn(),
+    requestReview: vi.fn(),
+    reset: vi.fn(),
+  };
 
   beforeEach(() => {
     getTicketByKey.mockReset();
     getPullRequestDiff.mockReset();
+    mockCosiReview.reset.mockReset();
+    mockCosiReview.requestReview.mockReset();
+    mockCosiReview.reviewState.set('idle');
+    mockCosiReview.canReview.set(false);
     TestBed.configureTestingModule({
       imports: [PrDetailComponent],
       providers: [
         { provide: JiraService, useValue: { getTicketByKey } },
         { provide: BitbucketService, useValue: { getPullRequestDiff } },
+        { provide: CosiReviewService, useValue: mockCosiReview },
       ],
     });
   });
@@ -183,5 +198,48 @@ describe('PrDetailComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Keine Änderungen vorhanden');
+  });
+
+  it('renders the review findings component', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-review-findings')).toBeTruthy();
+  });
+
+  it('resets review state when PR changes', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const updatedPr = { ...basePr, title: 'VERS-99: Another PR' };
+    fixture.componentRef.setInput('pr', updatedPr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(mockCosiReview.reset).toHaveBeenCalled();
+  });
+
+  it('sets canReview to true when diff and ticket are loaded', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    TestBed.tick();
+
+    expect(mockCosiReview.canReview()).toBe(true);
   });
 });
