@@ -125,6 +125,7 @@ PROCESS (in order):
 5. SORT: critical first, then important, then minor.
 6. ADD CATEGORY: Tag each finding from Agent 1 with "category": "ak-abgleich" and each finding from Agent 2 with "category": "code-quality".
 7. WRITE SUMMARY: A concise German summary, e.g., "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering"
+8. DECISIONS: For every finding from both agents, add a decision entry explaining what you did with it.
 
 OUTPUT FORMAT:
 {
@@ -139,10 +140,18 @@ OUTPUT FORMAT:
       "suggestion": "..."
     }
   ],
+  "decisions": [
+    {
+      "agent": "ak-abgleich | code-quality",
+      "finding": "original finding title",
+      "action": "kept | removed | merged | severity-changed",
+      "reason": "why this decision was made"
+    }
+  ],
   "summary": "German summary string"
 }
 
-If no findings survive filtering, output: { "findings": [], "summary": "Keine Auffälligkeiten" }`,
+If no findings survive filtering, output: { "findings": [], "decisions": [...], "summary": "Keine Auffälligkeiten" }`,
 };
 
 function buildAgent1Prompt(diff, jiraTicket) {
@@ -180,43 +189,90 @@ ${JSON.stringify(agent2Findings)}
 Deduplicate, filter, sort, categorize, and write the summary. Output JSON only.`;
 }
 
-async function runReview(diff, jiraTicket) {
+function describeFindings(findings) {
+  if (findings.length === 0) return 'Keine Auffälligkeiten';
+  const critical = findings.filter(f => f.severity === 'critical').length;
+  const important = findings.filter(f => f.severity === 'important').length;
+  const minor = findings.filter(f => f.severity === 'minor').length;
+  const parts = [];
+  if (critical) parts.push(`${critical} Kritisch`);
+  if (important) parts.push(`${important} Wichtig`);
+  if (minor) parts.push(`${minor} Gering`);
+  return `${findings.length} Auffälligkeit${findings.length === 1 ? '' : 'en'}: ${parts.join(', ')}`;
+}
+
+function describeConsolidation(agent1, agent2, consolidated) {
+  const inputCount = agent1.findings.length + agent2.findings.length;
+  const outputCount = consolidated.findings?.length ?? 0;
+  const removed = inputCount - outputCount;
+  if (removed === 0) return `${inputCount} Findings übernommen`;
+  return `${inputCount} Findings geprüft, ${removed} gefiltert, ${outputCount} übernommen`;
+}
+
+async function runReview(diff, jiraTicket, emit) {
   const warnings = [];
 
   const agentCalls = [];
 
   if (jiraTicket) {
+    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 });
+    const agent1Start = Date.now();
     agentCalls.push(
       callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, { temperature: 0.2 })
+        .then((result) => {
+          emit('agent:done', {
+            agent: 'ak-abgleich',
+            duration: Date.now() - agent1Start,
+            findingCount: result.findings.length,
+            summary: describeFindings(result.findings),
+            rawResponse: result,
+          });
+          return result;
+        })
         .catch((err) => {
+          emit('agent:error', { agent: 'ak-abgleich', error: err.message });
           warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
           return { findings: [] };
         })
     );
   } else {
+    emit('warning', { message: 'Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.' });
     warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
-    agentCalls.push(Promise.resolve({ findings: [] }));
   }
 
+  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+  const agent2Start = Date.now();
   agentCalls.push(
     callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 })
+      .then((result) => {
+        emit('agent:done', {
+          agent: 'code-quality',
+          duration: Date.now() - agent2Start,
+          findingCount: result.findings.length,
+          summary: describeFindings(result.findings),
+          rawResponse: result,
+        });
+        return result;
+      })
       .catch((err) => {
+        emit('agent:error', { agent: 'code-quality', error: err.message });
         warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
         return { findings: [] };
       })
   );
 
-  const [agent1Result, agent2Result] = await Promise.all(agentCalls);
+  const results = await Promise.all(agentCalls);
+  const agent1Result = jiraTicket ? results[0] : { findings: [] };
+  const agent2Result = jiraTicket ? results[1] : results[0];
 
   const hasFindings = agent1Result.findings.length > 0 || agent2Result.findings.length > 0;
   if (!hasFindings) {
-    return {
-      findings: [],
-      summary: 'Keine Auffälligkeiten',
-      warnings,
-      reviewedAt: new Date().toISOString(),
-    };
+    emit('done', {});
+    return;
   }
+
+  emit('consolidator:start', { temperature: 0.2 });
+  const consolStart = Date.now();
 
   const consolidated = await callCoSi(
     buildConsolidatorPrompt(agent1Result, agent2Result),
@@ -224,12 +280,20 @@ async function runReview(diff, jiraTicket) {
     { temperature: 0.2 },
   );
 
-  return {
-    findings: consolidated.findings || [],
-    summary: consolidated.summary || 'Keine Auffälligkeiten',
-    warnings,
-    reviewedAt: new Date().toISOString(),
-  };
+  emit('consolidator:done', {
+    duration: Date.now() - consolStart,
+    result: {
+      findings: consolidated.findings || [],
+      summary: consolidated.summary || 'Keine Auffälligkeiten',
+      warnings,
+      reviewedAt: new Date().toISOString(),
+    },
+    decisions: consolidated.decisions || [],
+    summary: describeConsolidation(agent1Result, agent2Result, consolidated),
+    rawResponse: consolidated,
+  });
+
+  emit('done', {});
 }
 
 module.exports = { callCoSi, SYSTEM_PROMPTS, runReview };
