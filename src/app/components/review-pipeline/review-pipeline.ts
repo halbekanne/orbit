@@ -52,6 +52,9 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                     <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
                     <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                    @if (agent.thinkingBudget != null) {
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ agent.thinkingBudget }}</span>
+                    }
                     @if (agent.duration != null) {
                       <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
                     }
@@ -61,6 +64,18 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                   }
                   @if (agent.error) {
                     <p class="text-xs text-red-600 mt-1">{{ agent.error }}</p>
+                  }
+                  @if (agent.thoughts) {
+                    <button
+                      type="button"
+                      class="text-[10px] text-indigo-600 font-medium mt-1 cursor-pointer hover:text-indigo-800"
+                      (click)="toggleAgentThoughts(agent.agent)"
+                    >
+                      {{ isAgentThoughtsOpen(agent.agent) ? 'Denkprozess ausblenden' : 'Denkprozess anzeigen' }}
+                    </button>
+                    @if (isAgentThoughtsOpen(agent.agent)) {
+                      <pre class="bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[10px] p-3 rounded-md mt-1 overflow-x-auto max-h-48 whitespace-pre-wrap">{{ agent.thoughts }}</pre>
+                    }
                   }
                   @if (agent.rawResponse != null) {
                     <button
@@ -91,6 +106,9 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                     @if (p.consolidator.temperature != null) {
                       <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ p.consolidator.temperature }}</span>
                     }
+                    @if (p.consolidator.thinkingBudget != null) {
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ p.consolidator.thinkingBudget }}</span>
+                    }
                     @if (p.consolidator.duration != null) {
                       <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.consolidator.duration!) }}</span>
                     }
@@ -100,6 +118,18 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                   }
                   @if (p.consolidator.error) {
                     <p class="text-xs text-red-600 mt-1">{{ p.consolidator.error }}</p>
+                  }
+                  @if (p.consolidator.thoughts) {
+                    <button
+                      type="button"
+                      class="text-[10px] text-indigo-600 font-medium mt-1 cursor-pointer hover:text-indigo-800"
+                      (click)="toggleConsolidatorThoughts()"
+                    >
+                      {{ consolidatorThoughtsOpen() ? 'Denkprozess ausblenden' : 'Denkprozess anzeigen' }}
+                    </button>
+                    @if (consolidatorThoughtsOpen()) {
+                      <pre class="bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[10px] p-3 rounded-md mt-1 overflow-x-auto max-h-48 whitespace-pre-wrap">{{ p.consolidator.thoughts }}</pre>
+                    }
                   }
                   @if (p.consolidator.decisions && p.consolidator.decisions.length > 0) {
                     <div class="mt-2 space-y-1.5">
@@ -142,6 +172,8 @@ export class ReviewPipelineComponent {
   sectionOpen = signal(true);
   private readonly openAgentJsons = signal<Set<string>>(new Set());
   consolidatorJsonOpen = signal(false);
+  private readonly openAgentThoughts = signal<Set<string>>(new Set());
+  consolidatorThoughtsOpen = signal(false);
 
   showConsolidator = computed(() => {
     const c = this.pipeline().consolidator;
@@ -213,6 +245,26 @@ export class ReviewPipelineComponent {
 
   toggleConsolidatorJson(): void {
     this.consolidatorJsonOpen.update(v => !v);
+  }
+
+  isAgentThoughtsOpen(agent: string): boolean {
+    return this.openAgentThoughts().has(agent);
+  }
+
+  toggleAgentThoughts(agent: string): void {
+    this.openAgentThoughts.update(set => {
+      const next = new Set(set);
+      if (next.has(agent)) {
+        next.delete(agent);
+      } else {
+        next.add(agent);
+      }
+      return next;
+    });
+  }
+
+  toggleConsolidatorThoughts(): void {
+    this.consolidatorThoughtsOpen.update(v => !v);
   }
 
   formatDuration(ms: number): string {
