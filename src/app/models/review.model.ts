@@ -6,6 +6,7 @@ export interface ReviewFinding {
   line: number;
   detail: string;
   suggestion: string;
+  codeSnippet?: string;
 }
 
 export interface ReviewResult {
@@ -19,16 +20,18 @@ export interface AgentStep {
   agent: string;
   label: string;
   temperature: number;
+  thinkingBudget?: number;
   status: 'running' | 'done' | 'error';
   duration?: number;
   findingCount?: number;
   summary?: string;
+  thoughts?: string;
   rawResponse?: unknown;
   error?: string;
 }
 
 export interface ConsolidatorDecision {
-  action: 'kept' | 'removed' | 'severity-changed';
+  action: 'kept' | 'removed' | 'merged' | 'severity-changed';
   reason: string;
   finding: string;
   oldSeverity?: string;
@@ -38,10 +41,12 @@ export interface ConsolidatorDecision {
 export interface ConsolidatorStep {
   status: 'pending' | 'running' | 'done' | 'error';
   temperature?: number;
+  thinkingBudget?: number;
   error?: string;
   duration?: number;
   decisions?: ConsolidatorDecision[];
   summary?: string;
+  thoughts?: string;
   rawResponse?: unknown;
 }
 

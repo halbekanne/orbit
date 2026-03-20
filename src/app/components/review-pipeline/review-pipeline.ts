@@ -181,6 +181,7 @@ export class ReviewPipelineComponent {
     switch (action) {
       case 'kept': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'removed': return 'bg-red-50 text-red-700 border-red-200';
+      case 'merged': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
       case 'severity-changed': return 'bg-amber-50 text-amber-700 border-amber-200';
     }
   }
@@ -189,6 +190,7 @@ export class ReviewPipelineComponent {
     switch (action) {
       case 'kept': return 'behalten';
       case 'removed': return 'entfernt';
+      case 'merged': return 'zusammengeführt';
       case 'severity-changed': return 'geändert';
     }
   }
