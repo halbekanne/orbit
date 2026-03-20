@@ -13,12 +13,12 @@ describe('runMockReview', () => {
     assert.ok(!isNaN(Date.parse(result.reviewedAt)));
   });
 
-  it('delays between 2 and 3.5 seconds', async () => {
+  it('delays between 2 and 3 seconds', async () => {
     const start = Date.now();
     await runMockReview();
     const elapsed = Date.now() - start;
     assert.ok(elapsed >= 2000, `Expected >= 2000ms, got ${elapsed}ms`);
-    assert.ok(elapsed < 3500, `Expected < 3500ms, got ${elapsed}ms`);
+    assert.ok(elapsed < 3100, `Expected < 3100ms, got ${elapsed}ms`);
   });
 
   it('returns findings with correct field types when present', async () => {
