@@ -29,15 +29,29 @@ app.post('/api/cosi/review', express.json({ limit: '2mb' }), async (req, res) =>
   if (!diff || typeof diff !== 'string') {
     return res.status(400).json({ error: 'diff is required and must be a string' });
   }
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  });
+
+  const emit = (eventType, data) => {
+    res.write(`event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
   try {
-    const result = COSI_API_KEY
-      ? await runReview(diff, jiraTicket || null)
-      : await runMockReview();
-    res.json(result);
+    if (COSI_API_KEY) {
+      await runReview(diff, jiraTicket || null, emit);
+    } else {
+      await runMockReview(emit);
+    }
   } catch (err) {
     console.error('[CoSi Review] Error:', err);
-    res.status(502).json({ error: 'Review fehlgeschlagen: ' + err.message });
+    emit('error', { message: 'Review fehlgeschlagen: ' + err.message });
   }
+
+  res.end();
 });
 
 // Global JSON middleware for all other routes (100KB default limit)
