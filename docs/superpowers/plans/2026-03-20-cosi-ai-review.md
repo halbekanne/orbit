@@ -785,6 +785,7 @@ export class CosiReviewService {
   private readonly reviewRequestedSubject = new Subject<void>();
 
   readonly reviewState = signal<ReviewState>('idle');
+  readonly canReview = signal(false);
   readonly reviewRequested$ = this.reviewRequestedSubject.asObservable();
 
   triggerReview(): void {
@@ -835,7 +836,7 @@ git commit -m "feat(cosi): add CosiReviewService with Subject-based trigger and 
 - Modify: `src/app/components/action-rail/action-rail.ts`
 - Modify: `src/app/components/action-rail/action-rail.spec.ts`
 
-The action rail button calls `cosiReview.triggerReview()` on click. It does NOT have access to the diff or Jira ticket data — the PR detail component subscribes to `reviewRequested$` and provides that data. The button's disable logic is based only on `reviewState` (not diff/ticket loading), since the PR detail's subscription handler guards against calling review with incomplete data (it ignores the trigger if data isn't ready yet).
+The action rail button calls `cosiReview.triggerReview()` on click. The PR detail component subscribes to `reviewRequested$` and provides the diff/ticket data. To properly disable the button when data isn't ready (spec requirement + ADHD UX: "every button should tell the user exactly what will happen"), the `CosiReviewService` exposes a `canReview` writable signal that the PR detail sets based on data readiness. The action rail reads this signal for its disable logic.
 
 - [ ] **Step 1: Write failing tests**
 
@@ -868,6 +869,7 @@ Update the existing `setup` function to include a `CosiReviewService` mock. Add 
 ```typescript
 const mockCosiReview = {
   reviewState: signal<ReviewState>('idle'),
+  canReview: signal(true),
   triggerReview: vi.fn(),
 };
 
@@ -917,6 +919,16 @@ it('shows "Erneut reviewen" after review completes', () => {
   expect(reviewBtn).toBeTruthy();
 });
 
+it('disables KI-Review button when canReview is false', () => {
+  const { fixture, mockCosiReview } = setup(makePr());
+  mockCosiReview.canReview.set(false);
+  fixture.detectChanges();
+
+  const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
+  const reviewBtn = buttons.find(b => b.textContent?.includes('KI-Review starten'));
+  expect(reviewBtn?.disabled).toBe(true);
+});
+
 it('calls triggerReview on button click', () => {
   const { fixture, mockCosiReview } = setup(makePr());
   const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
@@ -952,7 +964,7 @@ Add template in the `@if (item?.type === 'pr')` block, **before** the Bitbucket 
 <button type="button"
   class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
   [class]="review === 'idle' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
-  [disabled]="review === 'loading'"
+  [disabled]="review === 'loading' || !cosiReview.canReview()"
   (click)="cosiReview.triggerReview()">
   @if (review === 'loading') {
     <span class="animate-pulse">Review läuft...</span>
@@ -1132,7 +1144,7 @@ Expected: FAIL — `ReviewFindingsComponent` not found
 Create `src/app/components/review-findings/review-findings.ts`:
 
 ```typescript
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, signal, untracked } from '@angular/core';
 import { ReviewState } from '../../models/review.model';
 
 @Component({
@@ -1206,6 +1218,20 @@ export class ReviewFindingsComponent {
 
   private readonly expandedNonCritical = signal<Set<number>>(new Set());
   private readonly collapsedCritical = signal<Set<number>>(new Set());
+
+  constructor() {
+    // Reset expand/collapse state when review results change
+    // (prevents stale indices from previous review leaking into new results)
+    effect(() => {
+      const state = this.reviewState();
+      if (typeof state === 'object' && state.status === 'result') {
+        untracked(() => {
+          this.expandedNonCritical.set(new Set());
+          this.collapsedCritical.set(new Set());
+        });
+      }
+    });
+  }
 
   isFindingExpanded(index: number, severity: string): boolean {
     if (severity === 'critical') {
@@ -1307,8 +1333,9 @@ Add imports:
 ```typescript
 import { CosiReviewService } from '../../services/cosi-review.service';
 import { ReviewFindingsComponent } from '../review-findings/review-findings';
-import { DestroyRef } from '@angular/core';
+import { computed, DestroyRef, effect, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { skip } from 'rxjs';
 ```
 
 Add `ReviewFindingsComponent` to `imports` array in `@Component` decorator:
@@ -1320,6 +1347,20 @@ Add injections to the component class:
 ```typescript
 private readonly cosiReview = inject(CosiReviewService);
 private readonly destroyRef = inject(DestroyRef);
+```
+
+Add a computed signal to track data readiness and an effect to push it to the service:
+
+```typescript
+private readonly dataReady = computed(() => {
+  const diff = this.diffData();
+  const ticket = this.jiraTicket();
+  return diff !== 'loading' && diff !== 'error' && ticket !== 'loading';
+});
+
+private dataReadyEffect = effect(() => {
+  this.cosiReview.canReview.set(this.dataReady());
+});
 ```
 
 Add subscriptions in `constructor()` (after the existing hljs registration block):
@@ -1338,8 +1379,9 @@ this.cosiReview.reviewRequested$.pipe(
   this.cosiReview.requestReview(diff, resolvedTicket);
 });
 
-// Reset review state when PR changes
+// Reset review state when PR changes (skip initial emission)
 toObservable(this.pr).pipe(
+  skip(1),
   takeUntilDestroyed(this.destroyRef),
 ).subscribe(() => this.cosiReview.reset());
 ```
