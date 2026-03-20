@@ -97,6 +97,9 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                               <span class="font-mono text-xs text-stone-400 ml-auto">Zeile {{ finding.line }}</span>
                             </div>
                             <p class="text-sm font-medium text-stone-800 mb-1">{{ finding.title }}</p>
+                            @if (finding.codeSnippet) {
+                              <pre class="font-mono text-xs bg-stone-900 text-stone-100 rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
+                            }
                             <div class="bg-stone-50 rounded px-3 py-2 text-xs text-stone-600 leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
                             @if (finding.suggestion) {
                               <div class="mt-1.5 text-xs text-stone-600">
