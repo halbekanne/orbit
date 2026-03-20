@@ -10,18 +10,23 @@
 
 ### New File: `proxy/cosi-mock.js`
 
-Exports a single function `runMockReview()` that returns a `Promise<ReviewResult>` matching the shape returned by `runReview()` in `proxy/cosi.js`.
+Exports a single function `runMockReview()` with no parameters. It ignores the request's `diff` and `jiraTicket` values — scenario selection is purely random.
+
+Returns a `Promise<ReviewResult>` matching the shape returned by `runReview()` in `proxy/cosi.js`.
 
 Behavior:
 - Waits 2–3 seconds (random) to simulate API latency
-- Selects one of 4 scenarios at random (rotating through them)
+- Selects one of 4 scenarios via random index (no round-robin, pure random)
 - Returns a response conforming to the `ReviewResult` shape: `{ findings, summary, warnings, reviewedAt }`
+- Never throws — the existing try/catch in the endpoint will not trigger in mock mode
 
 ### Modified File: `proxy/index.js`
 
 The `/api/cosi/review` handler checks `COSI_API_KEY`:
-- **Set** → calls `runReview()` (existing behavior, unchanged)
+- **Set** → calls `runReview(diff, jiraTicket)` (existing behavior, unchanged)
 - **Not set** → calls `runMockReview()` from `cosi-mock.js`
+
+The existing `diff` validation (400 if missing) stays in place for both modes — the request shape is identical.
 
 On startup, when `COSI_API_KEY` is missing, the existing `console.warn` is updated to:
 ```
@@ -34,7 +39,7 @@ No changes. `CosiReviewService` calls the same endpoint and receives the same `R
 
 ## Mock Scenarios
 
-`runMockReview()` cycles through these 4 scenarios randomly:
+`runMockReview()` selects one of 4 scenarios at random:
 
 ### Scenario 1: Mehrere Findings (mixed)
 
@@ -147,7 +152,7 @@ No changes. `CosiReviewService` calls the same endpoint and receives the same `R
 
 - `reviewedAt` is set to `new Date().toISOString()` at response time (same as `runReview`)
 - Random delay: `Math.random() * 1000 + 2000` (2–3 seconds)
-- Scenario selection: random index into array of scenario functions
+- Scenario selection: `Math.floor(Math.random() * scenarios.length)` — pure random, no rotation
 - The mock module has no dependencies beyond Node built-ins
 - Console log on each mock request: `[CoSi Mock] Szenario: <name>` for debugging
 
