@@ -39,7 +39,7 @@ event: consolidator:start
 data: {"temperature":0.2}
 
 event: consolidator:done
-data: {"duration":2100,"result":{...},"decisions":[...],"summary":"4 → 3 konsolidiert. 1 Duplikat entfernt."}
+data: {"duration":2100,"result":{"findings":[...],"summary":"...","warnings":[...]},"decisions":[...],"summary":"4 → 3 konsolidiert. 1 Duplikat entfernt.","rawResponse":{...}}
 
 event: done
 data: {}
@@ -51,7 +51,9 @@ data: {}
 - `rawResponse` contains the full JSON response from the agent (for frontend debug display).
 - `agent:error` is sent when an agent fails; the pipeline continues with the other agent's findings.
 - `warning` events are sent for conditions like missing Jira ticket.
+- `consolidator:done` → `result` contains the final `ReviewResult` shape (`{ findings, summary, warnings }`). This is the single source for the final review data. The `done` event carries no data — it only signals stream end.
 - `done` signals stream end; the response is closed.
+- `reviewedAt` is set server-side in the `result` object within `consolidator:done`, same as before.
 
 ### `runReview()` Refactor
 
@@ -91,8 +93,9 @@ interface AgentStep {
 }
 
 interface ConsolidatorStep {
-  status: 'pending' | 'running' | 'done';
+  status: 'pending' | 'running' | 'done' | 'error';
   temperature?: number;
+  error?: string;
   duration?: number;
   decisions?: ConsolidatorDecision[];
   summary?: string;
@@ -110,6 +113,7 @@ interface ConsolidatorDecision {
 interface PipelineState {
   agents: AgentStep[];
   consolidator: ConsolidatorStep;
+  warnings: string[];
   totalDuration?: number;
 }
 ```
@@ -132,9 +136,9 @@ type ReviewState =
 - On `agent:done`: update matching step to `status: 'done'`, fill fields.
 - On `agent:error`: update matching step to `status: 'error'`.
 - On `consolidator:start`/`done`: update consolidator step.
-- On `warning`: append to warnings array.
-- On `done`: transition `ReviewState` to `result` (extracting `ReviewResult` from consolidator data).
-- On stream error: transition to `error` state, preserving pipeline state for debugging.
+- On `warning`: append to `pipeline.warnings` array.
+- On `done`: transition `ReviewState` to `result` (extracting `ReviewResult` from `consolidator:done`'s `result` field). `ReviewResult.warnings` is populated from `pipeline.warnings`.
+- On stream error (e.g. network failure before any events): transition to `error` state. `PipelineState` is initialized at stream start with empty `agents`, `consolidator: { status: 'pending' }`, and empty `warnings` — so it's always present even on early failure.
 
 Note: Since the request is `POST`, native `EventSource` (GET-only) cannot be used. Use `fetch()` with `ReadableStream` reader to parse the SSE text protocol manually. This is straightforward — read chunks, split on `\n\n`, parse `event:` and `data:` lines.
 
@@ -169,7 +173,7 @@ File-grouped card layout replacing the current flat list.
   - Collapsible header: chevron, file path (monospace, ellipsis overflow), severity dots preview, finding count
   - Groups containing critical findings are expanded by default, others collapsed
 - Individual findings within an expanded group are always visible (not individually collapsible):
-  - Left severity stripe (red/amber/stone)
+  - Left severity stripe: `bg-red-500` (critical), `bg-amber-500` (important), `bg-stone-400` (minor) — consistent with existing severity dots
   - Badges: severity label + category label
   - Line number (not full path — file is in the group header)
   - Title
@@ -185,12 +189,13 @@ File-grouped card layout replacing the current flat list.
 New `InlineCodePipe` that transforms backtick-delimited text into `<code>` elements.
 
 - Regex: `` /`([^`]+)`/g `` → `<code>$1</code>`
+- Single-level backticks only, no nesting support needed
 - Used with `[innerHTML]` binding (Angular sanitizer allows `<code>`)
 - Applied to `detail` and `suggestion` fields in findings
 
 ## 6. Mock Mode
 
-`runMockReview()` is refactored to emit the same SSE events as the real pipeline.
+`runMockReview(emit)` is refactored to accept the same `emit` callback as `runReview` and emit the same SSE events. It does not need `diff` or `jiraTicket` parameters since scenario selection is random.
 
 ### Event Sequence
 1. `agent:start` for both agents (near-simultaneous)
