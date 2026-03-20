@@ -144,4 +144,81 @@ OUTPUT FORMAT:
 If no findings survive filtering, output: { "findings": [], "summary": "Keine Auffälligkeiten" }`,
 };
 
-module.exports = { callCoSi, SYSTEM_PROMPTS };
+function buildAgent1Prompt(diff, jiraTicket) {
+  return `<jira_ticket>
+Key: ${jiraTicket.key}
+Summary: ${jiraTicket.summary}
+Description:
+${jiraTicket.description}
+</jira_ticket>
+
+<pr_diff>
+${diff}
+</pr_diff>
+
+Based on the above, identify gaps between the Akzeptanzkriterien and the implementation. Output JSON only.`;
+}
+
+function buildAgent2Prompt(diff) {
+  return `<pr_diff>
+${diff}
+</pr_diff>
+
+Based on the above, identify code quality issues. Output JSON only.`;
+}
+
+function buildConsolidatorPrompt(agent1Findings, agent2Findings) {
+  return `<agent_1_findings>
+${JSON.stringify(agent1Findings)}
+</agent_1_findings>
+
+<agent_2_findings>
+${JSON.stringify(agent2Findings)}
+</agent_2_findings>
+
+Deduplicate, filter, sort, categorize, and write the summary. Output JSON only.`;
+}
+
+async function runReview(diff, jiraTicket) {
+  const warnings = [];
+
+  const agentCalls = [];
+
+  if (jiraTicket) {
+    agentCalls.push(
+      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, { temperature: 0.2 })
+        .catch((err) => {
+          warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
+          return { findings: [] };
+        })
+    );
+  } else {
+    warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
+    agentCalls.push(Promise.resolve({ findings: [] }));
+  }
+
+  agentCalls.push(
+    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 })
+      .catch((err) => {
+        warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
+        return { findings: [] };
+      })
+  );
+
+  const [agent1Result, agent2Result] = await Promise.all(agentCalls);
+
+  const consolidated = await callCoSi(
+    buildConsolidatorPrompt(agent1Result, agent2Result),
+    SYSTEM_PROMPTS.consolidator,
+    { temperature: 0.2 },
+  );
+
+  return {
+    findings: consolidated.findings || [],
+    summary: consolidated.summary || 'Keine Auffälligkeiten',
+    warnings,
+    reviewedAt: new Date().toISOString(),
+  };
+}
+
+module.exports = { callCoSi, SYSTEM_PROMPTS, runReview };
