@@ -108,7 +108,7 @@ describe('ActionRailComponent', () => {
 
   it('disables KI-Review button and shows loading text during review', () => {
     const { fixture, mockCosiReview } = setup(makePr());
-    mockCosiReview.reviewState.set('loading');
+    mockCosiReview.reviewState.set({ status: 'running', pipeline: { agents: [], consolidator: { status: 'pending' }, warnings: [] } });
     fixture.detectChanges();
 
     const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
@@ -121,6 +121,7 @@ describe('ActionRailComponent', () => {
     const { fixture, mockCosiReview } = setup(makePr());
     mockCosiReview.reviewState.set({
       status: 'result',
+      pipeline: { agents: [], consolidator: { status: 'pending' }, warnings: [] },
       data: { findings: [], summary: 'Keine Auffälligkeiten', warnings: [], reviewedAt: '' },
     });
     fixture.detectChanges();

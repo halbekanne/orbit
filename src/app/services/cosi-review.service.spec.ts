@@ -1,9 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { CosiReviewService } from './cosi-review.service';
 import { JiraTicket } from '../models/work-item.model';
-import { ReviewResult } from '../models/review.model';
+import { ReviewState } from '../models/review.model';
 
 function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
   return {
@@ -16,71 +14,126 @@ function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
   } as JiraTicket;
 }
 
+function buildSSE(...events: Array<{ event: string; data: unknown }>): string {
+  return events.map(e => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
+}
+
+function mockFetchSSE(events: string) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(events));
+      controller.close();
+    },
+  });
+  return vi.fn().mockResolvedValue({ ok: true, body: stream } as unknown as Response);
+}
+
 describe('CosiReviewService', () => {
   let service: CosiReviewService;
-  let httpMock: HttpTestingController;
+  let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    });
+    originalFetch = globalThis.fetch;
+    TestBed.configureTestingModule({});
     service = TestBed.inject(CosiReviewService);
-    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
 
   it('starts in idle state', () => {
     expect(service.reviewState()).toBe('idle');
   });
 
-  it('transitions to loading then result on success', () => {
-    const mockResult: ReviewResult = {
-      findings: [],
-      summary: 'Keine Auffälligkeiten',
-      warnings: [],
-      reviewedAt: '2026-03-18T14:00:00Z',
-    };
+  it('transitions to running then result on successful SSE stream', async () => {
+    const ssePayload = buildSSE(
+      { event: 'agent:start', data: { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2 } },
+      { event: 'agent:done', data: { agent: 'ak-check', duration: 1200, findingCount: 1, summary: 'Found 1 issue' } },
+      { event: 'consolidator:start', data: { temperature: 0.1 } },
+      {
+        event: 'consolidator:done', data: {
+          duration: 800,
+          decisions: [],
+          summary: 'Consolidated',
+          result: {
+            findings: [{ severity: 'minor', category: 'ak-abgleich', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }],
+            summary: 'Keine Auffälligkeiten',
+            warnings: [],
+            reviewedAt: '2026-03-18T14:00:00Z',
+          },
+        },
+      },
+      { event: 'done', data: { totalDuration: 2000 } },
+    );
 
-    service.requestReview('diff text', makeTicket());
-    expect(service.reviewState()).toBe('loading');
+    globalThis.fetch = mockFetchSSE(ssePayload);
+    const promise = service.requestReview('diff text', makeTicket());
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body.diff).toBe('diff text');
-    expect(req.request.body.jiraTicket.key).toBe('DS-1');
-    req.flush(mockResult);
+    const runningState = service.reviewState();
+    expect(typeof runningState).toBe('object');
+    expect((runningState as Exclude<ReviewState, 'idle'>).status).toBe('running');
 
-    const state = service.reviewState();
-    expect(typeof state).toBe('object');
-    expect((state as any).status).toBe('result');
-    expect((state as any).data.summary).toBe('Keine Auffälligkeiten');
+    await promise;
+
+    const state = service.reviewState() as Extract<ReviewState, { status: 'result' }>;
+    expect(state.status).toBe('result');
+    expect(state.data.summary).toBe('Keine Auffälligkeiten');
+    expect(state.data.findings).toHaveLength(1);
+    expect(state.pipeline.agents).toHaveLength(1);
+    expect(state.pipeline.agents[0].status).toBe('done');
+    expect(state.pipeline.consolidator.status).toBe('done');
+    expect(state.pipeline.totalDuration).toBe(2000);
   });
 
-  it('transitions to error on failure', () => {
-    service.requestReview('diff', makeTicket());
+  it('handles agent:error events', async () => {
+    const ssePayload = buildSSE(
+      { event: 'agent:start', data: { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2 } },
+      { event: 'agent:error', data: { agent: 'ak-check', error: 'LLM timeout' } },
+      { event: 'done', data: { totalDuration: 500 } },
+    );
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
-    req.flush('Server Error', { status: 502, statusText: 'Bad Gateway' });
+    globalThis.fetch = mockFetchSSE(ssePayload);
+    await service.requestReview('diff', makeTicket());
 
-    const state = service.reviewState();
-    expect(typeof state).toBe('object');
-    expect((state as any).status).toBe('error');
+    const state = service.reviewState() as Extract<ReviewState, { status: 'result' }>;
+    expect(state.pipeline.agents).toHaveLength(1);
+    expect(state.pipeline.agents[0].status).toBe('error');
+    expect(state.pipeline.agents[0].error).toBe('LLM timeout');
   });
 
-  it('sends null jiraTicket when no ticket provided', () => {
-    service.requestReview('diff', null);
+  it('collects warnings into pipeline state', async () => {
+    const ssePayload = buildSSE(
+      { event: 'warning', data: { message: 'Kein Jira-Ticket' } },
+      { event: 'warning', data: { message: 'Diff ist sehr lang' } },
+      { event: 'done', data: { totalDuration: 100 } },
+    );
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
-    expect(req.request.body.jiraTicket).toBeNull();
-    req.flush({ findings: [], summary: 'Keine Auffälligkeiten', warnings: ['Kein Jira-Ticket'], reviewedAt: '' });
+    globalThis.fetch = mockFetchSSE(ssePayload);
+    await service.requestReview('diff', null);
+
+    const state = service.reviewState() as Extract<ReviewState, { status: 'result' }>;
+    expect(state.pipeline.warnings).toEqual(['Kein Jira-Ticket', 'Diff ist sehr lang']);
   });
 
-  it('resets to idle via reset()', () => {
-    service.requestReview('diff', makeTicket());
-    httpMock.expectOne(r => r.url.includes('/api/cosi/review')).flush({
-      findings: [], summary: '', warnings: [], reviewedAt: '',
-    });
+  it('transitions to error on fetch failure', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+
+    await service.requestReview('diff', makeTicket());
+
+    const state = service.reviewState() as Extract<ReviewState, { status: 'error' }>;
+    expect(state.status).toBe('error');
+    expect(state.message).toBe('Network error');
+    expect(state.pipeline).toBeDefined();
+  });
+
+  it('resets to idle via reset()', async () => {
+    const ssePayload = buildSSE(
+      { event: 'done', data: { totalDuration: 100 } },
+    );
+    globalThis.fetch = mockFetchSSE(ssePayload);
+    await service.requestReview('diff', makeTicket());
 
     service.reset();
     expect(service.reviewState()).toBe('idle');

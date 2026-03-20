@@ -12,12 +12,12 @@ import { ReviewState } from '../../models/review.model';
         <div class="max-w-2xl mx-auto px-6 py-5">
           <div class="flex items-center justify-between mb-3">
             <h2 id="pr-review-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">KI-Review</h2>
-            @if (review !== 'loading' && review.status === 'result') {
+            @if (review.status === 'result') {
               <span class="text-xs text-stone-400">{{ review.data.summary }}</span>
             }
           </div>
 
-          @if (review === 'loading') {
+          @if (review.status === 'running') {
             <p class="text-sm text-stone-400 italic">KI-Review läuft...</p>
           } @else if (review.status === 'error') {
             <p class="text-sm text-stone-400 italic">Review konnte nicht durchgeführt werden.</p>

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ReviewFindingsComponent } from './review-findings';
-import { ReviewState, ReviewFinding } from '../../models/review.model';
+import { ReviewState, ReviewFinding, createInitialPipeline } from '../../models/review.model';
 
 const makeFinding = (overrides: Partial<ReviewFinding> = {}): ReviewFinding => ({
   severity: 'important',
@@ -28,18 +28,19 @@ describe('ReviewFindingsComponent', () => {
   });
 
   it('shows loading state', () => {
-    const fixture = setup('loading');
+    const fixture = setup({ status: 'running', pipeline: createInitialPipeline() });
     expect(fixture.nativeElement.textContent).toContain('KI-Review läuft');
   });
 
   it('shows error state', () => {
-    const fixture = setup({ status: 'error', message: 'fail' });
+    const fixture = setup({ status: 'error', pipeline: createInitialPipeline(), message: 'fail' });
     expect(fixture.nativeElement.textContent).toContain('Review konnte nicht durchgeführt werden');
   });
 
   it('shows empty state when no findings', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: { findings: [], summary: 'Keine Auffälligkeiten', warnings: [], reviewedAt: '' },
     });
     expect(fixture.nativeElement.textContent).toContain('Keine Auffälligkeiten gefunden');
@@ -48,6 +49,7 @@ describe('ReviewFindingsComponent', () => {
   it('renders findings as list items', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [
           makeFinding({ severity: 'critical', title: 'Critical bug' }),
@@ -65,6 +67,7 @@ describe('ReviewFindingsComponent', () => {
   it('expands critical findings by default', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding({ severity: 'critical', detail: 'Critical detail text' })],
         summary: '1', warnings: [], reviewedAt: '',
@@ -76,6 +79,7 @@ describe('ReviewFindingsComponent', () => {
   it('collapses non-critical findings by default', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding({ severity: 'minor', detail: 'Minor detail text' })],
         summary: '1', warnings: [], reviewedAt: '',
@@ -87,6 +91,7 @@ describe('ReviewFindingsComponent', () => {
   it('toggles finding detail on click', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding({ severity: 'minor', detail: 'Toggled detail' })],
         summary: '1', warnings: [], reviewedAt: '',
@@ -104,6 +109,7 @@ describe('ReviewFindingsComponent', () => {
   it('shows warnings when present', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [],
         summary: 'Keine Auffälligkeiten',
@@ -117,6 +123,7 @@ describe('ReviewFindingsComponent', () => {
   it('shows summary text', () => {
     const fixture = setup({
       status: 'result',
+      pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding()],
         summary: '1 Auffälligkeit: 0 Kritisch, 1 Wichtig, 0 Gering',
