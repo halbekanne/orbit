@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { WorkDataService } from '../../services/work-data.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
+import { CosiReviewService } from '../../services/cosi-review.service';
 import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.model';
 
 @Component({
@@ -97,6 +98,20 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
 
     @if (item?.type === 'pr') {
       @let pr = asPr(item);
+      @let review = cosiReview.reviewState();
+      <button type="button"
+        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
+        [class]="review === 'idle' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+        [disabled]="review === 'loading' || !cosiReview.canReview()"
+        (click)="cosiReview.triggerReview()">
+        @if (review === 'loading') {
+          <span class="animate-pulse">Review läuft...</span>
+        } @else if (review === 'idle') {
+          KI-Review starten
+        } @else {
+          Erneut reviewen
+        }
+      </button>
       <a
         [href]="pr.url"
         target="_blank"
@@ -110,6 +125,7 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
 })
 export class ActionRailComponent {
   protected readonly data = inject(WorkDataService);
+  protected readonly cosiReview = inject(CosiReviewService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
 
