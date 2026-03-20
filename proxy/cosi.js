@@ -59,6 +59,7 @@ RULES:
 - Only report findings you are confident about. If unsure, omit.
 - Every finding must reference a specific file and line number from the diff.
 - Findings without a concrete location in the diff are not findings — discard them.
+- CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
 - Detail must be 1-3 sentences maximum.
 - Titles must be in German. Detail and suggestion may use English for technical terms.`;
 
@@ -80,6 +81,7 @@ OUTPUT FORMAT — each finding:
   "title": "Short German summary of the gap",
   "file": "file path from the diff",
   "line": <line number from the diff>,
+  "codeSnippet": "The exact 1-2 lines of added code from the diff that this finding targets (copy verbatim, including leading '+' if present)",
   "detail": "Which AK is affected and what is missing (1-3 sentences)",
   "suggestion": "Concrete next step to close the gap"
 }
@@ -110,6 +112,7 @@ OUTPUT FORMAT — each finding:
   "title": "Short German summary of the issue",
   "file": "file path from the diff",
   "line": <line number from the diff>,
+  "codeSnippet": "The exact 1-2 lines of added code from the diff that this finding targets (copy verbatim, including leading '+' if present)",
   "detail": "What is wrong and why it matters (1-3 sentences)",
   "suggestion": "How to fix it, with a brief code hint if helpful"
 }
@@ -133,7 +136,7 @@ PROCESS (in order):
 1. DEDUPLICATE: If both agents flagged the same underlying issue, keep the better-written finding (clearer title, more specific detail) and discard the other.
 2. FILTER LOW-CONFIDENCE: Remove anything vague, speculative, or hedging ("might cause issues", "could potentially lead to...").
 3. FILTER NOISE: Remove trivial nitpicks that a senior engineer would ignore (micro-style preferences, optional semicolons, import ordering).
-4. VERIFY GROUNDING: Each finding must reference a real file and line. If a finding mentions a file or line that does not exist in the provided context, the specialist agent hallucinated it — discard it.
+4. VERIFY GROUNDING: Each finding must include a codeSnippet. Search for that snippet verbatim in the <pr_diff>. If the snippet does not appear in the diff, the specialist agent hallucinated it — discard the finding and log a "removed" decision with reason "hallucinated snippet".
 5. SORT: critical first, then important, then minor.
 6. ADD CATEGORY: Tag each finding from Agent 1 with "category": "ak-abgleich" and each finding from Agent 2 with "category": "code-quality".
 7. WRITE SUMMARY: A concise German summary, e.g., "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering"
@@ -147,7 +150,8 @@ OUTPUT FORMAT:
       "category": "ak-abgleich | code-quality",
       "title": "...",
       "file": "...",
-      "line": <number>,
+      "line": 0,
+      "codeSnippet": "...",
       "detail": "...",
       "suggestion": "..."
     }
@@ -189,8 +193,12 @@ ${diff}
 Based on the above, identify code quality issues. Output JSON only.`;
 }
 
-function buildConsolidatorPrompt(agent1Findings, agent2Findings) {
-  return `<agent_1_findings>
+function buildConsolidatorPrompt(agent1Findings, agent2Findings, diff) {
+  return `<pr_diff>
+${diff}
+</pr_diff>
+
+<agent_1_findings>
 ${JSON.stringify(agent1Findings)}
 </agent_1_findings>
 
@@ -198,7 +206,7 @@ ${JSON.stringify(agent1Findings)}
 ${JSON.stringify(agent2Findings)}
 </agent_2_findings>
 
-Deduplicate, filter, sort, categorize, and write the summary. Output JSON only.`;
+Verify grounding against the diff, then deduplicate, filter, sort, categorize, and write the summary. Output JSON only.`;
 }
 
 function describeFindings(findings) {
