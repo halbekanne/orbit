@@ -22,7 +22,7 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(120_000),
   });
 
   if (!response.ok) {
