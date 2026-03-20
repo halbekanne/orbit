@@ -143,6 +143,7 @@ export class CosiReviewService {
           agent: data['agent'],
           label: data['label'],
           temperature: data['temperature'],
+          thinkingBudget: data['thinkingBudget'],
           status: 'running',
         } as AgentStep);
         break;
@@ -154,6 +155,7 @@ export class CosiReviewService {
           agent.duration = data['duration'];
           agent.findingCount = data['findingCount'];
           agent.summary = data['summary'];
+          agent.thoughts = data['thoughts'];
           agent.rawResponse = data['rawResponse'];
         }
         break;
@@ -172,6 +174,7 @@ export class CosiReviewService {
         pipeline.consolidator = {
           status: 'running',
           temperature: data['temperature'],
+          thinkingBudget: data['thinkingBudget'],
         };
         break;
 
@@ -179,9 +182,11 @@ export class CosiReviewService {
         pipeline.consolidator = {
           status: 'done',
           temperature: pipeline.consolidator.temperature,
+          thinkingBudget: pipeline.consolidator.thinkingBudget,
           duration: data['duration'],
           decisions: data['decisions'],
           summary: data['summary'],
+          thoughts: data['thoughts'],
           rawResponse: data['rawResponse'],
         };
         return data['result'] as ReviewResult;
