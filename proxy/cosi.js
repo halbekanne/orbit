@@ -22,6 +22,7 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
+    signal: AbortSignal.timeout(30_000),
   });
 
   if (!response.ok) {
@@ -206,6 +207,16 @@ async function runReview(diff, jiraTicket) {
   );
 
   const [agent1Result, agent2Result] = await Promise.all(agentCalls);
+
+  const hasFindings = agent1Result.findings.length > 0 || agent2Result.findings.length > 0;
+  if (!hasFindings) {
+    return {
+      findings: [],
+      summary: 'Keine Auffälligkeiten',
+      warnings,
+      reviewedAt: new Date().toISOString(),
+    };
+  }
 
   const consolidated = await callCoSi(
     buildConsolidatorPrompt(agent1Result, agent2Result),

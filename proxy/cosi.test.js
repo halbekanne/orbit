@@ -137,18 +137,16 @@ describe('runReview', () => {
     assert.match(result.warnings[0], /AK-Abgleich/);
   });
 
-  it('skips agent 1 when no jira ticket provided', async () => {
+  it('skips agent 1 and consolidator when no jira ticket and no findings', async () => {
     const agent2Result = { findings: [] };
-    const consolidatedResult = { findings: [], summary: 'Keine Auffälligkeiten' };
 
     let callCount = 0;
     mock.method(global, 'fetch', () => {
       callCount++;
-      const result = callCount === 1 ? agent2Result : consolidatedResult;
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
-          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+          candidates: [{ content: { parts: [{ text: JSON.stringify(agent2Result) }] } }],
         }),
       });
     });
@@ -156,7 +154,9 @@ describe('runReview', () => {
     const { runReview } = freshRequire();
     const result = await runReview('diff content', null);
 
-    assert.equal(callCount, 2);
+    assert.equal(callCount, 1);
+    assert.equal(result.findings.length, 0);
+    assert.equal(result.summary, 'Keine Auffälligkeiten');
     assert.equal(result.warnings.length, 1);
     assert.match(result.warnings[0], /Kein Jira-Ticket/);
   });

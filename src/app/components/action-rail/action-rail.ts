@@ -105,7 +105,7 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
         [disabled]="review === 'loading' || !cosiReview.canReview()"
         (click)="cosiReview.triggerReview()">
         @if (review === 'loading') {
-          <span class="animate-pulse">Review läuft...</span>
+          Review läuft...
         } @else if (review === 'idle') {
           KI-Review starten
         } @else {
