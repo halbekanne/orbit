@@ -5,18 +5,39 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const fsp = require('fs/promises');
 const path = require('path');
 const os = require('os');
+const { runReview } = require('./cosi');
 
-const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG } = process.env;
+const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG, COSI_API_KEY } = process.env;
 
 if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY || !BITBUCKET_USER_SLUG) {
   console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY and BITBUCKET_USER_SLUG must be set in .env');
   process.exit(1);
 }
 
+if (!COSI_API_KEY) {
+  console.warn('WARNING: COSI_API_KEY is not set — /api/cosi/review will not work');
+}
+
 const app = express();
 const PORT = 6201;
 
 app.use(cors({ origin: 'http://localhost:6200' }));
+
+app.post('/api/cosi/review', express.json({ limit: '2mb' }), async (req, res) => {
+  const { diff, jiraTicket } = req.body;
+  if (!diff || typeof diff !== 'string') {
+    return res.status(400).json({ error: 'diff is required and must be a string' });
+  }
+  try {
+    const result = await runReview(diff, jiraTicket || null);
+    res.json(result);
+  } catch (err) {
+    console.error('[CoSi Review] Error:', err);
+    res.status(502).json({ error: 'Review fehlgeschlagen: ' + err.message });
+  }
+});
+
+// Global JSON middleware for all other routes (100KB default limit)
 app.use(express.json());
 
 app.get('/config', (_req, res) => {
