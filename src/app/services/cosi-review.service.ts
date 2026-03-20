@@ -81,7 +81,8 @@ export class CosiReviewService {
   }
 
   private async consumeStream(response: Response, pipeline: PipelineState): Promise<ReviewResult | null> {
-    const reader = response.body!.getReader();
+    if (!response.body) throw new Error('Response has no body');
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let reviewResult: ReviewResult | null = null;

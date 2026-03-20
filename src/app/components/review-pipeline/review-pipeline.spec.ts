@@ -102,11 +102,11 @@ describe('ReviewPipelineComponent', () => {
   it('shows total duration when available', () => {
     const fixture = setup({
       agents: [
-        { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2, status: 'done', duration: 3.2 },
+        { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2, status: 'done', duration: 3200 },
       ],
       consolidator: { status: 'done' },
       warnings: [],
-      totalDuration: 5.4,
+      totalDuration: 5400,
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('5.4s');

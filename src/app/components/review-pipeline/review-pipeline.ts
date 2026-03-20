@@ -23,7 +23,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
               Review-Pipeline
             </h2>
             @if (p.totalDuration != null) {
-              <span class="font-mono text-xs text-stone-400">{{ p.totalDuration }}s</span>
+              <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.totalDuration!) }}</span>
             }
             <svg
               class="w-3 h-3 text-stone-400 ml-auto transition-transform duration-150"
@@ -53,7 +53,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                     <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
                     @if (agent.duration != null) {
-                      <span class="font-mono text-xs text-stone-400">{{ agent.duration }}s</span>
+                      <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
                     }
                   </div>
                   @if (agent.summary) {
@@ -92,7 +92,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                       <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ p.consolidator.temperature }}</span>
                     }
                     @if (p.consolidator.duration != null) {
-                      <span class="font-mono text-xs text-stone-400">{{ p.consolidator.duration }}s</span>
+                      <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.consolidator.duration!) }}</span>
                     }
                   </div>
                   @if (p.consolidator.summary) {
@@ -138,11 +138,6 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
 })
 export class ReviewPipelineComponent {
   pipeline = input.required<PipelineState>();
-
-  private readonly hasRunningAgent = computed(() =>
-    this.pipeline().agents.some(a => a.status === 'running') ||
-    this.pipeline().consolidator.status === 'running'
-  );
 
   sectionOpen = signal(true);
   private readonly openAgentJsons = signal<Set<string>>(new Set());
@@ -216,5 +211,9 @@ export class ReviewPipelineComponent {
 
   toggleConsolidatorJson(): void {
     this.consolidatorJsonOpen.update(v => !v);
+  }
+
+  formatDuration(ms: number): string {
+    return (ms / 1000).toFixed(1) + 's';
   }
 }
