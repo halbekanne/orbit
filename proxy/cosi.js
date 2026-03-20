@@ -31,12 +31,24 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
   }
 
   const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const parts = data.candidates?.[0]?.content?.parts ?? [];
+  const thoughtTexts = [];
+  const textParts = [];
+
+  for (const part of parts) {
+    if (part.thought) {
+      thoughtTexts.push(part.text);
+    } else if (part.text) {
+      textParts.push(part.text);
+    }
+  }
+
+  const text = textParts.join('');
   if (!text) {
     throw new Error('CoSi returned no content');
   }
 
-  return JSON.parse(text);
+  return { result: JSON.parse(text), thoughts: thoughtTexts.join('\n') || null };
 }
 
 const SHARED_CONSTRAINTS = `You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
@@ -215,24 +227,29 @@ async function runReview(diff, jiraTicket, emit) {
   const agentCalls = [];
 
   if (jiraTicket) {
-    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 });
+    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
     const agent1Start = Date.now();
     agentCalls.push(
-      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, { temperature: 0.2 })
-        .then((result) => {
+      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
+        temperature: 0.2,
+        maxOutputTokens: 4096,
+        thinkingConfig: { thinkingBudget: 4096, includeThoughts: true },
+      })
+        .then(({ result, thoughts }) => {
           emit('agent:done', {
             agent: 'ak-abgleich',
             duration: Date.now() - agent1Start,
             findingCount: result.findings.length,
             summary: describeFindings(result.findings),
+            thoughts,
             rawResponse: result,
           });
-          return result;
+          return { result, thoughts };
         })
         .catch((err) => {
           emit('agent:error', { agent: 'ak-abgleich', error: err.message });
           warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
-          return { findings: [] };
+          return { result: { findings: [] }, thoughts: null };
         })
     );
   } else {
@@ -240,30 +257,35 @@ async function runReview(diff, jiraTicket, emit) {
     warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
   }
 
-  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
   const agent2Start = Date.now();
   agentCalls.push(
-    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 })
-      .then((result) => {
+    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, {
+      temperature: 0.4,
+      maxOutputTokens: 4096,
+      thinkingConfig: { thinkingBudget: 4096, includeThoughts: true },
+    })
+      .then(({ result, thoughts }) => {
         emit('agent:done', {
           agent: 'code-quality',
           duration: Date.now() - agent2Start,
           findingCount: result.findings.length,
           summary: describeFindings(result.findings),
+          thoughts,
           rawResponse: result,
         });
-        return result;
+        return { result, thoughts };
       })
       .catch((err) => {
         emit('agent:error', { agent: 'code-quality', error: err.message });
         warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
-        return { findings: [] };
+        return { result: { findings: [] }, thoughts: null };
       })
   );
 
   const results = await Promise.all(agentCalls);
-  const agent1Result = jiraTicket ? results[0] : { findings: [] };
-  const agent2Result = jiraTicket ? results[1] : results[0];
+  const agent1Result = jiraTicket ? results[0].result : { findings: [] };
+  const agent2Result = jiraTicket ? results[1].result : results[0].result;
 
   const hasFindings = agent1Result.findings.length > 0 || agent2Result.findings.length > 0;
   if (!hasFindings) {
@@ -271,17 +293,22 @@ async function runReview(diff, jiraTicket, emit) {
     return;
   }
 
-  emit('consolidator:start', { temperature: 0.2 });
+  emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
   const consolStart = Date.now();
 
-  const consolidated = await callCoSi(
-    buildConsolidatorPrompt(agent1Result, agent2Result),
+  const { result: consolidated, thoughts: consolidatorThoughts } = await callCoSi(
+    buildConsolidatorPrompt(agent1Result, agent2Result, diff),
     SYSTEM_PROMPTS.consolidator,
-    { temperature: 0.2 },
+    {
+      temperature: 0.2,
+      maxOutputTokens: 8192,
+      thinkingConfig: { thinkingBudget: 2048, includeThoughts: true },
+    },
   );
 
   emit('consolidator:done', {
     duration: Date.now() - consolStart,
+    thoughts: consolidatorThoughts,
     result: {
       findings: consolidated.findings || [],
       summary: consolidated.summary || 'Keine Auffälligkeiten',
