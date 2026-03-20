@@ -19,6 +19,7 @@ const FINDINGS = {
     line: 42,
     detail: 'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.',
     suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.',
+    codeSnippet: '+  background-color: var(--btn-primary-bg);',
   },
   codeQuality1: {
     severity: 'important',
@@ -28,6 +29,7 @@ const FINDINGS = {
     line: 87,
     detail: 'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung. Ein Type Guard wäre sicherer und erkennt ungültige Werte zur Laufzeit.',
     suggestion: 'Einen Type Guard `isButtonVariant()` implementieren und vor dem Zugriff prüfen.',
+    codeSnippet: '+    const variant = value as ButtonVariant;',
   },
   codeQuality2: {
     severity: 'minor',
@@ -37,6 +39,7 @@ const FINDINGS = {
     line: 112,
     detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet, obwohl sich die Inputs nicht geändert haben.',
     suggestion: 'Berechnung in ein `willUpdate()` mit Dirty-Check verschieben.',
+    codeSnippet: '+    const classes = this.computeClasses();',
   },
   eventListener: {
     severity: 'important',
@@ -46,6 +49,7 @@ const FINDINGS = {
     line: 34,
     detail: 'Der `mouseenter`-Listener wird in `connectedCallback` registriert, aber in `disconnectedCallback` nicht entfernt. Das führt zu Memory Leaks bei häufigem Mount/Unmount.',
     suggestion: 'Listener-Referenz speichern und in `disconnectedCallback` via `removeEventListener` aufräumen.',
+    codeSnippet: "+    this.addEventListener('mouseenter', this.onHover);",
   },
   nullCheck: {
     severity: 'minor',
@@ -55,6 +59,7 @@ const FINDINGS = {
     line: 58,
     detail: 'Die Property `content` ist als `@property()` deklariert und hat einen Default-Wert. Der Nullcheck in Zeile 58 greift nie.',
     suggestion: 'Nullcheck entfernen, da `content` immer definiert ist.',
+    codeSnippet: '+    if (this.content != null) {',
   },
   shadowDom: {
     severity: 'important',
@@ -64,6 +69,7 @@ const FINDINGS = {
     line: 15,
     detail: 'Der `:host` Selektor fehlt. Styles können in den umgebenden DOM leaken wenn die Komponente ohne Shadow DOM genutzt wird.',
     suggestion: 'Alle Top-Level-Styles in `:host { }` wrappen.',
+    codeSnippet: '+  .card-container {',
   },
 };
 
@@ -71,8 +77,8 @@ const SCENARIOS = [
   {
     name: 'Mehrere Findings (mixed)',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
 
       await delay(1000, 2000);
       const akFindings = [FINDINGS.akAbgleich];
@@ -82,6 +88,7 @@ const SCENARIOS = [
         findingCount: akFindings.length,
         summary: '1 Auffälligkeit: 1 Kritisch',
         rawResponse: { findings: akFindings },
+        thoughts: 'Analyzing ticket description...\nFound 3 Akzeptanzkriterien.\nAK-1: Hover state — checking diff... NOT FOUND.\nAK-2: Focus ring — FOUND.\nAK-3: Disabled state — FOUND.',
       });
 
       await delay(1000, 2000);
@@ -92,9 +99,10 @@ const SCENARIOS = [
         findingCount: cqFindings.length,
         summary: '2 Auffälligkeiten: 1 Wichtig, 1 Gering',
         rawResponse: { findings: cqFindings },
+        thoughts: 'Scanning diff for code quality issues...\nFile: button.ts — type assertion on line 87, should use type guard.\nFile: button.ts — render() recomputes classes unnecessarily.',
       });
 
-      emit('consolidator:start', { temperature: 0.2 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
       await delay(500, 1000);
 
       const consolidatedFindings = [FINDINGS.akAbgleich, FINDINGS.codeQuality1];
@@ -116,6 +124,7 @@ const SCENARIOS = [
         decisions,
         summary: '3 Findings geprüft, 1 gefiltert, 2 übernommen',
         rawResponse,
+        thoughts: 'Checking grounding for 3 findings...\nFinding "Hover-State fehlt": snippet found in diff. KEEP.\nFinding "Typ-Assertion": snippet found. KEEP.\nFinding "Doppelte Berechnung": snippet found but trivial. REMOVE.',
       });
 
       emit('done', {});
@@ -124,8 +133,8 @@ const SCENARIOS = [
   {
     name: 'Keine Findings',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
 
       await delay(1000, 2000);
       emit('agent:done', {
@@ -134,6 +143,7 @@ const SCENARIOS = [
         findingCount: 0,
         summary: 'Keine Auffälligkeiten',
         rawResponse: { findings: [] },
+        thoughts: 'Analyzing diff... All AK covered. No gaps found.',
       });
 
       await delay(1000, 2000);
@@ -143,6 +153,7 @@ const SCENARIOS = [
         findingCount: 0,
         summary: 'Keine Auffälligkeiten',
         rawResponse: { findings: [] },
+        thoughts: 'Scanning diff... Code structure is clean. No issues found.',
       });
 
       emit('done', {});
@@ -152,7 +163,7 @@ const SCENARIOS = [
     name: 'Nur Code-Quality',
     async run(emit) {
       emit('warning', { message: 'Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.' });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
 
       await delay(1000, 2000);
       const cqFindings = [FINDINGS.eventListener, FINDINGS.nullCheck];
@@ -162,9 +173,10 @@ const SCENARIOS = [
         findingCount: cqFindings.length,
         summary: '2 Auffälligkeiten: 1 Wichtig, 1 Gering',
         rawResponse: { findings: cqFindings },
+        thoughts: 'Scanning diff for code quality issues...\nFile: tooltip.ts — event listener not cleaned up in disconnectedCallback.\nFile: tooltip.ts — unnecessary null check on line 58.',
       });
 
-      emit('consolidator:start', { temperature: 0.2 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
       await delay(500, 1000);
 
       const decisions = [
@@ -184,6 +196,7 @@ const SCENARIOS = [
         decisions,
         summary: '2 Findings übernommen',
         rawResponse,
+        thoughts: 'Checking grounding for 2 findings...\nFinding "Event-Listener wird nicht aufgeräumt": listener registration found in diff. KEEP.\nFinding "Unnötiger Nullcheck": null check line found in diff. KEEP.',
       });
 
       emit('done', {});
@@ -192,8 +205,8 @@ const SCENARIOS = [
   {
     name: 'Partial Failure',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
 
       await delay(1000, 2000);
       emit('agent:error', { agent: 'ak-abgleich', error: 'CoSi API error: 503 — Service Unavailable' });
@@ -206,9 +219,10 @@ const SCENARIOS = [
         findingCount: cqFindings.length,
         summary: '1 Auffälligkeit: 1 Wichtig',
         rawResponse: { findings: cqFindings },
+        thoughts: 'Scanning diff for code quality issues...\nFile: card.styles.scss — missing :host selector, styles may leak.',
       });
 
-      emit('consolidator:start', { temperature: 0.2 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
       await delay(500, 1000);
 
       const decisions = [
@@ -227,6 +241,7 @@ const SCENARIOS = [
         decisions,
         summary: '1 Findings übernommen',
         rawResponse,
+        thoughts: 'Checking grounding for 1 finding...\nFinding "Shadow DOM Styling Leak": missing :host selector visible in diff. KEEP.',
       });
 
       emit('done', {});
