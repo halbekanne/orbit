@@ -1,41 +1,70 @@
-const { describe, it } = require('node:test');
+const { describe, it, before } = require('node:test');
 const assert = require('node:assert/strict');
-const { runMockReview } = require('./cosi-mock');
+const { runMockReview, setSkipDelays } = require('./cosi-mock');
 
 describe('runMockReview', () => {
-  it('returns a valid ReviewResult shape', async () => {
-    const result = await runMockReview();
+  before(() => setSkipDelays(true));
 
-    assert.ok(Array.isArray(result.findings));
-    assert.equal(typeof result.summary, 'string');
-    assert.ok(Array.isArray(result.warnings));
-    assert.equal(typeof result.reviewedAt, 'string');
-    assert.ok(!isNaN(Date.parse(result.reviewedAt)));
+  it('emits correct event sequence', async () => {
+    const events = [];
+    await runMockReview((type, data) => events.push({ type, data }));
+
+    const types = events.map(e => e.type);
+    assert.ok(types.includes('agent:start'), 'should include agent:start');
+    assert.ok(types.includes('done'), 'should include done');
   });
 
-  it('delays between 2 and 3 seconds', async () => {
-    const start = Date.now();
-    await runMockReview();
-    const elapsed = Date.now() - start;
-    assert.ok(elapsed >= 2000, `Expected >= 2000ms, got ${elapsed}ms`);
-    assert.ok(elapsed < 3100, `Expected < 3100ms, got ${elapsed}ms`);
+  it('emits agent:start for at least one agent', async () => {
+    const events = [];
+    await runMockReview((type, data) => events.push({ type, data }));
+
+    const starts = events.filter(e => e.type === 'agent:start');
+    assert.ok(starts.length >= 1);
+
+    for (const start of starts) {
+      assert.ok(['ak-abgleich', 'code-quality'].includes(start.data.agent));
+      assert.equal(typeof start.data.label, 'string');
+      assert.equal(typeof start.data.temperature, 'number');
+    }
   });
 
-  it('returns findings with correct field types when present', async () => {
-    const results = await Promise.all(
-      Array.from({ length: 20 }, () => runMockReview())
-    );
-    const allFindings = results.flatMap((r) => r.findings);
-    assert.ok(allFindings.length > 0, 'Expected at least one finding after 20 calls');
+  it('includes consolidator:done with result and decisions when findings exist', async () => {
+    const allEvents = [];
+    for (let i = 0; i < 20; i++) {
+      const events = [];
+      await runMockReview((type, data) => events.push({ type, data }));
+      allEvents.push(...events);
+    }
 
-    for (const finding of allFindings) {
-      assert.ok(['critical', 'important', 'minor'].includes(finding.severity));
-      assert.ok(['ak-abgleich', 'code-quality'].includes(finding.category));
-      assert.equal(typeof finding.title, 'string');
-      assert.equal(typeof finding.file, 'string');
-      assert.equal(typeof finding.line, 'number');
-      assert.equal(typeof finding.detail, 'string');
-      assert.equal(typeof finding.suggestion, 'string');
+    const consolDones = allEvents.filter(e => e.type === 'consolidator:done');
+    assert.ok(consolDones.length > 0, 'Expected at least one consolidator:done in 20 runs');
+
+    for (const cd of consolDones) {
+      assert.ok(cd.data.result, 'consolidator:done should have result');
+      assert.ok(Array.isArray(cd.data.result.findings));
+      assert.equal(typeof cd.data.result.summary, 'string');
+      assert.ok(Array.isArray(cd.data.result.warnings));
+      assert.equal(typeof cd.data.result.reviewedAt, 'string');
+      assert.ok(Array.isArray(cd.data.decisions));
+      assert.equal(typeof cd.data.summary, 'string');
+      assert.ok(cd.data.rawResponse);
+    }
+  });
+
+  it('emits agent:error for partial failure scenario', async () => {
+    const allEvents = [];
+    for (let i = 0; i < 30; i++) {
+      const events = [];
+      await runMockReview((type, data) => events.push({ type, data }));
+      allEvents.push(...events);
+    }
+
+    const errors = allEvents.filter(e => e.type === 'agent:error');
+    assert.ok(errors.length > 0, 'Expected at least one agent:error in 30 runs');
+
+    for (const err of errors) {
+      assert.equal(err.data.agent, 'ak-abgleich');
+      assert.equal(typeof err.data.error, 'string');
     }
   });
 });
