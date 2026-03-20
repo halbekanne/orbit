@@ -25,10 +25,10 @@ describe('runMockReview', () => {
     const results = await Promise.all(
       Array.from({ length: 20 }, () => runMockReview())
     );
-    const withFindings = results.filter((r) => r.findings.length > 0);
-    assert.ok(withFindings.length > 0, 'Expected at least one result with findings after 20 calls');
+    const allFindings = results.flatMap((r) => r.findings);
+    assert.ok(allFindings.length > 0, 'Expected at least one finding after 20 calls');
 
-    for (const finding of withFindings[0].findings) {
+    for (const finding of allFindings) {
       assert.ok(['critical', 'important', 'minor'].includes(finding.severity));
       assert.ok(['ak-abgleich', 'code-quality'].includes(finding.category));
       assert.equal(typeof finding.title, 'string');
