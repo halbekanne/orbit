@@ -6,6 +6,7 @@ const fsp = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const { runReview } = require('./cosi');
+const { runMockReview } = require('./cosi-mock');
 
 const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG, COSI_API_KEY } = process.env;
 
@@ -15,7 +16,7 @@ if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY
 }
 
 if (!COSI_API_KEY) {
-  console.warn('WARNING: COSI_API_KEY is not set — /api/cosi/review will not work');
+  console.warn('[CoSi] Mock-Modus aktiv — kein API Key gesetzt');
 }
 
 const app = express();
@@ -29,7 +30,9 @@ app.post('/api/cosi/review', express.json({ limit: '2mb' }), async (req, res) =>
     return res.status(400).json({ error: 'diff is required and must be a string' });
   }
   try {
-    const result = await runReview(diff, jiraTicket || null);
+    const result = COSI_API_KEY
+      ? await runReview(diff, jiraTicket || null)
+      : await runMockReview();
     res.json(result);
   } catch (err) {
     console.error('[CoSi Review] Error:', err);
