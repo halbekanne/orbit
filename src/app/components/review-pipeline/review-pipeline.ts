@@ -42,7 +42,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
             @for (agent of p.agents; track agent.agent) {
               <div class="relative">
                 <span
-                  class="absolute -left-[22px] top-[5px] w-2.5 h-2.5 rounded-full"
+                  class="absolute -left-[17px] top-[5px] w-2.5 h-2.5 rounded-full -translate-x-1/2"
                   [class]="statusDotClass(agent.status)"
                   [attr.data-status]="agent.status"
                   aria-hidden="true"
@@ -97,7 +97,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
             @if (showConsolidator()) {
               <div class="relative">
                 <span
-                  class="absolute -left-[22px] top-[5px] w-2.5 h-2.5 rounded-full"
+                  class="absolute -left-[17px] top-[5px] w-2.5 h-2.5 rounded-full -translate-x-1/2"
                   [class]="statusDotClass(p.consolidator.status === 'pending' ? 'done' : p.consolidator.status)"
                   [attr.data-status]="p.consolidator.status"
                   aria-hidden="true"
