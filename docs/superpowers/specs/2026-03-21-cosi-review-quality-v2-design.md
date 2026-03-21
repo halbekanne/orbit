@@ -228,7 +228,7 @@ OUTPUT RULES:
 - For every input finding, add a decision entry explaining what you did with it.
 ```
 
-The thinking steps (OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK) handle all the analytical work.
+The thinking steps (OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK) handle all the analytical work. OUTPUT RULES cover formatting only; analytical steps live in THINKING PROCESS.
 
 ### 3b: SHARED_CONSTRAINTS Rewrite
 
@@ -306,7 +306,7 @@ Ignore issues that TypeScript strict mode or ESLint would already catch (type er
 
 ## Change 5: Few-Shot Examples
 
-One calibration example per agent, placed after the thinking process block and before the scope/rules section.
+One calibration example per agent. Placement order in each agent prompt: THINKING PROCESS → EXAMPLE → guard clauses / SCOPE.
 
 ### Agent 1 (AK-Abgleich) — Tone: sachlich-präzise
 
