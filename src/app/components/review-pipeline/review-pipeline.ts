@@ -38,15 +38,16 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
         </button>
 
         @if (sectionOpen()) {
-          <div id="pipeline-content" class="mt-3 ml-2 border-l-2 border-stone-200 pl-4 space-y-3 px-6 pb-5">
+          <div id="pipeline-content" class="mt-3 space-y-3 px-6 pb-5">
             @for (agent of p.agents; track agent.agent) {
-              <div class="relative">
+              <div class="flex gap-3">
                 <span
-                  class="absolute -left-[17px] top-[5px] w-2.5 h-2.5 rounded-full -translate-x-1/2"
+                  class="mt-[5px] w-3 h-3 shrink-0 rounded-full"
                   [class]="statusDotClass(agent.status)"
                   [attr.data-status]="agent.status"
                   aria-hidden="true"
                 ></span>
+                <div class="min-w-0 flex-1">
                 <div class="flex items-baseline gap-2 flex-wrap">
                   <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
                   <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
@@ -91,17 +92,19 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                     }
                   </div>
                 }
+                </div>
               </div>
             }
 
             @if (showConsolidator()) {
-              <div class="relative">
+              <div class="flex gap-3">
                 <span
-                  class="absolute -left-[17px] top-[5px] w-2.5 h-2.5 rounded-full -translate-x-1/2"
+                  class="mt-[5px] w-3 h-3 shrink-0 rounded-full"
                   [class]="statusDotClass(p.consolidator.status === 'pending' ? 'done' : p.consolidator.status)"
                   [attr.data-status]="p.consolidator.status"
                   aria-hidden="true"
                 ></span>
+                <div class="min-w-0 flex-1">
                 <div class="flex items-baseline gap-2 flex-wrap">
                   <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
                   <span class="text-xs" [class]="statusTextClass(consolidatorDisplayStatus())">{{ statusText(consolidatorDisplayStatus()) }}</span>
@@ -162,6 +165,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                     }
                   </div>
                 }
+                </div>
               </div>
             }
           </div>
