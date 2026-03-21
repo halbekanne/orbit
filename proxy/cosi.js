@@ -61,12 +61,24 @@ RULES:
 - Findings without a concrete location in the diff are not findings — discard them.
 - CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
 - Detail must be 1-3 sentences maximum.
-- Titles must be in German. Detail and suggestion may use English for technical terms.`;
+- Titles must be in German. Detail and suggestion may use English for technical terms.
+
+THINKING PHASE INSTRUCTIONS:
+You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.`;
 
 const SYSTEM_PROMPTS = {
   akAbgleich: `${SHARED_CONSTRAINTS}
 
 TASK: You are the Akzeptanzkriterien (AK) reviewer. Compare the PR diff against the Jira ticket's Akzeptanzkriterien.
+
+YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
+1. EXTRACT: List every Akzeptanzkriterium from the Jira ticket as AK-1, AK-2, etc. For each, write a one-sentence testable assertion.
+2. CLASSIFY: For each AK, determine if it requires a code change at all. Some AKs are non-code tasks (e.g., "Barrierefreiheits-Audit durchführen", "Team über Bugfix informieren", "Meeting mit Stakeholdern organisieren"). Mark these as NOT_CODE_RELEVANT and skip them — they cannot have gaps in a PR diff.
+3. TRACE: For each code-relevant AK, scan the diff file by file. Write one of:
+   - FOUND: [file]:[line] — how the code implements it
+   - PARTIAL: [file]:[line] — what is implemented, what is missing
+   - NOT FOUND: no added code addresses this AK
+4. FORMULATE: Only for AKs marked PARTIAL or NOT FOUND, create a finding.
 
 PROCESS:
 1. Read the Jira ticket description and extract all identifiable Akzeptanzkriterien (they may appear as bullet points, numbered lists, "Given/When/Then" blocks, or prose requirements).
@@ -98,6 +110,14 @@ Output: { "findings": [...] }`,
   codeQuality: `${SHARED_CONSTRAINTS}
 
 TASK: You are the code quality reviewer. Review the PR diff for code quality issues.
+
+YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
+1. SCAN: Go through the added lines ('+' lines) across all files. Focus on logic, not listing files. For each block of added code that catches your attention, check:
+   - Could this cause problems at runtime? (null access, missing error handling, type mismatch, race conditions)
+   - Is there a TypeScript or Lit anti-pattern? (any types, missing cleanup, inefficient rendering)
+   - Would a new team member understand this in under 10 seconds?
+   Only note files and lines where you actually find something worth reporting.
+2. FORMULATE: For each confirmed issue, draft the finding with the exact codeSnippet.
 
 FOCUS AREAS (in priority order):
 1. Bugs or logical errors — off-by-one, null/undefined access, race conditions, broken control flow
@@ -131,6 +151,12 @@ Output: { "findings": [...] }`,
   consolidator: `${SHARED_CONSTRAINTS}
 
 TASK: You receive findings from two code review agents. Produce the final review report.
+
+YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
+1. OVERLAP: Compare findings from all specialist agents. Note which ones target the same underlying issue and should be merged.
+2. GROUNDING: For every finding, take the codeSnippet and search for it in the <pr_diff>. Write: "Finding '[title]' snippet found? Yes/No." Flag No findings for removal.
+3. QUALITY GATE: For each remaining finding, ask: "Would a senior engineer comment this in a real PR review, or would they let it go?" If they would let it go, either remove it or reduce its severity to "minor" — use your judgment on which is more appropriate.
+4. SEVERITY CHECK: For each surviving finding, verify the severity is appropriate. A "critical" must be a real runtime risk, not a style issue.
 
 PROCESS (in order):
 1. DEDUPLICATE: If both agents flagged the same underlying issue, keep the better-written finding (clearer title, more specific detail) and discard the other.
@@ -235,13 +261,13 @@ async function runReview(diff, jiraTicket, emit) {
   const agentCalls = [];
 
   if (jiraTicket) {
-    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
+    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
     const agent1Start = Date.now();
     agentCalls.push(
       callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
         temperature: 0.2,
-        maxOutputTokens: 4096,
-        thinkingConfig: { thinkingBudget: 4096, includeThoughts: true },
+        maxOutputTokens: 65536,
+        thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
       })
         .then(({ result, thoughts }) => {
           emit('agent:done', {
@@ -265,13 +291,13 @@ async function runReview(diff, jiraTicket, emit) {
     warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
   }
 
-  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
+  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
   const agent2Start = Date.now();
   agentCalls.push(
     callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, {
       temperature: 0.4,
-      maxOutputTokens: 4096,
-      thinkingConfig: { thinkingBudget: 4096, includeThoughts: true },
+      maxOutputTokens: 65536,
+      thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
     })
       .then(({ result, thoughts }) => {
         emit('agent:done', {
@@ -301,7 +327,7 @@ async function runReview(diff, jiraTicket, emit) {
     return;
   }
 
-  emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
+  emit('consolidator:start', { temperature: 0.2, thinkingBudget: 16384 });
   const consolStart = Date.now();
 
   const { result: consolidated, thoughts: consolidatorThoughts } = await callCoSi(
@@ -309,8 +335,8 @@ async function runReview(diff, jiraTicket, emit) {
     SYSTEM_PROMPTS.consolidator,
     {
       temperature: 0.2,
-      maxOutputTokens: 8192,
-      thinkingConfig: { thinkingBudget: 2048, includeThoughts: true },
+      maxOutputTokens: 65536,
+      thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
     },
   );
 

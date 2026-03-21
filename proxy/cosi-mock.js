@@ -77,8 +77,8 @@ const SCENARIOS = [
   {
     name: 'Mehrere Findings (mixed)',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
 
       await delay(1000, 2000);
       const akFindings = [FINDINGS.akAbgleich];
@@ -102,7 +102,7 @@ const SCENARIOS = [
         thoughts: 'Scanning diff for code quality issues...\nFile: button.ts — type assertion on line 87, should use type guard.\nFile: button.ts — render() recomputes classes unnecessarily.',
       });
 
-      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 16384 });
       await delay(500, 1000);
 
       const consolidatedFindings = [FINDINGS.akAbgleich, FINDINGS.codeQuality1];
@@ -133,8 +133,8 @@ const SCENARIOS = [
   {
     name: 'Keine Findings',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
 
       await delay(1000, 2000);
       emit('agent:done', {
@@ -163,7 +163,7 @@ const SCENARIOS = [
     name: 'Nur Code-Quality',
     async run(emit) {
       emit('warning', { message: 'Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.' });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
 
       await delay(1000, 2000);
       const cqFindings = [FINDINGS.eventListener, FINDINGS.nullCheck];
@@ -176,7 +176,7 @@ const SCENARIOS = [
         thoughts: 'Scanning diff for code quality issues...\nFile: tooltip.ts — event listener not cleaned up in disconnectedCallback.\nFile: tooltip.ts — unnecessary null check on line 58.',
       });
 
-      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 16384 });
       await delay(500, 1000);
 
       const decisions = [
@@ -205,8 +205,8 @@ const SCENARIOS = [
   {
     name: 'Partial Failure',
     async run(emit) {
-      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 4096 });
-      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 4096 });
+      emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
+      emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
 
       await delay(1000, 2000);
       emit('agent:error', { agent: 'ak-abgleich', error: 'CoSi API error: 503 — Service Unavailable' });
@@ -222,7 +222,7 @@ const SCENARIOS = [
         thoughts: 'Scanning diff for code quality issues...\nFile: card.styles.scss — missing :host selector, styles may leak.',
       });
 
-      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 2048 });
+      emit('consolidator:start', { temperature: 0.2, thinkingBudget: 16384 });
       await delay(500, 1000);
 
       const decisions = [
