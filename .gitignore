@@ -46,13 +46,8 @@ Thumbs.db
 # Environment
 .env
 /docs/jira-api-reference/real-jira-response.json
-/.superpowers/brainstorm/3884-1773438260/.server.log
-/.superpowers/brainstorm/3884-1773438260/.server.pid
-/.superpowers/brainstorm/3884-1773438260/.server-stopped
-/.superpowers/brainstorm/3884-1773438260/chevron-position.html
-/.superpowers/brainstorm/3884-1773438260/collapse-approaches.html
-/.superpowers/brainstorm/3884-1773438260/waiting-1.html
-/.superpowers/brainstorm/3884-1773438260/waiting-2.html
+.superpowers/
+mockups/
 /jira-api.md
 /prompts.md
 .worktrees/
