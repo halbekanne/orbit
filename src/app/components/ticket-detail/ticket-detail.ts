@@ -1,13 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
+import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
+import { SubTask } from '../../models/sub-task.model';
+import { TicketLocalDataService } from '../../services/ticket-local-data.service';
 
 type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
 @Component({
   selector: 'app-ticket-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe],
+  imports: [JiraMarkupPipe, SubTaskListComponent],
   styles: [`
     @keyframes ticketFadeIn {
       from { opacity: 0; }
@@ -97,6 +100,15 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
           } @else {
             <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
           }
+        </div>
+      </section>
+
+      <section class="border-b border-stone-100" aria-label="Aufgaben">
+        <div class="max-w-2xl mx-auto px-6 py-5">
+          <app-sub-task-list
+            [subtasks]="ticketLocalData.subtasks()"
+            (subtasksChange)="onSubtasksChange($event)"
+          />
         </div>
       </section>
 
@@ -263,6 +275,15 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 export class TicketDetailComponent {
   ticket = input.required<JiraTicket>();
 
+  protected readonly ticketLocalData = inject(TicketLocalDataService);
+
+  constructor() {
+    effect(() => {
+      const key = this.ticket().key;
+      this.ticketLocalData.loadForTicket(key);
+    });
+  }
+
   expandedSections = signal<Set<CollapsibleSection>>(new Set(['relations', 'comments', 'attachments']));
 
   issueTypeKey = computed(() => {
@@ -273,6 +294,10 @@ export class TicketDetailComponent {
     if (t.includes('sub')) return 'sub';
     return 'task';
   });
+
+  onSubtasksChange(subtasks: SubTask[]): void {
+    this.ticketLocalData.saveSubtasks(subtasks);
+  }
 
   toggleSection(section: CollapsibleSection): void {
     this.expandedSections.update(current => {
