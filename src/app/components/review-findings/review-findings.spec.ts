@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ReviewFindingsComponent } from './review-findings';
 import { ReviewState, ReviewFinding, createInitialPipeline } from '../../models/review.model';
+import { CosiReviewService } from '../../services/cosi-review.service';
 
 const makeFinding = (overrides: Partial<ReviewFinding> = {}): ReviewFinding => ({
   severity: 'important',
@@ -15,26 +16,37 @@ const makeFinding = (overrides: Partial<ReviewFinding> = {}): ReviewFinding => (
 
 describe('ReviewFindingsComponent', () => {
   function setup(state: ReviewState) {
-    TestBed.configureTestingModule({ imports: [ReviewFindingsComponent] });
+    TestBed.configureTestingModule({
+      imports: [ReviewFindingsComponent],
+      providers: [
+        {
+          provide: CosiReviewService,
+          useValue: { canReview: () => true, triggerReview: () => {} },
+        },
+      ],
+    });
     const fixture = TestBed.createComponent(ReviewFindingsComponent);
     fixture.componentRef.setInput('reviewState', state);
     fixture.detectChanges();
     return fixture;
   }
 
-  it('does not render when idle', () => {
+  it('shows CTA when idle', () => {
     const fixture = setup('idle');
-    expect(fixture.nativeElement.querySelector('[aria-labelledby="pr-review-heading"]')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Review starten');
+    expect(fixture.nativeElement.textContent).toContain('Noch nicht gestartet');
   });
 
   it('shows loading state', () => {
     const fixture = setup({ status: 'running', pipeline: createInitialPipeline() });
-    expect(fixture.nativeElement.textContent).toContain('KI-Review läuft');
+    expect(fixture.nativeElement.textContent).toContain('Analyse läuft...');
   });
 
   it('shows error state', () => {
     const fixture = setup({ status: 'error', pipeline: createInitialPipeline(), message: 'fail' });
     expect(fixture.nativeElement.textContent).toContain('Review konnte nicht durchgeführt werden');
+    const retryButton = fixture.nativeElement.querySelector('button');
+    expect(retryButton).toBeTruthy();
   });
 
   it('shows empty state when no findings', () => {
