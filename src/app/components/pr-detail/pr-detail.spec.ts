@@ -115,6 +115,10 @@ describe('PrDetailComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    const jiraButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Jira-Ticket')) as HTMLButtonElement;
+    jiraButton.click();
+    fixture.detectChanges();
+
     expect(fixture.nativeElement.textContent).toContain('Ticket konnte nicht geladen werden');
   });
 
@@ -126,11 +130,15 @@ describe('PrDetailComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    const jiraButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Jira-Ticket')) as HTMLButtonElement;
+    jiraButton.click();
+    fixture.detectChanges();
+
     expect(fixture.nativeElement.textContent).toContain('Kein Jira-Ticket gefunden');
     expect(getTicketByKey).not.toHaveBeenCalled();
   });
 
-  it('shows loading state for diff initially', async () => {
+  it('shows loading state for diff when expanded', async () => {
     getTicketByKey.mockReturnValue(of(mockTicket));
     const diffSubject = new Subject<string>();
     getPullRequestDiff.mockReturnValue(diffSubject.asObservable());
@@ -138,10 +146,14 @@ describe('PrDetailComponent', () => {
     fixture.componentRef.setInput('pr', basePr);
     fixture.detectChanges();
 
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Änderungen')) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
     expect(fixture.nativeElement.textContent).toContain('Änderungen laden');
   });
 
-  it('shows toggle button with file count after diff loads', async () => {
+  it('shows file count in diff card header after diff loads', async () => {
     getTicketByKey.mockReturnValue(of(mockTicket));
     getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
     fixture = TestBed.createComponent(PrDetailComponent);
@@ -150,7 +162,8 @@ describe('PrDetailComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Änderungen anzeigen (1 Datei)');
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Änderungen')) as HTMLButtonElement;
+    expect(diffButton.textContent).toContain('1 Datei');
   });
 
   it('shows error state when diff fetch fails', async () => {
@@ -160,6 +173,10 @@ describe('PrDetailComponent', () => {
     fixture.componentRef.setInput('pr', basePr);
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Änderungen')) as HTMLButtonElement;
+    diffButton.click();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Änderungen konnten nicht geladen werden');
@@ -174,18 +191,17 @@ describe('PrDetailComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const toggleBtn = fixture.nativeElement.querySelector('button[aria-controls="pr-diff-content"]') as HTMLButtonElement;
-    expect(toggleBtn).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('#pr-diff-content')).toBeNull();
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Änderungen')) as HTMLButtonElement;
+    expect(diffButton).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.overflow-x-auto')).toBeNull();
 
-    toggleBtn.click();
+    diffButton.click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('#pr-diff-content')).toBeTruthy();
-    expect(fixture.nativeElement.textContent).toContain('Änderungen ausblenden');
+    expect(fixture.nativeElement.querySelector('.overflow-x-auto')).toBeTruthy();
 
-    toggleBtn.click();
+    diffButton.click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('#pr-diff-content')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.overflow-x-auto')).toBeNull();
   });
 
   it('shows empty diff message when diff has no files', async () => {
@@ -195,6 +211,10 @@ describe('PrDetailComponent', () => {
     fixture.componentRef.setInput('pr', basePr);
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(b => b.textContent!.includes('Änderungen')) as HTMLButtonElement;
+    diffButton.click();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Keine Änderungen vorhanden');
