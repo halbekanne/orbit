@@ -247,6 +247,7 @@ export class ReviewPipelineComponent {
     switch (agent) {
       case 'ak-abgleich': return 'Gleicht Änderungen mit Jira-Akzeptanzkriterien ab';
       case 'code-quality': return 'Prüft allgemeine Code-Qualität, Patterns und potenzielle Fehler';
+      case 'accessibility': return 'Prüft Barrierefreiheit nach WCAG AA — Rollen, ARIA, Tastatur, Semantik';
       default: return '';
     }
   }
