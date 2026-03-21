@@ -51,6 +51,150 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
   return { result: JSON.parse(text), thoughts: thoughtTexts.join('\n') || null };
 }
 
+function preprocessDiff(rawDiff) {
+  const lines = rawDiff.split('\n');
+  const result = [];
+  let oldLine = 0;
+  let newLine = 0;
+
+  for (const line of lines) {
+    const hunkMatch = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+    if (hunkMatch) {
+      oldLine = parseInt(hunkMatch[1], 10);
+      newLine = parseInt(hunkMatch[2], 10);
+      result.push(line);
+    } else if (line.startsWith('diff ') || line.startsWith('index ') || line.startsWith('--- ') || line.startsWith('+++ ') || line.startsWith('Binary ')) {
+      result.push(line);
+    } else if (line.startsWith('-')) {
+      result.push(`[${oldLine}]${line}`);
+      oldLine++;
+    } else if (line.startsWith('+')) {
+      result.push(`[${newLine}]${line}`);
+      newLine++;
+    } else {
+      result.push(`[${newLine}]${line}`);
+      oldLine++;
+      newLine++;
+    }
+  }
+
+  return result.join('\n');
+}
+
+const AK_FINDING_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    findings: {
+      type: "ARRAY",
+      description: "List of found issues. Empty array if no issues found.",
+      items: {
+        type: "OBJECT",
+        properties: {
+          severity: {
+            type: "STRING",
+            enum: ["critical", "important", "minor"],
+            description: "critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail",
+          },
+          title: { type: "STRING", description: "Short German summary of the issue" },
+          file: { type: "STRING", description: "File path from the diff" },
+          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
+          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
+          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
+          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+        },
+        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+      },
+    },
+  },
+  required: ["findings"],
+  propertyOrdering: ["findings"],
+};
+
+const CODE_QUALITY_FINDING_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    findings: {
+      type: "ARRAY",
+      description: "List of found issues. Empty array if no issues found.",
+      items: {
+        type: "OBJECT",
+        properties: {
+          severity: {
+            type: "STRING",
+            enum: ["critical", "important", "minor"],
+            description: "critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency",
+          },
+          title: { type: "STRING", description: "Short German summary of the issue" },
+          file: { type: "STRING", description: "File path from the diff" },
+          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
+          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
+          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
+          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+        },
+        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+      },
+    },
+  },
+  required: ["findings"],
+  propertyOrdering: ["findings"],
+};
+
+const CONSOLIDATOR_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    findings: {
+      type: "ARRAY",
+      description: "Final, filtered list of findings.",
+      items: {
+        type: "OBJECT",
+        properties: {
+          severity: {
+            type: "STRING",
+            enum: ["critical", "important", "minor"],
+            description: "critical = real runtime risk, important = structural problem, minor = small improvement",
+          },
+          category: {
+            type: "STRING",
+            enum: ["ak-abgleich", "code-quality"],
+            description: "Which agent originally produced the finding",
+          },
+          title: { type: "STRING", description: "Short German summary" },
+          file: { type: "STRING", description: "File path from the diff" },
+          line: { type: "INTEGER", description: "Line number from the diff" },
+          codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
+          detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
+          suggestion: { type: "STRING", description: "Improvement suggestion in German" },
+        },
+        required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+      },
+    },
+    decisions: {
+      type: "ARRAY",
+      description: "For each input finding, a decision explaining what happened to it.",
+      items: {
+        type: "OBJECT",
+        properties: {
+          agent: { type: "STRING", enum: ["ak-abgleich", "code-quality"] },
+          finding: { type: "STRING", description: "Original title of the finding" },
+          action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
+          reason: { type: "STRING", description: "Reasoning in German" },
+        },
+        required: ["agent", "finding", "action", "reason"],
+        propertyOrdering: ["agent", "finding", "action", "reason"],
+      },
+    },
+    summary: {
+      type: "STRING",
+      description: "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
+    },
+  },
+  required: ["findings", "decisions", "summary"],
+  propertyOrdering: ["findings", "decisions", "summary"],
+};
+
 const SHARED_CONSTRAINTS = `You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
 
 RULES:
