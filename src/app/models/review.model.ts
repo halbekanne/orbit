@@ -1,6 +1,7 @@
 export interface ReviewFinding {
   severity: 'critical' | 'important' | 'minor';
-  category: 'ak-abgleich' | 'code-quality';
+  category: string;
+  wcagCriterion?: string;
   title: string;
   file: string;
   line: number;
