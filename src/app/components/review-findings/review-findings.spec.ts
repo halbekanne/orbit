@@ -187,6 +187,30 @@ describe('ReviewFindingsComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Agent 1 fehlgeschlagen');
   });
 
+  it('shows accessibility badge with teal styling and WCAG criterion', () => {
+    const fixture = setup({
+      status: 'result',
+      pipeline: createInitialPipeline(),
+      data: {
+        findings: [makeFinding({
+          category: 'accessibility',
+          title: 'Fehlende Rolle',
+          wcagCriterion: '4.1.2 Name, Rolle, Wert',
+        })],
+        summary: '1 Auffälligkeit',
+        warnings: [],
+        reviewedAt: new Date().toISOString(),
+      },
+    });
+
+    const el = fixture.nativeElement;
+    expect(el.textContent).toContain('Barrierefreiheit');
+    expect(el.textContent).toContain('WCAG 4.1.2 Name, Rolle, Wert');
+
+    const tealBadge = el.querySelector('.bg-teal-50');
+    expect(tealBadge).toBeTruthy();
+  });
+
   it('sorts file groups by highest severity', () => {
     const fixture = setup({
       status: 'result',
