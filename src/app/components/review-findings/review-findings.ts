@@ -84,73 +84,85 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                 </div>
               }
 
-              <div class="ml-2 border-l-2 border-stone-200 pl-4 space-y-3">
+              <div class="space-y-3">
                 @for (agent of review.pipeline.agents; track agent.agent) {
-                  <div class="relative">
+                  <div class="flex gap-3">
                     @if (agent.status === 'done') {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 flex items-center justify-center" aria-hidden="true">
-                        <svg class="w-2 h-2 text-white check-animated" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 6l2.5 2.5 4.5-4.5" /></svg>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center" aria-hidden="true">
+                        <svg class="w-2.5 h-2.5 text-white check-animated" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 6l2.5 2.5 4.5-4.5" /></svg>
                       </span>
-                      <div class="flex items-baseline gap-2 flex-wrap slide-in">
-                        <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                        <span class="text-xs text-emerald-600">&#10003; fertig</span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
-                        @if (agent.duration != null) {
-                          <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline gap-2 flex-wrap slide-in">
+                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                          <span class="text-xs text-emerald-600">&#10003; fertig</span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                          @if (agent.duration != null) {
+                            <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
+                          }
+                        </div>
+                        @if (agent.summary) {
+                          <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
                         }
                       </div>
-                      @if (agent.summary) {
-                        <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
-                      }
                     } @else if (agent.status === 'running') {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
-                      <div class="flex items-baseline gap-2 flex-wrap">
-                        <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                        <span class="flex items-center gap-0.5 text-xs text-indigo-500">
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                        </span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                          <span class="flex items-center gap-0.5 text-xs text-indigo-500">
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                          </span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                        </div>
                       </div>
                     } @else {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-dashed border-stone-300" aria-hidden="true"></span>
-                      <div class="flex items-baseline gap-2 flex-wrap opacity-50">
-                        <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full border-2 border-dashed border-stone-300" aria-hidden="true"></span>
+                      <div class="min-w-0 flex-1 opacity-50">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                        </div>
                       </div>
                     }
                   </div>
                 }
 
                 @if (review.pipeline.consolidator.status !== 'pending') {
-                  <div class="relative">
+                  <div class="flex gap-3">
                     @if (review.pipeline.consolidator.status === 'done') {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 flex items-center justify-center" aria-hidden="true">
-                        <svg class="w-2 h-2 text-white check-animated" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 6l2.5 2.5 4.5-4.5" /></svg>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center" aria-hidden="true">
+                        <svg class="w-2.5 h-2.5 text-white check-animated" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 6l2.5 2.5 4.5-4.5" /></svg>
                       </span>
-                      <div class="flex items-baseline gap-2 flex-wrap slide-in">
-                        <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
-                        <span class="text-xs text-emerald-600">&#10003; fertig</span>
-                        @if (review.pipeline.consolidator.duration != null) {
-                          <span class="font-mono text-xs text-stone-400">{{ formatDuration(review.pipeline.consolidator.duration!) }}</span>
-                        }
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline gap-2 flex-wrap slide-in">
+                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="text-xs text-emerald-600">&#10003; fertig</span>
+                          @if (review.pipeline.consolidator.duration != null) {
+                            <span class="font-mono text-xs text-stone-400">{{ formatDuration(review.pipeline.consolidator.duration!) }}</span>
+                          }
+                        </div>
                       </div>
                     } @else if (review.pipeline.consolidator.status === 'running') {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
-                      <div class="flex items-baseline gap-2 flex-wrap">
-                        <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
-                        <span class="flex items-center gap-0.5 text-xs text-indigo-500">
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                          <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                        </span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="flex items-center gap-0.5 text-xs text-indigo-500">
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                          </span>
+                        </div>
                       </div>
                     } @else if (review.pipeline.consolidator.status === 'error') {
-                      <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-red-500" aria-hidden="true"></span>
-                      <div class="flex items-baseline gap-2 flex-wrap">
-                        <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
-                        <span class="text-xs text-red-600">&#10007; Fehler</span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="text-xs text-red-600">&#10007; Fehler</span>
+                        </div>
                       </div>
                     }
                   </div>
