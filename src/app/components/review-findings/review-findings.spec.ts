@@ -193,6 +193,7 @@ describe('ReviewFindingsComponent', () => {
       pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding({
+          severity: 'critical',
           category: 'accessibility',
           title: 'Fehlende Rolle',
           wcagCriterion: '4.1.2 Name, Rolle, Wert',
