@@ -87,6 +87,9 @@ Defined in `proxy/agents/agent-definition.js` via JSDoc:
  * @property {(jiraTicket?: JiraTicketInput) => boolean} [isApplicable]
  *   — Optional guard. Returns false to skip this agent for the current review.
  *     Defaults to always applicable if not provided.
+ * @property {string} [skipMessage]
+ *   — Optional German message emitted as warning when this agent is skipped.
+ *     If not set, no warning is emitted when the agent is skipped.
  */
 
 /**
