@@ -2,10 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, input, signal, effect } fro
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
 import { WorkDataService } from '../../services/work-data.service';
+import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
+import { SubTask } from '../../models/sub-task.model';
 
 @Component({
   selector: 'app-todo-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SubTaskListComponent],
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Todo: ' + todo().title">
       <header class="pb-5 border-b border-stone-200">
@@ -48,21 +51,6 @@ import { WorkDataService } from '../../services/work-data.service';
         </div>
       </header>
 
-      <div class="py-5 border-b border-stone-200">
-        <dl class="grid grid-cols-2 gap-4">
-          <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
-            <dd class="text-sm text-stone-700">{{ formatDate(todo().createdAt) }}</dd>
-          </div>
-          @if (todo().completedAt) {
-            <div>
-              <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erledigt am</dt>
-              <dd class="text-sm text-stone-700">{{ formatDate(todo().completedAt!) }}</dd>
-            </div>
-          }
-        </dl>
-      </div>
-
       <div class="flex-1 py-5 overflow-y-auto">
         <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Notizen</h2>
 
@@ -91,6 +79,28 @@ import { WorkDataService } from '../../services/work-data.service';
             }
           </div>
         }
+
+        <div class="py-5 border-t border-stone-200">
+          <app-sub-task-list
+            [subtasks]="todo().subtasks ?? []"
+            (subtasksChange)="onSubtasksChange($event)"
+          />
+        </div>
+
+        <div class="py-5 border-t border-stone-200">
+          <dl class="grid grid-cols-2 gap-4">
+            <div>
+              <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
+              <dd class="text-sm text-stone-700">{{ formatDate(todo().createdAt) }}</dd>
+            </div>
+            @if (todo().completedAt) {
+              <div>
+                <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erledigt am</dt>
+                <dd class="text-sm text-stone-700">{{ formatDate(todo().completedAt!) }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
       </div>
     </article>
   `,
@@ -169,6 +179,12 @@ export class TodoDetailComponent {
   onDescriptionKeydown(e: KeyboardEvent): void {
     if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
     if (e.key === 'Escape') { this.editingDescription.set(false); }
+  }
+
+  onSubtasksChange(subtasks: SubTask[]): void {
+    const updated = { ...this.todo(), subtasks };
+    this.todoService.update(updated);
+    this.workData.selectedItem.set(updated);
   }
 
   formatDate(iso: string): string {
