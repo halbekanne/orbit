@@ -125,6 +125,26 @@ app.post('/api/ideas', async (req, res) => {
   res.json(req.body);
 });
 
+const TICKETS_DIR = path.join(ORBIT_DIR, 'tickets');
+
+app.get('/api/tickets/:key', async (req, res) => {
+  const safeKey = req.params.key.replace(/[^A-Za-z0-9_-]/g, '');
+  const file = path.join(TICKETS_DIR, `${safeKey}.json`);
+  try {
+    const data = await fsp.readFile(file, 'utf8');
+    res.json(JSON.parse(data));
+  } catch {
+    res.json({ key: req.params.key, subtasks: [] });
+  }
+});
+
+app.post('/api/tickets/:key', async (req, res) => {
+  const safeKey = req.params.key.replace(/[^A-Za-z0-9_-]/g, '');
+  const file = path.join(TICKETS_DIR, `${safeKey}.json`);
+  await writeJson(file, req.body);
+  res.json(req.body);
+});
+
 app.listen(PORT, () => {
   console.log(`Proxy running at http://localhost:${PORT}`);
   console.log(`  /jira/**      → ${JIRA_BASE_URL}`);
