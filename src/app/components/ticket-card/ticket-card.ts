@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
+import { TicketLocalDataService } from '../../services/ticket-local-data.service';
 
 @Component({
   selector: 'app-ticket-card',
@@ -80,6 +81,17 @@ import { JiraTicket } from '../../models/work-item.model';
           @if (ticket().labels.length) {
             <span class="text-[10px] font-medium text-amber-600 truncate max-w-[100px]">{{ ticket().labels[0] }}</span>
           }
+            @if (hasSubtasks()) {
+              <span class="inline-flex items-center gap-1 ml-auto text-[10px]" [attr.aria-label]="subtaskDone() + ' von ' + subtaskTotal() + ' Aufgaben erledigt'">
+                <svg class="w-3 h-3" [class]="subtaskIndicatorClass().icon" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M11 18H3"/><path d="m15 18 2 2 4-4"/>
+                  <path d="M16 12H3"/><path d="M16 6H3"/>
+                </svg>
+                <span style="font-variant-numeric: tabular-nums;">
+                  <span [class]="subtaskDoneTextClass()">{{ subtaskDone() }}</span><span class="text-stone-400">/{{ subtaskTotal() }}</span>
+                </span>
+              </span>
+            }
         </div>
       </div>
     </button>
@@ -89,6 +101,26 @@ export class TicketCardComponent {
   ticket = input.required<JiraTicket>();
   selected = input(false);
   select = output<JiraTicket>();
+
+  private readonly ticketLocalData = inject(TicketLocalDataService);
+
+  readonly ticketSubtasks = computed(() => this.ticketLocalData.getSubtasksForKey(this.ticket().key));
+  readonly subtaskDone = computed(() => this.ticketSubtasks().filter(s => s.status === 'done').length);
+  readonly subtaskTotal = computed(() => this.ticketSubtasks().length);
+  readonly hasSubtasks = computed(() => this.subtaskTotal() > 0);
+  readonly subtaskAllDone = computed(() => this.hasSubtasks() && this.subtaskDone() === this.subtaskTotal());
+
+  readonly subtaskIndicatorClass = computed(() => {
+    if (this.subtaskAllDone()) return { icon: 'stroke-emerald-600', text: 'text-emerald-600 font-semibold' };
+    if (this.subtaskDone() > 0) return { icon: 'stroke-indigo-500', text: 'text-stone-500' };
+    return { icon: 'stroke-stone-400', text: 'text-stone-400' };
+  });
+
+  readonly subtaskDoneTextClass = computed(() => {
+    if (this.subtaskAllDone()) return 'text-emerald-600 font-semibold';
+    if (this.subtaskDone() > 0) return 'text-indigo-600 font-semibold';
+    return 'text-stone-400 font-semibold';
+  });
 
   issueTypeKey = computed(() => {
     const t = this.ticket().issueType.toLowerCase();

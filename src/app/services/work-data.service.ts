@@ -7,6 +7,7 @@ import { JiraService } from './jira.service';
 import { BitbucketService } from './bitbucket.service';
 import { TodoService } from './todo.service';
 import { IdeaService } from './idea.service';
+import { TicketLocalDataService } from './ticket-local-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class WorkDataService {
@@ -14,6 +15,7 @@ export class WorkDataService {
   private readonly bitbucket = inject(BitbucketService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
+  private readonly ticketLocalData = inject(TicketLocalDataService);
 
   readonly ticketsLoading = signal(true);
   readonly ticketsError = signal(false);
@@ -56,6 +58,13 @@ export class WorkDataService {
   readonly selectedItem = signal<WorkItem | null>(null);
 
   constructor() {
+    effect(() => {
+      const keys = this.tickets().map(t => t.key);
+      if (keys.length > 0) {
+        untracked(() => this.ticketLocalData.preloadKeys(keys));
+      }
+    });
+
     effect(() => {
       untracked(() => {
         this.bitbucket.getReviewerPullRequests().pipe(
