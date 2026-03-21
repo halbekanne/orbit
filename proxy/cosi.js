@@ -337,7 +337,7 @@ ${jiraTicket.description}
 ${diff}
 </pr_diff>
 
-Based on the above, identify gaps between the Akzeptanzkriterien and the implementation. Output JSON only.`;
+Follow your thinking process step by step: EXTRACT, CLASSIFY, TRACE, FORMULATE.`;
 }
 
 function buildAgent2Prompt(diff) {
@@ -345,7 +345,7 @@ function buildAgent2Prompt(diff) {
 ${diff}
 </pr_diff>
 
-Based on the above, identify code quality issues. Output JSON only.`;
+Follow your thinking process step by step: SCAN the added lines, then FORMULATE for confirmed issues only.`;
 }
 
 function buildConsolidatorPrompt(agent1Findings, agent2Findings, diff) {
@@ -361,7 +361,7 @@ ${JSON.stringify(agent1Findings)}
 ${JSON.stringify(agent2Findings)}
 </agent_2_findings>
 
-Verify grounding against the diff, then deduplicate, filter, sort, categorize, and write the summary. Output JSON only.`;
+Follow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.`;
 }
 
 function describeFindings(findings) {
@@ -386,6 +386,7 @@ function describeConsolidation(agent1, agent2, consolidated) {
 
 async function runReview(diff, jiraTicket, emit) {
   const warnings = [];
+  const processedDiff = preprocessDiff(diff);
 
   const agentCalls = [];
 
@@ -393,10 +394,11 @@ async function runReview(diff, jiraTicket, emit) {
     emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
     const agent1Start = Date.now();
     agentCalls.push(
-      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
+      callCoSi(buildAgent1Prompt(processedDiff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
         temperature: 0.2,
         maxOutputTokens: 65536,
         thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
+        responseSchema: AK_FINDING_SCHEMA,
       })
         .then(({ result, thoughts }) => {
           emit('agent:done', {
@@ -423,10 +425,11 @@ async function runReview(diff, jiraTicket, emit) {
   emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
   const agent2Start = Date.now();
   agentCalls.push(
-    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, {
+    callCoSi(buildAgent2Prompt(processedDiff), SYSTEM_PROMPTS.codeQuality, {
       temperature: 0.4,
       maxOutputTokens: 65536,
       thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
+      responseSchema: CODE_QUALITY_FINDING_SCHEMA,
     })
       .then(({ result, thoughts }) => {
         emit('agent:done', {
@@ -460,12 +463,13 @@ async function runReview(diff, jiraTicket, emit) {
   const consolStart = Date.now();
 
   const { result: consolidated, thoughts: consolidatorThoughts } = await callCoSi(
-    buildConsolidatorPrompt(agent1Result, agent2Result, diff),
+    buildConsolidatorPrompt(agent1Result, agent2Result, processedDiff),
     SYSTEM_PROMPTS.consolidator,
     {
       temperature: 0.2,
       maxOutputTokens: 65536,
       thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
+      responseSchema: CONSOLIDATOR_SCHEMA,
     },
   );
 
@@ -486,4 +490,4 @@ async function runReview(diff, jiraTicket, emit) {
   emit('done', {});
 }
 
-module.exports = { callCoSi, SYSTEM_PROMPTS, runReview };
+module.exports = { callCoSi, preprocessDiff, SYSTEM_PROMPTS, runReview };
