@@ -91,7 +91,7 @@ The `runReview()` function changes from hardcoded calls to registry iteration:
 1. Filter `AGENT_REGISTRY` for applicable agents (skip entries with `requiresJiraTicket: true` when no ticket is present)
 2. For each applicable agent, call `callCoSi()` with the entry's config
 3. Wrap each response: `{ id: entry.id, label: entry.label, findings: [...] }`
-4. Send SSE events per agent (`agent:start`, `agent:done`) — no frontend changes needed since events already use agent names from the backend
+4. Send SSE events per agent using registry fields: `emit('agent:start', { agent: entry.id, label: entry.label, temperature: entry.temperature, thinkingBudget: entry.thinkingBudget })` — no frontend changes needed since the event shape is unchanged
 5. Collect all wrapped results into an `agents` array
 6. Pass the array to the Consolidator
 
@@ -126,6 +126,21 @@ For each candidate:
 - Could the surrounding component context already solve this? (If uncertain, report with lower severity.)
 
 Only validated candidates become findings. If no accessibility issues are found, return an empty findings array.
+
+### Thinking Process
+
+Formatted consistently with the other agents' `YOUR THINKING PROCESS` blocks:
+
+```
+YOUR THINKING PROCESS (use the thinking phase for this):
+1. SCAN — Walk through each added line (prefixed with '+'). For each line, check against the 8 focus areas below. Note potential issues as candidates with the relevant focus area and line reference.
+2. VALIDATE — For each candidate:
+   a. Find the exact codeSnippet (1-2 lines) from the diff that evidences the issue.
+   b. Determine: is this a real accessibility barrier, or a style preference? Discard preferences.
+   c. Consider: could the surrounding component context already solve this? If uncertain, keep but lower severity.
+   d. Assign severity (critical / important / minor) per the calibration below.
+3. FORMULATE — For each validated candidate, write the finding fields: title, detail, suggestion (all German), wcagCriterion, file, line, codeSnippet.
+```
 
 ### Focus Areas
 
@@ -317,22 +332,47 @@ The Consolidator receives a dynamic array of agent results instead of hardcoded 
 </pr_diff>
 ```
 
-### Prompt Changes
+### Prompt Builder Refactor
 
+The current `buildConsolidatorPrompt(agent1Findings, agent2Findings)` takes two separate arguments and renders them as `<agent_1_findings>` and `<agent_2_findings>`. This changes to `buildConsolidatorPrompt(agentResults)` taking a single array. The prompt renders all results inside a single `<agent_findings>` tag as shown in the Input Format above.
+
+Prompt text changes:
 - Replace all hardcoded references to `ak-abgleich` and `code-quality` with generic language ("die Fach-Agenten", "der jeweilige Agent")
 - The `category` field in output findings is set to the `id` of the originating agent
 - The `agent` field in decisions is set to the `id` of the originating agent
 - Agent-specific fields (`wcagCriterion`) are passed through without modification
 
+The `describeConsolidation` helper (currently takes two agent results) also changes to accept an array.
+
 ### Consolidator Schema Update
 
-```js
-// category changes from enum to string
-category: {
-  type: "STRING",
-  description: "The id of the agent that produced the finding"
-},
+The Consolidator output schema must include `wcagCriterion` as an optional field. Without it, Gemini's `responseSchema` enforcement would strip the field from findings that pass through. Since not all agents produce this field, it is not in the `required` array.
 
+```js
+// Full updated finding properties in Consolidator schema:
+{
+  severity: {
+    type: "STRING",
+    enum: ["critical", "important", "minor"],
+    description: "critical = real runtime risk, important = structural problem, minor = small improvement"
+  },
+  category: {
+    type: "STRING",
+    description: "The id of the agent that produced the finding"
+  },
+  title: { type: "STRING", description: "Short German summary" },
+  file: { type: "STRING", description: "File path from the diff" },
+  line: { type: "INTEGER", description: "Line number from the diff" },
+  codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
+  detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
+  suggestion: { type: "STRING", description: "Improvement suggestion in German" },
+  wcagCriterion: { type: "STRING", description: "WCAG criterion reference, e.g. '4.1.2 Name, Rolle, Wert'. Only present for accessibility findings." }
+},
+required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+// wcagCriterion intentionally NOT required — only accessibility agent provides it
+```
+
+```js
 // decisions.agent changes from enum to string
 agent: {
   type: "STRING",
@@ -360,12 +400,14 @@ The Consolidator must handle cross-agent overlap. Example: Code Quality flags a 
 In `review.model.ts`:
 
 ```typescript
-// category becomes a string to support dynamic agents
+// ReviewFinding: category becomes a string to support dynamic agents
 category: string;
 
-// new optional field for accessibility findings
+// ReviewFinding: new optional field for accessibility findings
 wcagCriterion?: string;
 ```
+
+`ConsolidatorDecision` already uses `string` for its fields — no changes needed there.
 
 ### Review-Findings Component
 
