@@ -137,6 +137,7 @@ export class SubTaskListComponent {
 
   counterClasses = computed(() => {
     if (this.allDone()) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (this.doneCount() > 0) return 'bg-indigo-50 text-indigo-700 border-indigo-200';
     return 'bg-stone-100 text-stone-500 border-stone-200';
   });
 

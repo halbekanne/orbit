@@ -101,6 +101,16 @@ describe('SubTaskListComponent', () => {
     expect(badge?.className).toContain('emerald');
   });
 
+  it('shows indigo badge when partially done', () => {
+    host.subtasks.set([
+      { id: 'st-1', title: 'A', status: 'done', completedAt: '2026-01-01' },
+      { id: 'st-2', title: 'B', status: 'open', completedAt: null },
+    ]);
+    fixture.detectChanges();
+    const badge = fixture.nativeElement.querySelector('[data-testid="subtask-counter"]');
+    expect(badge?.className).toContain('indigo');
+  });
+
   it('has accessible input field placeholder', () => {
     const input: HTMLInputElement = fixture.nativeElement.querySelector('[data-testid="subtask-input"]');
     expect(input.placeholder).toContain('Neue Aufgabe');

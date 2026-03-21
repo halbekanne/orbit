@@ -103,14 +103,14 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
         </div>
       </section>
 
-      <section class="border-b border-stone-100" aria-label="Aufgaben">
+      <div class="border-b border-stone-100">
         <div class="max-w-2xl mx-auto px-6 py-5">
           <app-sub-task-list
             [subtasks]="ticketLocalData.subtasks()"
             (subtasksChange)="onSubtasksChange($event)"
           />
         </div>
-      </section>
+      </div>
 
       <!-- Epic Link -->
       @if (ticket().epicLink) {
