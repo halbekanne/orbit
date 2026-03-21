@@ -36,73 +36,155 @@ This spec introduces:
 
 | File | Change Type |
 |------|-------------|
-| `proxy/cosi.js` | Agent Registry, Accessibility prompt + schema, Consolidator generalization, orchestrator refactor |
+| `proxy/agents/agent-definition.js` | New — JSDoc `@typedef` for `AgentDefinition` interface |
+| `proxy/agents/ak-abgleich.js` | New — extracted from `cosi.js`, implements `AgentDefinition` |
+| `proxy/agents/code-quality.js` | New — extracted from `cosi.js`, implements `AgentDefinition` |
+| `proxy/agents/accessibility.js` | New — implements `AgentDefinition` |
+| `proxy/agents/index.js` | New — imports all agents, exports registry array |
+| `proxy/cosi.js` | Refactored to pure orchestrator — imports registry, iterates over agents |
 | `proxy/cosi-mock.js` | New mock scenario with accessibility findings |
 | `src/app/models/review.model.ts` | `category` type change, `wcagCriterion` field |
 | `src/app/components/review-findings/review-findings.ts` | Accessibility badge color, WCAG criterion pill |
 
 ---
 
-## Change 1: Agent Registry
+## Change 1: Agent Definition Interface & File-Per-Agent Architecture
 
 ### What
 
-Replace the hardcoded agent orchestration with a declarative registry. Each entry describes a specialist agent completely — prompt, schema, model parameters, and conditions.
+Each review agent is defined in its own file under `proxy/agents/`. All agent files implement a shared `AgentDefinition` interface defined via JSDoc `@typedef`. The orchestrator (`cosi.js`) imports the registry and operates purely on the interface — it has no knowledge of individual agents.
 
-### Registry Structure
+### Directory Structure
+
+```
+proxy/
+  agents/
+    agent-definition.js   ← @typedef AgentDefinition + shared constraints
+    ak-abgleich.js        ← exports AgentDefinition
+    code-quality.js       ← exports AgentDefinition
+    accessibility.js      ← exports AgentDefinition
+    index.js              ← imports all agents, exports AGENT_REGISTRY array
+  cosi.js                 ← orchestrator, imports AGENT_REGISTRY
+  cosi-mock.js
+```
+
+### AgentDefinition Interface
+
+Defined in `proxy/agents/agent-definition.js` via JSDoc:
 
 ```js
-const AGENT_REGISTRY = [
-  {
-    id: 'ak-abgleich',
-    label: 'AK-Abgleich',
-    category: 'ak-abgleich',
-    systemPrompt: SYSTEM_PROMPTS.akAbgleich,
-    responseSchema: AK_FINDING_SCHEMA,
-    temperature: 0.2,
-    thinkingBudget: 16384,
-    requiresJiraTicket: true,
+/**
+ * @typedef {Object} AgentDefinition
+ * @property {string} id — Unique identifier, used as `category` in findings (e.g. 'accessibility')
+ * @property {string} label — German display name for the UI (e.g. 'Barrierefreiheit')
+ * @property {string} systemPrompt — Full system instruction for the CoSi call
+ * @property {Object} responseSchema — Gemini responseSchema object for structured output
+ * @property {number} temperature — Model temperature (0.0–1.0)
+ * @property {number} thinkingBudget — Thinking budget in tokens
+ * @property {(diff: string, jiraTicket?: JiraTicketInput) => string} buildUserPrompt
+ *   — Builds the user prompt from the preprocessed diff and optional Jira ticket.
+ *     Each agent decides how to structure its input context (XML tags, ordering, etc.)
+ * @property {(jiraTicket?: JiraTicketInput) => boolean} [isApplicable]
+ *   — Optional guard. Returns false to skip this agent for the current review.
+ *     Defaults to always applicable if not provided.
+ */
+
+/**
+ * @typedef {Object} JiraTicketInput
+ * @property {string} key
+ * @property {string} summary
+ * @property {string} description
+ */
+```
+
+This file also exports `SHARED_CONSTRAINTS` — the shared prompt preamble that all agents include in their system prompt (Design System context, line number instruction, rules for diff review, thinking phase instructions).
+
+### Example Agent File
+
+`proxy/agents/accessibility.js`:
+
+```js
+// @ts-check
+const { SHARED_CONSTRAINTS } = require('./agent-definition');
+
+const SYSTEM_PROMPT = `${SHARED_CONSTRAINTS}
+
+You are an accessibility reviewer specialized in WCAG AA compliance for component-based Design Systems built with Lit (Web Components) and SCSS.
+...
+`;
+
+const RESPONSE_SCHEMA = { /* ... */ };
+
+/** @type {import('./agent-definition').AgentDefinition} */
+module.exports = {
+  id: 'accessibility',
+  label: 'Barrierefreiheit',
+  systemPrompt: SYSTEM_PROMPT,
+  responseSchema: RESPONSE_SCHEMA,
+  temperature: 0.3,
+  thinkingBudget: 16384,
+  buildUserPrompt(diff) {
+    return `<pr_diff>\n${diff}\n</pr_diff>\n\nFollow your thinking process step by step: SCAN, VALIDATE, FORMULATE.`;
   },
-  {
-    id: 'code-quality',
-    label: 'Code-Qualität',
-    category: 'code-quality',
-    systemPrompt: SYSTEM_PROMPTS.codeQuality,
-    responseSchema: CODE_QUALITY_FINDING_SCHEMA,
-    temperature: 0.4,
-    thinkingBudget: 16384,
-  },
-  {
-    id: 'accessibility',
-    label: 'Barrierefreiheit',
-    category: 'accessibility',
-    systemPrompt: SYSTEM_PROMPTS.accessibility,
-    responseSchema: ACCESSIBILITY_FINDING_SCHEMA,
-    temperature: 0.3,
-    thinkingBudget: 16384,
-  },
-];
+};
+```
+
+No `isApplicable` needed — the accessibility agent always runs. Compare with AK-Abgleich which would have:
+
+```js
+isApplicable(jiraTicket) {
+  return !!jiraTicket;
+},
+```
+
+### Registry
+
+`proxy/agents/index.js`:
+
+```js
+const akAbgleich = require('./ak-abgleich');
+const codeQuality = require('./code-quality');
+const accessibility = require('./accessibility');
+
+/** @type {import('./agent-definition').AgentDefinition[]} */
+const AGENT_REGISTRY = [akAbgleich, codeQuality, accessibility];
+
+module.exports = { AGENT_REGISTRY };
 ```
 
 ### Orchestrator Changes
 
-The `runReview()` function changes from hardcoded calls to registry iteration:
+`cosi.js` imports `AGENT_REGISTRY` and iterates over it:
 
-1. Filter `AGENT_REGISTRY` for applicable agents (skip entries with `requiresJiraTicket: true` when no ticket is present)
-2. For each applicable agent, call `callCoSi()` with the entry's config
-3. Wrap each response: `{ id: entry.id, label: entry.label, findings: [...] }`
-4. Send SSE events per agent using registry fields: `emit('agent:start', { agent: entry.id, label: entry.label, temperature: entry.temperature, thinkingBudget: entry.thinkingBudget })` — no frontend changes needed since the event shape is unchanged
-5. Collect all wrapped results into an `agents` array
-6. Pass the array to the Consolidator
+1. Filter agents: `AGENT_REGISTRY.filter(a => !a.isApplicable || a.isApplicable(jiraTicket))`
+2. For each applicable agent, build the user prompt via `agent.buildUserPrompt(diff, jiraTicket)`
+3. Call `callCoSi()` with `agent.systemPrompt`, `agent.temperature`, `agent.thinkingBudget`, `agent.responseSchema`
+4. Wrap each response: `{ id: agent.id, label: agent.label, findings: [...] }`
+5. Send SSE events using agent fields: `emit('agent:start', { agent: agent.id, label: agent.label, temperature: agent.temperature, thinkingBudget: agent.thinkingBudget })` — no frontend changes needed since the event shape is unchanged
+6. Collect all wrapped results into an `agents` array
+7. Pass the array to the Consolidator
 
 Error handling stays the same: if one agent fails, the pipeline continues with partial results and a warning is added.
 
+### What stays in `cosi.js`
+
+- `callCoSi()` — the raw API call helper
+- `preprocessDiff()` — diff line number injection
+- `runReview()` — orchestration loop + Consolidator call
+- Consolidator prompt + schema (the Consolidator is not an agent in the registry — it has a fundamentally different role and input shape)
+- SSE event emission
+
+### What moves out of `cosi.js`
+
+- All `SYSTEM_PROMPTS` entries → into their respective agent files
+- All `*_FINDING_SCHEMA` objects → into their respective agent files
+- All `buildAgent*Prompt()` functions → become `buildUserPrompt()` methods on each agent
+- `SHARED_CONSTRAINTS` → into `agent-definition.js`
+
 ### Adding a Future Agent
 
-Adding a new specialist requires only:
-1. Write a system prompt in `SYSTEM_PROMPTS`
-2. Define a response schema
-3. Add an entry to `AGENT_REGISTRY`
+1. Create a new file in `proxy/agents/` implementing `AgentDefinition`
+2. Add it to the array in `proxy/agents/index.js`
 
 No orchestrator code, no Consolidator prompt, and no frontend changes needed.
 
@@ -334,7 +416,7 @@ The Consolidator receives a dynamic array of agent results instead of hardcoded 
 
 ### Prompt Builder Refactor
 
-The current `buildConsolidatorPrompt(agent1Findings, agent2Findings)` takes two separate arguments and renders them as `<agent_1_findings>` and `<agent_2_findings>`. This changes to `buildConsolidatorPrompt(agentResults)` taking a single array. The prompt renders all results inside a single `<agent_findings>` tag as shown in the Input Format above.
+The current `buildConsolidatorPrompt(agent1Findings, agent2Findings)` takes two separate arguments and renders them as `<agent_1_findings>` and `<agent_2_findings>`. This changes to `buildConsolidatorPrompt(agentResults)` taking a single array. The prompt renders all results inside a single `<agent_findings>` tag as shown in the Input Format above. This function stays in `cosi.js` (not in an agent file) since the Consolidator is not an `AgentDefinition` — it has a fundamentally different input shape and role.
 
 Prompt text changes:
 - Replace all hardcoded references to `ak-abgleich` and `code-quality` with generic language ("die Fach-Agenten", "der jeweilige Agent")
