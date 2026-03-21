@@ -158,7 +158,7 @@ module.exports = { AGENT_REGISTRY };
 
 1. Filter agents: `AGENT_REGISTRY.filter(a => !a.isApplicable || a.isApplicable(jiraTicket))`
 2. For each applicable agent, build the user prompt via `agent.buildUserPrompt(diff, jiraTicket)`
-3. Call `callCoSi()` with `agent.systemPrompt`, `agent.temperature`, `agent.thinkingBudget`, `agent.responseSchema`
+3. Build `generationConfig` from agent fields (`temperature`, `thinkingBudget`, `responseSchema`) plus the orchestrator constant `maxOutputTokens: 65536`, then call `callCoSi(userPrompt, agent.systemPrompt, generationConfig)` — the `callCoSi()` signature stays unchanged
 4. Wrap each response: `{ id: agent.id, label: agent.label, findings: [...] }`
 5. Send SSE events using agent fields: `emit('agent:start', { agent: agent.id, label: agent.label, temperature: agent.temperature, thinkingBudget: agent.thinkingBudget })` — no frontend changes needed since the event shape is unchanged
 6. Collect all wrapped results into an `agents` array
@@ -494,7 +494,7 @@ wcagCriterion?: string;
 ### Review-Findings Component
 
 - New category badge for `accessibility`: Teal color scheme (`bg-teal-50 text-teal-700 border-teal-200`), label "Barrierefreiheit"
-- Badge color mapping becomes a lookup object instead of if/else, to support future categories
+- Badge color mapping becomes a lookup object instead of if/else, to support future categories. Unknown category IDs fall back to stone/neutral styling (`bg-stone-100 text-stone-600 border-stone-200`) and use the raw category ID as label.
 - When `wcagCriterion` is present on a finding, render it as a small pill badge next to the severity badge: `bg-stone-100 text-stone-500 border-stone-200 font-mono text-xs`, e.g. `WCAG 4.1.2`
 
 ### Review-Pipeline Component
