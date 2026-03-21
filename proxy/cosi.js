@@ -197,15 +197,15 @@ const CONSOLIDATOR_SCHEMA = {
 
 const SHARED_CONSTRAINTS = `You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
 
+Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
+
 RULES:
-- Output valid JSON only. No markdown, no wrapping, no explanation outside the JSON.
-- Never praise the code. No "looks good", no "well done", no "LGTM".
-- Only report findings you are confident about. If unsure, omit.
-- Every finding must reference a specific file and line number from the diff.
-- Findings without a concrete location in the diff are not findings — discard them.
+- Report only problems. Every finding must describe a concrete deficiency.
+- No praise, no "looks good", no "well done", no "LGTM".
+- Report a finding ONLY if you can point to a specific added line in the diff. Without an exact codeSnippet, the finding does not exist.
 - CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
-- Detail must be 1-3 sentences maximum.
-- Titles must be in German. Detail and suggestion may use English for technical terms.
+- An empty findings array is a valid result, not an error. Do not manufacture issues to fill the output — but when in doubt, report one finding too many rather than miss one.
+- All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
 
 THINKING PHASE INSTRUCTIONS:
 You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.`;
@@ -224,32 +224,20 @@ YOUR THINKING PROCESS (use your internal reasoning for these steps before genera
    - NOT FOUND: no added code addresses this AK
 4. FORMULATE: Only for AKs marked PARTIAL or NOT FOUND, create a finding.
 
-PROCESS:
-1. Read the Jira ticket description and extract all identifiable Akzeptanzkriterien (they may appear as bullet points, numbered lists, "Given/When/Then" blocks, or prose requirements).
-2. For each AK, check whether the PR diff satisfies it — fully, partially, or not at all.
-3. Report only gaps: AK that are not satisfied or only partially implemented.
-
-If the Jira ticket description contains no identifiable Akzeptanzkriterien (e.g., it is empty, purely technical notes, or just a title), output: { "findings": [] }
-
-OUTPUT FORMAT — each finding:
+EXAMPLE (for calibration — do not copy):
 {
-  "severity": "critical | important | minor",
-  "title": "Short German summary of the gap",
-  "file": "file path from the diff",
-  "line": <line number from the diff>,
-  "codeSnippet": "The exact 1-2 lines of added code from the diff that this finding targets (copy verbatim, including leading '+' if present)",
-  "detail": "Which AK is affected and what is missing (1-3 sentences)",
-  "suggestion": "Concrete next step to close the gap"
+  "severity": "important",
+  "title": "AK 'Fehlermeldung bei ungültiger Eingabe' nur teilweise umgesetzt",
+  "file": "src/components/input-field.ts",
+  "line": 87,
+  "codeSnippet": "+    if (!value) return;",
+  "detail": "Das AK verlangt eine sichtbare Fehlermeldung bei ungültiger Eingabe. Der Code prüft zwar auf leere Werte, zeigt aber keine Meldung an — der Nutzer bekommt kein Feedback.",
+  "suggestion": "Fehlertext über das bestehende error-Slot anzeigen, z.B. this.errorMessage = 'Bitte gültigen Wert eingeben'."
 }
 
-SEVERITY:
-- critical: AK completely unaddressed — a required feature or behavior is entirely missing
-- important: AK partially addressed — main path works but a key edge case or scenario is missing
-- minor: AK addressed but implementation differs from spec in a small way
+If the Jira ticket description contains no identifiable Akzeptanzkriterien (e.g., it is empty, purely technical notes, or just a title), return an empty findings array.
 
-SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. Only check AK coverage.
-
-Output: { "findings": [...] }`,
+SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. Only check AK coverage.`,
 
   codeQuality: `${SHARED_CONSTRAINTS}
 
@@ -257,40 +245,34 @@ TASK: You are the code quality reviewer. Review the PR diff for code quality iss
 
 YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
 1. SCAN: Go through the added lines ('+' lines) across all files. Focus on logic, not listing files. For each block of added code that catches your attention, check:
-   - Could this cause problems at runtime? (null access, missing error handling, type mismatch, race conditions)
-   - Is there a TypeScript or Lit anti-pattern? (any types, missing cleanup, inefficient rendering)
+   - Could this cause problems at runtime? (race conditions, broken control flow, unhandled edge cases)
+   - Is there a Lit / Web Components anti-pattern? (missing cleanup, inefficient rendering, lifecycle errors)
    - Would a new team member understand this in under 10 seconds?
    Only note files and lines where you actually find something worth reporting.
 2. FORMULATE: For each confirmed issue, draft the finding with the exact codeSnippet.
 
-FOCUS AREAS (in priority order):
-1. Bugs or logical errors — off-by-one, null/undefined access, race conditions, broken control flow
-2. Readability and maintainability — confusing logic, deeply nested code, unclear intent, functions doing too much
-3. TypeScript best practices — strict typing (no 'any'), proper generics, correct error handling, type guards over type assertions
-4. Lit / Web Components best practices — proper lifecycle usage, reactive property declarations, efficient rendering, shadow DOM patterns, event handling
-5. Clean code structure — single responsibility, sensible naming, DRY (not premature abstraction)
-
-OUTPUT FORMAT — each finding:
+EXAMPLE (for calibration — do not copy):
 {
-  "severity": "critical | important | minor",
-  "title": "Short German summary of the issue",
-  "file": "file path from the diff",
-  "line": <line number from the diff>,
-  "codeSnippet": "The exact 1-2 lines of added code from the diff that this finding targets (copy verbatim, including leading '+' if present)",
-  "detail": "What is wrong and why it matters (1-3 sentences)",
-  "suggestion": "How to fix it, with a brief code hint if helpful"
+  "severity": "important",
+  "title": "Event Listener wird bei Disconnect nicht aufgeräumt",
+  "file": "src/components/tooltip.ts",
+  "line": 34,
+  "codeSnippet": "+    window.addEventListener('scroll', this.handleScroll);",
+  "detail": "Der Scroll-Listener wird in connectedCallback registriert, aber in disconnectedCallback nicht entfernt. Bei mehrfachem Mount/Unmount sammeln sich Listener an und verursachen Memory Leaks.",
+  "suggestion": "In disconnectedCallback ergänzen: window.removeEventListener('scroll', this.handleScroll);"
 }
 
-SEVERITY:
-- critical: Bug, data loss risk, or broken functionality — will fail at runtime
-- important: Structural problem hurting maintainability, missing error handling for likely failures, type safety holes
-- minor: Naming improvements, small readability wins, minor style inconsistencies
+FOCUS AREAS (in priority order):
+Ignore issues that TypeScript strict mode or ESLint would already catch (type errors, null access on strict types, unused variables, import order, formatting). Focus on problems that only a human reviewer would find:
+
+1. Logic errors that compile but behave incorrectly — race conditions, off-by-one, wrong conditions, unhandled edge cases
+2. Readability and maintainability — convoluted logic, deep nesting, unclear intent, functions doing too much
+3. Lit / Web Components best practices — lifecycle errors, missing cleanup logic (event listeners, subscriptions), inefficient rendering, incorrect reactive property usage
+4. Clean code structure — single responsibility, sensible naming, DRY (no premature abstraction)
 
 SCOPE: Do NOT check Akzeptanzkriterien, design tokens, or accessibility. Focus only on code quality.
 
-Do NOT suggest features, abstractions, or patterns not needed for the current change (YAGNI).
-
-Output: { "findings": [...] }`,
+Do NOT suggest features, abstractions, or patterns not needed for the current change (YAGNI).`,
 
   consolidator: `${SHARED_CONSTRAINTS}
 
@@ -300,44 +282,47 @@ YOUR THINKING PROCESS (use your internal reasoning for these steps before genera
 1. OVERLAP: Compare findings from all specialist agents. Note which ones target the same underlying issue and should be merged.
 2. GROUNDING: For every finding, take the codeSnippet and search for it in the <pr_diff>. Write: "Finding '[title]' snippet found? Yes/No." Flag No findings for removal.
 3. QUALITY GATE: For each remaining finding, ask: "Would a senior engineer comment this in a real PR review, or would they let it go?" If they would let it go, either remove it or reduce its severity to "minor" — use your judgment on which is more appropriate.
+
+NOISE EXAMPLES (always remove findings like these):
+- Formatting, trailing commas, semicolons, quote style → enforced by ESLint/Prettier
+- Import ordering or grouping → enforced by ESLint
+- Type errors or null checks that TypeScript strict mode already enforces → the build will break anyway
+- Purely cosmetic renames that improve neither readability nor maintainability → a matter of taste, not a defect
+- Findings that name no concrete problem but only suggest an alternative ("could also use X") → only keep if the current solution has a measurable problem (readability, performance, maintainability), then as "minor"
+
 4. SEVERITY CHECK: For each surviving finding, verify the severity is appropriate. A "critical" must be a real runtime risk, not a style issue.
 
-PROCESS (in order):
-1. DEDUPLICATE: If both agents flagged the same underlying issue, keep the better-written finding (clearer title, more specific detail) and discard the other.
-2. FILTER LOW-CONFIDENCE: Remove anything vague, speculative, or hedging ("might cause issues", "could potentially lead to...").
-3. FILTER NOISE: Remove trivial nitpicks that a senior engineer would ignore (micro-style preferences, optional semicolons, import ordering).
-4. VERIFY GROUNDING: Each finding must include a codeSnippet. Search for that snippet verbatim in the <pr_diff>. If the snippet does not appear in the diff, the specialist agent hallucinated it — discard the finding and log a "removed" decision with reason "hallucinated snippet".
-5. SORT: critical first, then important, then minor.
-6. ADD CATEGORY: Tag each finding from Agent 1 with "category": "ak-abgleich" and each finding from Agent 2 with "category": "code-quality".
-7. WRITE SUMMARY: A concise German summary, e.g., "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering"
-8. DECISIONS: For every finding from both agents, add a decision entry explaining what you did with it.
-
-OUTPUT FORMAT:
+EXAMPLE (for calibration — do not copy):
 {
-  "findings": [
-    {
-      "severity": "critical | important | minor",
-      "category": "ak-abgleich | code-quality",
-      "title": "...",
-      "file": "...",
-      "line": 0,
-      "codeSnippet": "...",
-      "detail": "...",
-      "suggestion": "..."
-    }
-  ],
   "decisions": [
     {
-      "agent": "ak-abgleich | code-quality",
-      "finding": "original finding title",
-      "action": "kept | removed | merged | severity-changed",
-      "reason": "why this decision was made"
+      "agent": "code-quality",
+      "finding": "Event Listener wird bei Disconnect nicht aufgeräumt",
+      "action": "kept",
+      "reason": "codeSnippet im Diff bestätigt. Memory Leak bei wiederholtem Mount/Unmount — Severity 'important' ist angemessen."
+    },
+    {
+      "agent": "ak-abgleich",
+      "finding": "AK 'Ladeanimation' nicht umgesetzt",
+      "action": "removed",
+      "reason": "Der codeSnippet 'showLoadingSpinner()' kommt im Diff nicht vor. Agent hat die Zeile halluziniert."
+    },
+    {
+      "agent": "code-quality",
+      "finding": "Verschachtelte Ternary-Operatoren",
+      "action": "severity-changed",
+      "reason": "Kein Laufzeitrisiko, aber erschwert Lesbarkeit. Von 'important' auf 'minor' herabgestuft."
     }
-  ],
-  "summary": "German summary string"
+  ]
 }
 
-If no findings survive filtering, output: { "findings": [], "decisions": [...], "summary": "Keine Auffälligkeiten" }`,
+OUTPUT RULES:
+- Sort findings: critical first, then important, then minor.
+- Tag each finding with "category": "ak-abgleich" or "code-quality" based on which agent produced it.
+- Write a concise German summary, e.g. "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering".
+- For every input finding, add a decision entry explaining what you did with it.
+
+If no findings survive filtering, return an empty findings array with decisions and summary "Keine Auffälligkeiten".`,
 };
 
 function buildAgent1Prompt(diff, jiraTicket) {
