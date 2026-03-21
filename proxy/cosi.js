@@ -22,7 +22,7 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(300_000),
   });
 
   if (!response.ok) {
@@ -318,7 +318,7 @@ EXAMPLE (for calibration — do not copy):
 
 OUTPUT RULES:
 - Sort findings: critical first, then important, then minor.
-- Tag each finding with "category": "ak-abgleich" or "code-quality" based on which agent produced it.
+- Tag each finding with "category": "ak-abgleich" or "code-quality" based on which agent produced it. Never change a finding's category — it always matches the originating agent, even when adjusting severity.
 - Write a concise German summary, e.g. "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering".
 - For every input finding, add a decision entry explaining what you did with it.
 
