@@ -62,19 +62,29 @@ Orbit lives on a second monitor as an always-open tool. URL-based navigation add
 - **Width**: 64px
 - **Background**: `bg-stone-900` (dark, creates clear separation from content)
 - **Position**: Far left, full height
+- **Orbit logo**: Centered at the top (28×28px indigo circle with white ring), separated from view items by a subtle `border-b border-white/[0.06]` line. This is the only place the Orbit branding lives.
 - **Item layout**: Icon above label, vertically centered in a ~52×48px hit area
 - **Active indicator**: Item background `bg-indigo-600` with white icon/label
 - **Inactive**: Icon and label in `text-stone-400`, hover → `text-stone-200`
-- **Spacing**: Items grouped at the top, separated by 4px gap
+- **Spacing**: Items grouped below the logo, separated by 4px gap
 
-### Rail Item Anatomy
+### Rail Anatomy
 
 ```
 ┌──────────┐
+│  (logo)   │  ← Orbit circle, 28×28
+├──────────┤  ← subtle separator
 │   [icon]  │  ← 20×20 SVG, stroke style
 │   Label   │  ← 10px font, medium weight
+│           │
+│   [icon]  │
+│   Label   │
 └──────────┘
 ```
+
+### Navigator Header
+
+Since the Orbit logo moves to the rail, the navigator header no longer displays the logo. Instead it shows the active view name (e.g. "Arbeit") as a section title, with "Dein Command Center" as subtitle.
 
 ### Full Layout
 

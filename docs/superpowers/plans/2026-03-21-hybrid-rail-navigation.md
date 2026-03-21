@@ -125,10 +125,16 @@ const VIEWS: OrbitView[] = [
   selector: 'app-hybrid-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'w-16 shrink-0 bg-stone-900 flex flex-col items-center pt-3 gap-1',
+    class: 'w-16 shrink-0 bg-stone-900 flex flex-col items-center',
   },
   template: `
-    <nav aria-label="Hauptnavigation" class="flex flex-col items-center gap-1">
+    <div class="w-full h-12 flex items-center justify-center border-b border-white/[0.06]" aria-hidden="true">
+      <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]">
+        <div class="w-3 h-3 rounded-full border-2 border-white"></div>
+      </div>
+    </div>
+
+    <nav aria-label="Hauptnavigation" class="flex flex-col items-center gap-1 mt-2">
       @for (view of views; track view.id) {
         <button
           type="button"
@@ -195,15 +201,18 @@ git commit -m "feat(hybrid-rail): add HybridRailComponent with keyboard navigati
 
 ---
 
-### Task 2: Create ViewArbeitComponent
+### Task 2: Create ViewArbeitComponent and update navigator header
 
 **Files:**
 - Create: `src/app/views/view-arbeit/view-arbeit.ts`
 - Create: `src/app/views/view-arbeit/view-arbeit.html`
+- Modify: `src/app/components/navigator/navigator.html` (replace logo+brand with view title)
 
 - [ ] **Step 1: Create the ViewArbeitComponent**
 
-Extract the current `app.html` layout into this component. The template is the exact content of the current `app.html` minus the `<app-quick-capture>` line.
+Extract the current `app.html` layout into this component. The template is the exact content of the current `app.html` minus the `<app-quick-capture>` line and the outer wrapping `<div>`.
+
+**Note:** The Orbit logo moves to the HybridRail. The navigator header (`navigator.html`) should be updated separately to replace the logo+brand with the view name "Arbeit". This is a minor template change in the navigator component — replace the logo div + "Orbit" span with just `<span class="font-semibold text-stone-800 text-sm tracking-wide">Arbeit</span>` and keep the subtitle.
 
 ```typescript
 // src/app/views/view-arbeit/view-arbeit.ts
