@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, injec
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
-
-const CONFETTI_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
+import { spawnConfetti, playChime } from '../../shared/celebration';
 
 @Component({
   selector: 'app-todo-card',
@@ -95,8 +94,9 @@ export class TodoCardComponent {
   constructor() {
     effect(() => {
       if (this.celebrating()) {
-        this.playChime();
-        this.spawnConfetti();
+        playChime();
+        const anchor = this.checkboxRef()?.nativeElement;
+        if (anchor) spawnConfetti(anchor);
       }
     });
   }
@@ -128,45 +128,4 @@ export class TodoCardComponent {
     this.toggle.emit(t.id);
   }
 
-  private spawnConfetti(): void {
-    const anchor = this.checkboxRef()?.nativeElement;
-    if (!anchor) return;
-    const rect = anchor.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    for (let i = 0; i < 12; i++) {
-      const el = document.createElement('div');
-      el.className = 'confetti-particle';
-      const angle = (i / 12) * 2 * Math.PI;
-      const dist = 40 + Math.random() * 30;
-      el.style.cssText = `
-        left:${cx}px; top:${cy}px; position:fixed; z-index:9999;
-        background:${CONFETTI_COLORS[i % CONFETTI_COLORS.length]};
-        --tx:${Math.cos(angle) * dist}px; --ty:${Math.sin(angle) * dist}px;
-      `;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 700);
-    }
-  }
-
-  private playChime(): void {
-    try {
-      const ctx = new AudioContext();
-      const notes = [261.63, 329.63, 392.00];
-      notes.forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = 'sine';
-        const t = ctx.currentTime + i * 0.12;
-        gain.gain.setValueAtTime(0.18, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-        osc.start(t);
-        osc.stop(t + 0.4);
-      });
-      setTimeout(() => ctx.close(), 800);
-    } catch {}
-  }
 }
