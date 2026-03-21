@@ -35,6 +35,7 @@ const basePr: PullRequest = {
   reviewers: [], participants: [],
   commentCount: 0, openTaskCount: 0,
   url: '', myReviewStatus: 'Awaiting Review',
+  isAuthoredByMe: false,
 };
 
 const noKeyPr: PullRequest = {
@@ -261,5 +262,51 @@ describe('PrDetailComponent', () => {
     TestBed.tick();
 
     expect(mockCosiReview.canReview()).toBe(true);
+  });
+
+  it('shows merge banner when PR is Ready to Merge', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    const readyPr = { ...basePr, myReviewStatus: 'Ready to Merge' as const, isAuthoredByMe: true };
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', readyPr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('bereit zum Mergen');
+  });
+
+  it('shows "Dein PR" badge for authored PRs', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    const authoredPr = { ...basePr, isAuthoredByMe: true };
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', authoredPr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Dein PR');
+  });
+
+  it('shows reviewer status badges for authored PRs', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
+    const authoredPr: PullRequest = {
+      ...basePr,
+      isAuthoredByMe: true,
+      reviewers: [
+        { user: { id: 2, name: 'r', displayName: 'Reviewer One', emailAddress: '', slug: 'r', active: true, type: 'NORMAL', profileUrl: '' }, role: 'REVIEWER', approved: true, status: 'APPROVED' },
+      ],
+    };
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', authoredPr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Reviewer:');
+    expect(fixture.nativeElement.textContent).toContain('Reviewer One');
   });
 });

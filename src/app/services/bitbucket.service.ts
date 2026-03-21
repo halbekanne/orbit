@@ -9,6 +9,7 @@ import {
   PrRepository,
   PrRef,
   PrParticipant,
+  BuildStatusSummary,
 } from '../models/work-item.model';
 import { environment } from '../../environments/environment';
 
@@ -143,6 +144,7 @@ function mapParticipant(raw: BitbucketParticipantRaw): PrParticipant {
 export class BitbucketService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/bitbucket/rest/api/latest`;
+  private readonly buildStatusUrl = `${environment.proxyUrl}/bitbucket/rest/build-status/latest`;
 
   private readonly config$ = this.http
     .get<{ bitbucketUserSlug: string }>(`${environment.proxyUrl}/config`)
@@ -161,6 +163,36 @@ export class BitbucketService {
           .pipe(map(page => page.values.map(pr => this.mapPr(pr, config.bitbucketUserSlug))))
       )
     );
+  }
+
+  getAuthoredPullRequests(): Observable<PullRequest[]> {
+    return this.config$.pipe(
+      switchMap(config =>
+        this.http
+          .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
+            params: new HttpParams()
+              .set('role', 'AUTHOR')
+              .set('state', 'OPEN')
+              .set('limit', '50'),
+          })
+          .pipe(map(page => page.values.map(pr => this.mapAuthoredPr(pr))))
+      )
+    );
+  }
+
+  getBuildStatusStats(commitId: string): Observable<BuildStatusSummary> {
+    return this.http
+      .get<{ successful: number; failed: number; inProgress: number }>(
+        `${this.buildStatusUrl}/commits/stats/${commitId}`
+      )
+      .pipe(
+        map(stats => ({
+          successful: stats.successful ?? 0,
+          failed: stats.failed ?? 0,
+          inProgress: stats.inProgress ?? 0,
+        })),
+        catchError(() => of({ successful: 0, failed: 0, inProgress: 0 }))
+      );
   }
 
   getReviewerPrActivityStatus(pr: Pick<PullRequest, 'prNumber' | 'toRef'>): Observable<'Changes Requested' | 'Needs Re-review'> {
@@ -234,6 +266,47 @@ export class BitbucketService {
       openTaskCount: raw.properties?.openTaskCount ?? 0,
       url: raw.links?.self?.[0]?.href ?? '',
       myReviewStatus: finalStatus,
+      isAuthoredByMe: false,
+    };
+  }
+
+  private mapAuthoredPr(raw: BitbucketPrRaw): PullRequest {
+    const hasNeedsWork = raw.reviewers.some(r => r.status === 'NEEDS_WORK');
+    const allApproved = raw.reviewers.length > 0 && raw.reviewers.every(r => r.approved);
+    const readyToMerge = !raw.draft && allApproved && (raw.properties?.openTaskCount ?? 0) === 0;
+
+    let myReviewStatus: PrStatus;
+    if (hasNeedsWork) {
+      myReviewStatus = 'Changes Requested';
+    } else if (readyToMerge) {
+      myReviewStatus = 'Ready to Merge';
+    } else {
+      myReviewStatus = 'In Review';
+    }
+
+    return {
+      type: 'pr',
+      id: `${raw.toRef.repository.project.key}/${raw.toRef.repository.slug}/${raw.id}`,
+      prNumber: raw.id,
+      title: raw.title,
+      description: raw.description ?? '',
+      state: raw.state as PullRequest['state'],
+      open: raw.open,
+      closed: raw.closed,
+      locked: raw.locked,
+      isDraft: raw.draft ?? false,
+      createdDate: raw.createdDate,
+      updatedDate: raw.updatedDate,
+      fromRef: mapRef(raw.fromRef),
+      toRef: mapRef(raw.toRef),
+      author: mapParticipant(raw.author),
+      reviewers: (raw.reviewers ?? []).map(mapParticipant),
+      participants: (raw.participants ?? []).map(mapParticipant),
+      commentCount: raw.properties?.commentCount ?? 0,
+      openTaskCount: raw.properties?.openTaskCount ?? 0,
+      url: raw.links?.self?.[0]?.href ?? '',
+      myReviewStatus,
+      isAuthoredByMe: true,
     };
   }
 }

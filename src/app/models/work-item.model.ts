@@ -2,7 +2,13 @@ import { SubTask } from './sub-task.model';
 
 export type TicketStatus = 'In Progress' | 'In Review' | 'To Do' | 'Done';
 export type TicketPriority = 'High' | 'Medium' | 'Low';
-export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Needs Re-review' | 'Approved' | 'Approved by Others';
+export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Needs Re-review' | 'Approved' | 'Approved by Others' | 'In Review' | 'Ready to Merge';
+
+export interface BuildStatusSummary {
+  successful: number;
+  failed: number;
+  inProgress: number;
+}
 export type PrState = 'OPEN' | 'MERGED' | 'DECLINED' | 'SUPERSEDED';
 
 export interface PrUser {
@@ -109,6 +115,8 @@ export interface PullRequest {
   openTaskCount: number;
   url: string;
   myReviewStatus: PrStatus;
+  isAuthoredByMe: boolean;
+  buildStatus?: BuildStatusSummary;
 }
 
 export interface Todo {

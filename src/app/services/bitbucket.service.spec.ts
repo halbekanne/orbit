@@ -143,6 +143,130 @@ describe('BitbucketService', () => {
     flushRequests(httpTesting, 'APPROVED', 'someone-else');
     expect(result![0].myReviewStatus).toBe('Approved by Others');
   });
+
+  it('sets isAuthoredByMe to false for reviewer PRs', () => {
+    let result: PullRequest[] | undefined;
+    service.getReviewerPullRequests().subscribe(prs => (result = prs));
+    flushRequests(httpTesting, 'UNAPPROVED');
+    expect(result![0].isAuthoredByMe).toBe(false);
+  });
+});
+
+describe('BitbucketService — getAuthoredPullRequests', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  const flushAuthoredRequests = (
+    reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
+    allApproved = false,
+  ) => {
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const raw = makePrRaw(reviewerStatus);
+    if (allApproved) {
+      raw.reviewers = raw.reviewers.map(r => ({ ...r, approved: true, status: 'APPROVED' as const }));
+    }
+    httpTesting
+      .expectOne(req => req.url.includes('dashboard/pull-requests'))
+      .flush({ values: [raw], isLastPage: true });
+  };
+
+  it('calls dashboard/pull-requests with role=AUTHOR', () => {
+    service.getAuthoredPullRequests().subscribe();
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const prReq = httpTesting.expectOne(req => req.url.includes('dashboard/pull-requests'));
+    expect(prReq.request.params.get('role')).toBe('AUTHOR');
+    prReq.flush({ values: [], isLastPage: true });
+  });
+
+  it('sets isAuthoredByMe to true', () => {
+    let result: PullRequest[] | undefined;
+    service.getAuthoredPullRequests().subscribe(prs => (result = prs));
+    flushAuthoredRequests('UNAPPROVED');
+    expect(result![0].isAuthoredByMe).toBe(true);
+  });
+
+  it('maps to In Review when no reviewer has NEEDS_WORK and not all approved', () => {
+    let result: PullRequest[] | undefined;
+    service.getAuthoredPullRequests().subscribe(prs => (result = prs));
+    flushAuthoredRequests('UNAPPROVED');
+    expect(result![0].myReviewStatus).toBe('In Review');
+  });
+
+  it('maps to Changes Requested when a reviewer has NEEDS_WORK', () => {
+    let result: PullRequest[] | undefined;
+    service.getAuthoredPullRequests().subscribe(prs => (result = prs));
+    flushAuthoredRequests('NEEDS_WORK');
+    expect(result![0].myReviewStatus).toBe('Changes Requested');
+  });
+
+  it('maps to Ready to Merge when all reviewers approved and no open tasks', () => {
+    let result: PullRequest[] | undefined;
+    service.getAuthoredPullRequests().subscribe(prs => (result = prs));
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const raw = makePrRaw('APPROVED');
+    raw.reviewers = [{ ...raw.reviewers[0], approved: true, status: 'APPROVED' }];
+    raw.properties = { commentCount: 0, openTaskCount: 0 };
+    httpTesting
+      .expectOne(req => req.url.includes('dashboard/pull-requests'))
+      .flush({ values: [raw], isLastPage: true });
+    expect(result![0].myReviewStatus).toBe('Ready to Merge');
+  });
+
+  it('maps to In Review when all approved but has open tasks', () => {
+    let result: PullRequest[] | undefined;
+    service.getAuthoredPullRequests().subscribe(prs => (result = prs));
+    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const raw = makePrRaw('APPROVED');
+    raw.reviewers = [{ ...raw.reviewers[0], approved: true, status: 'APPROVED' }];
+    raw.properties = { commentCount: 0, openTaskCount: 2 };
+    httpTesting
+      .expectOne(req => req.url.includes('dashboard/pull-requests'))
+      .flush({ values: [raw], isLastPage: true });
+    expect(result![0].myReviewStatus).toBe('In Review');
+  });
+});
+
+describe('BitbucketService — getBuildStatusStats', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('returns build stats for a commit', () => {
+    let result: import('../models/work-item.model').BuildStatusSummary | undefined;
+    service.getBuildStatusStats('abc123').subscribe(s => (result = s));
+    httpTesting
+      .expectOne(req => req.url.includes('/commits/stats/abc123'))
+      .flush({ successful: 3, failed: 1, inProgress: 0 });
+    expect(result).toEqual({ successful: 3, failed: 1, inProgress: 0 });
+  });
+
+  it('returns zeros on error', () => {
+    let result: import('../models/work-item.model').BuildStatusSummary | undefined;
+    service.getBuildStatusStats('abc123').subscribe(s => (result = s));
+    httpTesting
+      .expectOne(req => req.url.includes('/commits/stats/abc123'))
+      .flush('error', { status: 500, statusText: 'Internal Server Error' });
+    expect(result).toEqual({ successful: 0, failed: 0, inProgress: 0 });
+  });
 });
 
 const makePrRef = (): Pick<PullRequest, 'prNumber' | 'toRef'> => ({

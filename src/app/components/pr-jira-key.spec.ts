@@ -26,6 +26,7 @@ function makePr(branch: string, title: string): PullRequest {
     reviewers: [], participants: [],
     commentCount: 0, openTaskCount: 0,
     url: '', myReviewStatus: 'Awaiting Review',
+    isAuthoredByMe: false,
   };
 }
 

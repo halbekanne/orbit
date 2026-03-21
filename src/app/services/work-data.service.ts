@@ -37,16 +37,20 @@ export class WorkDataService {
   private readonly _rawPullRequests = signal<PullRequest[]>([]);
 
   readonly pullRequests = computed(() => {
-    const statusOrder: Record<PrStatus, number> = {
-      'Awaiting Review': 0,
-      'Needs Re-review': 1,
-      'Changes Requested': 2,
-      'Approved by Others': 3,
-      'Approved': 4,
+    const sortOrder = (pr: PullRequest): number => {
+      if (pr.myReviewStatus === 'Awaiting Review') return 0;
+      if (pr.myReviewStatus === 'Needs Re-review') return 1;
+      if (pr.myReviewStatus === 'Ready to Merge') return 2;
+      if (pr.myReviewStatus === 'Changes Requested' && pr.isAuthoredByMe) return 3;
+      if (pr.myReviewStatus === 'Changes Requested') return 4;
+      if (pr.myReviewStatus === 'In Review') return 5;
+      if (pr.myReviewStatus === 'Approved by Others') return 6;
+      if (pr.myReviewStatus === 'Approved') return 7;
+      return 8;
     };
     return this._rawPullRequests()
-      .filter(pr => pr.myReviewStatus !== 'Approved')
-      .sort((a, b) => statusOrder[a.myReviewStatus] - statusOrder[b.myReviewStatus]);
+      .filter(pr => !(pr.myReviewStatus === 'Approved' && !pr.isAuthoredByMe))
+      .sort((a, b) => sortOrder(a) - sortOrder(b));
   });
 
   readonly awaitingReviewCount = computed(() =>
@@ -67,32 +71,67 @@ export class WorkDataService {
 
     effect(() => {
       untracked(() => {
-        this.bitbucket.getReviewerPullRequests().pipe(
-          tap(prs => {
+        forkJoin([
+          this.bitbucket.getReviewerPullRequests(),
+          this.bitbucket.getAuthoredPullRequests().pipe(catchError(() => of([] as PullRequest[]))),
+        ]).pipe(
+          tap(([reviewerPrs, authoredPrs]) => {
             this.pullRequestsLoading.set(false);
-            this._rawPullRequests.set(prs);
+            const reviewerIds = new Set(reviewerPrs.map(pr => pr.id));
+            const dedupedAuthored = authoredPrs.filter(pr => !reviewerIds.has(pr.id));
+            this._rawPullRequests.set([...reviewerPrs, ...dedupedAuthored]);
           }),
-          switchMap(prs => {
-            const needsWorkPrs = prs.filter(pr => pr.myReviewStatus === 'Changes Requested');
-            if (needsWorkPrs.length === 0) return of(null);
+          switchMap(([reviewerPrs, authoredPrs]) => {
+            const enrichments = [];
 
-            return forkJoin(
-              needsWorkPrs.map(pr =>
-                this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
-                  catchError(() => of('Changes Requested' as const))
-                )
-              )
-            ).pipe(
-              tap(results => {
-                const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
-                this._rawPullRequests.update(all =>
-                  all.map(pr => {
-                    const enriched = statusById.get(pr.id);
-                    return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+            const needsWorkPrs = reviewerPrs.filter(pr => pr.myReviewStatus === 'Changes Requested');
+            if (needsWorkPrs.length > 0) {
+              enrichments.push(
+                forkJoin(
+                  needsWorkPrs.map(pr =>
+                    this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
+                      catchError(() => of('Changes Requested' as const))
+                    )
+                  )
+                ).pipe(
+                  tap(results => {
+                    const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
+                    this._rawPullRequests.update(all =>
+                      all.map(pr => {
+                        const enriched = statusById.get(pr.id);
+                        return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+                      })
+                    );
                   })
-                );
-              })
-            );
+                )
+              );
+            }
+
+            const reviewerIds = new Set(reviewerPrs.map(pr => pr.id));
+            const dedupedAuthored = authoredPrs.filter(pr => !reviewerIds.has(pr.id));
+            if (dedupedAuthored.length > 0) {
+              enrichments.push(
+                forkJoin(
+                  dedupedAuthored.map(pr =>
+                    this.bitbucket.getBuildStatusStats(pr.fromRef.latestCommit).pipe(
+                      catchError(() => of({ successful: 0, failed: 0, inProgress: 0 }))
+                    )
+                  )
+                ).pipe(
+                  tap(results => {
+                    const buildById = new Map(dedupedAuthored.map((pr, i) => [pr.id, results[i]]));
+                    this._rawPullRequests.update(all =>
+                      all.map(pr => {
+                        const build = buildById.get(pr.id);
+                        return build ? { ...pr, buildStatus: build } : pr;
+                      })
+                    );
+                  })
+                )
+              );
+            }
+
+            return enrichments.length > 0 ? forkJoin(enrichments) : of(null);
           }),
           catchError(err => {
             console.error('Failed to load Bitbucket pull requests:', err);

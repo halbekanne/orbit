@@ -175,14 +175,59 @@ const mockPullRequests = [
     properties: { commentCount: 3, openTaskCount: 0 },
     links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/408` }] },
   },
+  {
+    id: 423,
+    title: 'feat: Add dark mode toggle to settings page',
+    description: 'h2. Übersicht\nImplementiert einen Dark-Mode-Toggle auf der Einstellungsseite.\n\nh2. Änderungen\n* Toggle-Switch in den Einstellungen\n* CSS-Variablen für Farbwechsel\n* Persistierung der Auswahl im LocalStorage',
+    state: 'OPEN',
+    open: true,
+    closed: false,
+    locked: false,
+    createdDate: 1741866600000,
+    updatedDate: 1742039400000,
+    fromRef: makeRef('feature/DASH-0860-dark-mode-toggle', 'f6a1b2c3', REPO_VF),
+    toRef: makeRef('main', 'e5f6g7h8', REPO_VF),
+    author: makeParticipant(CURRENT_USER, 'AUTHOR', 'UNAPPROVED'),
+    reviewers: [makeParticipant(SARAH, 'REVIEWER', 'APPROVED'), makeParticipant(THOMAS, 'REVIEWER', 'APPROVED')],
+    participants: [],
+    properties: { commentCount: 4, openTaskCount: 0 },
+    links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/423` }] },
+  },
+  {
+    id: 87,
+    title: 'fix: Correct currency formatting in policy overview',
+    description: 'Behebt die fehlerhafte Währungsformatierung (fehlende Tausender-Trennzeichen) in der Vertragsübersicht.',
+    state: 'OPEN',
+    open: true,
+    closed: false,
+    locked: false,
+    createdDate: 1741780800000,
+    updatedDate: 1741953000000,
+    fromRef: makeRef('fix/DASH-0848-currency-format', 'a1b2c3d4', REPO_SL),
+    toRef: makeRef('main', 'f6g7h8i9', REPO_SL),
+    author: makeParticipant(CURRENT_USER, 'AUTHOR', 'UNAPPROVED'),
+    reviewers: [makeParticipant(ANNA, 'REVIEWER', 'NEEDS_WORK')],
+    participants: [],
+    properties: { commentCount: 2, openTaskCount: 1 },
+    links: { self: [{ href: `${BASE}/projects/SL/repos/versicherung-shared-lib/pull-requests/87` }] },
+  },
 ];
 
-app.get('/rest/api/latest/dashboard/pull-requests', (_req, res) => {
+app.get('/rest/api/latest/dashboard/pull-requests', (req, res) => {
+  const role = req.query.role;
+  let filtered = mockPullRequests;
+  if (role === 'AUTHOR') {
+    filtered = mockPullRequests.filter(pr => pr.author.user.slug === CURRENT_USER.slug);
+  } else if (role === 'REVIEWER') {
+    filtered = mockPullRequests.filter(pr =>
+      pr.reviewers.some(r => r.user.slug === CURRENT_USER.slug),
+    );
+  }
   res.json({
-    size: mockPullRequests.length,
+    size: filtered.length,
     limit: 25,
     isLastPage: true,
-    values: mockPullRequests,
+    values: filtered,
     start: 0,
   });
 });
@@ -220,6 +265,47 @@ const ACTIVITIES_FIXTURES = {
       {
         action: 'OPENED',
         user: MICHAEL,
+      },
+    ],
+    isLastPage: true,
+  },
+  423: {
+    values: [
+      {
+        action: 'REVIEWED',
+        user: THOMAS,
+        reviewedStatus: 'APPROVED',
+      },
+      {
+        action: 'REVIEWED',
+        user: SARAH,
+        reviewedStatus: 'APPROVED',
+      },
+      {
+        action: 'COMMENTED',
+        user: SARAH,
+      },
+      {
+        action: 'OPENED',
+        user: CURRENT_USER,
+      },
+    ],
+    isLastPage: true,
+  },
+  87: {
+    values: [
+      {
+        action: 'REVIEWED',
+        user: ANNA,
+        reviewedStatus: 'NEEDS_WORK',
+      },
+      {
+        action: 'COMMENTED',
+        user: ANNA,
+      },
+      {
+        action: 'OPENED',
+        user: CURRENT_USER,
       },
     ],
     isLastPage: true,
@@ -699,6 +785,22 @@ app.get(
     res.send(diff);
   }
 );
+
+const BUILD_STATUS_FIXTURES = {
+  f6a1b2c3: { successful: 3, failed: 0, inProgress: 0, cancelled: 0, unknown: 0 },
+  a1b2c3d4: { successful: 1, failed: 1, inProgress: 0, cancelled: 0, unknown: 0 },
+};
+
+app.get('/rest/build-status/latest/commits/stats/:commitId', (req, res) => {
+  const stats = BUILD_STATUS_FIXTURES[req.params.commitId] ?? {
+    successful: 0,
+    failed: 0,
+    inProgress: 0,
+    cancelled: 0,
+    unknown: 0,
+  };
+  res.json(stats);
+});
 
 app.listen(PORT, () => {
   console.log(`Mock Bitbucket server running at http://localhost:${PORT}`);

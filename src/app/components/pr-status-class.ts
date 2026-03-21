@@ -7,6 +7,8 @@ export function prStatusClass(status: PrStatus): string {
     'Changes Requested': 'bg-stone-100 text-stone-500',
     'Approved': 'bg-emerald-100 text-emerald-700',
     'Approved by Others': 'bg-stone-100 text-stone-500',
+    'In Review': 'bg-stone-100 text-stone-500',
+    'Ready to Merge': 'bg-emerald-100 text-emerald-700',
   };
   return map[status];
 }
