@@ -1,3 +1,6 @@
+const { SHARED_CONSTRAINTS } = require('./agents/agent-definition');
+const { AGENT_REGISTRY } = require('./agents');
+
 const COSI_API_KEY = process.env.COSI_API_KEY;
 const COSI_BASE_URL = process.env.COSI_BASE_URL ||
   'https://api.co-si.system.local/v1/models/locations/europe-west4/publishers/google/models/gemini-2.5-flash:generateContent';
@@ -81,66 +84,6 @@ function preprocessDiff(rawDiff) {
   return result.join('\n');
 }
 
-const AK_FINDING_SCHEMA = {
-  type: "OBJECT",
-  properties: {
-    findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
-      items: {
-        type: "OBJECT",
-        properties: {
-          severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail",
-          },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
-        },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-      },
-    },
-  },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
-};
-
-const CODE_QUALITY_FINDING_SCHEMA = {
-  type: "OBJECT",
-  properties: {
-    findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
-      items: {
-        type: "OBJECT",
-        properties: {
-          severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency",
-          },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
-        },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-      },
-    },
-  },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
-};
-
 const CONSOLIDATOR_SCHEMA = {
   type: "OBJECT",
   properties: {
@@ -157,7 +100,6 @@ const CONSOLIDATOR_SCHEMA = {
           },
           category: {
             type: "STRING",
-            enum: ["ak-abgleich", "code-quality"],
             description: "Which agent originally produced the finding",
           },
           title: { type: "STRING", description: "Short German summary" },
@@ -166,9 +108,10 @@ const CONSOLIDATOR_SCHEMA = {
           codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
           detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
           suggestion: { type: "STRING", description: "Improvement suggestion in German" },
+          wcagCriterion: { type: "STRING", description: "WCAG criterion reference, if applicable" },
         },
         required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
       },
     },
     decisions: {
@@ -177,7 +120,7 @@ const CONSOLIDATOR_SCHEMA = {
       items: {
         type: "OBJECT",
         properties: {
-          agent: { type: "STRING", enum: ["ak-abgleich", "code-quality"] },
+          agent: { type: "STRING" },
           finding: { type: "STRING", description: "Original title of the finding" },
           action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
           reason: { type: "STRING", description: "Reasoning in German" },
@@ -195,88 +138,10 @@ const CONSOLIDATOR_SCHEMA = {
   propertyOrdering: ["findings", "decisions", "summary"],
 };
 
-const SHARED_CONSTRAINTS = `You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
-
-Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
-
-RULES:
-- Report only problems. Every finding must describe a concrete deficiency.
-- No praise, no "looks good", no "well done", no "LGTM".
-- Report a finding ONLY if you can point to a specific added line in the diff. Without an exact codeSnippet, the finding does not exist.
-- CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
-- An empty findings array is a valid result, not an error. Do not manufacture issues to fill the output — but when in doubt, report one finding too many rather than miss one.
-- All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
-
-THINKING PHASE INSTRUCTIONS:
-You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.`;
-
 const SYSTEM_PROMPTS = {
-  akAbgleich: `${SHARED_CONSTRAINTS}
-
-TASK: You are the Akzeptanzkriterien (AK) reviewer. Compare the PR diff against the Jira ticket's Akzeptanzkriterien.
-
-YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
-1. EXTRACT: List every Akzeptanzkriterium from the Jira ticket as AK-1, AK-2, etc. For each, write a one-sentence testable assertion.
-2. CLASSIFY: For each AK, determine if it requires a code change at all. Some AKs are non-code tasks (e.g., "Barrierefreiheits-Audit durchführen", "Team über Bugfix informieren", "Meeting mit Stakeholdern organisieren"). Mark these as NOT_CODE_RELEVANT and skip them — they cannot have gaps in a PR diff.
-3. TRACE: For each code-relevant AK, scan the diff file by file. Write one of:
-   - FOUND: [file]:[line] — how the code implements it
-   - PARTIAL: [file]:[line] — what is implemented, what is missing
-   - NOT FOUND: no added code addresses this AK
-4. FORMULATE: Only for AKs marked PARTIAL or NOT FOUND, create a finding.
-
-EXAMPLE (for calibration — do not copy):
-{
-  "severity": "important",
-  "title": "AK 'Fehlermeldung bei ungültiger Eingabe' nur teilweise umgesetzt",
-  "file": "src/components/input-field.ts",
-  "line": 87,
-  "codeSnippet": "+    if (!value) return;",
-  "detail": "Das AK verlangt eine sichtbare Fehlermeldung bei ungültiger Eingabe. Der Code prüft zwar auf leere Werte, zeigt aber keine Meldung an — der Nutzer bekommt kein Feedback.",
-  "suggestion": "Fehlertext über das bestehende error-Slot anzeigen, z.B. this.errorMessage = 'Bitte gültigen Wert eingeben'."
-}
-
-If the Jira ticket description contains no identifiable Akzeptanzkriterien (e.g., it is empty, purely technical notes, or just a title), return an empty findings array.
-
-SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. Only check AK coverage.`,
-
-  codeQuality: `${SHARED_CONSTRAINTS}
-
-TASK: You are the code quality reviewer. Review the PR diff for code quality issues.
-
-YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
-1. SCAN: Go through the added lines ('+' lines) across all files. Focus on logic, not listing files. For each block of added code that catches your attention, check:
-   - Could this cause problems at runtime? (race conditions, broken control flow, unhandled edge cases)
-   - Is there a Lit / Web Components anti-pattern? (missing cleanup, inefficient rendering, lifecycle errors)
-   - Would a new team member understand this in under 10 seconds?
-   Only note files and lines where you actually find something worth reporting.
-2. FORMULATE: For each confirmed issue, draft the finding with the exact codeSnippet.
-
-EXAMPLE (for calibration — do not copy):
-{
-  "severity": "important",
-  "title": "Event Listener wird bei Disconnect nicht aufgeräumt",
-  "file": "src/components/tooltip.ts",
-  "line": 34,
-  "codeSnippet": "+    window.addEventListener('scroll', this.handleScroll);",
-  "detail": "Der Scroll-Listener wird in connectedCallback registriert, aber in disconnectedCallback nicht entfernt. Bei mehrfachem Mount/Unmount sammeln sich Listener an und verursachen Memory Leaks.",
-  "suggestion": "In disconnectedCallback ergänzen: window.removeEventListener('scroll', this.handleScroll);"
-}
-
-FOCUS AREAS (in priority order):
-Ignore issues that TypeScript strict mode or ESLint would already catch (type errors, null access on strict types, unused variables, import order, formatting). Focus on problems that only a human reviewer would find:
-
-1. Logic errors that compile but behave incorrectly — race conditions, off-by-one, wrong conditions, unhandled edge cases
-2. Readability and maintainability — convoluted logic, deep nesting, unclear intent, functions doing too much
-3. Lit / Web Components best practices — lifecycle errors, missing cleanup logic (event listeners, subscriptions), inefficient rendering, incorrect reactive property usage
-4. Clean code structure — single responsibility, sensible naming, DRY (no premature abstraction)
-
-SCOPE: Do NOT check Akzeptanzkriterien, design tokens, or accessibility. Focus only on code quality.
-
-Do NOT suggest features, abstractions, or patterns not needed for the current change (YAGNI).`,
-
   consolidator: `${SHARED_CONSTRAINTS}
 
-TASK: You receive findings from two code review agents. Produce the final review report.
+TASK: You receive findings from multiple specialist review agents. Produce the final review report.
 
 YOUR THINKING PROCESS (use your internal reasoning for these steps before generating JSON):
 1. OVERLAP: Compare findings from all specialist agents. Note which ones target the same underlying issue and should be merged.
@@ -318,50 +183,16 @@ EXAMPLE (for calibration — do not copy):
 
 OUTPUT RULES:
 - Sort findings: critical first, then important, then minor.
-- Tag each finding with "category": "ak-abgleich" or "code-quality" based on which agent produced it. Never change a finding's category — it always matches the originating agent, even when adjusting severity.
+- Tag each finding with "category" set to the originating agent's id. Never change a finding's category — it always matches the originating agent, even when adjusting severity.
+- If a finding has additional fields (e.g. wcagCriterion), pass them through unchanged.
 - Write a concise German summary, e.g. "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering".
 - For every input finding, add a decision entry explaining what you did with it.
 
 If no findings survive filtering, return an empty findings array with decisions and summary "Keine Auffälligkeiten".`,
 };
 
-function buildAgent1Prompt(diff, jiraTicket) {
-  return `<jira_ticket>
-Key: ${jiraTicket.key}
-Summary: ${jiraTicket.summary}
-Description:
-${jiraTicket.description}
-</jira_ticket>
-
-<pr_diff>
-${diff}
-</pr_diff>
-
-Follow your thinking process step by step: EXTRACT, CLASSIFY, TRACE, FORMULATE.`;
-}
-
-function buildAgent2Prompt(diff) {
-  return `<pr_diff>
-${diff}
-</pr_diff>
-
-Follow your thinking process step by step: SCAN the added lines, then FORMULATE for confirmed issues only.`;
-}
-
-function buildConsolidatorPrompt(agent1Findings, agent2Findings, diff) {
-  return `<pr_diff>
-${diff}
-</pr_diff>
-
-<agent_1_findings>
-${JSON.stringify(agent1Findings)}
-</agent_1_findings>
-
-<agent_2_findings>
-${JSON.stringify(agent2Findings)}
-</agent_2_findings>
-
-Follow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.`;
+function buildConsolidatorPrompt(agentResults, diff) {
+  return `<pr_diff>\n${diff}\n</pr_diff>\n\n<agent_findings>\n${JSON.stringify(agentResults)}\n</agent_findings>\n\nFollow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.`;
 }
 
 function describeFindings(findings) {
@@ -376,8 +207,8 @@ function describeFindings(findings) {
   return `${findings.length} Auffälligkeit${findings.length === 1 ? '' : 'en'}: ${parts.join(', ')}`;
 }
 
-function describeConsolidation(agent1, agent2, consolidated) {
-  const inputCount = agent1.findings.length + agent2.findings.length;
+function describeConsolidation(agentResults, consolidated) {
+  const inputCount = agentResults.reduce((sum, r) => sum + r.findings.length, 0);
   const outputCount = consolidated.findings?.length ?? 0;
   const removed = inputCount - outputCount;
   if (removed === 0) return `${inputCount} Findings übernommen`;
@@ -388,72 +219,57 @@ async function runReview(diff, jiraTicket, emit) {
   const warnings = [];
   const processedDiff = preprocessDiff(diff);
 
-  const agentCalls = [];
+  const applicableAgents = AGENT_REGISTRY.filter(
+    a => !a.isApplicable || a.isApplicable(jiraTicket)
+  );
 
-  if (jiraTicket) {
-    emit('agent:start', { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, thinkingBudget: 16384 });
-    const agent1Start = Date.now();
-    agentCalls.push(
-      callCoSi(buildAgent1Prompt(processedDiff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
-        temperature: 0.2,
-        maxOutputTokens: 65536,
-        thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
-        responseSchema: AK_FINDING_SCHEMA,
-      })
+  const skipped = AGENT_REGISTRY.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+  for (const agent of skipped) {
+    if (agent.skipMessage) {
+      emit('warning', { message: agent.skipMessage });
+      warnings.push(agent.skipMessage);
+    }
+  }
+
+  const agentResults = await Promise.all(
+    applicableAgents.map(agent => {
+      emit('agent:start', {
+        agent: agent.id,
+        label: agent.label,
+        temperature: agent.temperature,
+        thinkingBudget: agent.thinkingBudget,
+      });
+      const start = Date.now();
+      return callCoSi(
+        agent.buildUserPrompt(processedDiff, jiraTicket),
+        agent.systemPrompt,
+        {
+          temperature: agent.temperature,
+          maxOutputTokens: 65536,
+          thinkingConfig: { thinkingBudget: agent.thinkingBudget, includeThoughts: true },
+          responseSchema: agent.responseSchema,
+        }
+      )
         .then(({ result, thoughts }) => {
           emit('agent:done', {
-            agent: 'ak-abgleich',
-            duration: Date.now() - agent1Start,
+            agent: agent.id,
+            duration: Date.now() - start,
             findingCount: result.findings.length,
             summary: describeFindings(result.findings),
             thoughts,
             rawResponse: result,
           });
-          return { result, thoughts };
+          return { id: agent.id, label: agent.label, findings: result.findings };
         })
-        .catch((err) => {
-          emit('agent:error', { agent: 'ak-abgleich', error: err.message });
-          warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
-          return { result: { findings: [] }, thoughts: null };
-        })
-    );
-  } else {
-    emit('warning', { message: 'Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.' });
-    warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
-  }
-
-  emit('agent:start', { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, thinkingBudget: 16384 });
-  const agent2Start = Date.now();
-  agentCalls.push(
-    callCoSi(buildAgent2Prompt(processedDiff), SYSTEM_PROMPTS.codeQuality, {
-      temperature: 0.4,
-      maxOutputTokens: 65536,
-      thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
-      responseSchema: CODE_QUALITY_FINDING_SCHEMA,
-    })
-      .then(({ result, thoughts }) => {
-        emit('agent:done', {
-          agent: 'code-quality',
-          duration: Date.now() - agent2Start,
-          findingCount: result.findings.length,
-          summary: describeFindings(result.findings),
-          thoughts,
-          rawResponse: result,
+        .catch(err => {
+          emit('agent:error', { agent: agent.id, error: err.message });
+          warnings.push(`Agent (${agent.label}) fehlgeschlagen: ${err.message}`);
+          return { id: agent.id, label: agent.label, findings: [] };
         });
-        return { result, thoughts };
-      })
-      .catch((err) => {
-        emit('agent:error', { agent: 'code-quality', error: err.message });
-        warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
-        return { result: { findings: [] }, thoughts: null };
-      })
+    })
   );
 
-  const results = await Promise.all(agentCalls);
-  const agent1Result = jiraTicket ? results[0].result : { findings: [] };
-  const agent2Result = jiraTicket ? results[1].result : results[0].result;
-
-  const hasFindings = agent1Result.findings.length > 0 || agent2Result.findings.length > 0;
+  const hasFindings = agentResults.some(r => r.findings.length > 0);
   if (!hasFindings) {
     emit('done', {});
     return;
@@ -463,7 +279,7 @@ async function runReview(diff, jiraTicket, emit) {
   const consolStart = Date.now();
 
   const { result: consolidated, thoughts: consolidatorThoughts } = await callCoSi(
-    buildConsolidatorPrompt(agent1Result, agent2Result, processedDiff),
+    buildConsolidatorPrompt(agentResults, processedDiff),
     SYSTEM_PROMPTS.consolidator,
     {
       temperature: 0.2,
@@ -483,11 +299,11 @@ async function runReview(diff, jiraTicket, emit) {
       reviewedAt: new Date().toISOString(),
     },
     decisions: consolidated.decisions || [],
-    summary: describeConsolidation(agent1Result, agent2Result, consolidated),
+    summary: describeConsolidation(agentResults, consolidated),
     rawResponse: consolidated,
   });
 
   emit('done', {});
 }
 
-module.exports = { callCoSi, preprocessDiff, SYSTEM_PROMPTS, runReview };
+module.exports = { callCoSi, preprocessDiff, runReview };
