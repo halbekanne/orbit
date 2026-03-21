@@ -10,6 +10,12 @@ function setup(pipeline: PipelineState) {
   return fixture;
 }
 
+function openSection(fixture: ReturnType<typeof setup>) {
+  const btn = (fixture.nativeElement as HTMLElement).querySelector('button');
+  btn?.click();
+  fixture.detectChanges();
+}
+
 function emptyPipeline(): PipelineState {
   return { agents: [], consolidator: { status: 'pending' }, warnings: [] };
 }
@@ -18,7 +24,7 @@ describe('ReviewPipelineComponent', () => {
   it('renders nothing when pipeline has no agents', () => {
     const fixture = setup(emptyPipeline());
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('[data-pipeline]')).toBeNull();
+    expect(el.querySelector('button')).toBeNull();
   });
 
   it('renders agent steps', () => {
@@ -31,7 +37,8 @@ describe('ReviewPipelineComponent', () => {
       warnings: [],
     });
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('[data-pipeline]')).not.toBeNull();
+    expect(el.querySelector('button')).not.toBeNull();
+    openSection(fixture);
     expect(el.textContent).toContain('AK-Abgleich');
     expect(el.textContent).toContain('Code-Qualität');
   });
@@ -44,6 +51,7 @@ describe('ReviewPipelineComponent', () => {
       consolidator: { status: 'pending' },
       warnings: [],
     });
+    openSection(fixture);
     const el = fixture.nativeElement as HTMLElement;
     const dot = el.querySelector('[data-status="running"]');
     expect(dot).not.toBeNull();
@@ -58,6 +66,7 @@ describe('ReviewPipelineComponent', () => {
       consolidator: { status: 'pending' },
       warnings: [],
     });
+    openSection(fixture);
     const el = fixture.nativeElement as HTMLElement;
     const dot = el.querySelector('[data-status="error"]');
     expect(dot).not.toBeNull();
@@ -72,6 +81,7 @@ describe('ReviewPipelineComponent', () => {
       consolidator: { status: 'pending' },
       warnings: [],
     });
+    openSection(fixture);
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('T=0.4');
   });
@@ -93,6 +103,7 @@ describe('ReviewPipelineComponent', () => {
       },
       warnings: [],
     });
+    openSection(fixture);
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Valid concern');
     expect(el.textContent).toContain('Too minor');
@@ -110,5 +121,64 @@ describe('ReviewPipelineComponent', () => {
     });
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('5.4s');
+  });
+
+  it('section is collapsed by default', () => {
+    const fixture = setup({
+      agents: [
+        { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2, status: 'done' },
+      ],
+      consolidator: { status: 'pending' },
+      warnings: [],
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('#pipeline-content')).toBeNull();
+  });
+
+  it('shows agent description for known agents', () => {
+    const fixture = setup({
+      agents: [
+        { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, status: 'done' },
+      ],
+      consolidator: { status: 'pending' },
+      warnings: [],
+    });
+    openSection(fixture);
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Prüft allgemeine Code-Qualität, Patterns und potenzielle Fehler');
+  });
+
+  it('shows consolidator description', () => {
+    const fixture = setup({
+      agents: [
+        { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2, status: 'done' },
+      ],
+      consolidator: { status: 'done', temperature: 0.1 },
+      warnings: [],
+    });
+    openSection(fixture);
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Führt Ergebnisse zusammen');
+  });
+
+  it('shows merged details toggle for agent with thoughts and raw response', () => {
+    const fixture = setup({
+      agents: [
+        { agent: 'ak-check', label: 'AK-Abgleich', temperature: 0.2, status: 'done', thoughts: 'Thinking...', rawResponse: { ok: true } },
+      ],
+      consolidator: { status: 'pending' },
+      warnings: [],
+    });
+    openSection(fixture);
+    const el = fixture.nativeElement as HTMLElement;
+    const detailsBtn = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('Details anzeigen'));
+    expect(detailsBtn).not.toBeUndefined();
+
+    detailsBtn!.click();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Denkprozess');
+    expect(el.textContent).toContain('Thinking...');
+    expect(el.textContent).toContain('JSON-Antwort');
   });
 });

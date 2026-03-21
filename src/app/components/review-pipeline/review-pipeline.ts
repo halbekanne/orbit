@@ -10,170 +10,172 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
   template: `
     @let p = pipeline();
     @if (p.agents.length > 0) {
-      <section data-pipeline class="border-b border-stone-100" aria-labelledby="pipeline-heading">
-        <div class="max-w-2xl mx-auto px-6 py-5">
-          <button
-            type="button"
-            class="flex items-center gap-2 w-full text-left cursor-pointer"
-            [attr.aria-expanded]="sectionOpen()"
-            aria-controls="pipeline-content"
-            (click)="sectionOpen.set(!sectionOpen())"
-          >
-            <h2 id="pipeline-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">
-              Review-Pipeline
-            </h2>
-            @if (p.totalDuration != null) {
-              <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.totalDuration!) }}</span>
-            }
-            <svg
-              class="w-3 h-3 text-stone-400 ml-auto transition-transform duration-150"
-              [class.rotate-180]="sectionOpen()"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path d="M2 4l4 4 4-4" />
-            </svg>
-          </button>
-
-          @if (sectionOpen()) {
-            <div id="pipeline-content" class="mt-3 ml-2 border-l-2 border-stone-200 pl-4 space-y-3">
-              @for (agent of p.agents; track agent.agent) {
-                <div class="relative">
-                  <span
-                    class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full"
-                    [class]="statusDotClass(agent.status)"
-                    [attr.data-status]="agent.status"
-                    aria-hidden="true"
-                  ></span>
-                  <div class="flex items-baseline gap-2 flex-wrap">
-                    <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                    <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
-                    @if (agent.thinkingBudget != null) {
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ agent.thinkingBudget }}</span>
-                    }
-                    @if (agent.duration != null) {
-                      <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
-                    }
-                  </div>
-                  @if (agent.summary) {
-                    <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
-                  }
-                  @if (agent.error) {
-                    <p class="text-xs text-red-600 mt-1">{{ agent.error }}</p>
-                  }
-                  @if (agent.thoughts) {
-                    <button
-                      type="button"
-                      class="text-[10px] text-indigo-600 font-medium mt-1 cursor-pointer hover:text-indigo-800"
-                      (click)="toggleAgentThoughts(agent.agent)"
-                    >
-                      {{ isAgentThoughtsOpen(agent.agent) ? 'Denkprozess ausblenden' : 'Denkprozess anzeigen' }}
-                    </button>
-                    @if (isAgentThoughtsOpen(agent.agent)) {
-                      <pre class="bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[10px] p-3 rounded-md mt-1 overflow-x-auto max-h-48 whitespace-pre-wrap">{{ agent.thoughts }}</pre>
-                    }
-                  }
-                  @if (agent.rawResponse != null) {
-                    <button
-                      type="button"
-                      class="text-[10px] text-stone-400 mt-1 cursor-pointer hover:text-stone-600"
-                      (click)="toggleAgentJson(agent.agent)"
-                    >
-                      {{ isAgentJsonOpen(agent.agent) ? 'JSON ausblenden' : 'JSON anzeigen' }}
-                    </button>
-                    @if (isAgentJsonOpen(agent.agent)) {
-                      <pre class="bg-stone-900 text-stone-400 font-mono text-[10px] p-2 rounded mt-1 overflow-x-auto max-h-48">{{ agent.rawResponse | json }}</pre>
-                    }
-                  }
-                </div>
-              }
-
-              @if (showConsolidator()) {
-                <div class="relative">
-                  <span
-                    class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full"
-                    [class]="statusDotClass(p.consolidator.status === 'pending' ? 'done' : p.consolidator.status)"
-                    [attr.data-status]="p.consolidator.status"
-                    aria-hidden="true"
-                  ></span>
-                  <div class="flex items-baseline gap-2 flex-wrap">
-                    <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
-                    <span class="text-xs" [class]="statusTextClass(consolidatorDisplayStatus())">{{ statusText(consolidatorDisplayStatus()) }}</span>
-                    @if (p.consolidator.temperature != null) {
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ p.consolidator.temperature }}</span>
-                    }
-                    @if (p.consolidator.thinkingBudget != null) {
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ p.consolidator.thinkingBudget }}</span>
-                    }
-                    @if (p.consolidator.duration != null) {
-                      <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.consolidator.duration!) }}</span>
-                    }
-                  </div>
-                  @if (p.consolidator.summary) {
-                    <p class="text-xs text-stone-500 mt-1">{{ p.consolidator.summary }}</p>
-                  }
-                  @if (p.consolidator.error) {
-                    <p class="text-xs text-red-600 mt-1">{{ p.consolidator.error }}</p>
-                  }
-                  @if (p.consolidator.thoughts) {
-                    <button
-                      type="button"
-                      class="text-[10px] text-indigo-600 font-medium mt-1 cursor-pointer hover:text-indigo-800"
-                      (click)="toggleConsolidatorThoughts()"
-                    >
-                      {{ consolidatorThoughtsOpen() ? 'Denkprozess ausblenden' : 'Denkprozess anzeigen' }}
-                    </button>
-                    @if (consolidatorThoughtsOpen()) {
-                      <pre class="bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[10px] p-3 rounded-md mt-1 overflow-x-auto max-h-48 whitespace-pre-wrap">{{ p.consolidator.thoughts }}</pre>
-                    }
-                  }
-                  @if (p.consolidator.decisions && p.consolidator.decisions.length > 0) {
-                    <div class="mt-2 space-y-1.5">
-                      @for (decision of p.consolidator.decisions; track decision.finding) {
-                        <div class="flex items-start gap-2 text-xs">
-                          <span
-                            class="shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-medium"
-                            [class]="decisionBadgeClass(decision.action)"
-                          >{{ decisionLabel(decision.action) }}</span>
-                          <span class="text-stone-700">{{ decision.finding }}</span>
-                          <span class="text-stone-400 italic">{{ decision.reason }}</span>
-                        </div>
-                      }
-                    </div>
-                  }
-                  @if (p.consolidator.rawResponse != null) {
-                    <button
-                      type="button"
-                      class="text-[10px] text-stone-400 mt-1 cursor-pointer hover:text-stone-600"
-                      (click)="toggleConsolidatorJson()"
-                    >
-                      {{ consolidatorJsonOpen() ? 'JSON ausblenden' : 'JSON anzeigen' }}
-                    </button>
-                    @if (consolidatorJsonOpen()) {
-                      <pre class="bg-stone-900 text-stone-400 font-mono text-[10px] p-2 rounded mt-1 overflow-x-auto max-h-48">{{ p.consolidator.rawResponse | json }}</pre>
-                    }
-                  }
-                </div>
-              }
-            </div>
+      <div class="border-b border-stone-100">
+        <button
+          type="button"
+          class="px-6 py-2.5 flex items-center gap-2 text-xs text-stone-400 w-full cursor-pointer hover:text-stone-500 hover:bg-stone-50/30 transition-colors"
+          [attr.aria-expanded]="sectionOpen()"
+          aria-controls="pipeline-content"
+          (click)="sectionOpen.set(!sectionOpen())"
+        >
+          <h2 id="pipeline-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+            Review-Pipeline
+          </h2>
+          @if (p.totalDuration != null) {
+            <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.totalDuration!) }}</span>
           }
-        </div>
-      </section>
+          <svg
+            class="w-3 h-3 text-stone-400 ml-auto transition-transform duration-150"
+            [class.rotate-180]="sectionOpen()"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M2 4l4 4 4-4" />
+          </svg>
+        </button>
+
+        @if (sectionOpen()) {
+          <div id="pipeline-content" class="mt-3 ml-2 border-l-2 border-stone-200 pl-4 space-y-3 px-6 pb-5">
+            @for (agent of p.agents; track agent.agent) {
+              <div class="relative">
+                <span
+                  class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full"
+                  [class]="statusDotClass(agent.status)"
+                  [attr.data-status]="agent.status"
+                  aria-hidden="true"
+                ></span>
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                  <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                  @if (agent.thinkingBudget != null) {
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ agent.thinkingBudget }}</span>
+                  }
+                  @if (agent.duration != null) {
+                    <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
+                  }
+                </div>
+                <p class="text-xs text-stone-500 mt-0.5">{{ agentDescription(agent.agent) }}</p>
+                @if (agent.summary) {
+                  <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
+                }
+                @if (agent.error) {
+                  <p class="text-xs text-red-600 mt-1">{{ agent.error }}</p>
+                }
+                @if (agent.thoughts || agent.rawResponse != null) {
+                  <div class="mt-1.5">
+                    <button type="button"
+                      class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
+                      (click)="toggleAgentDetails(agent.agent)">
+                      <svg class="w-3 h-3 transition-transform duration-150" [class.rotate-90]="isAgentDetailsOpen(agent.agent)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+                      Details anzeigen
+                    </button>
+                    @if (isAgentDetailsOpen(agent.agent)) {
+                      <div class="mt-2 space-y-2">
+                        @if (agent.thoughts) {
+                          <div>
+                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Denkprozess</span>
+                            <pre class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ agent.thoughts }}</pre>
+                          </div>
+                        }
+                        @if (agent.rawResponse != null) {
+                          <div>
+                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">JSON-Antwort</span>
+                            <pre class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48">{{ agent.rawResponse | json }}</pre>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (showConsolidator()) {
+              <div class="relative">
+                <span
+                  class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full"
+                  [class]="statusDotClass(p.consolidator.status === 'pending' ? 'done' : p.consolidator.status)"
+                  [attr.data-status]="p.consolidator.status"
+                  aria-hidden="true"
+                ></span>
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                  <span class="text-xs" [class]="statusTextClass(consolidatorDisplayStatus())">{{ statusText(consolidatorDisplayStatus()) }}</span>
+                  @if (p.consolidator.temperature != null) {
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ p.consolidator.temperature }}</span>
+                  }
+                  @if (p.consolidator.thinkingBudget != null) {
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ p.consolidator.thinkingBudget }}</span>
+                  }
+                  @if (p.consolidator.duration != null) {
+                    <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.consolidator.duration!) }}</span>
+                  }
+                </div>
+                <p class="text-xs text-stone-500 mt-0.5">{{ consolidatorDescription }}</p>
+                @if (p.consolidator.summary) {
+                  <p class="text-xs text-stone-500 mt-1">{{ p.consolidator.summary }}</p>
+                }
+                @if (p.consolidator.error) {
+                  <p class="text-xs text-red-600 mt-1">{{ p.consolidator.error }}</p>
+                }
+                @if (p.consolidator.decisions && p.consolidator.decisions.length > 0) {
+                  <div class="mt-2 space-y-1.5">
+                    @for (decision of p.consolidator.decisions; track decision.finding) {
+                      <div class="flex items-start gap-2 text-xs">
+                        <span
+                          class="shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-medium"
+                          [class]="decisionBadgeClass(decision.action)"
+                        >{{ decisionLabel(decision.action) }}</span>
+                        <span class="text-stone-700">{{ decision.finding }}</span>
+                        <span class="text-stone-400 italic">{{ decision.reason }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (p.consolidator.thoughts || p.consolidator.rawResponse != null) {
+                  <div class="mt-1.5">
+                    <button type="button"
+                      class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
+                      (click)="consolidatorDetailsOpen.set(!consolidatorDetailsOpen())">
+                      <svg class="w-3 h-3 transition-transform duration-150" [class.rotate-90]="consolidatorDetailsOpen()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+                      Details anzeigen
+                    </button>
+                    @if (consolidatorDetailsOpen()) {
+                      <div class="mt-2 space-y-2">
+                        @if (p.consolidator.thoughts) {
+                          <div>
+                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Denkprozess</span>
+                            <pre class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ p.consolidator.thoughts }}</pre>
+                          </div>
+                        }
+                        @if (p.consolidator.rawResponse != null) {
+                          <div>
+                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">JSON-Antwort</span>
+                            <pre class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48">{{ p.consolidator.rawResponse | json }}</pre>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   `,
 })
 export class ReviewPipelineComponent {
   pipeline = input.required<PipelineState>();
 
-  sectionOpen = signal(true);
-  private readonly openAgentJsons = signal<Set<string>>(new Set());
-  consolidatorJsonOpen = signal(false);
-  private readonly openAgentThoughts = signal<Set<string>>(new Set());
-  consolidatorThoughtsOpen = signal(false);
+  sectionOpen = signal(false);
+  private readonly openAgentDetails = signal<Set<string>>(new Set());
+  consolidatorDetailsOpen = signal(false);
 
   showConsolidator = computed(() => {
     const c = this.pipeline().consolidator;
@@ -184,6 +186,8 @@ export class ReviewPipelineComponent {
     const s = this.pipeline().consolidator.status;
     return s === 'pending' ? 'done' : s;
   });
+
+  readonly consolidatorDescription = 'Führt Ergebnisse zusammen, entfernt Duplikate, korrigiert Schweregrade';
 
   statusDotClass(status: 'running' | 'done' | 'error'): string {
     switch (status) {
@@ -227,44 +231,24 @@ export class ReviewPipelineComponent {
     }
   }
 
-  isAgentJsonOpen(agent: string): boolean {
-    return this.openAgentJsons().has(agent);
+  isAgentDetailsOpen(agent: string): boolean {
+    return this.openAgentDetails().has(agent);
   }
 
-  toggleAgentJson(agent: string): void {
-    this.openAgentJsons.update(set => {
+  toggleAgentDetails(agent: string): void {
+    this.openAgentDetails.update(set => {
       const next = new Set(set);
-      if (next.has(agent)) {
-        next.delete(agent);
-      } else {
-        next.add(agent);
-      }
+      next.has(agent) ? next.delete(agent) : next.add(agent);
       return next;
     });
   }
 
-  toggleConsolidatorJson(): void {
-    this.consolidatorJsonOpen.update(v => !v);
-  }
-
-  isAgentThoughtsOpen(agent: string): boolean {
-    return this.openAgentThoughts().has(agent);
-  }
-
-  toggleAgentThoughts(agent: string): void {
-    this.openAgentThoughts.update(set => {
-      const next = new Set(set);
-      if (next.has(agent)) {
-        next.delete(agent);
-      } else {
-        next.add(agent);
-      }
-      return next;
-    });
-  }
-
-  toggleConsolidatorThoughts(): void {
-    this.consolidatorThoughtsOpen.update(v => !v);
+  agentDescription(agent: string): string {
+    switch (agent) {
+      case 'ak-abgleich': return 'Gleicht Änderungen mit Jira-Akzeptanzkriterien ab';
+      case 'code-quality': return 'Prüft allgemeine Code-Qualität, Patterns und potenzielle Fehler';
+      default: return '';
+    }
   }
 
   formatDuration(ms: number): string {
