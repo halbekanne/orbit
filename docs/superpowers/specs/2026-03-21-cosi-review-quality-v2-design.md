@@ -370,7 +370,7 @@ EXAMPLE (for calibration — do not copy):
 
 ## Change 6: Consolidator Noise Examples
 
-Added to the Consolidator system prompt after the QUALITY GATE thinking step:
+Added to the Consolidator system prompt between QUALITY GATE (step 3) and SEVERITY CHECK (step 4), so the model references noise examples during severity evaluation:
 
 ```
 NOISE EXAMPLES (always remove findings like these):
