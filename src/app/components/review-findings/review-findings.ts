@@ -238,7 +238,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                             <div class="pl-3 py-2" [class]="findingStripeClass(finding.severity)">
                               <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
-                                <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium bg-stone-100 text-stone-500 border-stone-200">{{ categoryLabel(finding.category) }}</span>
+                                <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
+                                @if (finding.wcagCriterion) {
+                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200">WCAG {{ finding.wcagCriterion }}</span>
+                                }
                                 <span class="font-mono text-xs text-stone-400 ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
                               <p class="text-sm font-medium text-stone-800 mb-1">{{ finding.title }}</p>
@@ -304,7 +307,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                             <div class="pl-3 py-2" [class]="findingStripeClass(finding.severity)">
                               <div class="flex items-center gap-2 mb-1 flex-wrap">
                                 <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
-                                <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium bg-stone-100 text-stone-500 border-stone-200">{{ categoryLabel(finding.category) }}</span>
+                                <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
+                                @if (finding.wcagCriterion) {
+                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200">WCAG {{ finding.wcagCriterion }}</span>
+                                }
                                 <span class="font-mono text-xs text-stone-400 ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
                               <p class="text-sm font-medium text-stone-800 mb-1">{{ finding.title }}</p>
@@ -499,10 +505,18 @@ export class ReviewFindingsComponent {
     }
   }
 
+  private readonly categoryConfig: Record<string, { label: string; classes: string }> = {
+    'ak-abgleich': { label: 'AK-Abgleich', classes: 'bg-stone-100 text-stone-500 border-stone-200' },
+    'code-quality': { label: 'Code-Qualität', classes: 'bg-stone-100 text-stone-500 border-stone-200' },
+    'accessibility': { label: 'Barrierefreiheit', classes: 'bg-teal-50 text-teal-700 border-teal-200' },
+  };
+
   categoryLabel(category: string): string {
-    switch (category) {
-      case 'ak-abgleich': return 'AK-Abgleich';
-      default: return 'Code-Qualität';
-    }
+    return this.categoryConfig[category]?.label ?? category;
+  }
+
+  categoryBadgeClass(category: string): string {
+    const dynamic = this.categoryConfig[category]?.classes ?? 'bg-stone-100 text-stone-600 border-stone-200';
+    return `text-[11px] px-1.5 py-0.5 rounded border font-medium ${dynamic}`;
   }
 }
