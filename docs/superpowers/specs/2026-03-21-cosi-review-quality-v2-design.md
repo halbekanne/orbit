@@ -60,7 +60,7 @@ const FINDING_SCHEMA = {
   properties: {
     findings: {
       type: "ARRAY",
-      description: "Liste der gefundenen Probleme. Leeres Array wenn keine Probleme gefunden.",
+      description: "List of found issues. Empty array if no issues found.",
       items: {
         type: "OBJECT",
         properties: {
@@ -69,12 +69,12 @@ const FINDING_SCHEMA = {
             enum: ["critical", "important", "minor"],
             // description differs per agent — set in agent-specific schema
           },
-          title: { type: "STRING", description: "Kurze deutsche Zusammenfassung des Problems" },
-          file: { type: "STRING", description: "Dateipfad aus dem Diff" },
-          line: { type: "INTEGER", description: "Zeilennummer aus dem Diff (die Nummer in eckigen Klammern)" },
-          codeSnippet: { type: "STRING", description: "Die exakten 1-2 Zeilen aus dem Diff die das Finding betrifft, wörtlich kopiert" },
-          detail: { type: "STRING", description: "Was ist das Problem und warum ist es relevant (1-3 Sätze, auf Deutsch)" },
-          suggestion: { type: "STRING", description: "Konkreter Verbesserungsvorschlag (auf Deutsch, technische Fachbegriffe auf Englisch erlaubt)" }
+          title: { type: "STRING", description: "Short German summary of the issue" },
+          file: { type: "STRING", description: "File path from the diff" },
+          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
+          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
+          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
+          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" }
         },
         required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
         propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"]
@@ -88,8 +88,8 @@ const FINDING_SCHEMA = {
 
 The `severity.description` field differs per agent:
 
-- **Agent 1 (AK-Abgleich):** `"critical = AK komplett nicht umgesetzt, important = AK teilweise umgesetzt aber Schlüssel-Szenario fehlt, minor = AK umgesetzt aber weicht in kleinem Detail von der Spezifikation ab"`
-- **Agent 2 (Code Quality):** `"critical = Laufzeitfehler oder kaputte Funktionalität, important = strukturelles Problem das Wartbarkeit erschwert oder fehlende Cleanup-Logik, minor = Lesbarkeitsverbesserung oder kleine Inkonsistenz"`
+- **Agent 1 (AK-Abgleich):** `"critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail"`
+- **Agent 2 (Code Quality):** `"critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency"`
 
 ### Consolidator Schema
 
@@ -99,26 +99,26 @@ The `severity.description` field differs per agent:
   properties: {
     findings: {
       type: "ARRAY",
-      description: "Finale, gefilterte Liste der Findings.",
+      description: "Final, filtered list of findings.",
       items: {
         type: "OBJECT",
         properties: {
           severity: {
             type: "STRING",
             enum: ["critical", "important", "minor"],
-            description: "critical = echtes Laufzeitrisiko, important = strukturelles Problem, minor = kleine Verbesserung"
+            description: "critical = real runtime risk, important = structural problem, minor = small improvement"
           },
           category: {
             type: "STRING",
             enum: ["ak-abgleich", "code-quality"],
-            description: "Welcher Agent das Finding ursprünglich produziert hat"
+            description: "Which agent originally produced the finding"
           },
-          title: { type: "STRING", description: "Kurze deutsche Zusammenfassung" },
-          file: { type: "STRING", description: "Dateipfad aus dem Diff" },
-          line: { type: "INTEGER", description: "Zeilennummer aus dem Diff" },
-          codeSnippet: { type: "STRING", description: "Exakte Zeilen aus dem Diff, wörtlich kopiert" },
-          detail: { type: "STRING", description: "Problembeschreibung auf Deutsch (1-3 Sätze)" },
-          suggestion: { type: "STRING", description: "Verbesserungsvorschlag auf Deutsch" }
+          title: { type: "STRING", description: "Short German summary" },
+          file: { type: "STRING", description: "File path from the diff" },
+          line: { type: "INTEGER", description: "Line number from the diff" },
+          codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
+          detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
+          suggestion: { type: "STRING", description: "Improvement suggestion in German" }
         },
         required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
         propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"]
@@ -126,14 +126,14 @@ The `severity.description` field differs per agent:
     },
     decisions: {
       type: "ARRAY",
-      description: "Für jedes Input-Finding eine Entscheidung was damit passiert ist.",
+      description: "For each input finding, a decision explaining what happened to it.",
       items: {
         type: "OBJECT",
         properties: {
           agent: { type: "STRING", enum: ["ak-abgleich", "code-quality"] },
-          finding: { type: "STRING", description: "Originaltitel des Findings" },
+          finding: { type: "STRING", description: "Original title of the finding" },
           action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
-          reason: { type: "STRING", description: "Begründung auf Deutsch" }
+          reason: { type: "STRING", description: "Reasoning in German" }
         },
         required: ["agent", "finding", "action", "reason"],
         propertyOrdering: ["agent", "finding", "action", "reason"]
@@ -141,7 +141,7 @@ The `severity.description` field differs per agent:
     },
     summary: {
       type: "STRING",
-      description: "Deutsche Zusammenfassung, z.B. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' oder 'Keine Auffälligkeiten'"
+      description: "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'"
     }
   },
   required: ["findings", "decisions", "summary"],
@@ -199,7 +199,7 @@ A new `preprocessDiff(rawDiff)` function that annotates every line in the diff w
 
 Added to SHARED_CONSTRAINTS:
 ```
-Jede Zeile im Diff beginnt mit [Zeilennummer]. Verwende diese Nummer direkt als "line"-Wert.
+Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
 ```
 
 ---
@@ -240,15 +240,15 @@ The thinking steps (OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK) handle all
 ```
 You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
 
-Jede Zeile im Diff beginnt mit [Zeilennummer]. Verwende diese Nummer direkt als "line"-Wert.
+Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
 
 RULES:
-- Melde ausschließlich Probleme. Jedes Finding beschreibt einen konkreten Mangel.
-- Kein Lob, kein "looks good", kein "well done", kein "LGTM".
-- Melde ein Finding NUR wenn du eine konkrete hinzugefügte Zeile im Diff benennen kannst. Ohne exakten codeSnippet existiert das Finding nicht.
+- Report only problems. Every finding must describe a concrete deficiency.
+- No praise, no "looks good", no "well done", no "LGTM".
+- Report a finding ONLY if you can point to a specific added line in the diff. Without an exact codeSnippet, the finding does not exist.
 - CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
-- Ein leeres findings-Array ist ein valides Ergebnis, kein Fehler. Erfinde keine Probleme um die Ausgabe zu füllen — aber im Zweifel lieber ein Finding zu viel melden als eines übersehen.
-- Alle textuellen Felder (title, detail, suggestion) sind auf Deutsch. Englische Fachbegriffe (z.B. "null check", "race condition", "lifecycle hook") dürfen inline verwendet werden.
+- An empty findings array is a valid result, not an error. Do not manufacture issues to fill the output — but when in doubt, report one finding too many rather than miss one.
+- All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
 
 THINKING PHASE INSTRUCTIONS:
 You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.
@@ -258,7 +258,7 @@ You have a dedicated thinking phase before generating the JSON. You MUST use thi
 
 The rule `"Titles must be in German. Detail and suggestion may use English for technical terms."` is replaced by:
 ```
-Alle textuellen Felder (title, detail, suggestion) sind auf Deutsch. Englische Fachbegriffe (z.B. "null check", "race condition", "lifecycle hook") dürfen inline verwendet werden.
+All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
 ```
 
 This also applies to the `reason` field in Consolidator decisions (already German via schema description).
@@ -269,17 +269,17 @@ The user prompts currently end with `"Output JSON only."` which primes the think
 
 **Agent 1:**
 ```
-Folge deinem Denkprozess Schritt für Schritt: EXTRACT, CLASSIFY, TRACE, FORMULATE.
+Follow your thinking process step by step: EXTRACT, CLASSIFY, TRACE, FORMULATE.
 ```
 
 **Agent 2:**
 ```
-Folge deinem Denkprozess Schritt für Schritt: SCAN die hinzugefügten Zeilen, dann FORMULATE für bestätigte Probleme.
+Follow your thinking process step by step: SCAN the added lines, then FORMULATE for confirmed issues only.
 ```
 
 **Consolidator:**
 ```
-Folge deinem Denkprozess Schritt für Schritt: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.
+Follow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.
 ```
 
 ---
@@ -296,10 +296,10 @@ The Code Quality agent's FOCUS AREAS are adjusted to avoid overlap with TypeScri
 FOCUS AREAS (in priority order):
 Ignore issues that TypeScript strict mode or ESLint would already catch (type errors, null access on strict types, unused variables, import order, formatting). Focus on problems that only a human reviewer would find:
 
-1. Logikfehler die kompilieren aber falsch verhalten — Race Conditions, Off-by-One, falsche Bedingungen, unbehandelte Edge Cases
-2. Lesbarkeit und Wartbarkeit — verworrene Logik, tiefe Verschachtelung, unklare Absicht, Funktionen die zu viel tun
-3. Lit / Web Components Best Practices — Lifecycle-Fehler, fehlende Cleanup-Logik (Event Listener, Subscriptions), ineffizientes Rendering, falsche Reactive-Property-Nutzung
-4. Saubere Code-Struktur — Single Responsibility, sinnvolle Benennung, DRY (keine voreilige Abstraktion)
+1. Logic errors that compile but behave incorrectly — race conditions, off-by-one, wrong conditions, unhandled edge cases
+2. Readability and maintainability — convoluted logic, deep nesting, unclear intent, functions doing too much
+3. Lit / Web Components best practices — lifecycle errors, missing cleanup logic (event listeners, subscriptions), inefficient rendering, incorrect reactive property usage
+4. Clean code structure — single responsibility, sensible naming, DRY (no premature abstraction)
 ```
 
 ---
@@ -373,12 +373,12 @@ EXAMPLE (for calibration — do not copy):
 Added to the Consolidator system prompt after the QUALITY GATE thinking step:
 
 ```
-NOISE-BEISPIELE (solche Findings immer entfernen):
-- Formatierung, Trailing Commas, Semikolons, Anführungszeichen-Stil → wird von ESLint/Prettier erzwungen
-- Import-Reihenfolge oder -Gruppierung → wird von ESLint erzwungen
-- Typfehler oder Null-Checks die TypeScript strict mode bereits erzwingt → der Build bricht ohnehin
-- Rein kosmetische Umbenennungen die weder Lesbarkeit noch Wartbarkeit verbessern → Geschmackssache, kein Defekt
-- Findings die kein konkretes Problem benennen, sondern nur eine Alternative vorschlagen ("könnte man auch mit X lösen") → nur behalten wenn die aktuelle Lösung ein messbares Problem hat (Lesbarkeit, Performance, Wartbarkeit), dann als "minor"
+NOISE EXAMPLES (always remove findings like these):
+- Formatting, trailing commas, semicolons, quote style → enforced by ESLint/Prettier
+- Import ordering or grouping → enforced by ESLint
+- Type errors or null checks that TypeScript strict mode already enforces → the build will break anyway
+- Purely cosmetic renames that improve neither readability nor maintainability → a matter of taste, not a defect
+- Findings that name no concrete problem but only suggest an alternative ("could also use X") → only keep if the current solution has a measurable problem (readability, performance, maintainability), then as "minor"
 ```
 
 ---
