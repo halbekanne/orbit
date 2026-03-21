@@ -439,14 +439,19 @@ export class ReviewFindingsComponent {
       });
     });
 
+    let timerRunning = false;
     effect((onCleanup) => {
       const state = this.reviewState();
-      if (typeof state === 'object' && state.status === 'running') {
+      if (typeof state === 'object' && state.status === 'running' && !timerRunning) {
+        timerRunning = true;
         this.elapsedSeconds.set(0);
         const interval = setInterval(() => {
           this.elapsedSeconds.update(v => v + 1);
         }, 1000);
-        onCleanup(() => clearInterval(interval));
+        onCleanup(() => {
+          clearInterval(interval);
+          timerRunning = false;
+        });
       }
     });
   }
