@@ -1,3 +1,5 @@
+import { SubTask } from './sub-task.model';
+
 export type TicketStatus = 'In Progress' | 'In Review' | 'To Do' | 'Done';
 export type TicketPriority = 'High' | 'Medium' | 'Low';
 export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Needs Re-review' | 'Approved' | 'Approved by Others';
@@ -118,6 +120,7 @@ export interface Todo {
   urgent: boolean;
   createdAt: string;
   completedAt: string | null;
+  subtasks?: SubTask[];
 }
 
 export interface Idea {
@@ -127,6 +130,7 @@ export interface Idea {
   description: string;
   status: 'active' | 'wont-do';
   createdAt: string;
+  subtasks?: SubTask[];
 }
 
 export type WorkItem = JiraTicket | PullRequest | Todo | Idea;
