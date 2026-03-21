@@ -25,9 +25,6 @@ export function spawnConfetti(anchor: HTMLElement): void {
 }
 
 export function playChime(): void {
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return;
-
   try {
     const ctx = new AudioContext();
     const notes = [261.63, 329.63, 392.00];
