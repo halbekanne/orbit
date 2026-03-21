@@ -2,10 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, input, signal, effect } fro
 import { Idea } from '../../models/work-item.model';
 import { IdeaService } from '../../services/idea.service';
 import { WorkDataService } from '../../services/work-data.service';
+import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
+import { SubTask } from '../../models/sub-task.model';
 
 @Component({
   selector: 'app-idea-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SubTaskListComponent],
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
       <header class="pb-5 border-b border-stone-200">
@@ -76,6 +79,13 @@ import { WorkDataService } from '../../services/work-data.service';
             }
           </div>
         }
+
+        <div class="py-5 border-t border-stone-200">
+          <app-sub-task-list
+            [subtasks]="idea().subtasks ?? []"
+            (subtasksChange)="onSubtasksChange($event)"
+          />
+        </div>
       </div>
     </article>
   `,
@@ -132,6 +142,12 @@ export class IdeaDetailComponent {
   onDescriptionKeydown(e: KeyboardEvent): void {
     if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
     if (e.key === 'Escape') { this.editingDescription.set(false); }
+  }
+
+  onSubtasksChange(subtasks: SubTask[]): void {
+    const updated = { ...this.idea(), subtasks };
+    this.ideaService.update(updated);
+    this.workData.selectedItem.set(updated);
   }
 
   formatDate(iso: string): string {
