@@ -218,7 +218,7 @@ function formatGermanDate(): string {
             </header>
 
             @if (readonlyMorning()) {
-              <div class="mb-5 border-l-[3px] border-indigo-300 pl-5">
+              <div class="mb-2 border-l-[3px] border-indigo-300 pl-5">
                 <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
                   {{ entry()?.morningQuestion }}
                 </p>
@@ -232,7 +232,7 @@ function formatGermanDate(): string {
               }
             } @else {
               @if (entry()?.morningFocus) {
-                <div class="mb-5 border-l-[3px] border-indigo-300 pl-5">
+                <div class="mb-2 border-l-[3px] border-indigo-300 pl-5">
                   <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
                     {{ entry()!.morningQuestion }}
                   </p>
@@ -244,8 +244,21 @@ function formatGermanDate(): string {
                 </div>
               }
 
+              <div class="mb-2 border-l-[3px] border-amber-300 pl-5">
+                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                  {{ entry()?.eveningQuestion }}
+                </p>
+              </div>
+              @if (entry()?.eveningReflection) {
+                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                    {{ entry()!.eveningReflection }}
+                  </p>
+                </div>
+              }
+
               @if (completedItems().length > 0) {
-                <div class="mb-8">
+                <div class="mt-2">
                   <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">Heute geschafft</h2>
                   <ul class="space-y-2.5" role="list">
                     @for (item of completedItems(); track item.id) {
@@ -257,19 +270,6 @@ function formatGermanDate(): string {
                       </li>
                     }
                   </ul>
-                </div>
-              }
-
-              <div class="mb-5 border-l-[3px] border-amber-300 pl-5">
-                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
-                  {{ entry()?.eveningQuestion }}
-                </p>
-              </div>
-              @if (entry()?.eveningReflection) {
-                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
-                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
-                    {{ entry()!.eveningReflection }}
-                  </p>
                 </div>
               }
             }
