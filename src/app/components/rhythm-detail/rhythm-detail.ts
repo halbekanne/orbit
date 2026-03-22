@@ -104,8 +104,8 @@ function formatGermanDate(): string {
             @if (!isMorning()) {
               @if (entry()?.morningFocus) {
                 <div class="mb-6 border-l-[3px] border-indigo-300 pl-4">
-                  <p class="text-[10px] font-semibold uppercase tracking-wider text-indigo-400 mb-1">Dein Fokus heute</p>
-                  <p class="font-serif italic text-sm text-stone-500">{{ entry()!.morningFocus }}</p>
+                  <p class="font-serif italic text-xs text-indigo-400 mb-1">{{ entry()!.morningQuestion }}</p>
+                  <p class="font-serif italic text-base text-stone-600 leading-relaxed">{{ entry()!.morningFocus }}</p>
                 </div>
               }
               <div class="mb-8">
