@@ -32,11 +32,19 @@ export class App {
     setInterval(() => this.dayRhythm.currentHour.set(new Date().getHours()), 5 * 60 * 1000);
   }
 
+  private debugEvening = false;
+
   onKeydown(e: KeyboardEvent): void {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
       this.previousFocus = document.activeElement as HTMLElement;
       this.overlayOpen.set(true);
+    }
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'E') {
+      e.preventDefault();
+      this.debugEvening = !this.debugEvening;
+      this.dayRhythm.currentHour.set(this.debugEvening ? 16 : new Date().getHours());
+      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON (16:00)' : 'OFF (real time)'}`);
     }
   }
 
