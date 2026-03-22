@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CdkDragDrop, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { WorkDataService } from '../../services/work-data.service';
 import { TodoService } from '../../services/todo.service';
@@ -9,6 +9,7 @@ import { PrCardComponent } from '../pr-card/pr-card';
 import { TodoCardComponent } from '../todo-card/todo-card';
 import { IdeaCardComponent } from '../idea-card/idea-card';
 import { TodoInlineInputComponent } from '../todo-inline-input/todo-inline-input';
+import { RhythmCardComponent } from '../rhythm-card/rhythm-card';
 
 const STORAGE_KEY = 'orbit.navigator.collapsed';
 
@@ -25,7 +26,7 @@ interface CollapsedState {
 @Component({
   selector: 'app-navigator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TicketCardComponent, PrCardComponent, TodoCardComponent, IdeaCardComponent, TodoInlineInputComponent, CdkDrag, CdkDropList],
+  imports: [TicketCardComponent, PrCardComponent, TodoCardComponent, IdeaCardComponent, TodoInlineInputComponent, RhythmCardComponent, CdkDrag, CdkDropList],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },
 })
@@ -78,12 +79,18 @@ export class NavigatorComponent {
   toggleIdeas(): void { this.ideasCollapsed.update(v => !v); }
   toggleIdeasWontDo(): void { this.ideasWontDoCollapsed.update(v => !v); }
 
+  readonly isRhythmSelected = computed(() => this.data.rhythmSelected());
+
   isSelected(item: WorkItem): boolean {
     return this.data.selectedItem()?.id === item.id;
   }
 
   selectItem(item: WorkItem): void {
     this.data.select(item);
+  }
+
+  selectRhythm(): void {
+    this.data.selectRhythm();
   }
 
   addTodo(title: string): void {

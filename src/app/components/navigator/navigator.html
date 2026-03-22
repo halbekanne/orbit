@@ -8,6 +8,12 @@
 
   <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
 
+    <app-rhythm-card
+      [selected]="isRhythmSelected()"
+      (select)="selectRhythm()"
+    />
+    <div class="h-px mx-1 bg-gradient-to-r from-transparent via-stone-200 to-transparent"></div>
+
     <section aria-labelledby="tickets-heading">
       <button
         type="button"

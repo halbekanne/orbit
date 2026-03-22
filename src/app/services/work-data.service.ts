@@ -60,6 +60,7 @@ export class WorkDataService {
   );
 
   readonly selectedItem = signal<WorkItem | null>(null);
+  readonly rhythmSelected = signal(false);
 
   constructor() {
     effect(() => {
@@ -145,7 +146,13 @@ export class WorkDataService {
   }
 
   select(item: WorkItem): void {
+    this.rhythmSelected.set(false);
     this.selectedItem.set(item);
+  }
+
+  selectRhythm(): void {
+    this.selectedItem.set(null);
+    this.rhythmSelected.set(true);
   }
 
   promoteToTodo(idea: Idea): void {

@@ -12,10 +12,12 @@ const mockWorkDataService = {
   pullRequestsError: signal(false),
   todos: signal([]),
   selectedItem: signal(null),
+  rhythmSelected: signal(false),
   lastAddedId: signal(null),
   pendingTodoCount: signal(0),
   awaitingReviewCount: signal(0),
   select: () => {},
+  selectRhythm: () => {},
   addTodo: () => {},
   toggleTodo: () => {},
 };

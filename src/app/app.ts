@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { HybridRailComponent } from './components/hybrid-rail/hybrid-rail';
 import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
 import { ViewTimelineComponent } from './views/view-timeline/view-timeline';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
+import { DayRhythmService } from './services/day-rhythm.service';
 
 const STORAGE_KEY = 'orbit.activeView';
 
@@ -17,6 +18,8 @@ const STORAGE_KEY = 'orbit.activeView';
   },
 })
 export class App {
+  private readonly dayRhythm = inject(DayRhythmService);
+
   activeView = signal(localStorage.getItem(STORAGE_KEY) ?? 'arbeit');
   overlayOpen = signal(false);
   private previousFocus: HTMLElement | null = null;
@@ -25,6 +28,8 @@ export class App {
     effect(() => {
       localStorage.setItem(STORAGE_KEY, this.activeView());
     });
+    this.dayRhythm.ensureToday();
+    setInterval(() => this.dayRhythm.currentHour.set(new Date().getHours()), 5 * 60 * 1000);
   }
 
   onKeydown(e: KeyboardEvent): void {

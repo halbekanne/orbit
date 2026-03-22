@@ -14,9 +14,11 @@ const mockWorkDataService = {
   pullRequestsLoading: signal(false),
   pullRequestsError: signal(false),
   selectedItem: signal(null),
+  rhythmSelected: signal(false),
   lastAddedId: signal(null),
   awaitingReviewCount: signal(0),
   select: () => {},
+  selectRhythm: () => {},
 };
 
 const mockTodoService = {
