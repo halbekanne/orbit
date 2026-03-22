@@ -106,6 +106,7 @@ describe('TodoService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([todo]), post: postSpy });
     TestBed.tick();
+    postSpy.mockClear();
     svc.update({ ...todo, title: 'Updated' });
     expect(svc.todos()[0].title).toBe('Updated');
     expect(postSpy).toHaveBeenCalledTimes(1);
@@ -117,6 +118,7 @@ describe('TodoService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([a, b]), post: postSpy });
     TestBed.tick();
+    postSpy.mockClear();
     svc.reorder(0, 1);
     expect(svc.todos()[0].id).toBe('b');
     expect(postSpy).toHaveBeenCalledTimes(1);

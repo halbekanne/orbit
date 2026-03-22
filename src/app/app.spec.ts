@@ -28,14 +28,14 @@ describe('App', () => {
 
   it('should persist active view to localStorage', () => {
     const fixture = TestBed.createComponent(App);
-    fixture.componentInstance.activeView.set('timeline');
+    fixture.componentInstance.activeView.set('logbuch');
     TestBed.tick();
-    expect(localStorage.getItem('orbit.activeView')).toBe('timeline');
+    expect(localStorage.getItem('orbit.activeView')).toBe('logbuch');
   });
 
   it('should restore active view from localStorage', () => {
-    localStorage.setItem('orbit.activeView', 'timeline');
+    localStorage.setItem('orbit.activeView', 'logbuch');
     const fixture = TestBed.createComponent(App);
-    expect(fixture.componentInstance.activeView()).toBe('timeline');
+    expect(fixture.componentInstance.activeView()).toBe('logbuch');
   });
 });

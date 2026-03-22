@@ -36,34 +36,31 @@ describe('DayRhythmService', () => {
     expect(svc).toBeTruthy();
   });
 
-  it('should initialize with empty days from API', () => {
-    const svc = setup({ get: () => of([]), post: () => of([]) });
-    TestBed.tick();
-    expect(svc.days().length).toBe(0);
-  });
-
-  it('should return null for todayEntry when no data', () => {
-    const svc = setup({ get: () => of([]), post: () => of([]) });
-    TestBed.tick();
-    expect(svc.todayEntry()).toBeNull();
-  });
-
-  it('should create today entry via ensureToday', () => {
+  it('should auto-create today entry after loading empty data', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    svc.ensureToday();
-    const entry = svc.todayEntry();
-    expect(entry).toBeTruthy();
-    expect(entry!.date).toBe(todayISO);
-    expect(entry!.morningAnsweredAt).toBeNull();
+    expect(svc.days().length).toBe(1);
+    expect(svc.todayEntry()).toBeTruthy();
+    expect(svc.todayEntry()!.date).toBe(todayISO);
+    expect(svc.todayEntry()!.morningAnsweredAt).toBeNull();
+    expect(postSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not create duplicate when today already exists', () => {
+    const existing = makeEntry({ morningFocus: 'Existing' });
+    const postSpy = vi.fn().mockReturnValue(of([]));
+    const svc = setup({ get: () => of([existing]), post: postSpy });
+    TestBed.tick();
+    expect(svc.days().length).toBe(1);
+    expect(svc.todayEntry()!.morningFocus).toBe('Existing');
+    expect(postSpy).not.toHaveBeenCalled();
   });
 
   it('should save morning focus', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    svc.ensureToday();
     svc.saveMorning('Mein Fokus', 'Test-Frage?');
     const entry = svc.todayEntry();
     expect(entry!.morningFocus).toBe('Mein Fokus');
@@ -75,7 +72,6 @@ describe('DayRhythmService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    svc.ensureToday();
     svc.saveEvening('Guter Tag', 'Abend-Frage?');
     const entry = svc.todayEntry();
     expect(entry!.eveningReflection).toBe('Guter Tag');
@@ -87,7 +83,6 @@ describe('DayRhythmService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    svc.ensureToday();
     svc.recordCompletion({ type: 'todo', id: 'td-1', title: 'Test', completedAt: new Date().toISOString() });
     expect(svc.todayEntry()!.completedItems.length).toBe(1);
     expect(svc.todayEntry()!.completedItems[0].title).toBe('Test');
@@ -97,7 +92,6 @@ describe('DayRhythmService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    svc.ensureToday();
     svc.skipMorning();
     const entry = svc.todayEntry();
     expect(entry!.morningAnsweredAt).toBe('skipped');
@@ -107,8 +101,6 @@ describe('DayRhythmService', () => {
     const postSpy = vi.fn().mockReturnValue(of([]));
     const svc = setup({ get: () => of([]), post: postSpy });
     TestBed.tick();
-    expect(svc.needsMorning()).toBe(true);
-    svc.ensureToday();
     expect(svc.needsMorning()).toBe(true);
     svc.saveMorning('Focus', 'Q?');
     expect(svc.needsMorning()).toBe(false);

@@ -125,6 +125,15 @@ app.post('/api/ideas', async (req, res) => {
   res.json(req.body);
 });
 
+app.get('/api/logbuch', async (_req, res) => {
+  res.json(await readJson(path.join(ORBIT_DIR, 'logbuch.json')));
+});
+
+app.post('/api/logbuch', async (req, res) => {
+  await writeJson(path.join(ORBIT_DIR, 'logbuch.json'), req.body);
+  res.json(req.body);
+});
+
 const TICKETS_DIR = path.join(ORBIT_DIR, 'tickets');
 
 app.get('/api/tickets/:key', async (req, res) => {

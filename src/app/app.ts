@@ -1,7 +1,7 @@
 import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { HybridRailComponent } from './components/hybrid-rail/hybrid-rail';
 import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
-import { ViewTimelineComponent } from './views/view-timeline/view-timeline';
+import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
 import { DayRhythmService } from './services/day-rhythm.service';
 
@@ -10,7 +10,7 @@ const STORAGE_KEY = 'orbit.activeView';
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HybridRailComponent, ViewArbeitComponent, ViewTimelineComponent, QuickCaptureComponent],
+  imports: [HybridRailComponent, ViewArbeitComponent, ViewLogbuchComponent, QuickCaptureComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: {
@@ -29,7 +29,6 @@ export class App {
     effect(() => {
       localStorage.setItem(STORAGE_KEY, this.activeView());
     });
-    this.dayRhythm.ensureToday();
     setInterval(() => {
       if (!this.debugEvening) this.dayRhythm.currentHour.set(new Date().getHours());
     }, 5 * 60 * 1000);

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ViewTimelineComponent } from './view-timeline';
+import { ViewLogbuchComponent } from './view-logbuch';
 import { DayRhythmService } from '../../services/day-rhythm.service';
 import { DayEntry } from '../../models/day-entry.model';
 
@@ -56,10 +56,10 @@ const emptyEntry: DayEntry = {
   completedItems: [],
 };
 
-describe('ViewTimelineComponent', () => {
+describe('ViewLogbuchComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ViewTimelineComponent],
+      imports: [ViewLogbuchComponent],
       providers: [
         { provide: HttpClient, useValue: mockHttpClient },
       ],
@@ -67,19 +67,19 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should show empty state when no entries', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
     expect(el.textContent).toContain('Noch keine Einträge');
   });
 
   it('should render day entries with morning focus', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithMorning]);
     fixture.detectChanges();
@@ -89,7 +89,7 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should show evening question and reflection when present', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithEvening]);
     fixture.detectChanges();
@@ -99,7 +99,7 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should render day cards as article elements', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithMorning, entryWithEvening]);
     fixture.detectChanges();
@@ -108,7 +108,7 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should filter out entries with no meaningful content', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithMorning, emptyEntry]);
     fixture.detectChanges();
@@ -117,7 +117,7 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should render completions-only entry as simple card', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithCompletions]);
     fixture.detectChanges();
@@ -126,7 +126,7 @@ describe('ViewTimelineComponent', () => {
   });
 
   it('should not show empty state when entries exist', () => {
-    const fixture = TestBed.createComponent(ViewTimelineComponent);
+    const fixture = TestBed.createComponent(ViewLogbuchComponent);
     const service = TestBed.inject(DayRhythmService);
     service.days.set([entryWithMorning]);
     fixture.detectChanges();

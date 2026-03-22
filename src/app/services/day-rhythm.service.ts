@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class DayRhythmService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.proxyUrl}/api/days`;
+  private readonly baseUrl = `${environment.proxyUrl}/api/logbuch`;
 
   readonly days = signal<DayEntry[]>([]);
 
@@ -44,7 +44,10 @@ export class DayRhythmService {
 
   private load(): void {
     this.http.get<DayEntry[]>(this.baseUrl).subscribe({
-      next: days => this.days.set(days),
+      next: days => {
+        this.days.set(days);
+        this.ensureToday();
+      },
       error: err => console.error('Failed to load days:', err),
     });
   }

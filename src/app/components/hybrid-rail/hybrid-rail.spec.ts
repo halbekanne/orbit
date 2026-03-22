@@ -20,7 +20,7 @@ describe('HybridRailComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll('button');
     expect(buttons.length).toBe(2);
     expect(buttons[0].textContent).toContain('Arbeit');
-    expect(buttons[1].textContent).toContain('Timeline');
+    expect(buttons[1].textContent).toContain('Logbuch');
   });
 
   it('should mark the active view with aria-current', () => {
@@ -40,7 +40,7 @@ describe('HybridRailComponent', () => {
     fixture.componentInstance.viewChange.subscribe(spy);
     const buttons = fixture.nativeElement.querySelectorAll('button');
     buttons[1].click();
-    expect(spy).toHaveBeenCalledWith('timeline');
+    expect(spy).toHaveBeenCalledWith('logbuch');
   });
 
   it('should navigate with arrow keys', () => {

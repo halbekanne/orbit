@@ -3,12 +3,12 @@ import { DayRhythmService } from '../../services/day-rhythm.service';
 import { DayEntry } from '../../models/day-entry.model';
 
 @Component({
-  selector: 'app-view-timeline',
+  selector: 'app-view-logbuch',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'flex flex-col h-full' },
-  templateUrl: './view-timeline.html',
+  templateUrl: './view-logbuch.html',
 })
-export class ViewTimelineComponent {
+export class ViewLogbuchComponent {
   protected readonly dayRhythm = inject(DayRhythmService);
   private readonly todayISO = new Date().toISOString().split('T')[0];
 
