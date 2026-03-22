@@ -3,6 +3,7 @@ import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
     }).compileComponents();
@@ -10,8 +11,31 @@ describe('App', () => {
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('should default to arbeit view', () => {
+    const fixture = TestBed.createComponent(App);
+    expect(fixture.componentInstance.activeView()).toBe('arbeit');
+  });
+
+  it('should render the hybrid rail', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const rail = fixture.nativeElement.querySelector('app-hybrid-rail');
+    expect(rail).toBeTruthy();
+  });
+
+  it('should persist active view to localStorage', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.componentInstance.activeView.set('timeline');
+    TestBed.tick();
+    expect(localStorage.getItem('orbit.activeView')).toBe('timeline');
+  });
+
+  it('should restore active view from localStorage', () => {
+    localStorage.setItem('orbit.activeView', 'timeline');
+    const fixture = TestBed.createComponent(App);
+    expect(fixture.componentInstance.activeView()).toBe('timeline');
+  });
 });
