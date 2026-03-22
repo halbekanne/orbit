@@ -104,7 +104,7 @@ function formatGermanDate(): string {
             @if (!isMorning()) {
               @if (entry()?.morningFocus) {
                 <div class="mb-6 border-l-[3px] border-indigo-300 pl-4">
-                  <p class="font-serif italic text-xs text-indigo-400 mb-1">{{ entry()!.morningQuestion }}</p>
+                  <p class="font-serif italic text-sm text-indigo-400 mb-1">{{ entry()!.morningQuestion }}</p>
                   <p class="font-serif italic text-base text-stone-600 leading-relaxed">{{ entry()!.morningFocus }}</p>
                 </div>
               }
@@ -200,53 +200,78 @@ function formatGermanDate(): string {
         </div>
       }
       @case ('readonly') {
-        <div class="h-full flex items-start justify-center pt-12 px-6 anim-readonly-in">
-          <div class="w-full max-w-[460px]">
-            <header class="mb-8 text-center">
+        <div class="h-full flex items-center justify-center px-6 anim-readonly-in">
+          <div class="w-full max-w-[520px]">
+            <header class="mb-10 text-center">
               @if (readonlyMorning()) {
-                <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="w-11 h-11 text-indigo-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
                 </svg>
-                <h1 class="text-xl font-semibold text-stone-900">Tagesfokus</h1>
+                <h1 class="text-2xl font-semibold text-stone-900">Tagesfokus</h1>
               } @else {
-                <svg class="w-9 h-9 text-amber-500 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="w-11 h-11 text-amber-500 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
                 </svg>
-                <h1 class="text-xl font-semibold text-stone-900">Tagesreflektion</h1>
+                <h1 class="text-2xl font-semibold text-stone-900">Tagesreflektion</h1>
               }
-              <p class="text-sm text-stone-400 mt-1">{{ formattedDate() }}</p>
+              <p class="text-sm text-stone-400 mt-1.5">{{ formattedDate() }}</p>
             </header>
 
-            @if (readonlyQuestion()) {
-              <div class="mb-4" [class]="readonlyMorning() ? 'border-l-[3px] border-indigo-400 pl-4' : 'border-l-[3px] border-amber-400 pl-4'">
-                <p class="font-serif italic text-sm text-stone-500">
-                  {{ readonlyQuestion() }}
+            @if (readonlyMorning()) {
+              <div class="mb-5 border-l-[3px] border-indigo-300 pl-5">
+                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                  {{ entry()?.morningQuestion }}
                 </p>
               </div>
-            }
+              @if (entry()?.morningFocus) {
+                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                    {{ entry()!.morningFocus }}
+                  </p>
+                </div>
+              }
+            } @else {
+              @if (entry()?.morningFocus) {
+                <div class="mb-5 border-l-[3px] border-indigo-300 pl-5">
+                  <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                    {{ entry()!.morningQuestion }}
+                  </p>
+                </div>
+                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                    {{ entry()!.morningFocus }}
+                  </p>
+                </div>
+              }
 
-            @if (readonlyAnswer()) {
-              <div class="bg-stone-50 rounded-xl p-5 mb-6">
-                <p class="font-serif italic text-base text-stone-700">
-                  {{ readonlyAnswer() }}
+              @if (completedItems().length > 0) {
+                <div class="mb-8">
+                  <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">Heute geschafft</h2>
+                  <ul class="space-y-2.5" role="list">
+                    @for (item of completedItems(); track item.id) {
+                      <li class="flex items-center gap-2.5 text-sm text-stone-600">
+                        <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                        {{ item.title }}
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <div class="mb-5 border-l-[3px] border-amber-300 pl-5">
+                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                  {{ entry()?.eveningQuestion }}
                 </p>
               </div>
-            }
-
-            @if (!readonlyMorning() && completedItems().length > 0) {
-              <div class="mt-6">
-                <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">Heute geschafft</h2>
-                <ul class="space-y-2" role="list">
-                  @for (item of completedItems(); track item.id) {
-                    <li class="flex items-center gap-2 text-sm text-stone-600">
-                      <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M20 6 9 17l-5-5"/>
-                      </svg>
-                      {{ item.title }}
-                    </li>
-                  }
-                </ul>
-              </div>
+              @if (entry()?.eveningReflection) {
+                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                    {{ entry()!.eveningReflection }}
+                  </p>
+                </div>
+              }
             }
           </div>
         </div>
