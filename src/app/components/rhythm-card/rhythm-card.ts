@@ -61,7 +61,7 @@ const GERMAN_WEEKDAYS = [
         class="pl-4 pr-3 pt-2.5 pb-2.5 transition-opacity duration-250"
         [style.opacity]="animating() ? 0 : 1"
       >
-        @switch (phase()) {
+        @switch (displayPhase()) {
           @case ('morning-open') {
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-indigo-500">Tagesfokus</span>
@@ -84,11 +84,11 @@ const GERMAN_WEEKDAYS = [
                 <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
               </svg>
               <div class="min-w-0">
-                @if (entry()?.morningQuestion) {
-                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ entry()!.morningQuestion }}</p>
+                @if (displayEntry()?.morningQuestion) {
+                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ displayEntry()!.morningQuestion }}</p>
                 }
-                @if (entry()?.morningFocus) {
-                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ entry()!.morningFocus }}</p>
+                @if (displayEntry()?.morningFocus) {
+                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ displayEntry()!.morningFocus }}</p>
                 }
               </div>
             </div>
@@ -115,11 +115,11 @@ const GERMAN_WEEKDAYS = [
                 <path d="M20 6 9 17l-5-5"/>
               </svg>
               <div class="min-w-0">
-                @if (entry()?.eveningQuestion) {
-                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ entry()!.eveningQuestion }}</p>
+                @if (displayEntry()?.eveningQuestion) {
+                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ displayEntry()!.eveningQuestion }}</p>
                 }
-                @if (entry()?.eveningReflection) {
-                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ entry()!.eveningReflection }}</p>
+                @if (displayEntry()?.eveningReflection) {
+                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ displayEntry()!.eveningReflection }}</p>
                 }
                 @if (completionChips().length) {
                   <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -145,8 +145,8 @@ const GERMAN_WEEKDAYS = [
         [class]="animating() ? 'z-10' : '-z-10'"
         [style.width]="animating() ? overlayWidth() : '4px'"
         [style.opacity]="animating() ? 1 : 0"
-        [class.bg-indigo-500]="phase() === 'morning-open' || phase() === 'morning-filled'"
-        [class.bg-stone-800]="phase() === 'evening-open' || phase() === 'evening-filled'"
+        [class.bg-indigo-500]="displayPhase() === 'morning-open' || displayPhase() === 'morning-filled'"
+        [class.bg-stone-800]="displayPhase() === 'evening-open' || displayPhase() === 'evening-filled'"
         aria-hidden="true"
       >
         <svg
@@ -179,13 +179,25 @@ export class RhythmCardComponent {
   private readonly rhythm = inject(DayRhythmService);
 
   readonly phase = computed(() => this.rhythm.rhythmPhase());
-  readonly entry = computed(() => this.rhythm.todayEntry());
+  readonly displayPhase = signal(this.rhythm.rhythmPhase());
+  readonly displayEntry = signal(this.rhythm.todayEntry());
   readonly weekday = computed(() => GERMAN_WEEKDAYS[new Date().getDay()]);
 
   readonly hovered = signal(false);
   readonly animating = signal(false);
 
   constructor() {
+    effect(() => {
+      const p = this.rhythm.rhythmPhase();
+      const e = this.rhythm.todayEntry();
+      if (!untracked(() => this.animating())) {
+        untracked(() => {
+          this.displayPhase.set(p);
+          this.displayEntry.set(e);
+        });
+      }
+    });
+
     let lastTrigger = this.rhythm.cardAnimationTrigger();
     effect(() => {
       const trigger = this.rhythm.cardAnimationTrigger();
@@ -203,7 +215,7 @@ export class RhythmCardComponent {
   private readonly checkmarkEl = viewChild<ElementRef<SVGElement>>('checkmark');
 
   readonly completionChips = computed(() => {
-    const items = this.entry()?.completedItems ?? [];
+    const items = this.displayEntry()?.completedItems ?? [];
     const chips: { label: string; cls: string }[] = [];
     const todos = items.filter(i => i.type === 'todo' || i.type === 'ticket').length;
     const prs = items.filter(i => i.type === 'pr').length;
@@ -226,7 +238,7 @@ export class RhythmCardComponent {
     if (this.selected()) {
       return 'bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200/80';
     }
-    switch (this.phase()) {
+    switch (this.displayPhase()) {
       case 'morning-open':
         return 'bg-gradient-to-br from-indigo-50/80 to-white ring-1 ring-indigo-200/50 hover:ring-indigo-300';
       case 'morning-filled':
@@ -241,7 +253,7 @@ export class RhythmCardComponent {
   });
 
   readonly stripeClass = computed(() => {
-    switch (this.phase()) {
+    switch (this.displayPhase()) {
       case 'morning-open':
         return 'bg-gradient-to-b from-indigo-400 to-indigo-300';
       case 'morning-filled':
@@ -256,29 +268,28 @@ export class RhythmCardComponent {
   });
 
   readonly pulseAnimation = computed(() => {
-    const phase = this.phase();
+    const phase = this.displayPhase();
     if (phase === 'morning-open') return 'var(--pulse-animation, gentlePulse 3s ease-in-out infinite)';
     if (phase === 'evening-open') return 'var(--pulse-animation, gentlePulseAmber 3s ease-in-out infinite)';
     return 'none';
   });
 
   readonly ariaLabel = computed(() => {
-    switch (this.phase()) {
+    switch (this.displayPhase()) {
       case 'morning-open':
         return 'Tagesfokus setzen';
       case 'morning-filled':
-        return `Tagesfokus: ${this.entry()?.morningFocus ?? ''}`;
+        return `Tagesfokus: ${this.displayEntry()?.morningFocus ?? ''}`;
       case 'evening-open':
         return 'Tagesreflektion starten';
       case 'evening-filled':
-        return `Tag abgeschlossen: ${this.entry()?.eveningReflection ?? ''}`;
+        return `Tag abgeschlossen: ${this.displayEntry()?.eveningReflection ?? ''}`;
       default:
         return 'Tagesfokus';
     }
   });
 
   playSubmitAnimation(): void {
-    const isEvening = this.phase() === 'evening-open';
     this.animating.set(true);
     this.checkmarkHidden.set(true);
     this.checkmarkVisible.set(false);
@@ -289,11 +300,16 @@ export class RhythmCardComponent {
     }, 50);
 
     setTimeout(() => {
+      this.displayPhase.set(this.rhythm.rhythmPhase());
+      this.displayEntry.set(this.rhythm.todayEntry());
+    }, 350);
+
+    setTimeout(() => {
       this.checkmarkHidden.set(false);
       requestAnimationFrame(() => {
         this.checkmarkVisible.set(true);
       });
-    }, 350);
+    }, 400);
 
     setTimeout(() => {
       this.checkmarkVisible.set(false);
