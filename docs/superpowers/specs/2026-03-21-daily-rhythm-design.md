@@ -84,94 +84,116 @@ Two separate pools, each with 15-20 questions. A question is selected randomly p
 
 Questions are stored as constants in a dedicated file. The selection algorithm tracks recently used questions in `localStorage` to ensure variety.
 
-## Morning Flow
+## Rhythm Card (Navigator Integration)
 
-### Trigger
+The daily rhythm is surfaced as a special card at the very top of the navigator sidebar, above all work-item sections. This card lives alongside tickets, PRs, and todos — the user can browse other items first and come back to fill in the focus when ready. No forced overlays, no context switching.
 
-On app initialization, check if a `DayEntry` for today exists with `morningAnsweredAt !== null`. If not, show the morning flow.
+### Card States
 
-### Precedence Rule
+The card transitions through four visual states during the day:
 
-The morning flow always takes priority over the evening nudge. If the app is opened after 17:00 and the morning was never completed, show the morning flow first. The evening nudge only appears once the morning flow has been completed or skipped for the current day.
+| State | Visual | Left Stripe | Icon | When |
+|-------|--------|-------------|------|------|
+| **Morning open** | Indigo gradient bg, pulsing border | Indigo gradient (4px) | Sun ☀ | No morning focus set |
+| **Morning filled** | White bg, indigo border | Solid indigo (4px) | Sun ☀ | Morning focus saved |
+| **Evening open** | Amber gradient bg, pulsing border | Amber gradient (4px) | Moon 🌙 | After 15:00, morning done, no evening reflection |
+| **Evening filled** | White bg, stone border | Indigo→Amber gradient (4px) | Checkmark ✓ | Both morning and evening complete |
 
-### UI: Full-Screen Overlay
+### Card Content by State
 
-The morning flow takes over the entire content area (right of the Hybrid Rail). It is not a modal — it replaces the active view content temporarily.
+**Morning open:** Label "TAGESFOKUS" + weekday + CTA "Fokus setzen →". No question shown (question appears only in detail view).
 
-```
-┌────┬─────────────────────────────────────────┐
-│    │                                         │
-│ ⚡ │     Guten Morgen! 👋                    │
-│Arb │                                         │
-│    │     « rotierende Frage »                │
-│ 📅 │                                         │
-│Time│     ┌─────────────────────────────────┐ │
-│    │     │ Freitext-Eingabe               │ │
-│    │     │                                 │ │
-│    │     └─────────────────────────────────┘ │
-│    │                                         │
-│    │     [Tag starten]        [Überspringen] │
-│    │                                         │
-└────┴─────────────────────────────────────────┘
-```
+**Morning filled:** Label "TAGESFOKUS" + weekday + question text (italic, Instrument Serif) + answer text.
 
-- Greeting: "Guten Morgen!" (or time-appropriate: "Guten Tag!" after 12:00)
-- The rotating question is displayed prominently
-- Textarea for free-text focus (2-3 lines, auto-growing)
-- "Tag starten" saves the entry and dismisses the flow
-- "Überspringen" dismisses without saving (entry remains with empty morning fields)
-- After dismissal, the previously active view is shown
+**Evening open:** Label "TAGESREFLEKTION" + weekday + CTA "Tag reflektieren →". No question shown.
 
-### Design
+**Evening filled:** Label "TAG ABGESCHLOSSEN" + weekday + question text + answer text + completion chips (e.g. "2 Aufgaben", "1 PR").
 
-- Centered content, max-width ~500px, generous whitespace
-- Warm, calm styling — background `bg-stone-50`, text `text-stone-800`
-- Question in slightly larger font, `text-lg` or `text-xl`, `text-stone-600`
-- No distracting elements — this should feel like a quiet moment
+### Card Visual Distinction
 
-## Evening Nudge
+The rhythm card is visually distinct from work-item cards:
+- **4px stripe** (vs 3px on tickets) — slightly bolder
+- **Gradient background** when open (vs flat white)
+- **Instrument Serif** for question/answer text — journalhafte Anmutung
+- **Subtle pulsing border glow** when open — draws attention without being disruptive, stops on hover
+- **Rounded 10px** (vs 8px on tickets) — softer, more personal
 
-### Trigger
+### Card Interaction
 
-After 17:00, if `eveningAnsweredAt` is null for today and the morning flow has been completed or skipped, show a toast/banner. The check runs on a periodic interval (every 5 minutes) while the app is open.
+Clicking the rhythm card selects it (like any other navigator item). The workbench then shows the rhythm detail view.
 
-### UI: Toast Banner
+### Transition from Morning to Evening
 
-A non-intrusive banner at the bottom or top of the screen:
+At 15:00, if the morning has been completed/skipped and the evening has not been completed, the card visually transitions from the morning-filled state to the evening-open state. This is checked via a `currentHour` signal updated by `setInterval` every 5 minutes.
+
+The card itself serves as the evening nudge — no separate toast component is needed. The amber gradient background and pulsing border naturally draw the user's attention.
+
+## Rhythm Detail View (Workbench)
+
+When the rhythm card is selected, the workbench shows a centered detail view. The content depends on the card state.
+
+### Input View (morning or evening open)
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  🌅  Wie war dein Tag? → Tagesreflexion starten  ✕  │
-└─────────────────────────────────────────────────────┘
+┌────┬──────────┬──────────────────────────────────┐
+│    │ [rhythm] │                                   │
+│ ⚡ │ [ticket] │    ☀ Tagesfokus                   │
+│Arb │ [ticket] │    Sonntag, 22. März 2026         │
+│    │ [ticket] │                                   │
+│ 📅 │ [todos]  │    « rotierende Frage (Serif) »   │
+│Time│          │                                   │
+│    │          │    ┌──────────────────────────┐   │
+│    │          │    │ Freitext-Eingabe        │   │
+│    │          │    └──────────────────────────┘   │
+│    │          │                                   │
+│    │          │    [Fokus setzen]  [Überspringen] │
+│    │          │                                   │
+└────┴──────────┴──────────────────────────────────┘
 ```
 
-- Dismissible (✕ button) — once dismissed, does not reappear until the next day
-- Clicking "Tagesreflexion starten" opens the evening flow
-- Subtle animation on appearance (slide in from bottom, ≤150ms)
-- Persists dismissed state in `localStorage` for the current day
+- Centered content, max-width ~460px, generous whitespace
+- Header: Icon (sun/moon) + title + date
+- Question in Instrument Serif italic with indigo/amber gradient accent line
+- Textarea for free text (placeholder: "Dein Fokus für heute..." / "Deine Gedanken zum Tag...")
+- "Fokus setzen" / "Abschließen" button (indigo for morning, stone-800 for evening)
+- "Überspringen" secondary button
+- Escape key triggers skip
 
-### Evening Flow UI
-
-Same layout as morning flow, but with different content:
-
-- Heading: "Feierabend!" or "Zeit für einen Rückblick"
-- Shows the day's completions as a visual summary before the question
-- The rotating evening question
-- Textarea for reflection
-- "Abschließen" saves, "Überspringen" dismisses
-
-### Completion Summary (shown in evening flow)
-
-```
-Heute erledigt:
-✓ COBI-1234 Auth-Token Migration     (Ticket)
-✓ PR #42 reviewed                     (PR)
-✓ Unit Tests schreiben                (Todo)
-✓ Slack-Nachricht an Team             (Todo)
-```
-
+For the evening input view, a completion summary is shown above the question:
 - Lists all `completedItems` for the day
 - If empty: "Kein Problem — nicht jeder Tag ist ein Produktivitätstag." (supportive, non-blaming)
+
+### Read-Only View (morning or evening filled)
+
+Same layout as input view but without the textarea and buttons. Shows question + answer in read-only form. The answer is displayed in an Instrument Serif card with subtle stone background.
+
+For the evening filled view, the completion summary ("Heute geschafft") is shown below the answer with individual items and timestamps.
+
+## Submit Animation ("Fokus-Moment")
+
+When the user submits the morning focus or evening reflection, a choreographed animation plays across both the detail view and the navigator card (~4 seconds total). This provides the dopamine-closing reward.
+
+### Detail View Animation Sequence
+
+1. **Form fade-out** (0–400ms): The input form fades out and slides up slightly
+2. **Success circle pop** (550ms): An indigo circle (morning) or stone circle (evening) pops in at center with spring easing
+3. **Checkmark draw** (850ms): A white checkmark draws itself inside the circle
+4. **"Fokus gesetzt!" text** (1200ms): Success text fades in below the circle in Instrument Serif
+5. **Hold** (1200–2600ms): The success message stays visible for ~1.4s
+6. **Fade out** (2600ms): Success overlay fades out
+7. **Read-only view fade-in** (3050ms): The filled detail view slides in from below
+
+### Navigator Card Animation Sequence (starts at 1600ms, slightly after detail)
+
+1. **Content fade-out** (1600ms): Card content and header fade out
+2. **Stripe expand** (1600ms): The 4px stripe expands to cover the entire card with indigo/amber fill
+3. **Checkmark draw** (2100ms): A white checkmark draws itself centered on the expanded stripe
+4. **Stripe collapse** (2800ms): Checkmark fades, stripe collapses back to 4px. **Important:** The checkmark SVG must be set to `display: none` after fading out to prevent it from overlaying the new content.
+5. **Content swap** (3200ms): Card header fades back in, new content (question + answer) slides up into view. Card visual state switches (e.g. `rhythm-open` → `rhythm-filled`).
+
+### Timing Principle
+
+The two animations are **staggered, not simultaneous**: detail view leads (primary focus), navigator card follows (peripheral perception). This avoids sensory overload while still creating a cohesive moment.
 
 ## Timeline View
 
@@ -249,28 +271,29 @@ export class DayRhythmService {
 
 ## Accessibility
 
-- Morning/evening flows: focus is trapped within the flow while open
+- Rhythm card: `aria-pressed` for selection state, descriptive `aria-label` (e.g. "Tagesfokus: noch nicht ausgefüllt")
 - Textarea has visible label (the question serves as label, connected via `aria-labelledby`)
-- Toast banner: `role="status"` with `aria-live="polite"`
 - Timeline: day cards are `<article>` elements with date as heading
 - All interactive elements have focus-visible styles
-- Skip link or Escape to dismiss morning flow
+- Escape key triggers skip in the detail input view
+- Submit animation: purely decorative, does not block keyboard interaction — the read-only view receives focus after the animation completes
 
 ## Scope Boundaries
 
 **In scope:**
 - `DayRhythmService` with `days.json` persistence
-- Morning flow (auto-trigger, question, free text, save/skip)
-- Evening nudge (toast, 17:00 trigger, dismissible)
-- Evening flow (completion summary, question, free text, save/skip)
+- Rhythm card component (navigator integration, 4 visual states, pulsing animation)
+- Rhythm detail component (input view, read-only view, success animation)
+- Submit animation (stripe-expand + checkmark on card, success-flash on detail)
 - Timeline view (scrollable day cards)
 - Question pools (15 morning, 15 evening)
 - Completed item tracking hooks in existing services
+- Card transition from morning to evening (at 15:00, via `currentHour` signal)
 
 **Out of scope:**
 - Streaks or streak visualization
 - Achievements triggered by daily rhythm usage
 - Weekly/monthly aggregation views
 - Export or sharing of timeline data
-- Customizable evening nudge time (hardcoded 17:00 for now, configurable later)
+- Customizable evening transition time (hardcoded 15:00 for now, configurable later)
 - Progress bar / momentum meter

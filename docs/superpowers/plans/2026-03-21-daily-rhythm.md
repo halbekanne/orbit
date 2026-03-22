@@ -4,13 +4,13 @@
 
 **Goal:** Build a daily rhythm system with morning focus prompt, evening reflection nudge, completion tracking, and a journal-style Timeline view.
 
-**Architecture:** A `DayRhythmService` manages `DayEntry` objects persisted to `~/.orbit/days.json`. Morning and evening flows are standalone components rendered conditionally by `AppComponent`. The Timeline view replaces the placeholder in the Hybrid Rail. Question pools are static constants with localStorage-based rotation tracking.
+**Architecture:** A `DayRhythmService` manages `DayEntry` objects persisted to `~/.orbit/days.json`. The daily rhythm is surfaced via a `RhythmCardComponent` at the top of the navigator sidebar (integrated like tickets/PRs/todos). Clicking the card shows a `RhythmDetailComponent` in the workbench with input or read-only view. Submitting triggers a choreographed animation across both card and detail (~4s). The card transitions through 4 states during the day: morning-open → morning-filled → evening-open → evening-filled. No separate overlay or toast components. Question pools are static constants with localStorage-based rotation tracking.
 
 **Tech Stack:** Angular 21 (standalone, zoneless, signals), Tailwind CSS, Vitest, Instrument Serif font
 
 **Spec:** `docs/superpowers/specs/2026-03-21-daily-rhythm-design.md`
 
-**Design Mockups:** `.superpowers/brainstorm/84490-1774128488/morning-flow.html`, `evening-nudge-and-flow.html`, `timeline-view-v2.html`
+**Design Mockups:** `.superpowers/brainstorm/84490-1774128488/rhythm-cards.html` (card states), `focus-moment.html` (submit animation), `timeline-view-v2.html` (timeline)
 
 **Prerequisite:** Hybrid Rail Navigation must be implemented first (provides the view switching infrastructure and ViewTimelineComponent placeholder).
 
@@ -22,22 +22,22 @@
 |--------|------|----------------|
 | Create | `src/app/models/day-entry.model.ts` | DayEntry, CompletedItem interfaces |
 | Create | `src/app/data/daily-questions.ts` | Morning + evening question pools, selection algorithm |
-| Create | `src/app/services/day-rhythm.service.ts` | Core service: persistence, completions, morning/evening save |
+| Create | `src/app/services/day-rhythm.service.ts` | Core service: persistence, completions, morning/evening save, rhythm phase |
 | Create | `src/app/services/day-rhythm.service.spec.ts` | Service tests |
-| Create | `src/app/components/morning-flow/morning-flow.ts` | Morning greeting + question + textarea overlay |
-| Create | `src/app/components/morning-flow/morning-flow.spec.ts` | Morning flow tests |
-| Create | `src/app/components/evening-nudge/evening-nudge.ts` | Toast banner component |
-| Create | `src/app/components/evening-nudge/evening-nudge.spec.ts` | Nudge tests |
-| Create | `src/app/components/evening-flow/evening-flow.ts` | Evening reflection + completions overlay |
-| Create | `src/app/components/evening-flow/evening-flow.spec.ts` | Evening flow tests |
+| Create | `src/app/components/rhythm-card/rhythm-card.ts` | Navigator card with 4 visual states + stripe-expand animation |
+| Create | `src/app/components/rhythm-card/rhythm-card.spec.ts` | Card tests |
+| Create | `src/app/components/rhythm-detail/rhythm-detail.ts` | Workbench detail view: input form, read-only view, success animation |
+| Create | `src/app/components/rhythm-detail/rhythm-detail.spec.ts` | Detail tests |
 | Modify | `src/app/views/view-timeline/view-timeline.ts` | Replace placeholder with journal timeline |
 | Create | `src/app/views/view-timeline/view-timeline.spec.ts` | Timeline view tests |
-| Modify | `src/app/app.ts` | Wire up morning flow, evening nudge, evening flow |
-| Modify | `src/app/app.html` | Add morning/evening overlays and nudge toast |
+| Create | `src/app/views/view-timeline/view-timeline.html` | Timeline template with journal layout |
+| Modify | `src/app/components/navigator/navigator.ts` | Add RhythmCardComponent import, rhythm card at top |
+| Modify | `src/app/components/navigator/navigator.html` | Add rhythm card section above tickets |
+| Modify | `src/app/components/workbench/workbench.ts` | Add RhythmDetailComponent import, handle 'rhythm' item type |
+| Modify | `src/app/components/workbench/workbench.html` | Add @case for rhythm detail view |
 | Modify | `src/app/services/todo.service.ts:84-93` | Hook into update() to record todo completions |
 | Modify | `src/app/services/work-data.service.ts` | Track ticket status changes to record ticket completions |
-| Create | `src/app/views/view-timeline/view-timeline.html` | Timeline template with journal layout |
-| Modify | `src/styles.css` | Import Instrument Serif, add stagger animations |
+| Modify | `src/styles.css` | Import Instrument Serif, add stagger + card animations |
 
 ---
 
@@ -299,6 +299,20 @@ export class DayRhythmService {
     return entry.eveningAnsweredAt === null;
   });
 
+  // Accepts a reactive currentHour signal from the app (updated by setInterval)
+  // to determine when the card should transition from morning-filled to evening-open.
+  readonly currentHour = signal(new Date().getHours());
+
+  // Determines which of the 4 card states to show:
+  // 'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'
+  readonly rhythmPhase = computed<'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'>(() => {
+    const entry = this.todayEntry();
+    if (!entry || entry.morningAnsweredAt === null) return 'morning-open';
+    if (entry.eveningAnsweredAt !== null) return 'evening-filled';
+    if (this.currentHour() >= 15 && entry.morningAnsweredAt !== null) return 'evening-open';
+    return 'morning-filled';
+  });
+
   constructor() {
     this.load();
   }
@@ -397,12 +411,10 @@ git commit -m "feat(daily-rhythm): add DayRhythmService with persistence and com
 
 ---
 
-### Task 3: Morning Flow component
+### Task 3: Global styles (Instrument Serif + animations)
 
 **Files:**
-- Create: `src/app/components/morning-flow/morning-flow.ts`
-- Create: `src/app/components/morning-flow/morning-flow.spec.ts`
-- Modify: `src/styles.css` (add Instrument Serif import and stagger animations)
+- Modify: `src/styles.css`
 
 - [ ] **Step 1: Add Instrument Serif font and animations to global styles**
 
@@ -416,394 +428,228 @@ Append to `src/styles.css`:
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes handWave {
-  0%, 100% { transform: rotate(0deg); }
-  15% { transform: rotate(14deg); }
-  30% { transform: rotate(-8deg); }
-  45% { transform: rotate(14deg); }
-  60% { transform: rotate(-4deg); }
-  75% { transform: rotate(10deg); }
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.04), 0 2px 8px rgba(99,102,241,0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(99,102,241,0.08), 0 2px 12px rgba(99,102,241,0.1); }
+}
+
+@keyframes gentlePulseAmber {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(251,191,36,0.04), 0 2px 8px rgba(251,191,36,0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(251,191,36,0.08), 0 2px 12px rgba(251,191,36,0.1); }
+}
+
+@keyframes stripeExpand {
+  0% { width: 4px; }
+  100% { width: 100%; }
+}
+
+@keyframes stripeCollapse {
+  0% { width: 100%; }
+  100% { width: 4px; }
+}
+
+@keyframes drawCheck {
+  0% { stroke-dashoffset: 36; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes successCirclePop {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes successCheckDraw {
+  0% { stroke-dashoffset: 44; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes successTextFade {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @layer utilities {
   .stagger { opacity: 0; animation: fadeUp 0.5s ease-out both; }
   .font-serif { font-family: 'Instrument Serif', Georgia, serif; }
-  .wave { display: inline-block; animation: handWave 2s ease-in-out 0.6s 1; transform-origin: 70% 70%; }
 }
 ```
 
-- [ ] **Step 2: Write the test file**
+- [ ] **Step 2: Commit**
+
+```bash
+git add src/styles.css
+git commit -m "feat(daily-rhythm): add Instrument Serif font and rhythm animations to global styles"
+```
+
+---
+
+### Task 4: RhythmCardComponent (navigator card)
+
+**Files:**
+- Create: `src/app/components/rhythm-card/rhythm-card.ts`
+- Create: `src/app/components/rhythm-card/rhythm-card.spec.ts`
+
+This is the special card at the top of the navigator that transitions through 4 states during the day. It includes the stripe-expand + checkmark animation triggered from the outside.
+
+- [ ] **Step 1: Write the test file**
 
 ```typescript
-// src/app/components/morning-flow/morning-flow.spec.ts
+// src/app/components/rhythm-card/rhythm-card.spec.ts
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { MorningFlowComponent } from './morning-flow';
+import { RhythmCardComponent } from './rhythm-card';
 
-describe('MorningFlowComponent', () => {
+describe('RhythmCardComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [MorningFlowComponent],
+      imports: [RhythmCardComponent],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
+    const fixture = TestBed.createComponent(RhythmCardComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should display a greeting', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
+  it('should show morning-open state with CTA when no morning focus set', () => {
+    const fixture = TestBed.createComponent(RhythmCardComponent);
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent;
-    expect(text).toMatch(/Guten (Morgen|Tag)/);
+    expect(text).toContain('Tagesfokus');
+    expect(text).toContain('Fokus setzen');
   });
 
-  it('should display a question', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
-    fixture.detectChanges();
-    const question = fixture.nativeElement.querySelector('[data-testid="morning-question"]');
-    expect(question?.textContent?.trim().length).toBeGreaterThan(0);
-  });
-
-  it('should emit save with focus text on submit', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
+  it('should emit select on click', () => {
+    const fixture = TestBed.createComponent(RhythmCardComponent);
     fixture.detectChanges();
     const spy = vi.fn();
-    fixture.componentInstance.complete.subscribe(spy);
-    fixture.componentInstance.focusText.set('Mein Fokus');
-    const btn = fixture.nativeElement.querySelector('[data-testid="btn-start"]');
-    btn.click();
+    fixture.componentInstance.select.subscribe(spy);
+    fixture.nativeElement.querySelector('button').click();
     expect(spy).toHaveBeenCalled();
-  });
-
-  it('should emit skip on skip button', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
-    fixture.detectChanges();
-    const spy = vi.fn();
-    fixture.componentInstance.skip.subscribe(spy);
-    const btn = fixture.nativeElement.querySelector('[data-testid="btn-skip"]');
-    btn.click();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it('should have textarea with aria-labelledby pointing to question', () => {
-    const fixture = TestBed.createComponent(MorningFlowComponent);
-    fixture.detectChanges();
-    const textarea = fixture.nativeElement.querySelector('textarea');
-    const labelId = textarea.getAttribute('aria-labelledby');
-    expect(labelId).toBeTruthy();
-    const label = fixture.nativeElement.querySelector(`#${labelId}`);
-    expect(label).toBeTruthy();
   });
 });
 ```
 
-- [ ] **Step 3: Run tests to verify they fail**
+- [ ] **Step 2: Run tests to verify they fail**
 
 Run: `npx ng test --no-watch`
 Expected: FAIL — component does not exist yet.
 
-- [ ] **Step 4: Implement MorningFlowComponent**
+- [ ] **Step 3: Implement RhythmCardComponent**
 
-```typescript
-// src/app/components/morning-flow/morning-flow.ts
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { pickMorningQuestion } from '../../data/daily-questions';
+The component reads from `DayRhythmService` and exposes a `rhythmPhase` computed that determines which of the 4 states to render. It has a public `playSubmitAnimation()` method that can be called by the parent to trigger the stripe-expand + checkmark animation.
 
-@Component({
-  selector: 'app-morning-flow',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
-  host: {
-    class: 'flex-1 flex items-center justify-center bg-stone-50 relative overflow-hidden',
-    '(keydown.escape)': 'skip.emit()',
-  },
-  template: `
-    <div class="max-w-[480px] w-full px-8">
-      <div class="font-serif text-[32px] text-stone-800 mb-1 stagger" style="animation-delay:0.2s">
-        {{ greeting() }} <span class="wave">👋</span>
-      </div>
-      <div class="text-sm text-stone-400 font-medium mb-8 stagger" style="animation-delay:2.6s">
-        {{ dateString() }}
-      </div>
+Key design points from the validated mockup (`.superpowers/brainstorm/84490-1774128488/rhythm-cards.html`):
+- 4px left stripe (gradient for open states, solid for filled)
+- Gradient background for open states (indigo-50 for morning, amber-50 for evening), white for filled
+- Subtle pulsing border glow for open states (`gentlePulse` / `gentlePulseAmber`), stops on hover
+- Sun icon for morning, moon icon for evening, checkmark for day-complete
+- Instrument Serif italic for question and answer text
+- Weekday displayed in top-right corner
+- Completion chips (emerald for tasks, indigo for PRs) in evening-filled state
+- `selected` input for visual selection state (like ticket cards)
+- `select` output emitted on click
 
-      <div
-        id="morning-q"
-        data-testid="morning-question"
-        class="font-serif text-[22px] italic text-stone-600 leading-relaxed mb-5 pl-4 relative stagger"
-        style="animation-delay:2.8s"
-      >
-        <span class="absolute left-0 top-1 bottom-1 w-[3px] rounded-sm bg-gradient-to-b from-indigo-400 to-indigo-200" aria-hidden="true"></span>
-        {{ question }}
-      </div>
+The stripe-expand animation:
+1. Card content + header fade to opacity 0 (250ms)
+2. A `stripe-expand` overlay div transitions `width` from 4px to 100% with `cubic-bezier(0.22, 1, 0.36, 1)` (500ms)
+3. A white SVG checkmark (`stroke-dasharray: 36; stroke-dashoffset: 36`) draws itself via `drawCheck` animation (350ms)
+4. After a hold, checkmark fades to opacity 0 and **must be set to `display: none`** to prevent overlaying new content
+5. Stripe collapses back to 4px (400ms)
+6. Card content swaps to filled state and fades in via `fadeInUp` (450ms)
 
-      <textarea
-        class="w-full min-h-[80px] p-3.5 border border-stone-200 rounded-xl bg-white text-[15px] text-stone-800 leading-relaxed resize-none outline-none transition-all duration-150 shadow-sm focus:border-indigo-400 focus:ring-3 focus:ring-indigo-500/[0.08] placeholder:text-stone-300 stagger"
-        style="animation-delay:3.0s"
-        placeholder="Dein Fokus für heute..."
-        aria-labelledby="morning-q"
-        [(ngModel)]="focusText"
-        rows="3"
-      ></textarea>
-
-      <div class="mt-4 flex items-center justify-between stagger" style="animation-delay:3.2s">
-        <button
-          type="button"
-          data-testid="btn-start"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-semibold cursor-pointer transition-all duration-150 shadow-sm hover:bg-indigo-700 hover:-translate-y-px hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="onSubmit()"
-        >
-          Tag starten
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
-        <button
-          type="button"
-          data-testid="btn-skip"
-          class="px-4 py-2.5 text-stone-400 text-sm font-medium rounded-lg cursor-pointer transition-all duration-120 hover:text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="skip.emit()"
-        >
-          Überspringen
-        </button>
-      </div>
-    </div>
-  `,
-})
-export class MorningFlowComponent {
-  complete = output<{ focus: string; question: string }>();
-  skip = output<void>();
-
-  readonly question = pickMorningQuestion();
-  focusText = signal('');
-
-  greeting = signal(new Date().getHours() < 12 ? 'Guten Morgen' : 'Guten Tag');
-
-  dateString = signal(
-    new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-  );
-
-  onSubmit(): void {
-    this.complete.emit({ focus: this.focusText(), question: this.question });
-  }
-}
-```
-
-- [ ] **Step 5: Run tests to verify they pass**
+- [ ] **Step 4: Run tests to verify they pass**
 
 Run: `npx ng test --no-watch`
-Expected: All MorningFlowComponent tests PASS.
+Expected: All RhythmCardComponent tests PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/app/components/morning-flow/ src/styles.css
-git commit -m "feat(daily-rhythm): add MorningFlowComponent with staggered animations"
+git add src/app/components/rhythm-card/
+git commit -m "feat(daily-rhythm): add RhythmCardComponent with 4 states and stripe-expand animation"
 ```
 
 ---
 
-### Task 4: Evening Nudge component (toast)
+### Task 5: RhythmDetailComponent (workbench detail view)
 
 **Files:**
-- Create: `src/app/components/evening-nudge/evening-nudge.ts`
-- Create: `src/app/components/evening-nudge/evening-nudge.spec.ts`
+- Create: `src/app/components/rhythm-detail/rhythm-detail.ts`
+- Create: `src/app/components/rhythm-detail/rhythm-detail.spec.ts`
+
+This component is shown in the workbench when the rhythm card is selected. It has two modes: **input** (form with question + textarea + submit/skip) and **read-only** (question + answer display). On submit, it plays the success-flash animation before transitioning to read-only, and emits an event so the parent can trigger the card animation in parallel.
 
 - [ ] **Step 1: Write the test file**
 
 ```typescript
-// src/app/components/evening-nudge/evening-nudge.spec.ts
-import { TestBed } from '@angular/core/testing';
-import { EveningNudgeComponent } from './evening-nudge';
-
-describe('EveningNudgeComponent', () => {
-  beforeEach(async () => {
-    localStorage.clear();
-    await TestBed.configureTestingModule({
-      imports: [EveningNudgeComponent],
-    }).compileComponents();
-  });
-
-  it('should create', () => {
-    const fixture = TestBed.createComponent(EveningNudgeComponent);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
-
-  it('should emit startReflection on action click', () => {
-    const fixture = TestBed.createComponent(EveningNudgeComponent);
-    fixture.detectChanges();
-    const spy = vi.fn();
-    fixture.componentInstance.startReflection.subscribe(spy);
-    const btn = fixture.nativeElement.querySelector('[data-testid="nudge-action"]');
-    btn.click();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it('should emit dismiss on close click', () => {
-    const fixture = TestBed.createComponent(EveningNudgeComponent);
-    fixture.detectChanges();
-    const spy = vi.fn();
-    fixture.componentInstance.dismiss.subscribe(spy);
-    const btn = fixture.nativeElement.querySelector('[data-testid="nudge-close"]');
-    btn.click();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it('should have role=status for accessibility', () => {
-    const fixture = TestBed.createComponent(EveningNudgeComponent);
-    fixture.detectChanges();
-    const toast = fixture.nativeElement.querySelector('[role="status"]');
-    expect(toast).toBeTruthy();
-  });
-});
-```
-
-- [ ] **Step 2: Run tests to verify they fail**
-
-Run: `npx ng test --no-watch`
-
-- [ ] **Step 3: Implement EveningNudgeComponent**
-
-```typescript
-// src/app/components/evening-nudge/evening-nudge.ts
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
-
-@Component({
-  selector: 'app-evening-nudge',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class: 'fixed bottom-5 left-1/2 -translate-x-1/2 z-50',
-    style: 'animation: toastSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;',
-  },
-  template: `
-    <div
-      role="status"
-      aria-live="polite"
-      class="flex items-center gap-3 bg-stone-800 text-white px-5 pl-5 py-3 rounded-2xl shadow-lg whitespace-nowrap"
-      style="box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.08);"
-    >
-      <span class="text-lg leading-none shrink-0">🌅</span>
-      <span class="text-sm font-medium">Wie war dein Tag?</span>
-      <button
-        type="button"
-        data-testid="nudge-action"
-        class="text-sm font-semibold text-indigo-400 px-3 py-1.5 rounded-lg transition-all duration-120 hover:bg-indigo-500/15 hover:text-indigo-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
-        (click)="startReflection.emit()"
-      >
-        Tagesreflexion starten →
-      </button>
-      <button
-        type="button"
-        data-testid="nudge-close"
-        class="text-stone-500 p-1 rounded-md transition-all duration-120 hover:text-stone-300 hover:bg-white/[0.08] cursor-pointer shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
-        aria-label="Schließen"
-        (click)="dismiss.emit()"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-  `,
-})
-export class EveningNudgeComponent {
-  startReflection = output<void>();
-  dismiss = output<void>();
-}
-```
-
-- [ ] **Step 4: Add toastSlideUp animation to global styles**
-
-Append to `src/styles.css`:
-
-```css
-@keyframes toastSlideUp {
-  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-```
-
-- [ ] **Step 5: Run tests to verify they pass**
-
-Run: `npx ng test --no-watch`
-Expected: All EveningNudgeComponent tests PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add src/app/components/evening-nudge/ src/styles.css
-git commit -m "feat(daily-rhythm): add EveningNudgeComponent toast banner"
-```
-
----
-
-### Task 5: Evening Flow component
-
-**Files:**
-- Create: `src/app/components/evening-flow/evening-flow.ts`
-- Create: `src/app/components/evening-flow/evening-flow.spec.ts`
-
-- [ ] **Step 1: Write the test file**
-
-```typescript
-// src/app/components/evening-flow/evening-flow.spec.ts
+// src/app/components/rhythm-detail/rhythm-detail.spec.ts
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { EveningFlowComponent } from './evening-flow';
+import { RhythmDetailComponent } from './rhythm-detail';
 
-describe('EveningFlowComponent', () => {
+describe('RhythmDetailComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [EveningFlowComponent],
+      imports: [RhythmDetailComponent],
       providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
+    const fixture = TestBed.createComponent(RhythmDetailComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should display greeting', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
+  it('should show input form when morning is not filled', () => {
+    const fixture = TestBed.createComponent(RhythmDetailComponent);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Feierabend');
+    const textarea = fixture.nativeElement.querySelector('textarea');
+    expect(textarea).toBeTruthy();
   });
 
-  it('should display a question', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
+  it('should have textarea with aria-labelledby', () => {
+    const fixture = TestBed.createComponent(RhythmDetailComponent);
     fixture.detectChanges();
-    const question = fixture.nativeElement.querySelector('[data-testid="evening-question"]');
-    expect(question?.textContent?.trim().length).toBeGreaterThan(0);
+    const textarea = fixture.nativeElement.querySelector('textarea');
+    const labelId = textarea?.getAttribute('aria-labelledby');
+    expect(labelId).toBeTruthy();
+    const label = fixture.nativeElement.querySelector(`#${labelId}`);
+    expect(label).toBeTruthy();
   });
 
-  it('should show empty state when no completions', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Produktivitätstag');
-  });
-
-  it('should emit complete on submit', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
+  it('should emit submitted event on submit', () => {
+    const fixture = TestBed.createComponent(RhythmDetailComponent);
     fixture.detectChanges();
     const spy = vi.fn();
-    fixture.componentInstance.complete.subscribe(spy);
-    fixture.componentInstance.reflectionText.set('Guter Tag');
-    const btn = fixture.nativeElement.querySelector('[data-testid="btn-finish"]');
-    btn.click();
+    fixture.componentInstance.submitted.subscribe(spy);
+    const textarea = fixture.nativeElement.querySelector('textarea');
+    textarea.value = 'Mein Fokus';
+    textarea.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    const btn = fixture.nativeElement.querySelector('[data-testid="btn-submit"]');
+    btn?.click();
     expect(spy).toHaveBeenCalled();
   });
 
-  it('should emit skip on skip button', () => {
-    const fixture = TestBed.createComponent(EveningFlowComponent);
+  it('should emit skipped event on skip', () => {
+    const fixture = TestBed.createComponent(RhythmDetailComponent);
     fixture.detectChanges();
     const spy = vi.fn();
-    fixture.componentInstance.skip.subscribe(spy);
+    fixture.componentInstance.skipped.subscribe(spy);
     const btn = fixture.nativeElement.querySelector('[data-testid="btn-skip"]');
-    btn.click();
+    btn?.click();
     expect(spy).toHaveBeenCalled();
   });
 });
@@ -813,127 +659,46 @@ describe('EveningFlowComponent', () => {
 
 Run: `npx ng test --no-watch`
 
-- [ ] **Step 3: Implement EveningFlowComponent**
+- [ ] **Step 3: Implement RhythmDetailComponent**
 
-```typescript
-// src/app/components/evening-flow/evening-flow.ts
-import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DayRhythmService } from '../../services/day-rhythm.service';
-import { pickEveningQuestion } from '../../data/daily-questions';
-import { CompletedItem } from '../../models/day-entry.model';
+The component reads `DayRhythmService.todayEntry()` and the `rhythmPhase` to decide what to show. Key design points from the validated mockup (`.superpowers/brainstorm/84490-1774128488/focus-moment.html`):
 
-@Component({
-  selector: 'app-evening-flow',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
-  host: {
-    class: 'flex-1 flex items-center justify-center bg-stone-50 relative overflow-hidden',
-    '(keydown.escape)': 'skip.emit()',
-  },
-  template: `
-    <div class="max-w-[520px] w-full px-8">
-      <div class="font-serif text-[32px] text-stone-800 mb-1 stagger" style="animation-delay:0.2s">
-        Feierabend! 🌅
-      </div>
-      <div class="text-sm text-stone-400 font-medium mb-7 stagger" style="animation-delay:2.6s">
-        Zeit für einen Rückblick auf deinen Tag.
-      </div>
+**Input view (morning or evening open):**
+- Centered content, max-width ~460px, generous whitespace, `bg-stone-50` background
+- Header: icon (sun 36px indigo / moon 36px amber) + "Tagesfokus" / "Tagesreflektion" + date
+- Question in Instrument Serif italic 20px with indigo/amber gradient accent line (3px, left)
+- Textarea with rounded-xl, focus ring matching phase color
+- "Fokus setzen" / "Abschließen" primary button + "Überspringen" secondary
+- For evening: completion summary above the question (stone-100/60 rounded box, green checks)
+- Escape key triggers skip
 
-      <div class="mb-7 stagger" style="animation-delay:2.8s">
-        <div class="p-3.5 bg-stone-100/60 rounded-xl">
-          <div class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            Heute erledigt
-            @if (completions().length > 0) {
-              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 rounded">{{ completions().length }}</span>
-            }
-          </div>
-          @if (completions().length === 0) {
-            <p class="text-sm text-stone-400 italic">Kein Problem — nicht jeder Tag ist ein Produktivitätstag.</p>
-          } @else {
-            @for (item of completions(); track item.id) {
-              <div class="flex items-center gap-2 py-1">
-                <div class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                </div>
-                <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
-                <span class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0">{{ item.type }}</span>
-              </div>
-            }
-          }
-        </div>
-      </div>
+**Read-only view (morning or evening filled):**
+- Same header layout
+- Question displayed (Instrument Serif italic 16px, with accent line)
+- Answer in a white card with stone-50 bg, rounded-xl, Instrument Serif italic 18px
+- For evening: "Heute geschafft" list below with items + timestamps
 
-      <div
-        id="evening-q"
-        data-testid="evening-question"
-        class="font-serif text-[22px] italic text-stone-600 leading-relaxed mb-4 pl-4 relative stagger"
-        style="animation-delay:3.2s"
-      >
-        <span class="absolute left-0 top-1 bottom-1 w-[3px] rounded-sm bg-gradient-to-b from-amber-400 to-amber-300" aria-hidden="true"></span>
-        {{ question }}
-      </div>
+**Success animation (triggered on submit):**
+1. Form fades out + slides up (400ms)
+2. Indigo circle pops in at center (550ms, `successCirclePop`)
+3. White checkmark draws itself (850ms, `successCheckDraw` 500ms)
+4. "Fokus gesetzt!" / "Reflektion gespeichert!" text fades in (1200ms, Instrument Serif)
+5. Holds for ~1.4s
+6. Flash fades out (2600ms, 500ms)
+7. Read-only view fades in (3050ms, `fadeInUp` 600ms)
 
-      <textarea
-        class="w-full min-h-[72px] p-3.5 border border-stone-200 rounded-xl bg-white text-[15px] text-stone-800 leading-relaxed resize-none outline-none transition-all duration-150 shadow-sm focus:border-amber-400 focus:ring-3 focus:ring-amber-400/10 placeholder:text-stone-300 stagger"
-        style="animation-delay:3.5s"
-        placeholder="Deine Gedanken zum Tag..."
-        aria-labelledby="evening-q"
-        [(ngModel)]="reflectionText"
-        rows="3"
-      ></textarea>
-
-      <div class="mt-4 flex items-center justify-between stagger" style="animation-delay:3.8s">
-        <button
-          type="button"
-          data-testid="btn-finish"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-800 text-white rounded-lg text-sm font-semibold cursor-pointer transition-all duration-150 shadow-sm hover:bg-stone-900 hover:-translate-y-px hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="onSubmit()"
-        >
-          Abschließen
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-        </button>
-        <button
-          type="button"
-          data-testid="btn-skip"
-          class="px-4 py-2.5 text-stone-400 text-sm font-medium rounded-lg cursor-pointer transition-all duration-120 hover:text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="skip.emit()"
-        >
-          Überspringen
-        </button>
-      </div>
-    </div>
-  `,
-})
-export class EveningFlowComponent {
-  complete = output<{ reflection: string; question: string }>();
-  skip = output<void>();
-
-  private readonly dayRhythm = inject(DayRhythmService);
-
-  readonly question = pickEveningQuestion();
-  reflectionText = signal('');
-
-  readonly completions = signal<CompletedItem[]>(
-    this.dayRhythm.todayEntry()?.completedItems ?? []
-  );
-
-  onSubmit(): void {
-    this.complete.emit({ reflection: this.reflectionText(), question: this.question });
-  }
-}
-```
+The component emits `submitted` at the start of the animation (not at the end) so the parent can trigger the card animation in parallel.
 
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `npx ng test --no-watch`
-Expected: All EveningFlowComponent tests PASS.
+Expected: All RhythmDetailComponent tests PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/app/components/evening-flow/
-git commit -m "feat(daily-rhythm): add EveningFlowComponent with completion summary"
+git add src/app/components/rhythm-detail/
+git commit -m "feat(daily-rhythm): add RhythmDetailComponent with input/readonly views and success animation"
 ```
 
 ---
@@ -1304,139 +1069,71 @@ git commit -m "feat(daily-rhythm): detect and track ticket completions on status
 
 ---
 
-### Task 9: Wire everything into AppComponent
+### Task 9: Wire rhythm card into Navigator and rhythm detail into Workbench
 
 **Files:**
+- Modify: `src/app/components/navigator/navigator.ts`
+- Modify: `src/app/components/navigator/navigator.html`
+- Modify: `src/app/components/workbench/workbench.ts`
+- Modify: `src/app/components/workbench/workbench.html`
 - Modify: `src/app/app.ts`
-- Modify: `src/app/app.html`
 
-- [ ] **Step 1: Update AppComponent class**
+- [ ] **Step 1: Add RhythmCardComponent to Navigator**
 
-Add morning/evening flow state management. The morning flow shows when `needsMorning()` is true. The evening nudge shows after 17:00 when `needsEvening()` is true and not dismissed. The evening flow shows when the user clicks "Tagesreflexion starten".
+In `navigator.ts`, import `RhythmCardComponent` and `DayRhythmService`. Add the rhythm card section to `navigator.html` above the tickets section — separated by a gradient divider.
 
-Add imports for `MorningFlowComponent`, `EveningFlowComponent`, `EveningNudgeComponent`, and `DayRhythmService`. Add signals: `showEveningFlow`, `nudgeDismissed`. Add an interval check for the evening nudge trigger. Add handler methods for morning/evening complete and skip events.
-
-```typescript
-// Key additions to AppComponent:
-
-import { MorningFlowComponent } from './components/morning-flow/morning-flow';
-import { EveningFlowComponent } from './components/evening-flow/evening-flow';
-import { EveningNudgeComponent } from './components/evening-nudge/evening-nudge';
-import { DayRhythmService } from './services/day-rhythm.service';
-
-// In class:
-private readonly dayRhythm = inject(DayRhythmService);
-showEveningFlow = signal(false);
-nudgeDismissed = signal(this.isNudgeDismissedToday());
-private nudgeInterval: ReturnType<typeof setInterval> | null = null;
-
-currentHour = signal(new Date().getHours());
-
-showNudge = computed(() => {
-  if (this.nudgeDismissed() || this.showEveningFlow()) return false;
-  if (this.currentHour() < 17) return false;
-  return this.dayRhythm.needsEvening();
-});
-
-constructor() {
-  // existing effect for activeView persistence...
-
-  this.dayRhythm.ensureToday();
-
-  this.nudgeInterval = setInterval(() => {
-    this.currentHour.set(new Date().getHours());
-  }, 5 * 60 * 1000);
-}
-
-onMorningComplete(event: { focus: string; question: string }): void {
-  this.dayRhythm.saveMorning(event.focus, event.question);
-}
-
-onMorningSkip(): void {
-  this.dayRhythm.skipMorning();
-}
-
-onEveningComplete(event: { reflection: string; question: string }): void {
-  this.dayRhythm.saveEvening(event.reflection, event.question);
-  this.showEveningFlow.set(false);
-}
-
-onEveningSkip(): void {
-  this.dayRhythm.skipEvening();
-  this.showEveningFlow.set(false);
-}
-
-onNudgeStart(): void {
-  this.showEveningFlow.set(true);
-}
-
-onNudgeDismiss(): void {
-  this.nudgeDismissed.set(true);
-  const today = new Date().toISOString().split('T')[0];
-  localStorage.setItem('orbit.nudge.dismissed', today);
-}
-
-private isNudgeDismissedToday(): boolean {
-  const today = new Date().toISOString().split('T')[0];
-  return localStorage.getItem('orbit.nudge.dismissed') === today;
-}
-```
-
-- [ ] **Step 2: Update app.html template**
-
-Add morning flow overlay (replaces content when `needsMorning()`), evening flow overlay, and evening nudge toast:
+The rhythm card is treated as a selectable item. When clicked, it emits `selectItem({ type: 'rhythm', id: 'rhythm' })` (or a similar sentinel value) so the workbench can render the detail view. The navigator needs a `ViewChild` reference to the rhythm card so it can call `playSubmitAnimation()` when triggered.
 
 ```html
-<div class="flex h-screen overflow-hidden">
-  <app-hybrid-rail
-    [activeView]="activeView()"
-    (viewChange)="activeView.set($event)"
-  />
-
-  @if (dayRhythm.needsMorning()) {
-    <app-morning-flow
-      class="flex-1 overflow-hidden"
-      (complete)="onMorningComplete($event)"
-      (skip)="onMorningSkip()"
-    />
-  } @else if (showEveningFlow()) {
-    <app-evening-flow
-      class="flex-1 overflow-hidden"
-      (complete)="onEveningComplete($event)"
-      (skip)="onEveningSkip()"
-    />
-  } @else {
-    @switch (activeView()) {
-      @case ('arbeit') {
-        <app-view-arbeit class="flex-1 overflow-hidden" />
-      }
-      @case ('timeline') {
-        <app-view-timeline class="flex-1 overflow-hidden" />
-      }
-    }
-  }
-</div>
-
-@if (showNudge()) {
-  <app-evening-nudge
-    (startReflection)="onNudgeStart()"
-    (dismiss)="onNudgeDismiss()"
-  />
-}
-
-<app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
+<!-- Add at the top of .nav-scroll, before the tickets section -->
+<app-rhythm-card
+  [selected]="isSelected({ type: 'rhythm', id: 'rhythm' })"
+  (select)="selectItem({ type: 'rhythm', id: 'rhythm' })"
+/>
+<div class="h-px mx-4 my-2 bg-gradient-to-r from-transparent via-stone-200 to-transparent"></div>
 ```
 
-- [ ] **Step 3: Run full test suite**
+- [ ] **Step 2: Add RhythmDetailComponent to Workbench**
+
+In `workbench.ts`, import `RhythmDetailComponent`. In `workbench.html`, add a `@case` for the rhythm item type:
+
+```html
+@case ('rhythm') {
+  <app-rhythm-detail
+    (submitted)="onRhythmSubmitted()"
+    (skipped)="onRhythmSkipped()"
+  />
+}
+```
+
+The `submitted` event triggers `DayRhythmService.saveMorning()` or `saveEvening()` (based on current phase), then tells the navigator's rhythm card to play the stripe-expand animation. The `skipped` event calls `skipMorning()` or `skipEvening()`.
+
+- [ ] **Step 3: Ensure DayRhythmService.ensureToday() is called on app init**
+
+In `app.ts`, inject `DayRhythmService` and call `ensureToday()` in the constructor. Also add the `currentHour` signal with 5-minute interval for the evening transition:
+
+```typescript
+private readonly dayRhythm = inject(DayRhythmService);
+currentHour = signal(new Date().getHours());
+
+constructor() {
+  this.dayRhythm.ensureToday();
+  setInterval(() => this.currentHour.set(new Date().getHours()), 5 * 60 * 1000);
+}
+```
+
+The `DayRhythmService` should expose `currentHour` (or accept it as input) so `rhythmPhase` can react to time changes for the morning→evening transition at 15:00.
+
+- [ ] **Step 4: Run full test suite**
 
 Run: `npx ng test --no-watch`
 Expected: All tests pass.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/app/app.ts src/app/app.html
-git commit -m "feat(daily-rhythm): wire morning/evening flows and nudge into AppComponent"
+git add src/app/components/navigator/ src/app/components/workbench/ src/app/app.ts
+git commit -m "feat(daily-rhythm): wire rhythm card into navigator and detail into workbench"
 ```
 
 ---
@@ -1453,23 +1150,26 @@ Expected: All tests pass, zero failures.
 Run: `npm start`
 
 Verify checklist:
-- Morning flow appears automatically on first visit (no entry for today)
-- Greeting shows correct time-of-day variant
-- Question is displayed, textarea works
-- "Tag starten" saves focus and dismisses to normal view
-- "Überspringen" dismisses without saving
-- Staggered fade-in animations play correctly
-- After 17:00: toast nudge appears at bottom
-- Toast "Tagesreflexion starten" opens evening flow
-- Toast "✕" dismisses and doesn't reappear
-- Evening flow shows completed items from the day
-- Evening flow shows supportive message if no completions
-- "Abschließen" saves reflection and returns to normal view
-- Timeline view shows journal entries with questions + answers
-- Timeline shows indigo line for morning, amber for evening
-- Completing a todo records it in today's completions
-- Escape key dismisses morning/evening flows
-- All keyboard navigation and focus management works
+- Rhythm card appears at top of navigator, above tickets section
+- Morning-open state: indigo gradient bg, sun icon, "TAGESFOKUS" label, "Fokus setzen →" CTA, pulsing border
+- Clicking the rhythm card shows the detail view in the workbench
+- Detail view shows question in Instrument Serif italic with indigo accent line
+- Textarea works, submit button is functional
+- On submit: detail view plays success animation (circle pop, checkmark draw, "Fokus gesetzt!", ~4s total)
+- In parallel (slightly delayed): navigator card plays stripe-expand + checkmark animation
+- After animation: card shows question + answer text (morning-filled state)
+- After animation: detail view shows read-only view with question + answer
+- **Critical**: white checkmark SVG is hidden (`display: none`) after card animation — does not overlay text
+- "Überspringen" skips without saving, card transitions to morning-filled (with `skipped` status)
+- After 15:00 with morning done: card transitions to evening-open (amber gradient, moon icon, "TAGESREFLEKTION")
+- Evening detail view shows completion summary + reflection question
+- Evening submit animation works (same choreography, amber colors)
+- Evening-filled state: emerald checkmark icon, "TAG ABGESCHLOSSEN", question + answer + completion chips
+- Timeline view still works with journal entries
+- Completing a todo records it in today's completions and shows in evening summary
+- Escape key triggers skip in detail view
+- Keyboard navigation and focus management works (focus-visible outlines, aria attributes)
+- `prefers-reduced-motion` respected (pulsing animation disabled)
 
 - [ ] **Step 3: Final commit if any fixes were needed**
 
