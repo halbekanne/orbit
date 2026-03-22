@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DayRhythmService } from '../../services/day-rhythm.service';
@@ -287,16 +289,22 @@ export class RhythmDetailComponent {
   readonly formattedDate = computed(() => formatGermanDate());
 
   constructor() {
-    this.initQuestion();
+    this.syncViewState(this.rhythm.rhythmPhase());
+    effect(() => {
+      const phase = this.rhythm.rhythmPhase();
+      untracked(() => this.syncViewState(phase));
+    });
   }
 
-  private initQuestion(): void {
-    const phase = this.rhythm.rhythmPhase();
+  private syncViewState(phase: string): void {
+    if (this.viewState() === 'animating') return;
     if (phase === 'morning-open') {
       this.question.set(pickMorningQuestion());
+      this.textValue.set('');
       this.viewState.set('input');
     } else if (phase === 'evening-open') {
       this.question.set(pickEveningQuestion());
+      this.textValue.set('');
       this.viewState.set('input');
     } else {
       this.viewState.set('readonly');
