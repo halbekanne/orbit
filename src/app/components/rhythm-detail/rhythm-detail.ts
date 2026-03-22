@@ -102,6 +102,12 @@ function formatGermanDate(): string {
             </header>
 
             @if (!isMorning()) {
+              @if (entry()?.morningFocus) {
+                <div class="mb-6 border-l-[3px] border-indigo-300 pl-4">
+                  <p class="text-[10px] font-semibold uppercase tracking-wider text-indigo-400 mb-1">Dein Fokus heute</p>
+                  <p class="font-serif italic text-sm text-stone-500">{{ entry()!.morningFocus }}</p>
+                </div>
+              }
               <div class="mb-8">
                 @if (completedItems().length > 0) {
                   <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">Heute geschafft</h2>
