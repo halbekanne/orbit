@@ -1,16 +1,16 @@
-<div class="flex h-screen bg-stone-50 overflow-hidden">
-  <aside
-    class="w-[360px] xl:w-[400px] shrink-0 border-r border-stone-200 bg-stone-100 overflow-hidden flex flex-col"
-    aria-label="Navigator"
-  >
-    <app-navigator />
-  </aside>
+<div class="flex h-screen overflow-hidden">
+  <app-hybrid-rail
+    [activeView]="activeView()"
+    (viewChange)="activeView.set($event)"
+  />
 
-  <div class="flex-1 overflow-hidden flex">
-    <div class="flex-1 overflow-hidden bg-stone-50">
-      <app-workbench />
-    </div>
-    <app-action-rail />
-  </div>
+  @switch (activeView()) {
+    @case ('arbeit') {
+      <app-view-arbeit class="flex-1 overflow-hidden" />
+    }
+    @case ('timeline') {
+      <app-view-timeline class="flex-1 overflow-hidden bg-stone-50" />
+    }
+  }
 </div>
 <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
