@@ -219,3 +219,62 @@
   stroke-dashoffset: 0;
   animation: check-draw 0.4s ease-out both;
 }
+
+/* ── Daily Rhythm animations ───────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.04), 0 2px 8px rgba(99,102,241,0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(99,102,241,0.08), 0 2px 12px rgba(99,102,241,0.1); }
+}
+
+@keyframes gentlePulseAmber {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(251,191,36,0.04), 0 2px 8px rgba(251,191,36,0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(251,191,36,0.08), 0 2px 12px rgba(251,191,36,0.1); }
+}
+
+@keyframes stripeExpand {
+  0% { width: 4px; }
+  100% { width: 100%; }
+}
+
+@keyframes stripeCollapse {
+  0% { width: 100%; }
+  100% { width: 4px; }
+}
+
+@keyframes drawCheck {
+  0% { stroke-dashoffset: 36; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes successCirclePop {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes successCheckDraw {
+  0% { stroke-dashoffset: 44; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes successTextFade {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .stagger { opacity: 0; animation: fadeUp 0.5s ease-out both; }
+  .font-serif { font-family: 'Instrument Serif', Georgia, serif; }
+}
