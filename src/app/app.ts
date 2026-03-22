@@ -46,8 +46,16 @@ export class App {
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'E') {
       e.preventDefault();
       this.debugEvening = !this.debugEvening;
-      this.dayRhythm.currentHour.set(this.debugEvening ? 16 : new Date().getHours());
-      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON (16:00)' : 'OFF (real time)'}`);
+      if (this.debugEvening) {
+        const entry = this.dayRhythm.todayEntry();
+        if (!entry || entry.morningAnsweredAt === null) {
+          this.dayRhythm.skipMorning();
+        }
+        this.dayRhythm.currentHour.set(16);
+      } else {
+        this.dayRhythm.currentHour.set(new Date().getHours());
+      }
+      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.dayRhythm.rhythmPhase()}`);
       this.appRef.tick();
     }
   }
