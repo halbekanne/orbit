@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { DayRhythmService } from '../../services/day-rhythm.service';
@@ -182,6 +184,17 @@ export class RhythmCardComponent {
 
   readonly hovered = signal(false);
   readonly animating = signal(false);
+
+  constructor() {
+    let lastTrigger = this.rhythm.cardAnimationTrigger();
+    effect(() => {
+      const trigger = this.rhythm.cardAnimationTrigger();
+      if (trigger > lastTrigger) {
+        lastTrigger = trigger;
+        untracked(() => this.playSubmitAnimation());
+      }
+    });
+  }
   readonly overlayWidth = signal('4px');
   readonly checkmarkVisible = signal(false);
   readonly checkmarkHidden = signal(true);

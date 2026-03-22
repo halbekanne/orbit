@@ -339,6 +339,7 @@ export class RhythmDetailComponent {
     setTimeout(() => this.animPhase.set('check'), 550);
     setTimeout(() => this.animPhase.set('text'), 1200);
     setTimeout(() => this.animPhase.set('hold'), 1400);
+    setTimeout(() => this.rhythm.cardAnimationTrigger.update(v => v + 1), 1600);
     setTimeout(() => this.animPhase.set('fade-out'), 2600);
     setTimeout(() => this.viewState.set('readonly'), 3050);
   }

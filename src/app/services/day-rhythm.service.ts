@@ -28,6 +28,7 @@ export class DayRhythmService {
   });
 
   readonly currentHour = signal(new Date().getHours());
+  readonly cardAnimationTrigger = signal(0);
 
   readonly rhythmPhase = computed<'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'>(() => {
     const entry = this.todayEntry();
