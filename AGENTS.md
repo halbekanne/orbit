@@ -63,6 +63,15 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - **Flushing effects:** Use `TestBed.tick()` to flush pending signal effects in tests (`flushEffects()` is deprecated)
 - **Component tests:** Use `TestBed.configureTestingModule({ imports: [MyComponent] })` — no `NgModule` needed
 
+## Development Workflow
+
+- **Always run tests AND build the frontend after making changes:**
+  ```bash
+  npm test -- --no-watch
+  npm run build
+  ```
+  This ensures both code correctness and build integrity.
+
 ---
 
 ## Project Identity
