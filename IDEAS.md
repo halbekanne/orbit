@@ -7,7 +7,6 @@
 ## Hoher Wert / Geringer Aufwand (Quick Wins)
 
 - **Direkte Erstellung von Ideen** — Analog zu Aufgaben bereits gebaut, Pattern kopieren; senkt Hürde für Ideenerfassung (ADHS-kritisch).
-- **Drag-Bereich Subtasks vergrößern** — Reine Hit-Area-Anpassung; behebt tägliche Frustration bei der Nutzung.
 
 ---
 

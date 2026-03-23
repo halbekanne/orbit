@@ -48,12 +48,12 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
           <div
             cdkDrag
             data-testid="subtask-item"
-            class="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-stone-50"
+            class="group flex items-center gap-2 rounded-md ps-1 pe-2 py-1.5 transition-colors hover:bg-stone-50"
             [class]="celebratingId() === subtask.id ? 'celebrating' : ''"
           >
             <div
               cdkDragHandle
-              class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing shrink-0 select-none text-xs"
+              class="opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing shrink-0 select-none text-base px-2 py-1 rounded-md hover:bg-stone-100"
               aria-label="Aufgabe verschieben"
             >⠿</div>
 
