@@ -48,7 +48,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
           <div
             cdkDrag
             data-testid="subtask-item"
-            class="group flex items-center gap-2 rounded-md ps-1 pe-2 py-1.5 transition-colors hover:bg-stone-50"
+            class="group flex items-start gap-2 rounded-md ps-1 pe-2 py-1.5 transition-colors hover:bg-stone-50"
             [class]="celebratingId() === subtask.id ? 'celebrating' : ''"
           >
             <div
@@ -60,7 +60,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             <button
               type="button"
               data-testid="subtask-checkbox"
-              class="st-checkbox w-4 h-4 rounded border-2 transition-colors flex items-center justify-center shrink-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+              class="st-checkbox w-4 h-4 rounded border-2 transition-colors flex items-center justify-center shrink-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 mt-2"
               [class]="subtask.status === 'done' ? 'bg-emerald-500 border-emerald-500' : 'border-stone-300 hover:border-indigo-400'"
               (click)="toggleSubtask(i, $event)"
               [attr.aria-label]="subtask.status === 'done' ? 'Als offen markieren' : 'Als erledigt markieren'"
@@ -75,7 +75,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             @if (editingIndex() === i) {
               <input
                 type="text"
-                class="flex-1 text-sm text-stone-800 bg-transparent border-b-2 border-indigo-400 focus:outline-none py-0.5"
+                class="flex-1 text-sm text-stone-800 bg-transparent border-b-2 border-indigo-400 focus:outline-none mt-1.5"
                 [value]="editDraft()"
                 (input)="editDraft.set($any($event.target).value)"
                 (blur)="saveEdit(i)"
@@ -84,7 +84,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
               />
             } @else {
               <span
-                class="flex-1 text-sm cursor-pointer py-0.5 transition-colors"
+                class="flex-1 text-sm cursor-pointer mt-1.5 transition-colors"
                 [class]="subtask.status === 'done' ? 'line-through text-stone-400' : 'text-stone-800 hover:text-indigo-700'"
                 (click)="startEdit(i)"
                 tabindex="0"
