@@ -142,3 +142,8 @@ export interface Idea {
 }
 
 export type WorkItem = JiraTicket | PullRequest | Todo | Idea;
+
+export interface FocusTarget {
+  id: string;
+  type: 'ticket' | 'pr' | 'todo' | 'idea';
+}
