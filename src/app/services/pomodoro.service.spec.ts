@@ -91,6 +91,8 @@ describe('PomodoroService', () => {
 
   it('loads default durations from localStorage', () => {
     localStorage.setItem('orbit.pomodoro.defaults', JSON.stringify({ focusMinutes: 45, breakMinutes: 10 }));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [PomodoroService] });
     const freshService = TestBed.inject(PomodoroService);
     expect(freshService.defaultFocusMinutes()).toBe(45);
     expect(freshService.defaultBreakMinutes()).toBe(10);
