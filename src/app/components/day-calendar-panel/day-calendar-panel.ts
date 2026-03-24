@@ -73,6 +73,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
       <div class="flex-1 overflow-y-auto">
         <app-day-timeline
           [appointments]="service.appointments()"
+          [pomodoroBlock]="pomodoro.timelineBlock()"
           (appointmentCreate)="onCreateRequest($event)"
           (appointmentEdit)="onEditRequest($event)"
           (appointmentUpdate)="onResizeUpdate($event)"

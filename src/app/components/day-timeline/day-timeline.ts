@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   afterNextRender,
+  computed,
   inject,
   input,
   output,
@@ -160,6 +161,25 @@ interface DragState {
     .resize-handle-bottom {
       bottom: -2px;
     }
+    .pomodoro-block {
+      position: absolute;
+      left: 58px;
+      right: 8px;
+      border: 2px dashed #818cf8;
+      border-radius: 8px;
+      background: rgba(238, 242, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .pomodoro-block-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6366f1;
+      opacity: 0.8;
+    }
   `],
   template: `
     <div
@@ -205,6 +225,12 @@ interface DragState {
         </div>
       }
 
+      @if (pomodoroBlockStyle(); as style) {
+        <div class="pomodoro-block" [style.top]="style.top" [style.height]="style.height">
+          <span class="pomodoro-block-label">Fokus</span>
+        </div>
+      }
+
       @if (dragPreview() !== null) {
         <div
           class="drag-preview"
@@ -227,9 +253,22 @@ interface DragState {
 })
 export class DayTimelineComponent implements OnInit, OnDestroy {
   appointments = input<DayAppointment[]>([]);
+  readonly pomodoroBlock = input<{ startTime: string; endTime: string } | null>(null);
   appointmentCreate = output<{ startTime: string; endTime: string }>();
   appointmentEdit = output<DayAppointment>();
   appointmentUpdate = output<DayAppointment>();
+
+  readonly pomodoroBlockStyle = computed(() => {
+    const block = this.pomodoroBlock();
+    if (!block) return null;
+    const startMins = timeToMinutes(block.startTime);
+    const endMins = Math.min(timeToMinutes(block.endTime), END_HOUR * 60);
+    const clampedStart = Math.max(startMins, START_HOUR * 60);
+    if (clampedStart >= END_HOUR * 60) return null;
+    const top = minutesToPx(clampedStart);
+    const height = minutesToPx(endMins) - top;
+    return { top: `${top}px`, height: `${Math.max(height, 4)}px` };
+  });
 
   protected readonly START_HOUR = START_HOUR;
   protected readonly END_HOUR = END_HOUR;
