@@ -90,8 +90,8 @@ Focus question → "Weiter" (saves focus, no animation) → Calendar setup → "
 
 1. User answers the focus question, clicks "Weiter" (replaces "Fokus setzen")
 2. Focus is saved quietly (no animation yet)
-3. `RhythmDetailComponent` transitions to a new `'calendar-setup'` view state
-4. Calendar setup shows `DayTimelineComponent` in a centered layout with header "Tagesplan erstellen"
+3. Smooth transition to the calendar step: the focus content fades out and slides up gently, then the calendar content fades in and slides up from below. The transition should feel like turning a page in a journal — unhurried, ~400ms, ease-out. This keeps the morning flow feeling like a single mindful moment rather than a multi-step wizard.
+4. Calendar setup shows `DayTimelineComponent` in a centered layout with header "Tagesplan erstellen" and a calming subtitle that sets the tone (e.g., "Wie sieht dein Tag heute aus?")
 5. User creates appointments via drag-to-create, edits them, etc.
 6. "Fertig" button completes the morning flow → celebration animation plays → readonly state
 7. "Überspringen" button skips the calendar step → animation plays → readonly state
