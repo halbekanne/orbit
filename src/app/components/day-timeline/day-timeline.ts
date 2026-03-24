@@ -15,7 +15,7 @@ import { DayAppointment } from '../../models/day-schedule.model';
 const START_HOUR = 8;
 const END_HOUR = 17;
 const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
-const HOUR_HEIGHT = 80;
+const HOUR_HEIGHT = 120;
 const PADDING_TOP = 8;
 const GRID_HEIGHT = (END_HOUR - START_HOUR) * HOUR_HEIGHT + PADDING_TOP * 2;
 
@@ -78,10 +78,10 @@ interface DragState {
     }
     .hour-label {
       width: 36px;
-      font-size: 9px;
+      font-size: 11px;
       color: #a8a29e;
       line-height: 1;
-      transform: translateY(-4px);
+      transform: translateY(-5px);
       text-align: right;
       padding-right: 6px;
     }
