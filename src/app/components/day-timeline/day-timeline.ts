@@ -62,13 +62,13 @@ interface DragState {
       content: '';
       position: absolute;
       top: 0;
-      left: 36px;
+      left: 44px;
       right: 0;
       border-top: 1px solid #d6d3d1;
     }
     .quarter-line {
       position: absolute;
-      left: 36px;
+      left: 44px;
       right: 0;
       border-top: 1px solid #f0efed;
     }
@@ -77,17 +77,17 @@ interface DragState {
       border-top-color: #e7e5e4;
     }
     .hour-label {
-      width: 36px;
+      width: 44px;
       font-size: 11px;
       color: #a8a29e;
       line-height: 1;
       transform: translateY(-5px);
       text-align: right;
-      padding-right: 6px;
+      padding-right: 8px;
     }
     .appointment-block {
       position: absolute;
-      left: 38px;
+      left: 46px;
       right: 4px;
       background: #eef2ff;
       border: 1px solid #c7d2fe;
@@ -103,7 +103,7 @@ interface DragState {
     }
     .current-time-line {
       position: absolute;
-      left: 36px;
+      left: 44px;
       right: 4px;
       height: 2px;
       background: #ef4444;
@@ -121,7 +121,7 @@ interface DragState {
     }
     .drag-preview {
       position: absolute;
-      left: 38px;
+      left: 46px;
       right: 4px;
       background: #eef2ff80;
       border: 2px dashed #818cf8;
@@ -131,7 +131,7 @@ interface DragState {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       color: #6366f1;
       font-weight: 500;
     }
@@ -197,9 +197,9 @@ interface DragState {
           (dblclick)="appointmentEdit.emit(apt)"
         >
           <div class="resize-handle resize-handle-top" data-resize="top" [attr.data-appointment-id]="apt.id"></div>
-          <div style="padding: 2px 4px; pointer-events: none;">
-            <div style="font-size: 11px; font-weight: 600; color: #4338ca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ apt.title }}</div>
-            <div style="font-size: 10px; color: #6366f1;">{{ apt.startTime }} – {{ apt.endTime }}</div>
+          <div style="padding: 3px 6px; pointer-events: none;">
+            <div style="font-size: 12px; font-weight: 600; color: #4338ca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ apt.title }}</div>
+            <div style="font-size: 11px; color: #6366f1;">{{ apt.startTime }} – {{ apt.endTime }}</div>
           </div>
           <div class="resize-handle resize-handle-bottom" data-resize="bottom" [attr.data-appointment-id]="apt.id"></div>
         </div>
