@@ -5,13 +5,14 @@ import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
 import { DayRhythmService } from './services/day-rhythm.service';
 import { PomodoroProgressBarComponent } from './components/pomodoro-progress-bar/pomodoro-progress-bar';
+import { PomodoroOverlayComponent } from './components/pomodoro-overlay/pomodoro-overlay';
 
 const STORAGE_KEY = 'orbit.activeView';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HybridRailComponent, ViewArbeitComponent, ViewLogbuchComponent, QuickCaptureComponent, PomodoroProgressBarComponent],
+  imports: [HybridRailComponent, ViewArbeitComponent, ViewLogbuchComponent, QuickCaptureComponent, PomodoroProgressBarComponent, PomodoroOverlayComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: {
