@@ -12,6 +12,34 @@
       [selected]="isRhythmSelected()"
       (select)="selectRhythm()"
     />
+
+    @if (focusService.focusedItem(); as focusedItem) {
+      <section aria-labelledby="focus-heading" class="mb-2">
+        <div class="flex items-center gap-2 mb-2 px-1">
+          <span id="focus-heading" class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">🎯 Fokus</span>
+          <div class="flex-1 h-px bg-gradient-to-r from-indigo-200 to-transparent"></div>
+        </div>
+        <ul class="space-y-1.5" role="list">
+          <li>
+            @switch (focusedItem.type) {
+              @case ('ticket') {
+                <app-ticket-card [ticket]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+              }
+              @case ('pr') {
+                <app-pr-card [pr]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+              }
+              @case ('todo') {
+                <app-todo-card [todo]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+              }
+              @case ('idea') {
+                <app-idea-card [idea]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+              }
+            }
+          </li>
+        </ul>
+      </section>
+    }
+
     <div class="h-px mx-1 bg-gradient-to-r from-transparent via-stone-200 to-transparent"></div>
 
     <section aria-labelledby="tickets-heading">
@@ -25,11 +53,11 @@
       >
         <div class="flex items-center gap-2">
           <span id="tickets-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aktuelle Tickets</span>
-          @if (data.tickets().length > 0) {
+          @if (filteredTickets().length > 0) {
             <span
               class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-              [attr.aria-label]="data.tickets().length + ' aktive Tickets'"
-            >{{ data.tickets().length }}</span>
+              [attr.aria-label]="filteredTickets().length + ' aktive Tickets'"
+            >{{ filteredTickets().length }}</span>
           }
         </div>
         <div class="flex items-center gap-2">
@@ -58,7 +86,7 @@
           <p class="px-1 py-2 text-xs text-red-500" role="alert">Tickets konnten nicht geladen werden.</p>
         } @else {
           <ul class="space-y-1.5" role="list">
-            @for (ticket of data.tickets(); track ticket.id) {
+            @for (ticket of filteredTickets(); track ticket.id) {
               <li>
                 <app-ticket-card [ticket]="ticket" [selected]="isSelected(ticket)" (select)="selectItem($event)" />
               </li>
@@ -112,7 +140,7 @@
           <p class="px-1 py-2 text-xs text-red-500" role="alert">Pull Requests konnten nicht geladen werden.</p>
         } @else {
           <ul class="space-y-1.5" role="list">
-            @for (pr of data.pullRequests(); track pr.id) {
+            @for (pr of filteredPullRequests(); track pr.id) {
               <li>
                 <app-pr-card
                   [pr]="pr"
@@ -151,12 +179,12 @@
 
         <ul
           cdkDropList
-          [cdkDropListData]="todoService.openTodos()"
+          [cdkDropListData]="filteredOpenTodos()"
           (cdkDropListDropped)="onTodoDrop($event)"
           class="space-y-1.5"
           role="list"
         >
-          @for (todo of todoService.openTodos(); track todo.id) {
+          @for (todo of filteredOpenTodos(); track todo.id) {
             <li cdkDrag [cdkDragData]="todo">
               <app-todo-card
                 [todo]="todo"
@@ -236,12 +264,12 @@
       <div id="navigator-ideas-content" [hidden]="ideasCollapsed()">
         <ul
           cdkDropList
-          [cdkDropListData]="ideaService.activeIdeas()"
+          [cdkDropListData]="filteredActiveIdeas()"
           (cdkDropListDropped)="onIdeaDrop($event)"
           class="space-y-1.5"
           role="list"
         >
-          @for (idea of ideaService.activeIdeas(); track idea.id) {
+          @for (idea of filteredActiveIdeas(); track idea.id) {
             <li cdkDrag [cdkDragData]="idea">
               <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
             </li>
