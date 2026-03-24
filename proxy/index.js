@@ -134,6 +134,15 @@ app.post('/api/logbuch', async (req, res) => {
   res.json(req.body);
 });
 
+app.get('/api/day-schedule', async (_req, res) => {
+  res.json(await readJson(path.join(ORBIT_DIR, 'day-schedule.json')));
+});
+
+app.post('/api/day-schedule', async (req, res) => {
+  await writeJson(path.join(ORBIT_DIR, 'day-schedule.json'), req.body);
+  res.json(req.body);
+});
+
 const TICKETS_DIR = path.join(ORBIT_DIR, 'tickets');
 
 app.get('/api/tickets/:key', async (req, res) => {
