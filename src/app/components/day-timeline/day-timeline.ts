@@ -43,6 +43,9 @@ interface DragState {
     .grid-container {
       position: relative;
       height: 100%;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      box-sizing: border-box;
     }
     .hour-row {
       position: absolute;
