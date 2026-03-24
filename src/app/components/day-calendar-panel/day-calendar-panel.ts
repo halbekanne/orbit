@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@a
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
 import { ActionRailComponent } from '../action-rail/action-rail';
+import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-config-popup';
 import { DayScheduleService } from '../../services/day-schedule.service';
+import { PomodoroService } from '../../services/pomodoro.service';
 import { DayAppointment } from '../../models/day-schedule.model';
 
 const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
@@ -10,7 +12,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent],
+  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent, PomodoroConfigPopupComponent],
   host: {
     '[class]': 'hostClass()',
   },
@@ -29,16 +31,43 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
     } @else {
       <div class="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <span class="font-semibold text-stone-800 text-sm tracking-wide">Tagesplan</span>
-        <button
-          class="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded p-0.5 transition-colors"
-          (click)="toggleCollapse()"
-          data-testid="collapse-toggle"
-          aria-label="Tagesplan ausblenden"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
+        <div class="flex items-center gap-1">
+          @if (pomodoro.state() === 'idle') {
+            <button
+              class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded p-1 transition-colors text-xs font-medium"
+              (click)="showPomodoroConfig.set(true)"
+              aria-label="Pomodoro starten"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+          } @else if (pomodoro.state() === 'running') {
+            @if (showCancelConfirm()) {
+              <div class="flex items-center gap-1">
+                <span class="text-xs text-stone-500">Abbrechen?</span>
+                <button class="text-xs text-red-600 hover:text-red-800 font-medium px-1" (click)="confirmCancel()">Ja</button>
+                <button class="text-xs text-stone-400 hover:text-stone-600 font-medium px-1" (click)="showCancelConfirm.set(false)">Nein</button>
+              </div>
+            } @else {
+              <button
+                class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors text-xs font-medium"
+                (click)="showCancelConfirm.set(true)"
+                aria-label="Pomodoro abbrechen"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              </button>
+            }
+          }
+          <button
+            class="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded p-0.5 transition-colors"
+            (click)="toggleCollapse()"
+            data-testid="collapse-toggle"
+            aria-label="Tagesplan ausblenden"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
       <app-action-rail class="shrink-0 border-b border-stone-200" />
       <div class="flex-1 overflow-y-auto">
@@ -60,12 +89,22 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         (cancel)="popupState.set(null)"
       />
     }
+
+    @if (showPomodoroConfig()) {
+      <app-pomodoro-config-popup
+        (started)="showPomodoroConfig.set(false)"
+        (cancel)="showPomodoroConfig.set(false)"
+      />
+    }
   `,
 })
 export class DayCalendarPanelComponent {
   readonly service = inject(DayScheduleService);
+  readonly pomodoro = inject(PomodoroService);
 
   readonly collapsed = signal<boolean>(localStorage.getItem(STORAGE_KEY) === 'true');
+  readonly showPomodoroConfig = signal(false);
+  readonly showCancelConfirm = signal(false);
 
   readonly popupState = signal<{ appointment: Partial<DayAppointment>; isNew: boolean } | null>(null);
 
@@ -105,5 +144,10 @@ export class DayCalendarPanelComponent {
   onPopupDelete(id: string): void {
     this.service.deleteAppointment(id);
     this.popupState.set(null);
+  }
+
+  confirmCancel(): void {
+    this.pomodoro.cancel();
+    this.showCancelConfirm.set(false);
   }
 }
