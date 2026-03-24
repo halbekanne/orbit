@@ -26,8 +26,8 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         </svg>
       </button>
     } @else {
-      <div class="flex items-center justify-between px-2 py-2 border-b border-stone-100">
-        <span class="text-xs font-semibold text-stone-900">Tagesplan</span>
+      <div class="flex items-center justify-between px-4 py-3 border-b border-stone-200">
+        <span class="font-semibold text-stone-800 text-sm tracking-wide">Tagesplan</span>
         <button
           class="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded p-0.5 transition-colors"
           (click)="toggleCollapse()"
