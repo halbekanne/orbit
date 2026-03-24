@@ -16,6 +16,7 @@
 - **Pomodoro-Timer** — Kernfeature für ADHS-Fokus, direkt am Nutzungszweck von Orbit; Timer-Logik + UI-Integration braucht Konzeption.
 - **Wartend-Zustand mit Wiedervorlage** — Verhindert, dass Aufgaben im Kopf mitgeschleppt werden (ADHS-Entlastung); braucht Datenhaltung + Reminder-Logik.
 - **Optionen/Settings Panel** — Grundinfrastruktur für viele andere Features (API-Keys, Toggles, Templates); mittel weil UI + Persistenz.
+- **Tages-Terminplan (Zeitstrahl mit Drag & Drop)** — Tagesstruktur ist für ADHS-Gehirne extrem wichtig gegen Zeitblindheit; Drag-to-create braucht solide Interaktionslogik, Persistenz und seitliche Layout-Integration.
 
 ---
 
@@ -45,6 +46,7 @@
 - **Rückgängig-Machen Notizenfeld** — Gutes Safety-Net; Undo-State-Management ist nicht trivial.
 - **Willkommens-Tour** — Wichtig für Onboarding neuer Nutzer; aber aktuell wenige User, lohnt sich erst später.
 - **Notizenfeld größer** — Einfache Änderung, aber Wert begrenzt da Editor-Komfort nur ein kleiner Teil der UX ist.
+- **Dark Mode** — Orbit ist ganztägig offen, hilft bei Augenbelastung; aber aktuelles Warm-Stone-Design ist bereits augenschonend. Alle Komponenten brauchen durchgängige `dark:`-Varianten.
 
 ---
 
@@ -113,3 +115,7 @@ Hier sind meine Gedanken, Punkte, Ideen, in beliebiger Reihenfolge:
 - Spotify-Integration: Man kann eine Playlist o.ä. wählen, die abgespielt wird und hat einen Mini-Player, oder es synchronisiert sich mit dem Promodoro Timer und man hat für Fokus und Pausen andere Musik, irgendwie so?
 - Mehr Gamification: Das ist noch nicht ganz klar, wie kann das aussehen? Vllt. ein Level-System, Challenges, Rewards? Oder doch zu verspielt und einfach too much? Vllt. auch unnötig, nicht ganz klar, müsste man mal explorieren.
 - Bug im Logbuch, es steht ich habe "x weitere" Sachen erledigt aber ich kann es nicht aufklappen, ich würde das feature dass max. 3 Sachen angezeigt werden einfach erstmal entfernen, es sollen einfach alle Sachen die man geschafft hat angezeigt werden.
+- Am Anfang des Tages soll man seine Termine auf einem Zeitstrahl / Tagesanzeige per Drag & Drop ziehen können. Also ich sehe den Zeitstrahl, mache drag & drop darauf, es       
+  bildet sich ein Kasten der die Zeit angibt. Beim Loslassen werde ich direkt gefragt wie der Termin heißt. So ist eine Blitzschnelle Anlage von einem Tagesplan möglich. Der Tages-Terminplan soll dann die    
+  ganze Zeit z.B. am rechten Rand der Anwendung einblendbar sein. Keine Wochenansicht, keine Monatsansicht, nur die Tagesansicht. In der Reflektion kann man auch sehen, welche Termine man hatte. Keine        
+  Einbettung per API von externen Kalendern.
