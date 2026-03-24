@@ -35,10 +35,16 @@ A simple toggle that marks one work item as "what I'm working on right now." Pur
 - The focus section is not collapsible — it's always visible when an item is focused.
 - When no item is focused, the section is not rendered at all.
 
+### Edge Cases
+
+- **Focused item disappears from source:** If a focused Jira ticket is no longer returned by the API (moved to Done, reassigned, etc.), the focus is automatically cleared. No notification needed — the section simply disappears.
+- **Focus removal and selection:** When "Fokus entfernen" is clicked, the item remains selected in the workbench. Only the focus promotion is removed.
+
 ### Data Model
 
 - `FocusService` (providedIn: root)
 - Single signal holding the focused item's ID and type (e.g. `{ id: string, type: 'ticket' | 'pr' | 'todo' | 'idea' }`) or `null`.
+- The navigator resolves the full work item by looking up the ID across the relevant service (`WorkDataService` for tickets/PRs, `TodoService` for tasks, `IdeaService` for ideas). If the lookup returns nothing, focus is cleared.
 - Persisted to localStorage.
 
 ---
@@ -74,6 +80,7 @@ idle → running → break → idle
   - Break duration: number input, default 5 minutes.
   - "Starten" button.
 - Default durations are remembered (persisted to localStorage) so the user only configures once.
+- The popup can be dismissed without starting by pressing Escape or clicking outside (same pattern as the existing appointment popup).
 - On start: timer begins, timeline block appears, progress bar starts filling.
 
 ### During a Focus Session
@@ -84,6 +91,7 @@ idle → running → break → idle
 - Shows the duration label inside the block.
 - Only the **focus block** renders — no break block on the timeline.
 - The existing red current-time indicator line moves through it.
+- If the session extends past the timeline's `END_HOUR` (17:00), the block is clipped at the grid boundary. The progress bar at the top still shows the full session progress.
 
 #### Top Progress Bar
 - A thin bar (3–4px tall) at the very top of the entire app, above all other content.
@@ -98,6 +106,7 @@ idle → running → break → idle
 - While running, the start button in the Tagesplan panel transforms to **"Pomodoro abbrechen"**.
 - Clicking it shows a brief confirmation: **"Pomodoro abbrechen?"** with yes/no.
 - On cancel: progress bar disappears, timeline block is removed, timer returns to idle.
+- When the Tagesplan panel is collapsed, the cancel button is not accessible. The user must expand the panel to cancel. This is acceptable since canceling is a rare action and the panel expands with one click.
 
 ### Focus Time Ends
 
@@ -132,7 +141,7 @@ idle → running → break → idle
   - Putting hands behind head (relaxing pose)
   - Looking around
   - Stretching
-- The animations are slow, gentle, and looping — no sudden movements.
+- The animations are slow, gentle, and looping — no sudden movements. Animation cycles should be 8–12 seconds minimum with `ease-in-out` easing.
 - **Twinkling stars** in the background, subtle **nebula clouds** drifting.
 - Subtext: **"Schwerelos treiben lassen …"**
 
@@ -165,6 +174,13 @@ idle → running → break → idle
 - Default durations persisted to localStorage.
 - No backend dependency.
 
+### Page Refresh / Recovery Behavior
+- On page load, `PomodoroService` checks localStorage for an active session.
+- **If focus session is still in progress:** Resume — timeline block reappears, progress bar jumps to the correct position based on elapsed time since start timestamp.
+- **If focus session ended while page was closed** (elapsed time > focus duration): Silently reset to idle. No overlay or chime — the moment has passed and retroactively interrupting would be confusing.
+- **If break is still in progress:** Resume — break overlay reappears with correct remaining time.
+- **If break ended while page was closed:** Silently reset to idle.
+
 ### FocusService
 - Manages which item is focused (ID + type, or `null`).
 - Persisted to localStorage.
@@ -181,6 +197,7 @@ idle → running → break → idle
 - **Focus ends**: A single distinct chime/bell tone. Noticeable but not harsh.
 - **Break ends**: A softer, different tone. Gentle nudge back to awareness.
 - Sounds should be short (1–2 seconds max).
+- Sound playback is best-effort — wrapped in a catch for browsers that block autoplay. The visual overlay is the authoritative notification.
 
 ---
 
