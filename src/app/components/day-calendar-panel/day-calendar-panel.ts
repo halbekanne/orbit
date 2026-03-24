@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
+import { ActionRailComponent } from '../action-rail/action-rail';
 import { DayScheduleService } from '../../services/day-schedule.service';
 import { DayAppointment } from '../../models/day-schedule.model';
 
@@ -9,7 +10,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayTimelineComponent, AppointmentPopupComponent],
+  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent],
   host: {
     '[class]': 'hostClass()',
   },
@@ -39,6 +40,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           </svg>
         </button>
       </div>
+      <app-action-rail class="shrink-0 border-b border-stone-200" />
       <div class="flex-1 overflow-y-auto">
         <app-day-timeline
           [appointments]="service.appointments()"

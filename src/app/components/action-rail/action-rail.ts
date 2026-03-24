@@ -8,7 +8,7 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
 @Component({
   selector: 'app-action-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'w-36 shrink-0 border-l border-stone-100 bg-stone-50 flex flex-col p-3 gap-2' },
+  host: { class: 'flex flex-col p-3 gap-2' },
   template: `
     @let item = data.selectedItem();
 
