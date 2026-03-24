@@ -32,9 +32,15 @@ RULES:
 - Report a finding ONLY if you can point to a specific added line in the diff. Without an exact codeSnippet, the finding does not exist.
 - CRITICAL: Only review ADDED lines (lines starting with '+' in the diff). Lines starting with '-' are removed code — do not review them. Context lines (no prefix) are for understanding only — do not create findings for them.
 - An empty findings array is a valid result, not an error. Do not manufacture issues to fill the output — but when in doubt, report one finding too many rather than miss one.
-- All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
+- All textual fields (title, detail, suggestion) must be in informal German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
+- All textual fields (title, detail, suggestion) must be concise. The goal for these findings is to be easily understandable while being worded as shortly as possible, so developers can quickly visually scan a lot of findings in one go.
+- You will also receive project context and rules that will give you more context and help you with assessing code deviations from the "norm" (e.g. a deviation from best practices might be deliberate).
 
 THINKING PHASE INSTRUCTIONS:
-You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.`;
+You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.
+
+PROJECT CONTEXT AND RULES:
+- The design system follows an approach where native HTML elements get slotted into design system components wherever possible, e.g. \`<si-button><button>...</button></si-button>\`. This way, the consumer has full control over the native element because he can slot it in and define all natively available attributes, which helps US focus on the design, instead of reimplementing native elements.
+`;
 
 module.exports = { SHARED_CONSTRAINTS };
