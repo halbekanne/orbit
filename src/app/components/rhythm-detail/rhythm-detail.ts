@@ -187,39 +187,37 @@ function formatGermanDate(): string {
         </div>
       }
       @case ('calendar-setup') {
-        <div class="h-full flex items-start justify-center pt-12 px-6 anim-page-in">
-          <div class="w-full max-w-[520px]">
-            <header class="mb-6 text-center">
-              <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
-              <p class="text-sm text-stone-400 mt-1">Wie sieht dein Tag heute aus?</p>
-            </header>
+        <div class="h-full flex flex-col items-center pt-6 px-6 anim-page-in">
+          <header class="mb-4 text-center shrink-0">
+            <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
+            <p class="text-sm text-stone-400 mt-1">Wie sieht dein Tag heute aus?</p>
+          </header>
 
-            <div class="h-[400px] border border-stone-200 rounded-xl overflow-hidden bg-white">
-              <app-day-timeline
-                [appointments]="calendarAppointments()"
-                (appointmentCreate)="onCalendarCreate($event)"
-                (appointmentEdit)="onCalendarEdit($event)"
-                (appointmentUpdate)="onCalendarResizeUpdate($event)"
-              />
-            </div>
+          <div class="flex-1 w-full max-w-[520px] min-h-0 border border-stone-200 rounded-xl overflow-hidden bg-white">
+            <app-day-timeline
+              [appointments]="calendarAppointments()"
+              (appointmentCreate)="onCalendarCreate($event)"
+              (appointmentEdit)="onCalendarEdit($event)"
+              (appointmentUpdate)="onCalendarResizeUpdate($event)"
+            />
+          </div>
 
-            <div class="flex gap-3 mt-4">
-              <button
-                type="button"
-                class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                (click)="onCalendarDone()"
-                data-testid="btn-calendar-done"
-              >Fertig</button>
-              <button
-                type="button"
-                class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
-                (click)="onCalendarSkip()"
-                data-testid="btn-calendar-skip"
-              >Überspringen</button>
-            </div>
+          <div class="flex gap-3 mt-4 mb-6 shrink-0">
+            <button
+              type="button"
+              class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              (click)="onCalendarDone()"
+              data-testid="btn-calendar-done"
+            >Fertig</button>
+            <button
+              type="button"
+              class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
+              (click)="onCalendarSkip()"
+              data-testid="btn-calendar-skip"
+            >Überspringen</button>
           </div>
         </div>
 

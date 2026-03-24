@@ -47,14 +47,35 @@ interface DragState {
     .hour-row {
       position: absolute;
       width: 100%;
-      border-top: 1px solid #f5f5f4;
+      display: flex;
+      align-items: flex-start;
+    }
+    .hour-row::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 36px;
+      right: 0;
+      border-top: 1px solid #d6d3d1;
+    }
+    .quarter-line {
+      position: absolute;
+      left: 36px;
+      right: 0;
+      border-top: 1px solid #f0efed;
+    }
+    .half-line {
+      border-top-style: dashed;
+      border-top-color: #e7e5e4;
     }
     .hour-label {
       width: 36px;
       font-size: 9px;
       color: #a8a29e;
       line-height: 1;
-      padding-top: 2px;
+      transform: translateY(-4px);
+      text-align: right;
+      padding-right: 6px;
     }
     .appointment-block {
       position: absolute;
@@ -67,6 +88,10 @@ interface DragState {
       z-index: 2;
       overflow: hidden;
       cursor: pointer;
+      transition: background 100ms ease;
+    }
+    .appointment-block:hover {
+      background: #e0e7ff;
     }
     .current-time-line {
       position: absolute;
@@ -75,6 +100,7 @@ interface DragState {
       height: 2px;
       background: #ef4444;
       z-index: 5;
+      pointer-events: none;
     }
     .current-time-dot {
       position: absolute;
@@ -89,24 +115,42 @@ interface DragState {
       position: absolute;
       left: 38px;
       right: 4px;
+      background: #eef2ff80;
       border: 2px dashed #818cf8;
       border-radius: 4px;
       z-index: 3;
       pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #6366f1;
+      font-weight: 500;
     }
     .resize-handle {
       position: absolute;
-      left: 8px;
-      right: 8px;
-      height: 6px;
+      left: 4px;
+      right: 4px;
+      height: 8px;
       cursor: ns-resize;
       z-index: 4;
     }
+    .resize-handle:hover::after {
+      content: '';
+      position: absolute;
+      left: 25%;
+      right: 25%;
+      top: 50%;
+      height: 2px;
+      background: #818cf8;
+      border-radius: 1px;
+      transform: translateY(-50%);
+    }
     .resize-handle-top {
-      top: 0;
+      top: -2px;
     }
     .resize-handle-bottom {
-      bottom: 0;
+      bottom: -2px;
     }
   `],
   template: `
@@ -120,10 +164,18 @@ interface DragState {
         <div
           class="hour-row"
           [style.top.%]="minutesToPercent(hour * 60)"
-          [style.height.%]="minutesToPercent((hour + 1) * 60) - minutesToPercent(hour * 60)"
+          [style.height.%]="100 / (END_HOUR - START_HOUR)"
         >
           <span class="hour-label" data-testid="hour-label">{{ formatHour(hour) }}</span>
         </div>
+      }
+
+      @for (line of quarterLines; track line.minutes) {
+        <div
+          class="quarter-line"
+          [class.half-line]="line.isHalf"
+          [style.top.%]="minutesToPercent(line.minutes)"
+        ></div>
       }
 
       @for (apt of appointments(); track apt.id) {
@@ -149,7 +201,7 @@ interface DragState {
           class="drag-preview"
           [style.top.%]="minutesToPercent(dragPreview()!.startMinutes)"
           [style.height.%]="minutesToPercent(dragPreview()!.endMinutes) - minutesToPercent(dragPreview()!.startMinutes)"
-        ></div>
+        >{{ minutesToTime(dragPreview()!.startMinutes) }} – {{ minutesToTime(dragPreview()!.endMinutes) }}</div>
       }
 
       @if (currentTimePercent() !== null) {
@@ -170,7 +222,19 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
   appointmentEdit = output<DayAppointment>();
   appointmentUpdate = output<DayAppointment>();
 
+  protected readonly START_HOUR = START_HOUR;
+  protected readonly END_HOUR = END_HOUR;
   readonly hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
+
+  readonly quarterLines = (() => {
+    const lines: { minutes: number; isHalf: boolean }[] = [];
+    for (let h = START_HOUR; h < END_HOUR; h++) {
+      lines.push({ minutes: h * 60 + 15, isHalf: false });
+      lines.push({ minutes: h * 60 + 30, isHalf: true });
+      lines.push({ minutes: h * 60 + 45, isHalf: false });
+    }
+    return lines;
+  })();
 
   currentTimePercent = signal<number | null>(null);
   dragPreview = signal<{ startMinutes: number; endMinutes: number } | null>(null);
@@ -180,6 +244,7 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
   private gridEl: HTMLElement | null = null;
 
   readonly minutesToPercent = minutesToPercent;
+  readonly minutesToTime = minutesToTime;
   readonly timeToMinutes = timeToMinutes;
 
   formatHour(hour: number): string {
