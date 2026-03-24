@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal, effect, afterNextRender, viewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DayAppointment } from '../../models/day-schedule.model';
 
@@ -22,11 +22,11 @@ import { DayAppointment } from '../../models/day-schedule.model';
           <input
             type="text"
             class="w-full rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-900 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
+            #nameInput
             [ngModel]="name()"
             (ngModelChange)="name.set($event)"
             data-testid="apt-name"
             (keydown.enter)="onSave()"
-            autofocus
           />
         </div>
 
@@ -94,12 +94,17 @@ export class AppointmentPopupComponent {
   readonly startTime = signal('');
   readonly endTime = signal('');
 
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
+
   constructor() {
     effect(() => {
       const apt = this.appointment();
       this.name.set(apt.title ?? '');
       this.startTime.set(apt.startTime ?? '');
       this.endTime.set(apt.endTime ?? '');
+    });
+    afterNextRender(() => {
+      this.nameInput()?.nativeElement.focus();
     });
   }
 
