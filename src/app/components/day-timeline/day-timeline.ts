@@ -1,8 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   OnDestroy,
   OnInit,
+  afterNextRender,
+  inject,
   input,
   output,
   signal,
@@ -12,6 +15,9 @@ import { DayAppointment } from '../../models/day-schedule.model';
 const START_HOUR = 8;
 const END_HOUR = 17;
 const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
+const HOUR_HEIGHT = 80;
+const PADDING_TOP = 8;
+const GRID_HEIGHT = (END_HOUR - START_HOUR) * HOUR_HEIGHT + PADDING_TOP * 2;
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number);
@@ -24,9 +30,9 @@ function minutesToTime(minutes: number): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
-function minutesToPercent(minutes: number): number {
+function minutesToPx(minutes: number): number {
   const offsetMinutes = minutes - START_HOUR * 60;
-  return (offsetMinutes / TOTAL_MINUTES) * 100;
+  return PADDING_TOP + (offsetMinutes / 60) * HOUR_HEIGHT;
 }
 
 interface DragState {
@@ -38,11 +44,10 @@ interface DragState {
 @Component({
   selector: 'app-day-timeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block h-full select-none' },
+  host: { class: 'block h-full select-none overflow-y-auto' },
   styles: [`
     .grid-container {
       position: relative;
-      height: 100%;
       padding-top: 8px;
       padding-bottom: 8px;
       box-sizing: border-box;
@@ -159,6 +164,7 @@ interface DragState {
   template: `
     <div
       class="grid-container"
+      [style.height.px]="GRID_HEIGHT"
       (pointerdown)="onGridPointerDown($event)"
       (pointermove)="onGridPointerMove($event)"
       (pointerup)="onGridPointerUp($event)"
@@ -166,8 +172,8 @@ interface DragState {
       @for (hour of hours; track hour) {
         <div
           class="hour-row"
-          [style.top.%]="minutesToPercent(hour * 60)"
-          [style.height.%]="100 / (END_HOUR - START_HOUR)"
+          [style.top.px]="minutesToPx(hour * 60)"
+          [style.height.px]="HOUR_HEIGHT"
         >
           <span class="hour-label" data-testid="hour-label">{{ formatHour(hour) }}</span>
         </div>
@@ -177,7 +183,7 @@ interface DragState {
         <div
           class="quarter-line"
           [class.half-line]="line.isHalf"
-          [style.top.%]="minutesToPercent(line.minutes)"
+          [style.top.px]="minutesToPx(line.minutes)"
         ></div>
       }
 
@@ -186,8 +192,8 @@ interface DragState {
           class="appointment-block"
           [attr.data-testid]="'appointment-' + apt.id"
           [attr.data-appointment-id]="apt.id"
-          [style.top.%]="minutesToPercent(timeToMinutes(apt.startTime))"
-          [style.height.%]="minutesToPercent(timeToMinutes(apt.endTime)) - minutesToPercent(timeToMinutes(apt.startTime))"
+          [style.top.px]="minutesToPx(timeToMinutes(apt.startTime))"
+          [style.height.px]="minutesToPx(timeToMinutes(apt.endTime)) - minutesToPx(timeToMinutes(apt.startTime))"
           (dblclick)="appointmentEdit.emit(apt)"
         >
           <div class="resize-handle resize-handle-top" data-resize="top" [attr.data-appointment-id]="apt.id"></div>
@@ -202,16 +208,16 @@ interface DragState {
       @if (dragPreview() !== null) {
         <div
           class="drag-preview"
-          [style.top.%]="minutesToPercent(dragPreview()!.startMinutes)"
-          [style.height.%]="minutesToPercent(dragPreview()!.endMinutes) - minutesToPercent(dragPreview()!.startMinutes)"
+          [style.top.px]="minutesToPx(dragPreview()!.startMinutes)"
+          [style.height.px]="minutesToPx(dragPreview()!.endMinutes) - minutesToPx(dragPreview()!.startMinutes)"
         >{{ minutesToTime(dragPreview()!.startMinutes) }} – {{ minutesToTime(dragPreview()!.endMinutes) }}</div>
       }
 
-      @if (currentTimePercent() !== null) {
+      @if (currentTimePx() !== null) {
         <div
           class="current-time-line"
           data-testid="current-time-line"
-          [style.top.%]="currentTimePercent()!"
+          [style.top.px]="currentTimePx()!"
         >
           <div class="current-time-dot"></div>
         </div>
@@ -227,6 +233,9 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
 
   protected readonly START_HOUR = START_HOUR;
   protected readonly END_HOUR = END_HOUR;
+  protected readonly HOUR_HEIGHT = HOUR_HEIGHT;
+  protected readonly GRID_HEIGHT = GRID_HEIGHT;
+
   readonly hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
 
   readonly quarterLines = (() => {
@@ -239,16 +248,24 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
     return lines;
   })();
 
-  currentTimePercent = signal<number | null>(null);
+  currentTimePx = signal<number | null>(null);
   dragPreview = signal<{ startMinutes: number; endMinutes: number } | null>(null);
+
+  private readonly hostEl = inject(ElementRef<HTMLElement>);
 
   private dragState: DragState | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private gridEl: HTMLElement | null = null;
 
-  readonly minutesToPercent = minutesToPercent;
+  readonly minutesToPx = minutesToPx;
   readonly minutesToTime = minutesToTime;
   readonly timeToMinutes = timeToMinutes;
+
+  constructor() {
+    afterNextRender(() => {
+      this.scrollToCurrentTime();
+    });
+  }
 
   formatHour(hour: number): string {
     return `${String(hour).padStart(2, '0')}:00`;
@@ -265,15 +282,29 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
     }
   }
 
+  private scrollToCurrentTime(): void {
+    const now = new Date();
+    const totalMinutes = now.getHours() * 60 + now.getMinutes();
+    const start = START_HOUR * 60;
+    const end = END_HOUR * 60;
+    if (totalMinutes < start || totalMinutes > end) return;
+
+    const px = minutesToPx(totalMinutes);
+    const host = this.hostEl.nativeElement;
+    const viewportHeight = host.clientHeight;
+    const scrollTarget = Math.max(0, px - viewportHeight / 3);
+    host.scrollTop = scrollTarget;
+  }
+
   private updateCurrentTime(): void {
     const now = new Date();
     const totalMinutes = now.getHours() * 60 + now.getMinutes();
     const start = START_HOUR * 60;
     const end = END_HOUR * 60;
     if (totalMinutes >= start && totalMinutes <= end) {
-      this.currentTimePercent.set(minutesToPercent(totalMinutes));
+      this.currentTimePx.set(minutesToPx(totalMinutes));
     } else {
-      this.currentTimePercent.set(null);
+      this.currentTimePx.set(null);
     }
   }
 
@@ -356,9 +387,9 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
   private pointerToMinutes(event: PointerEvent): number {
     const grid = this.gridEl ?? (event.currentTarget as HTMLElement);
     const rect = grid.getBoundingClientRect();
-    const relativeY = event.clientY - rect.top;
-    const ratio = Math.max(0, Math.min(1, relativeY / rect.height));
-    const rawMinutes = START_HOUR * 60 + ratio * TOTAL_MINUTES;
+    const relativeY = event.clientY - rect.top - PADDING_TOP;
+    const clampedY = Math.max(0, Math.min(relativeY, GRID_HEIGHT - PADDING_TOP * 2));
+    const rawMinutes = START_HOUR * 60 + (clampedY / ((END_HOUR - START_HOUR) * HOUR_HEIGHT)) * TOTAL_MINUTES;
     const snapped = Math.round(rawMinutes / 15) * 15;
     return Math.max(START_HOUR * 60, Math.min(END_HOUR * 60, snapped));
   }
