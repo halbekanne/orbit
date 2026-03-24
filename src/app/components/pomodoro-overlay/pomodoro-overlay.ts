@@ -54,90 +54,47 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
           style="background: linear-gradient(135deg, #312e81 0%, #1e1b4b 40%, #0c0a09 100%)"
           role="dialog" aria-modal="true" aria-label="Pause">
 
-          <svg class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="8%" cy="12%" r="1.2" fill="white" style="animation: twinkle-a 4s ease-in-out infinite;" opacity="0.7"/>
-            <circle cx="15%" cy="28%" r="0.8" fill="white" style="animation: twinkle-b 5.5s ease-in-out infinite;" opacity="0.5"/>
-            <circle cx="25%" cy="8%" r="1.5" fill="white" style="animation: twinkle-a 6s ease-in-out infinite 1s;" opacity="0.6"/>
-            <circle cx="38%" cy="18%" r="0.9" fill="white" style="animation: twinkle-b 4.5s ease-in-out infinite 0.5s;" opacity="0.8"/>
-            <circle cx="52%" cy="6%" r="1.1" fill="white" style="animation: twinkle-a 5s ease-in-out infinite 2s;" opacity="0.5"/>
-            <circle cx="63%" cy="22%" r="0.7" fill="white" style="animation: twinkle-b 4s ease-in-out infinite 1.5s;" opacity="0.7"/>
-            <circle cx="72%" cy="10%" r="1.3" fill="white" style="animation: twinkle-a 6.5s ease-in-out infinite 0.3s;" opacity="0.6"/>
-            <circle cx="83%" cy="30%" r="0.8" fill="white" style="animation: twinkle-b 5s ease-in-out infinite 2.5s;" opacity="0.4"/>
-            <circle cx="91%" cy="16%" r="1" fill="white" style="animation: twinkle-a 4.5s ease-in-out infinite 1.2s;" opacity="0.7"/>
-            <circle cx="7%" cy="55%" r="0.7" fill="white" style="animation: twinkle-b 5.5s ease-in-out infinite 0.8s;" opacity="0.4"/>
-            <circle cx="18%" cy="70%" r="1" fill="white" style="animation: twinkle-a 4s ease-in-out infinite 3s;" opacity="0.5"/>
-            <circle cx="78%" cy="60%" r="0.9" fill="white" style="animation: twinkle-b 6s ease-in-out infinite 0.6s;" opacity="0.6"/>
-            <circle cx="88%" cy="72%" r="1.2" fill="white" style="animation: twinkle-a 5s ease-in-out infinite 1.8s;" opacity="0.4"/>
-            <circle cx="95%" cy="45%" r="0.8" fill="white" style="animation: twinkle-b 4.5s ease-in-out infinite 2.2s;" opacity="0.6"/>
-            <ellipse cx="20%" cy="35%" rx="80" ry="40" fill="#6366f1" opacity="0.04" style="animation: drift 20s ease-in-out infinite;"/>
-            <ellipse cx="75%" cy="60%" rx="100" ry="50" fill="#818cf8" opacity="0.03" style="animation: drift 25s ease-in-out infinite reverse;"/>
-            <ellipse cx="50%" cy="100%" rx="55%" ry="80" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.15" style="filter: blur(8px);"/>
-            <ellipse cx="50%" cy="100%" rx="40%" ry="60" fill="#1d4ed8" opacity="0.08" style="filter: blur(16px);"/>
-          </svg>
+          <div class="astro-stars" aria-hidden="true">
+            <div class="star star-1"></div>
+            <div class="star star-2"></div>
+            <div class="star star-3"></div>
+            <div class="star star-4"></div>
+            <div class="star star-5"></div>
+            <div class="star star-6"></div>
+            <div class="star star-7"></div>
+            <div class="star star-8"></div>
+            <div class="star star-9"></div>
+            <div class="star star-10"></div>
+            <div class="star star-11"></div>
+            <div class="nebula nebula-1"></div>
+            <div class="nebula nebula-2"></div>
+            <div class="earth-glow"></div>
+          </div>
 
-          <div class="relative z-10" style="animation: float 8s ease-in-out infinite;" aria-hidden="true">
-            <svg width="120" height="150" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-              <defs>
-                <radialGradient id="helmetVisor" cx="40%" cy="35%" r="60%">
-                  <stop offset="0%" stop-color="#312e81"/>
-                  <stop offset="60%" stop-color="#1e1b4b"/>
-                  <stop offset="100%" stop-color="#0c0a09"/>
-                </radialGradient>
-                <radialGradient id="helmetShell" cx="35%" cy="30%" r="70%">
-                  <stop offset="0%" stop-color="#e2e8f0"/>
-                  <stop offset="100%" stop-color="#94a3b8"/>
-                </radialGradient>
-                <radialGradient id="bodyGrad" cx="30%" cy="25%" r="75%">
-                  <stop offset="0%" stop-color="#e2e8f0"/>
-                  <stop offset="100%" stop-color="#94a3b8"/>
-                </radialGradient>
-                <radialGradient id="helmetGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#818cf8" stop-opacity="0.4"/>
-                  <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
-                </radialGradient>
-              </defs>
-
-              <path d="M 60 145 Q 55 125 45 105" stroke="#6366f1" stroke-width="1.5" fill="none" stroke-dasharray="3 3" opacity="0.6"/>
-
-              <rect x="35" y="70" width="50" height="52" rx="12" fill="url(#bodyGrad)"/>
-              <rect x="37" y="72" width="46" height="48" rx="11" fill="none" stroke="#cbd5e1" stroke-width="0.5" opacity="0.5"/>
-
-              <rect x="48" y="78" width="24" height="16" rx="4" fill="#4338ca"/>
-              <rect x="50" y="80" width="20" height="12" rx="3" fill="#4f46e5"/>
-              <circle cx="54" cy="86" r="2" fill="#818cf8" opacity="0.9"/>
-              <circle cx="60" cy="84" r="1.5" fill="#a5b4fc" opacity="0.7"/>
-              <circle cx="66" cy="86" r="2" fill="#818cf8" opacity="0.9"/>
-
-              <g style="animation: wave 12s ease-in-out infinite; transform-origin: 35px 80px;">
-                <rect x="16" y="72" width="22" height="12" rx="6" fill="url(#bodyGrad)" transform="rotate(-20, 35, 78)"/>
-                <circle cx="16" cy="76" r="5.5" fill="url(#bodyGrad)"/>
-                <circle cx="16" cy="76" r="4" fill="#cbd5e1"/>
-              </g>
-
-              <rect x="82" y="72" width="22" height="12" rx="6" fill="url(#bodyGrad)" transform="rotate(15, 85, 78)"/>
-              <circle cx="104" cy="77" r="5.5" fill="url(#bodyGrad)"/>
-              <circle cx="104" cy="77" r="4" fill="#cbd5e1"/>
-
-              <rect x="43" y="118" width="14" height="28" rx="7" fill="url(#bodyGrad)" transform="rotate(-8, 50, 118)"/>
-              <circle cx="46" cy="146" r="6" fill="url(#bodyGrad)"/>
-              <circle cx="46" cy="146" r="4.5" fill="#cbd5e1"/>
-
-              <rect x="63" y="118" width="14" height="28" rx="7" fill="url(#bodyGrad)" transform="rotate(8, 70, 118)"/>
-              <circle cx="74" cy="146" r="6" fill="url(#bodyGrad)"/>
-              <circle cx="74" cy="146" r="4.5" fill="#cbd5e1"/>
-
-              <circle cx="60" cy="52" r="26" fill="url(#helmetShell)"/>
-              <circle cx="60" cy="52" r="22" fill="url(#helmetVisor)"/>
-              <circle cx="60" cy="52" r="22" fill="url(#helmetGlow)" opacity="0.5"/>
-              <ellipse cx="52" cy="44" rx="6" ry="4" fill="white" opacity="0.12" transform="rotate(-20, 52, 44)"/>
-
-              <circle cx="60" cy="52" r="26" fill="none" stroke="#94a3b8" stroke-width="1.5" opacity="0.6"/>
-
-              <circle cx="38" cy="52" r="4" fill="#94a3b8" opacity="0.8"/>
-              <circle cx="82" cy="52" r="4" fill="#94a3b8" opacity="0.8"/>
-
-              <rect x="46" y="25" width="28" height="6" rx="3" fill="#94a3b8" opacity="0.7"/>
-            </svg>
+          <div class="astro-scene" aria-hidden="true">
+            <div class="astro-tether"></div>
+            <div class="astro-body">
+              <div class="astro-leg astro-leg-l"></div>
+              <div class="astro-leg astro-leg-r"></div>
+              <div class="astro-torso">
+                <div class="astro-panel">
+                  <div class="astro-light astro-light-1"></div>
+                  <div class="astro-light astro-light-2"></div>
+                </div>
+              </div>
+              <div class="astro-arm astro-arm-l">
+                <div class="astro-hand"></div>
+              </div>
+              <div class="astro-arm astro-arm-r">
+                <div class="astro-hand"></div>
+              </div>
+              <div class="astro-helmet">
+                <div class="astro-visor">
+                  <div class="astro-visor-shine"></div>
+                </div>
+              </div>
+              <div class="astro-backpack"></div>
+            </div>
           </div>
 
           <p class="relative z-10 text-xl font-light text-indigo-100 mb-1 tracking-wide">Pause</p>
@@ -188,37 +145,201 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
     }
   `,
   styles: [`
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      25% { transform: translateY(-10px) rotate(0deg); }
-      50% { transform: translateY(4px) rotate(3deg); }
-      75% { transform: translateY(-5px) rotate(1deg); }
+    :host.hidden { display: none; }
+
+    /* --- Stars & background --- */
+    .astro-stars {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
     }
-    @keyframes wave {
-      0%, 100% { transform: rotate(0deg); }
-      20% { transform: rotate(-35deg); }
-      40% { transform: rotate(-20deg); }
-      60% { transform: rotate(-35deg); }
-      80% { transform: rotate(-10deg); }
+    .star {
+      position: absolute; border-radius: 50%; background: #c7d2fe;
+    }
+    .star-1  { width: 3px; height: 3px; top: 8%;  left: 12%; animation: twinkle-a 4s ease-in-out infinite; }
+    .star-2  { width: 2px; height: 2px; top: 22%; left: 25%; animation: twinkle-b 5.5s ease-in-out infinite 0.5s; }
+    .star-3  { width: 3px; height: 3px; top: 6%;  left: 42%; animation: twinkle-a 6s ease-in-out infinite 1s; }
+    .star-4  { width: 2px; height: 2px; top: 15%; left: 63%; animation: twinkle-b 4.2s ease-in-out infinite 1.5s; }
+    .star-5  { width: 3px; height: 3px; top: 10%; left: 78%; animation: twinkle-a 5s ease-in-out infinite 2s; }
+    .star-6  { width: 2px; height: 2px; top: 30%; left: 88%; animation: twinkle-b 6s ease-in-out infinite 0.3s; }
+    .star-7  { width: 2px; height: 2px; top: 55%; left: 8%;  animation: twinkle-a 4.5s ease-in-out infinite 0.8s; }
+    .star-8  { width: 3px; height: 3px; top: 65%; left: 18%; animation: twinkle-b 5s ease-in-out infinite 2.5s; }
+    .star-9  { width: 2px; height: 2px; top: 60%; left: 82%; animation: twinkle-a 5.5s ease-in-out infinite 1.2s; }
+    .star-10 { width: 2px; height: 2px; top: 72%; left: 70%; animation: twinkle-b 4s ease-in-out infinite 3s; }
+    .star-11 { width: 3px; height: 3px; top: 40%; left: 93%; animation: twinkle-a 6.5s ease-in-out infinite 0.6s; }
+
+    .nebula {
+      position: absolute; border-radius: 50%; filter: blur(40px);
+    }
+    .nebula-1 {
+      width: 200px; height: 100px; top: 20%; left: 10%;
+      background: rgba(99, 102, 241, 0.06);
+      animation: drift 22s ease-in-out infinite;
+    }
+    .nebula-2 {
+      width: 250px; height: 120px; top: 55%; right: 5%;
+      background: rgba(129, 140, 248, 0.04);
+      animation: drift 28s ease-in-out infinite reverse;
+    }
+    .earth-glow {
+      position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 120px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+      animation: earth-pulse 8s ease-in-out infinite;
+    }
+
+    /* --- Astronaut scene --- */
+    .astro-scene {
+      position: relative; z-index: 10; width: 140px; height: 180px; margin-bottom: 20px;
+      animation: float 10s ease-in-out infinite;
+    }
+    .astro-tether {
+      position: absolute; bottom: -10px; left: 50%; width: 2px; height: 50px;
+      background: linear-gradient(to bottom, rgba(129, 140, 248, 0.4), transparent);
+      transform: translateX(-50%) rotate(8deg);
+      border-radius: 1px;
+    }
+    .astro-body {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 140px;
+    }
+
+    /* --- Torso --- */
+    .astro-torso {
+      position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
+      width: 52px; height: 56px; border-radius: 14px;
+      background: #d6d3d1; border: 2px solid #a8a29e;
+    }
+    .astro-panel {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 22px; height: 14px; border-radius: 4px;
+      background: #4338ca;
+    }
+    .astro-light {
+      position: absolute; top: 5px; border-radius: 50%;
+    }
+    .astro-light-1 {
+      left: 5px; width: 4px; height: 4px; background: #818cf8;
+      animation: blink 3s ease-in-out infinite;
+    }
+    .astro-light-2 {
+      right: 5px; width: 4px; height: 4px; background: #a5b4fc;
+      animation: blink 3s ease-in-out infinite 1.5s;
+    }
+
+    /* --- Helmet --- */
+    .astro-helmet {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #d6d3d1; border: 2px solid #a8a29e;
+    }
+    .astro-visor {
+      position: absolute; top: 6px; left: 6px; right: 6px; bottom: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #312e81, #0f0a1a);
+    }
+    .astro-visor-shine {
+      position: absolute; top: 5px; left: 6px;
+      width: 10px; height: 7px; border-radius: 50%;
+      background: rgba(165, 180, 252, 0.25);
+      transform: rotate(-20deg);
+    }
+
+    /* --- Backpack --- */
+    .astro-backpack {
+      position: absolute; top: 48px; right: 8px;
+      width: 14px; height: 32px; border-radius: 5px;
+      background: #a8a29e; border: 1.5px solid #78716c;
+    }
+
+    /* --- Arms --- */
+    .astro-arm {
+      position: absolute; top: 50px;
+      width: 32px; height: 12px; border-radius: 6px;
+      background: #d6d3d1; border: 1.5px solid #a8a29e;
+    }
+    .astro-hand {
+      position: absolute; top: -1px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #d6d3d1; border: 1.5px solid #a8a29e;
+    }
+    .astro-arm-l {
+      left: -4px; transform-origin: right center;
+      animation: arm-wave 10s ease-in-out infinite;
+    }
+    .astro-arm-l .astro-hand { left: -8px; }
+    .astro-arm-r {
+      right: -4px; transform-origin: left center;
+      animation: arm-drift 12s ease-in-out infinite;
+    }
+    .astro-arm-r .astro-hand { right: -8px; }
+
+    /* --- Legs --- */
+    .astro-leg {
+      position: absolute; top: 94px;
+      width: 12px; height: 36px; border-radius: 6px;
+      background: #d6d3d1; border: 1.5px solid #a8a29e;
+    }
+    .astro-leg-l {
+      left: 26px; transform-origin: top center;
+      animation: leg-dangle-l 11s ease-in-out infinite;
+    }
+    .astro-leg-r {
+      right: 26px; transform-origin: top center;
+      animation: leg-dangle-r 13s ease-in-out infinite;
+    }
+
+    /* --- Keyframes --- */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      30% { transform: translateY(-12px) rotate(1deg); }
+      60% { transform: translateY(4px) rotate(-3deg); }
+      80% { transform: translateY(-6px) rotate(0deg); }
+    }
+    @keyframes arm-wave {
+      0%, 100% { transform: rotate(-15deg); }
+      15% { transform: rotate(-50deg); }
+      25% { transform: rotate(-35deg); }
+      35% { transform: rotate(-55deg); }
+      50% { transform: rotate(-20deg); }
+      70% { transform: rotate(-10deg); }
+    }
+    @keyframes arm-drift {
+      0%, 100% { transform: rotate(15deg); }
+      40% { transform: rotate(25deg); }
+      70% { transform: rotate(10deg); }
+    }
+    @keyframes leg-dangle-l {
+      0%, 100% { transform: rotate(5deg); }
+      50% { transform: rotate(-8deg); }
+    }
+    @keyframes leg-dangle-r {
+      0%, 100% { transform: rotate(-4deg); }
+      50% { transform: rotate(7deg); }
+    }
+    @keyframes blink {
+      0%, 40%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
     @keyframes twinkle-a {
       0%, 100% { opacity: 0.7; transform: scale(1); }
-      50% { opacity: 0.15; transform: scale(0.6); }
+      50% { opacity: 0.15; transform: scale(0.5); }
     }
     @keyframes twinkle-b {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      40% { opacity: 0.9; transform: scale(1.4); }
-      70% { opacity: 0.2; transform: scale(0.7); }
+      0%, 100% { opacity: 0.4; }
+      40% { opacity: 0.9; }
+      70% { opacity: 0.15; }
     }
     @keyframes drift {
       0%, 100% { transform: translate(0, 0); }
-      33% { transform: translate(12px, -8px); }
-      66% { transform: translate(-8px, 10px); }
+      33% { transform: translate(15px, -10px); }
+      66% { transform: translate(-10px, 12px); }
     }
-    :host.hidden { display: none; }
+    @keyframes earth-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
     }
   `],
 })
