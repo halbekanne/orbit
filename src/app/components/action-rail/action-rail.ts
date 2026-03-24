@@ -3,7 +3,8 @@ import { WorkDataService } from '../../services/work-data.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { CosiReviewService } from '../../services/cosi-review.service';
-import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.model';
+import { FocusService } from '../../services/focus.service';
+import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work-item.model';
 
 @Component({
   selector: 'app-action-rail',
@@ -11,6 +12,16 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
   host: { class: 'flex flex-col p-3 gap-2' },
   template: `
     @let item = data.selectedItem();
+
+    @if (item) {
+      <button type="button"
+        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
+        [class]="focusService.isFocused(item.id) ? 'bg-indigo-100 border-indigo-300 text-indigo-700 hover:bg-indigo-200' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+        (click)="toggleFocus(item)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        {{ focusService.isFocused(item.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
+      </button>
+    }
 
     @if (item?.type === 'todo') {
       @let todo = asTodo(item);
@@ -125,6 +136,7 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
 })
 export class ActionRailComponent {
   protected readonly data = inject(WorkDataService);
+  protected readonly focusService = inject(FocusService);
   protected readonly cosiReview = inject(CosiReviewService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
@@ -168,5 +180,13 @@ export class ActionRailComponent {
     const updated = { ...idea, status: 'active' as const };
     this.ideaService.update(updated);
     this.data.selectedItem.set(updated);
+  }
+
+  toggleFocus(item: WorkItem): void {
+    if (this.focusService.isFocused(item.id)) {
+      this.focusService.clearFocus();
+    } else {
+      this.focusService.setFocus({ id: item.id, type: item.type });
+    }
   }
 }
