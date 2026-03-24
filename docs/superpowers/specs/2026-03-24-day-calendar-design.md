@@ -204,3 +204,7 @@ Replaces `ActionRailComponent` in the Arbeit view layout.
 - **Empty grid at day start:** Shows just the time labels and grid lines — no empty-state message needed, the morning flow guides the user.
 - **Time outside range:** If it's before 08:00 or after 17:00, the red line is hidden.
 - **Cancel during create:** If user cancels the popup after a drag-to-create, no appointment is created.
+- **Drag outside grid bounds:** Clamped — dragging above 08:00 snaps to 08:00, dragging below 17:00 snaps to 17:00.
+- **Skipped morning flow:** The right panel still shows the empty timeline with full interaction support. The user can create appointments anytime, not just during the morning flow.
+- **Action buttons in panel:** Same buttons and logic as current ActionRailComponent, re-laid-out horizontally in the wider panel. No changes to button behavior.
+- **Timeline component reuse:** `DayTimelineComponent` is identical in both contexts (morning setup and right panel) — same interactions, same rendering. No readonly mode.
