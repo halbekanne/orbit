@@ -1,5 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 import { ViewArbeitComponent } from './view-arbeit';
 import { WorkDataService } from '../../services/work-data.service';
 import { TodoService } from '../../services/todo.service';
@@ -57,6 +59,7 @@ describe('ViewArbeitComponent', () => {
         { provide: TodoService, useValue: mockTodoService },
         { provide: IdeaService, useValue: mockIdeaService },
         { provide: CosiReviewService, useValue: mockCosiReviewService },
+        { provide: HttpClient, useValue: { get: () => of([]), post: () => of({}) } },
       ],
     }).compileComponents();
   });
@@ -73,12 +76,12 @@ describe('ViewArbeitComponent', () => {
     expect(aside).toBeTruthy();
   });
 
-  it('should render navigator, workbench, and action-rail', () => {
+  it('should render navigator, workbench, and day-calendar-panel', () => {
     const fixture = TestBed.createComponent(ViewArbeitComponent);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-navigator')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-workbench')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('app-action-rail')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-day-calendar-panel')).toBeTruthy();
   });
 
   it('should have flex layout host class', () => {
