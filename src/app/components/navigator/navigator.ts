@@ -3,6 +3,7 @@ import { CdkDragDrop, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { WorkDataService } from '../../services/work-data.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
+import { FocusService } from '../../services/focus.service';
 import { WorkItem, Todo, Idea } from '../../models/work-item.model';
 import { TicketCardComponent } from '../ticket-card/ticket-card';
 import { PrCardComponent } from '../pr-card/pr-card';
@@ -34,6 +35,20 @@ export class NavigatorComponent {
   protected readonly data = inject(WorkDataService);
   protected readonly todoService = inject(TodoService);
   protected readonly ideaService = inject(IdeaService);
+  protected readonly focusService = inject(FocusService);
+
+  readonly filteredTickets = computed(() =>
+    this.data.tickets().filter(t => !this.focusService.isFocused(t.id))
+  );
+  readonly filteredPullRequests = computed(() =>
+    this.data.pullRequests().filter(p => !this.focusService.isFocused(p.id))
+  );
+  readonly filteredOpenTodos = computed(() =>
+    this.todoService.openTodos().filter(t => !this.focusService.isFocused(t.id))
+  );
+  readonly filteredActiveIdeas = computed(() =>
+    this.ideaService.activeIdeas().filter(i => !this.focusService.isFocused(i.id))
+  );
 
   private readonly savedCollapsed = this.loadCollapsed();
 

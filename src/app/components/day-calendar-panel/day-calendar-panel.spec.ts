@@ -10,7 +10,12 @@ function setup() {
       {
         provide: HttpClient,
         useValue: {
-          get: () => of({ date: new Date().toISOString().slice(0, 10), appointments: [] }),
+          get: (url: string) => {
+            if (url.includes('/api/logbuch')) {
+              return of([]);
+            }
+            return of({ date: new Date().toISOString().slice(0, 10), appointments: [] });
+          },
           post: () => of({}),
         },
       },

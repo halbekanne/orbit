@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@a
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
 import { ActionRailComponent } from '../action-rail/action-rail';
+import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-config-popup';
 import { DayScheduleService } from '../../services/day-schedule.service';
+import { PomodoroService } from '../../services/pomodoro.service';
 import { DayAppointment } from '../../models/day-schedule.model';
 
 const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
@@ -10,9 +12,10 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent],
+  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent, PomodoroConfigPopupComponent],
   host: {
     '[class]': 'hostClass()',
+    '(document:keydown.escape)': 'onEscape()',
   },
   template: `
     @if (collapsed()) {
@@ -41,9 +44,37 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         </button>
       </div>
       <app-action-rail class="shrink-0 border-b border-stone-200" />
+      <div class="shrink-0 p-3 border-b border-stone-200">
+        @if (pomodoro.state() === 'idle') {
+          <button type="button"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+            (click)="showPomodoroConfig.set(true)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Pomodoro starten
+          </button>
+        } @else if (pomodoro.state() === 'running') {
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              </span>
+              <span class="text-xs font-medium text-indigo-700">Fokus läuft</span>
+            </div>
+            <span class="text-xs text-stone-400 tabular-nums">{{ pomodoroRemainingLabel() }}</span>
+          </div>
+          <button type="button"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-500 hover:border-red-300 hover:text-red-600 hover:bg-red-50"
+            (click)="showCancelConfirm.set(true)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            Pomodoro abbrechen
+          </button>
+        }
+      </div>
       <div class="flex-1 overflow-y-auto">
         <app-day-timeline
           [appointments]="service.appointments()"
+          [pomodoroBlock]="pomodoro.timelineBlock()"
           (appointmentCreate)="onCreateRequest($event)"
           (appointmentEdit)="onEditRequest($event)"
           (appointmentUpdate)="onResizeUpdate($event)"
@@ -60,12 +91,44 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         (cancel)="popupState.set(null)"
       />
     }
+
+    @if (showPomodoroConfig()) {
+      <app-pomodoro-config-popup
+        (started)="showPomodoroConfig.set(false)"
+        (cancel)="showPomodoroConfig.set(false)"
+      />
+    }
+
+    @if (showCancelConfirm()) {
+      <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" (click)="showCancelConfirm.set(false)"></div>
+      <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+        <div class="bg-white rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro abbrechen">
+          <h3 class="text-sm font-semibold text-stone-800 mb-2">Pomodoro abbrechen?</h3>
+          <p class="text-xs text-stone-500 mb-4">Deine aktuelle Fokuszeit wird beendet.</p>
+          <div class="flex gap-2">
+            <button type="button"
+              class="flex-1 rounded-lg border border-stone-200 text-stone-600 py-2 text-sm font-medium hover:bg-stone-50 transition-colors"
+              (click)="showCancelConfirm.set(false)">
+              Weiterarbeiten
+            </button>
+            <button type="button"
+              class="flex-1 rounded-lg bg-red-600 text-white py-2 text-sm font-semibold hover:bg-red-700 transition-colors"
+              (click)="confirmCancel()">
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   `,
 })
 export class DayCalendarPanelComponent {
   readonly service = inject(DayScheduleService);
+  readonly pomodoro = inject(PomodoroService);
 
   readonly collapsed = signal<boolean>(localStorage.getItem(STORAGE_KEY) === 'true');
+  readonly showPomodoroConfig = signal(false);
+  readonly showCancelConfirm = signal(false);
 
   readonly popupState = signal<{ appointment: Partial<DayAppointment>; isNew: boolean } | null>(null);
 
@@ -105,5 +168,20 @@ export class DayCalendarPanelComponent {
   onPopupDelete(id: string): void {
     this.service.deleteAppointment(id);
     this.popupState.set(null);
+  }
+
+  readonly pomodoroRemainingLabel = computed(() => {
+    const mins = Math.ceil(this.pomodoro.remainingMinutes());
+    if (mins >= 60) return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+    return `${mins} Min`;
+  });
+
+  confirmCancel(): void {
+    this.pomodoro.cancel();
+    this.showCancelConfirm.set(false);
+  }
+
+  onEscape(): void {
+    if (this.showCancelConfirm()) this.showCancelConfirm.set(false);
   }
 }
