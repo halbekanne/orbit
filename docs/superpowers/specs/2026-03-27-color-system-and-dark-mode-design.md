@@ -362,6 +362,13 @@ A sun/moon icon button at the bottom of the hybrid rail. Clicking cycles: system
 
 ---
 
+## Post-Migration Cleanup
+
+- Update the "Attention Tier Color System" table in `.claude/CLAUDE.md` to reflect the new three-tier card system (inactive/normal/attention) replacing the old five-tier system (Passive/Available/Act Soon/Completion/Draft).
+- The optional custom `warm` palette from `new-color-concept.md` is intentionally deferred. Standard Tailwind `stone` is used for now.
+
+---
+
 ## What Must NOT Happen
 
 - **No colored card backgrounds.** Cards are white (light) or stone-800 (dark). No violet-tinted, amber-tinted, or red-tinted card backgrounds. Color lives only in badges, icons, text, and the amber bar.
