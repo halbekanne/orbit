@@ -27,14 +27,14 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
       @let todo = asTodo(item);
       @if (todo.status === 'open') {
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-success-bg)] border-[var(--color-success-border)] text-[var(--color-success-text)] hover:opacity-80"
           (click)="completeTodo(todo)">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
           Erledigt
         </button>
         <button type="button"
           class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-          [class]="todo.urgent ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]'"
+          [class]="todo.urgent ? 'bg-amber-50 border-amber-300 text-amber-800 hover:opacity-80 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-500' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]'"
           (click)="toggleUrgent(todo)"
           [attr.aria-pressed]="todo.urgent">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
