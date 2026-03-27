@@ -134,8 +134,8 @@ export class DayCalendarPanelComponent {
 
   readonly hostClass = computed(() =>
     this.collapsed()
-      ? 'w-8 shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] flex flex-col'
-      : 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] flex flex-col transition-[width] duration-150'
+      ? 'w-8 shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col'
+      : 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col transition-[width] duration-150'
   );
 
   toggleCollapse(): void {
