@@ -44,7 +44,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
         <div class="relative mt-0.5 shrink-0" #checkboxRef>
           <button
             type="button"
-            class="checkbox-inner w-4 h-4 rounded border-2 transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+            class="checkbox-inner w-4 h-4 rounded border-2 transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)]"
             [class]="checkboxClass()"
             (click)="onToggle()"
             [attr.aria-label]="todo().status === 'done' ? 'Als offen markieren' : 'Als erledigt markieren'"
@@ -59,7 +59,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
 
         <button
           type="button"
-          class="flex-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded"
+          class="flex-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] rounded"
           (click)="select.emit(todo())"
           [attr.aria-pressed]="selected()"
           [attr.aria-label]="todo().title"
@@ -103,10 +103,10 @@ export class TodoCardComponent {
 
   outerClasses = computed(() => {
     const base = this.selected()
-      ? 'bg-indigo-50 border-indigo-300 shadow-sm'
+      ? 'bg-[var(--color-card-selected-bg)] border-[var(--color-card-selected-ring)] shadow-sm'
       : this.todo().status === 'done'
-        ? 'bg-stone-50 border-stone-150 opacity-60'
-        : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm';
+        ? 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] opacity-[var(--card-inactive-opacity)]'
+        : 'bg-[var(--color-bg-card)] border-[var(--color-border-subtle)] hover:border-stone-300 hover:shadow-sm';
     const highlight = this.highlighted() ? ' animate-highlight' : '';
     const celebrate = this.celebrating() ? ' celebrating' : '';
     return base + highlight + celebrate;
@@ -115,7 +115,7 @@ export class TodoCardComponent {
   checkboxClass = computed(() =>
     this.todo().status === 'done'
       ? 'bg-emerald-500 border-emerald-500'
-      : 'border-stone-300 hover:border-indigo-400'
+      : 'border-stone-300 hover:border-[var(--color-primary-border)]'
   );
 
   onToggle(): void {

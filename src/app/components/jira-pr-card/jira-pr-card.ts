@@ -10,16 +10,16 @@ import { JiraTicket } from '../../models/work-item.model';
     <section aria-label="Jira-Ticket">
       @if (ticket() === 'loading') {
         <div
-          class="border border-indigo-100 bg-indigo-50/40 rounded-lg p-3"
+          class="border border-[var(--color-primary-border)] bg-[var(--color-primary-bg)] rounded-lg p-3"
           aria-busy="true"
           aria-label="Lade Jira-Ticket"
         >
           <div class="flex gap-2 mb-2">
-            <div class="h-4 w-16 rounded bg-indigo-100 animate-pulse"></div>
-            <div class="h-4 w-20 rounded bg-indigo-100 animate-pulse"></div>
+            <div class="h-4 w-16 rounded bg-[var(--color-primary-bg)] animate-pulse"></div>
+            <div class="h-4 w-20 rounded bg-[var(--color-primary-bg)] animate-pulse"></div>
           </div>
-          <div class="h-4 w-3/4 rounded bg-indigo-100 animate-pulse mb-1.5"></div>
-          <div class="h-4 w-1/2 rounded bg-indigo-100 animate-pulse"></div>
+          <div class="h-4 w-3/4 rounded bg-[var(--color-primary-bg)] animate-pulse mb-1.5"></div>
+          <div class="h-4 w-1/2 rounded bg-[var(--color-primary-bg)] animate-pulse"></div>
         </div>
       } @else if (ticket() === 'no-ticket') {
         <p
@@ -32,9 +32,9 @@ import { JiraTicket } from '../../models/work-item.model';
           role="status"
         >Ticket konnte nicht geladen werden</p>
       } @else {
-        <div class="border-[1.5px] border-indigo-100 rounded-lg overflow-hidden">
+        <div class="border-[1.5px] border-[var(--color-primary-border)] rounded-lg overflow-hidden">
 
-          <div class="px-3 py-2.5 bg-[#f0f3ff] border-b border-indigo-100">
+          <div class="px-3 py-2.5 bg-[var(--color-primary-bg)] border-b border-[var(--color-primary-border)]">
             <div class="flex items-center gap-1.5 flex-wrap mb-2">
               <span
                 class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
@@ -57,7 +57,7 @@ import { JiraTicket } from '../../models/work-item.model';
                 {{ ticketData()!.issueType }}
               </span>
 
-              <span class="font-mono text-[11px] font-bold text-indigo-600 tracking-wide">{{ ticketData()!.key }}</span>
+              <span class="font-mono text-[11px] font-bold text-[var(--color-primary-text)] tracking-wide">{{ ticketData()!.key }}</span>
 
               <span
                 class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
@@ -71,7 +71,7 @@ import { JiraTicket } from '../../models/work-item.model';
                 [href]="ticketData()!.url"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="ml-auto inline-flex items-center gap-1 text-[10.5px] font-semibold text-indigo-600 border border-indigo-200 rounded-md px-2 py-1 bg-white hover:bg-indigo-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+                class="ml-auto inline-flex items-center gap-1 text-[10.5px] font-semibold text-[var(--color-primary-text)] border border-[var(--color-primary-border)] rounded-md px-2 py-1 bg-[var(--color-bg-card)] hover:bg-[var(--color-primary-bg)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)]"
                 [attr.aria-label]="'Öffne ' + ticketData()!.key + ' in Jira'"
               >
                 In Jira öffnen
@@ -85,7 +85,7 @@ import { JiraTicket } from '../../models/work-item.model';
               <span class="text-[9.5px] font-semibold text-stone-400 uppercase tracking-wide">Zugewiesen</span>
               @if (ticketData()!.assignee !== 'Nicht zugeordnet') {
                 <span
-                  class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-indigo-100 text-indigo-600 text-[8px] font-bold shrink-0"
+                  class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] text-[8px] font-bold shrink-0"
                   aria-hidden="true"
                 >{{ assigneeInitials() }}</span>
               }
@@ -136,13 +136,13 @@ export class JiraPrCardComponent {
     if (k === 'bug')   return 'bg-red-50 text-red-600 border-red-200';
     if (k === 'story') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     if (k === 'epic')  return 'bg-violet-50 text-violet-700 border-violet-200';
-    return 'bg-sky-50 text-sky-700 border-sky-200';
+    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border-[var(--color-type-badge-border)]';
   });
 
   statusBadgeClass = computed(() => {
     const status = this.ticketData()?.status;
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       'In Review':   'bg-amber-50 text-amber-700 border-amber-200',
       'Done':        'bg-emerald-50 text-emerald-700 border-emerald-200',
       'To Do':       'bg-stone-100 text-stone-500 border-stone-200',
@@ -153,7 +153,7 @@ export class JiraPrCardComponent {
   statusDotClass = computed(() => {
     const status = this.ticketData()?.status;
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-500',
+      'In Progress': 'bg-[var(--color-primary-solid)]',
       'In Review':   'bg-amber-400',
       'Done':        'bg-emerald-500',
       'To Do':       'bg-stone-400',

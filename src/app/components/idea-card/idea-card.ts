@@ -7,7 +7,7 @@ import { Idea } from '../../models/work-item.model';
   template: `
     <button
       type="button"
-      class="group w-full text-left rounded-lg border px-3 py-2.5 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 flex items-start gap-2.5"
+      class="group w-full text-left rounded-lg border px-3 py-2.5 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] flex items-start gap-2.5"
       [class]="cardClasses()"
       (click)="select.emit(idea())"
       [attr.aria-pressed]="selected()"
@@ -32,9 +32,9 @@ export class IdeaCardComponent {
 
   cardClasses = computed(() =>
     this.selected()
-      ? 'bg-indigo-50 border-indigo-300 shadow-sm'
+      ? 'bg-[var(--color-card-selected-bg)] border-[var(--color-card-selected-ring)] shadow-sm'
       : this.idea().status === 'wont-do'
-        ? 'bg-stone-50 border-stone-150 opacity-60'
-        : 'bg-indigo-50/40 border-indigo-100 hover:border-indigo-200 hover:shadow-sm'
+        ? 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] opacity-[var(--card-inactive-opacity)]'
+        : 'bg-[var(--color-bg-card)] border-[var(--color-border-subtle)] hover:border-[var(--color-primary-border)] hover:shadow-sm'
   );
 }
