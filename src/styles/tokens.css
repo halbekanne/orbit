@@ -116,9 +116,9 @@
   --color-info-text: var(--color-blue-400);
   --color-info-text-hover: var(--color-blue-300);
 
-  --color-card-selected-bg: var(--color-stone-700);
-  --color-card-selected-ring: var(--color-violet-500);
-  --color-card-selected-bg-hover: var(--color-stone-600);
+  --color-card-selected-bg: color-mix(in srgb, var(--color-violet-500) 8%, var(--color-stone-800));
+  --color-card-selected-ring: color-mix(in srgb, var(--color-violet-500) 30%, var(--color-stone-600));
+  --color-card-selected-bg-hover: color-mix(in srgb, var(--color-violet-500) 12%, var(--color-stone-800));
 
   --color-primary-bg-opaque: var(--color-violet-950);
   --color-primary-bg-opaque-hover: var(--color-violet-900);
