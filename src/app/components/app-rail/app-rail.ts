@@ -12,7 +12,7 @@ const VIEWS: OrbitView[] = [
 ];
 
 @Component({
-  selector: 'app-hybrid-rail',
+  selector: 'app-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'w-16 shrink-0 bg-[var(--color-rail-bg)] flex flex-col items-center',
@@ -79,7 +79,7 @@ const VIEWS: OrbitView[] = [
     </button>
   `,
 })
-export class HybridRailComponent {
+export class AppRailComponent {
   activeView = input.required<string>();
   viewChange = output<string>();
 

@@ -36,10 +36,10 @@ describe('App', () => {
     expect(fixture.componentInstance.activeView()).toBe('arbeit');
   });
 
-  it('should render the hybrid rail', () => {
+  it('should render the app rail', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    const rail = fixture.nativeElement.querySelector('app-hybrid-rail');
+    const rail = fixture.nativeElement.querySelector('app-rail');
     expect(rail).toBeTruthy();
   });
 

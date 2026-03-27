@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HybridRailComponent } from './hybrid-rail';
+import { AppRailComponent } from './app-rail';
 
 const mockMatchMedia = () => {
   Object.defineProperty(window, 'matchMedia', {
@@ -17,21 +17,21 @@ const mockMatchMedia = () => {
   });
 };
 
-describe('HybridRailComponent', () => {
+describe('AppRailComponent', () => {
   beforeEach(async () => {
     mockMatchMedia();
     await TestBed.configureTestingModule({
-      imports: [HybridRailComponent],
+      imports: [AppRailComponent],
     }).compileComponents();
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should render all view items', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const navButtons = fixture.nativeElement.querySelectorAll('nav button');
@@ -41,7 +41,7 @@ describe('HybridRailComponent', () => {
   });
 
   it('should mark the active view with aria-current', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const buttons = fixture.nativeElement.querySelectorAll('button');
@@ -50,7 +50,7 @@ describe('HybridRailComponent', () => {
   });
 
   it('should emit viewChange on click', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const spy = vi.fn();
@@ -61,7 +61,7 @@ describe('HybridRailComponent', () => {
   });
 
   it('should navigate with arrow keys', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const buttons = fixture.nativeElement.querySelectorAll('button');
@@ -71,7 +71,7 @@ describe('HybridRailComponent', () => {
   });
 
   it('should have nav with correct aria-label', () => {
-    const fixture = TestBed.createComponent(HybridRailComponent);
+    const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const nav = fixture.nativeElement.querySelector('nav');
