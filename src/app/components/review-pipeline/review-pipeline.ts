@@ -196,7 +196,7 @@ export class ReviewPipelineComponent {
   statusDotClass(status: 'running' | 'done' | 'error'): string {
     switch (status) {
       case 'done': return 'bg-emerald-500';
-      case 'running': return 'bg-indigo-400 animate-pulse';
+      case 'running': return 'bg-violet-400 animate-pulse';
       case 'error': return 'bg-red-500';
     }
   }
@@ -204,7 +204,7 @@ export class ReviewPipelineComponent {
   statusTextClass(status: 'running' | 'done' | 'error'): string {
     switch (status) {
       case 'done': return 'text-emerald-600';
-      case 'running': return 'text-indigo-500';
+      case 'running': return 'text-[var(--color-primary-solid)]';
       case 'error': return 'text-red-600';
     }
   }
@@ -221,7 +221,7 @@ export class ReviewPipelineComponent {
     switch (action) {
       case 'kept': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'removed': return 'bg-red-50 text-red-700 border-red-200';
-      case 'merged': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'merged': return 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]';
       case 'severity-changed': return 'bg-amber-50 text-amber-700 border-amber-200';
     }
   }

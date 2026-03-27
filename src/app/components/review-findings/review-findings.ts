@@ -42,8 +42,8 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
         @if (review === 'idle') {
           <span class="text-xs text-stone-400">Noch nicht gestartet</span>
         } @else if (review.status === 'running') {
-          <span class="flex items-center gap-1.5 text-xs text-indigo-600">
-            <span class="w-2 h-2 rounded-full bg-indigo-500 pulse-dot"></span>
+          <span class="flex items-center gap-1.5 text-xs text-[var(--color-primary-solid)]">
+            <span class="w-2 h-2 rounded-full bg-[var(--color-primary-solid)] pulse-dot"></span>
             Analyse läuft...
           </span>
           <span class="ml-auto font-mono text-xs text-stone-400">{{ formatElapsed(elapsedSeconds()) }}</span>
@@ -78,7 +78,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               @if (progressInfo(); as pi) {
                 <div class="h-1.5 bg-stone-100 rounded-full overflow-hidden mb-4">
                   <div
-                    class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
+                    class="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-500"
                     [style.width.%]="pi.done / pi.total * 100"
                   ></div>
                 </div>
@@ -105,14 +105,14 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                         }
                       </div>
                     } @else if (agent.status === 'running') {
-                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-violet-400 pulse-dot" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap">
                           <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                          <span class="flex items-center gap-0.5 text-xs text-indigo-500">
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                          <span class="flex items-center gap-0.5 text-xs text-[var(--color-primary-solid)]">
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                           </span>
                           <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
                         </div>
@@ -145,14 +145,14 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                         </div>
                       </div>
                     } @else if (review.pipeline.consolidator.status === 'running') {
-                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-indigo-400 pulse-dot" aria-hidden="true"></span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-violet-400 pulse-dot" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap">
                           <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
-                          <span class="flex items-center gap-0.5 text-xs text-indigo-500">
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
-                            <span class="thinking-dot w-1 h-1 rounded-full bg-indigo-400"></span>
+                          <span class="flex items-center gap-0.5 text-xs text-[var(--color-primary-solid)]">
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
+                            <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                           </span>
                         </div>
                       </div>
@@ -184,7 +184,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               <p class="text-sm text-stone-500 text-center max-w-xs mb-5">Der Review-Service war nicht erreichbar. Das kann an einer kurzzeitigen Störung liegen — versuch es einfach nochmal.</p>
               <button
                 type="button"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors duration-100 cursor-pointer"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100 cursor-pointer"
                 (click)="cosiReview.triggerReview()"
               >
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -358,7 +358,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               <p class="text-sm text-stone-500 text-center max-w-xs mb-5">Lass die KI den Code analysieren. Prüft Code-Qualität und Abgleich mit den Akzeptanzkriterien.</p>
               <button
                 type="button"
-                class="cta-shimmer px-5 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors duration-100"
+                class="cta-shimmer px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100"
                 [class.opacity-50]="!cosiReview.canReview()"
                 [class.cursor-not-allowed]="!cosiReview.canReview()"
                 [disabled]="!cosiReview.canReview()"

@@ -32,10 +32,10 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
             <div class="w-12 h-12 mx-auto mb-4 bg-amber-50 rounded-full flex items-center justify-center text-2xl">☀️</div>
             <h2 class="text-lg font-semibold text-stone-900 mb-1">{{ congratsMessage() }}</h2>
             <p class="text-sm text-stone-500 mb-5">{{ focusMinutes() }} Minuten Fokuszeit geschafft.</p>
-            <div class="bg-indigo-50 rounded-lg px-4 py-2.5 mb-5 text-sm text-indigo-700">💡 {{ breakSuggestion() }}</div>
+            <div class="bg-[var(--color-primary-bg)] rounded-lg px-4 py-2.5 mb-5 text-sm text-[var(--color-primary-text)]">💡 {{ breakSuggestion() }}</div>
             <div class="flex flex-col gap-2">
               <button type="button"
-                class="w-full rounded-xl bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200"
+                class="w-full rounded-xl bg-[var(--color-primary-solid)] text-white py-2.5 text-sm font-semibold hover:bg-[var(--color-primary-solid-hover)] transition-colors shadow-md shadow-violet-200"
                 (click)="startBreak()">
                 Pause starten ({{ breakMinutes() }} Min)
               </button>
@@ -51,7 +51,7 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
 
       @case ('break-active') {
         <div class="fixed inset-0 z-[60] flex flex-col items-center justify-center overflow-hidden"
-          style="background: linear-gradient(135deg, #312e81 0%, #1e1b4b 40%, #0c0a09 100%)"
+          style="background: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 40%, #0c0a09 100%)"
           role="dialog" aria-modal="true" aria-label="Pause">
 
           <div class="astro-stars" aria-hidden="true">
@@ -97,11 +97,11 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
             </div>
           </div>
 
-          <p class="relative z-10 text-xl font-light text-indigo-100 mb-1 tracking-wide">Pause</p>
-          <p class="relative z-10 text-xs text-indigo-300/40 mb-4 tracking-widest">schwerelos treiben lassen …</p>
+          <p class="relative z-10 text-xl font-light text-violet-100 mb-1 tracking-wide">Pause</p>
+          <p class="relative z-10 text-xs text-violet-300/40 mb-4 tracking-widest">schwerelos treiben lassen …</p>
 
           <div class="relative z-10 w-40 h-[3px] bg-white/10 rounded-full mb-3 overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-indigo-400 to-indigo-300 rounded-full transition-[width] duration-1000 ease-linear"
+            <div class="h-full bg-gradient-to-r from-violet-400 to-violet-300 rounded-full transition-[width] duration-1000 ease-linear"
               [style.width.%]="breakProgress()"
               role="progressbar"
               [attr.aria-valuenow]="breakProgress()"
@@ -109,12 +109,12 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
               aria-valuemax="100"
             ></div>
           </div>
-          <p class="relative z-10 text-xs text-indigo-300/60 mb-6">noch {{ breakRemainingMinutes() }} Minuten</p>
+          <p class="relative z-10 text-xs text-violet-300/60 mb-6">noch {{ breakRemainingMinutes() }} Minuten</p>
 
-          <div class="relative z-10 bg-white/5 rounded-xl px-5 py-2.5 text-sm text-indigo-200 mb-8">💡 {{ breakSuggestion() }}</div>
+          <div class="relative z-10 bg-white/5 rounded-xl px-5 py-2.5 text-sm text-violet-200 mb-8">💡 {{ breakSuggestion() }}</div>
 
           <button type="button"
-            class="relative z-10 text-xs text-indigo-300/40 border border-indigo-300/15 rounded-lg px-4 py-1.5 hover:text-indigo-200 hover:border-indigo-300/30 transition-colors"
+            class="relative z-10 text-xs text-violet-300/40 border border-violet-300/15 rounded-lg px-4 py-1.5 hover:text-violet-200 hover:border-violet-300/30 transition-colors"
             (click)="cancelBreak()">
             Pause beenden
           </button>
@@ -129,7 +129,7 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
             <p class="text-sm text-stone-500 mb-5">Bereit für die nächste Runde?</p>
             <div class="flex flex-col gap-2">
               <button type="button"
-                class="w-full rounded-xl bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200"
+                class="w-full rounded-xl bg-[var(--color-primary-solid)] text-white py-2.5 text-sm font-semibold hover:bg-[var(--color-primary-solid-hover)] transition-colors shadow-md shadow-violet-200"
                 (click)="startNewRound()">
                 Neue Fokuszeit starten
               </button>
@@ -171,18 +171,18 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
     }
     .nebula-1 {
       width: 200px; height: 100px; top: 20%; left: 10%;
-      background: rgba(99, 102, 241, 0.06);
+      background: rgba(139, 92, 246, 0.06);
       animation: drift 22s ease-in-out infinite;
     }
     .nebula-2 {
       width: 250px; height: 120px; top: 55%; right: 5%;
-      background: rgba(129, 140, 248, 0.04);
+      background: rgba(167, 139, 250, 0.04);
       animation: drift 28s ease-in-out infinite reverse;
     }
     .earth-glow {
       position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
       width: 500px; height: 120px; border-radius: 50%;
-      background: radial-gradient(ellipse, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
       animation: earth-pulse 8s ease-in-out infinite;
     }
 
@@ -193,7 +193,7 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
     }
     .astro-tether {
       position: absolute; bottom: -10px; left: 50%; width: 2px; height: 50px;
-      background: linear-gradient(to bottom, rgba(129, 140, 248, 0.4), transparent);
+      background: linear-gradient(to bottom, rgba(167, 139, 250, 0.4), transparent);
       transform: translateX(-50%) rotate(8deg);
       border-radius: 1px;
     }
@@ -217,11 +217,11 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
       position: absolute; top: 5px; border-radius: 50%;
     }
     .astro-light-1 {
-      left: 5px; width: 4px; height: 4px; background: #818cf8;
+      left: 5px; width: 4px; height: 4px; background: #a78bfa;
       animation: blink 3s ease-in-out infinite;
     }
     .astro-light-2 {
-      right: 5px; width: 4px; height: 4px; background: #a5b4fc;
+      right: 5px; width: 4px; height: 4px; background: #c4b5fd;
       animation: blink 3s ease-in-out infinite 1.5s;
     }
 
@@ -234,12 +234,12 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
     .astro-visor {
       position: absolute; top: 6px; left: 6px; right: 6px; bottom: 8px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #312e81, #0f0a1a);
+      background: linear-gradient(135deg, #4c1d95, #0f0a1a);
     }
     .astro-visor-shine {
       position: absolute; top: 5px; left: 6px;
       width: 10px; height: 7px; border-radius: 50%;
-      background: rgba(165, 180, 252, 0.25);
+      background: rgba(196, 181, 253, 0.25);
       transform: rotate(-20deg);
     }
 

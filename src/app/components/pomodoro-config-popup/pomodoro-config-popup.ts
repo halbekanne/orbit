@@ -18,17 +18,17 @@ import { PomodoroService } from '../../services/pomodoro.service';
         <label class="block mb-3">
           <span class="text-xs font-medium text-stone-600 mb-1 block">Fokuszeit (Minuten)</span>
           <input #focusInput type="number" min="1" max="120" [(ngModel)]="focusMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300" />
+            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
         </label>
 
         <label class="block mb-4">
           <span class="text-xs font-medium text-stone-600 mb-1 block">Pausenzeit (Minuten)</span>
           <input type="number" min="1" max="60" [(ngModel)]="breakMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300" />
+            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
         </label>
 
         <button type="button"
-          class="w-full rounded-lg bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors"
+          class="w-full rounded-lg bg-[var(--color-primary-solid)] text-white py-2.5 text-sm font-semibold hover:bg-[var(--color-primary-solid-hover)] transition-colors"
           (click)="onStart()">
           Starten
         </button>

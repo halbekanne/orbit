@@ -7,7 +7,7 @@ import { PomodoroService } from '../../services/pomodoro.service';
   template: `
     @if (visible()) {
       <div
-        class="fixed top-0 left-0 h-[3px] bg-indigo-500 z-50 transition-[width] duration-1000 ease-linear"
+        class="fixed top-0 left-0 h-[3px] bg-[var(--color-pomodoro-accent)] z-50 transition-[width] duration-1000 ease-linear"
         [style.width.%]="progressPercent()"
         role="progressbar"
         [attr.aria-valuenow]="progressPercent()"
