@@ -90,7 +90,7 @@ interface DragState {
       position: absolute;
       left: 46px;
       right: 4px;
-      background: var(--color-primary-bg);
+      background: var(--color-primary-bg-opaque);
       border: 1px solid var(--color-primary-border);
       border-left: 3px solid var(--color-primary-solid);
       border-radius: 4px;
@@ -100,7 +100,7 @@ interface DragState {
       transition: background 100ms ease;
     }
     .appointment-block:hover {
-      background: var(--color-primary-bg-hover);
+      background: var(--color-primary-bg-opaque-hover);
     }
     .current-time-line {
       position: absolute;

@@ -44,6 +44,9 @@
   --color-card-selected-ring: var(--color-primary-border);
   --color-card-selected-bg-hover: var(--color-primary-bg-hover);
 
+  --color-primary-bg-opaque: var(--color-violet-50);
+  --color-primary-bg-opaque-hover: var(--color-violet-100);
+
   --card-inactive-opacity: 0.55;
   --color-card-attention-bar: var(--color-signal-bar);
 
@@ -112,6 +115,13 @@
 
   --color-info-text: var(--color-blue-400);
   --color-info-text-hover: var(--color-blue-300);
+
+  --color-card-selected-bg: var(--color-stone-700);
+  --color-card-selected-ring: var(--color-violet-500);
+  --color-card-selected-bg-hover: var(--color-stone-600);
+
+  --color-primary-bg-opaque: var(--color-violet-950);
+  --color-primary-bg-opaque-hover: var(--color-violet-900);
 
   --card-inactive-opacity: 0.62;
 }
