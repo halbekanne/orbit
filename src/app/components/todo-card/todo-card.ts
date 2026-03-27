@@ -64,15 +64,15 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
           [attr.aria-pressed]="selected()"
           [attr.aria-label]="todo().title"
         >
-          <p class="text-sm font-medium leading-snug text-stone-800"
-            [class]="todo().status === 'done' ? 'line-through text-stone-400' : ''">
+          <p class="text-sm font-medium leading-snug text-[var(--color-text-heading)]"
+            [class]="todo().status === 'done' ? 'line-through text-[var(--color-text-muted)]' : ''">
             {{ todo().title }}
           </p>
         </button>
 
         <div
           cdkDragHandle
-          class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
+          class="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-muted)] cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
           aria-label="Aufgabe verschieben"
         >⠿</div>
       </div>
@@ -106,7 +106,7 @@ export class TodoCardComponent {
       ? 'bg-[var(--color-card-selected-bg)] border-[var(--color-card-selected-ring)] shadow-sm'
       : this.todo().status === 'done'
         ? 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] opacity-[var(--card-inactive-opacity)]'
-        : 'bg-[var(--color-bg-card)] border-[var(--color-border-subtle)] hover:border-stone-300 hover:shadow-sm';
+        : 'bg-[var(--color-bg-card)] border-[var(--color-border-subtle)] hover:border-[var(--color-border-default)] hover:shadow-sm';
     const highlight = this.highlighted() ? ' animate-highlight' : '';
     const celebrate = this.celebrating() ? ' celebrating' : '';
     return base + highlight + celebrate;
@@ -115,7 +115,7 @@ export class TodoCardComponent {
   checkboxClass = computed(() =>
     this.todo().status === 'done'
       ? 'bg-emerald-500 border-emerald-500'
-      : 'border-stone-300 hover:border-[var(--color-primary-border)]'
+      : 'border-[var(--color-border-default)] hover:border-[var(--color-primary-border)]'
   );
 
   onToggle(): void {

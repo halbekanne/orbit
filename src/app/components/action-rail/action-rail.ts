@@ -16,7 +16,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
     @if (item) {
       <button type="button"
         class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-        [class]="focusService.isFocused(item.id) ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-stone-600 hover:border-stone-300'"
+        [class]="focusService.isFocused(item.id) ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]'"
         (click)="toggleFocus(item)">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         {{ focusService.isFocused(item.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
@@ -34,38 +34,38 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
         </button>
         <button type="button"
           class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-          [class]="todo.urgent ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+          [class]="todo.urgent ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]'"
           (click)="toggleUrgent(todo)"
           [attr.aria-pressed]="todo.urgent">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
           Dringend
         </button>
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]"
           (click)="data.demoteToIdea(todo)">
           Zur Idee machen
         </button>
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-border-default)]"
           (click)="wontDo(todo)">
           Nicht erledigen
         </button>
       }
       @if (todo.status === 'done') {
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]"
           (click)="reopenTodo(todo)">
           Wieder öffnen
         </button>
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]"
           (click)="data.demoteToIdea(todo)">
           Zur Idee machen
         </button>
       }
       @if (todo.status === 'wont-do') {
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]"
           (click)="reopenTodo(todo)">
           Wieder öffnen
         </button>
@@ -81,14 +81,14 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
           Zur Aufgabe machen
         </button>
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-border-default)]"
           (click)="wontFollowIdea(idea)">
           Nicht verfolgen
         </button>
       }
       @if (idea.status === 'wont-do') {
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]"
           (click)="reviveIdea(idea)">
           Wieder aufgreifen
         </button>
@@ -112,7 +112,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
       @let review = cosiReview.reviewState();
       <button type="button"
         class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-        [class]="review === 'idle' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-stone-600 hover:border-stone-300'"
+        [class]="review === 'idle' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)]'"
         [disabled]="(review !== 'idle' && review.status === 'running') || !cosiReview.canReview()"
         (click)="cosiReview.triggerReview()">
         @if (review !== 'idle' && review.status === 'running') {

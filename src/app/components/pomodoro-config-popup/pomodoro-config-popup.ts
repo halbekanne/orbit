@@ -12,19 +12,19 @@ import { PomodoroService } from '../../services/pomodoro.service';
   template: `
     <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" (click)="cancel.emit()"></div>
     <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div class="bg-white rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro konfigurieren">
-        <h3 class="text-sm font-semibold text-stone-800 mb-4">Pomodoro starten</h3>
+      <div class="bg-[var(--color-bg-card)] rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro konfigurieren">
+        <h3 class="text-sm font-semibold text-[var(--color-text-heading)] mb-4">Pomodoro starten</h3>
 
         <label class="block mb-3">
-          <span class="text-xs font-medium text-stone-600 mb-1 block">Fokuszeit (Minuten)</span>
+          <span class="text-xs font-medium text-[var(--color-text-body)] mb-1 block">Fokuszeit (Minuten)</span>
           <input #focusInput type="number" min="1" max="120" [(ngModel)]="focusMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
+            class="w-full rounded-lg border border-[var(--color-border-subtle)] px-3 py-2 text-sm text-[var(--color-text-heading)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
         </label>
 
         <label class="block mb-4">
-          <span class="text-xs font-medium text-stone-600 mb-1 block">Pausenzeit (Minuten)</span>
+          <span class="text-xs font-medium text-[var(--color-text-body)] mb-1 block">Pausenzeit (Minuten)</span>
           <input type="number" min="1" max="60" [(ngModel)]="breakMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
+            class="w-full rounded-lg border border-[var(--color-border-subtle)] px-3 py-2 text-sm text-[var(--color-text-heading)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-border)] focus:border-[var(--color-primary-border)]" />
         </label>
 
         <button type="button"

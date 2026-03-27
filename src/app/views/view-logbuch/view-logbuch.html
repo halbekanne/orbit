@@ -1,7 +1,7 @@
 <div class="flex flex-col h-full">
-  <div class="px-12 pt-5 pb-4 border-b border-stone-200 shrink-0">
-    <h1 class="font-serif text-[26px] text-stone-800">Logbuch</h1>
-    <p class="text-sm text-stone-400 font-medium mt-0.5">Tage, Fokus, Reflexionen — dein persönlicher Rückblick</p>
+  <div class="px-12 pt-5 pb-4 border-b border-[var(--color-border-subtle)] shrink-0">
+    <h1 class="font-serif text-[26px] text-[var(--color-text-heading)]">Logbuch</h1>
+    <p class="text-sm text-[var(--color-text-muted)] font-medium mt-0.5">Tage, Fokus, Reflexionen — dein persönlicher Rückblick</p>
   </div>
 
   <div class="flex-1 overflow-y-auto px-12 py-8">
@@ -11,8 +11,8 @@
           <div class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4" aria-hidden="true">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--color-primary-solid)]"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
           </div>
-          <h2 class="text-lg font-semibold text-stone-800 mb-1">Noch keine Einträge</h2>
-          <p class="text-sm text-stone-400 leading-relaxed">Starte deinen ersten Tag mit einem Fokus!</p>
+          <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Noch keine Einträge</h2>
+          <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">Starte deinen ersten Tag mit einem Fokus!</p>
         </div>
       </div>
     } @else {
@@ -20,31 +20,31 @@
         @for (entry of entries(); track entry.date) {
           <article>
             <div class="flex items-center gap-3 mb-4">
-              <span class="text-sm font-semibold whitespace-nowrap" [class]="isToday(entry.date) ? 'text-[var(--color-primary-text)]' : 'text-stone-500'">
+              <span class="text-sm font-semibold whitespace-nowrap" [class]="isToday(entry.date) ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-text-muted)]'">
                 {{ formatDate(entry.date) }}
               </span>
               @if (isToday(entry.date)) {
                 <span class="text-[10px] font-bold text-[var(--color-primary-text)] bg-[var(--color-primary-bg)] border border-[var(--color-primary-border)] px-2 py-0.5 rounded uppercase tracking-wide shrink-0">Heute</span>
               }
-              <div class="flex-1 h-px bg-stone-200"></div>
+              <div class="flex-1 h-px bg-[var(--color-border-subtle)]"></div>
             </div>
 
             @if (isFull(entry)) {
-              <div class="bg-white rounded-2xl border overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
-                [class]="isToday(entry.date) ? 'border-[var(--color-primary-border)] shadow-[0_1px_4px_rgba(139,92,246,0.06)]' : 'border-stone-200'">
+              <div class="bg-[var(--color-bg-card)] rounded-2xl border overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
+                [class]="isToday(entry.date) ? 'border-[var(--color-primary-border)] shadow-[0_1px_4px_rgba(139,92,246,0.06)]' : 'border-[var(--color-border-subtle)]'">
                 <div class="p-5 flex flex-col gap-5">
 
                   @if (hasMorning(entry)) {
                     <div class="pl-5 relative">
                       <span class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-violet-400 to-violet-200" aria-hidden="true"></span>
                       <div class="text-xs font-medium italic text-[var(--color-primary-solid)] mb-1">{{ entry.morningQuestion }}</div>
-                      <div class="font-serif text-base italic text-stone-600 leading-relaxed">{{ entry.morningFocus }}</div>
+                      <div class="font-serif text-base italic text-[var(--color-text-body)] leading-relaxed">{{ entry.morningFocus }}</div>
                     </div>
                   }
 
                   @if (entry.completedItems.length > 0) {
-                    <div class="p-3.5 bg-stone-50 rounded-xl">
-                      <div class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <div class="p-3.5 bg-[var(--color-bg-surface)] rounded-xl">
+                      <div class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         Erledigt
                         <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 rounded">{{ entry.completedItems.length }}</span>
                       </div>
@@ -53,33 +53,33 @@
                             <div class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
                               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
                             </div>
-                            <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
-                            <span class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0">{{ item.type }}</span>
+                            <span class="text-sm text-[var(--color-text-body)] font-medium flex-1">{{ item.title }}</span>
+                            <span class="text-[9px] font-bold text-[var(--color-text-muted)] bg-[var(--color-bg-card)] px-1.5 py-0.5 rounded border border-[var(--color-border-subtle)] uppercase tracking-wide shrink-0">{{ item.type }}</span>
                           </div>
                       }
                     </div>
                   }
 
                   @if (hasEvening(entry)) {
-                    <div class="h-px bg-stone-100"></div>
+                    <div class="h-px bg-[var(--color-border-subtle)]"></div>
                     <div class="pl-5 relative">
                       <span class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-amber-400 to-amber-300" aria-hidden="true"></span>
                       <div class="text-xs font-medium italic text-amber-500 mb-1">{{ entry.eveningQuestion }}</div>
-                      <div class="font-serif text-base italic text-stone-600 leading-relaxed">{{ entry.eveningReflection }}</div>
+                      <div class="font-serif text-base italic text-[var(--color-text-body)] leading-relaxed">{{ entry.eveningReflection }}</div>
                     </div>
                   }
 
                 </div>
               </div>
             } @else {
-              <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+              <div class="bg-[var(--color-bg-card)] rounded-2xl border border-[var(--color-border-subtle)] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                 @for (item of entry.completedItems; track item.id) {
                   <div class="flex items-center gap-2 py-1">
                     <div class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
                     </div>
-                    <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
-                    <span class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0">{{ item.type }}</span>
+                    <span class="text-sm text-[var(--color-text-body)] font-medium flex-1">{{ item.title }}</span>
+                    <span class="text-[9px] font-bold text-[var(--color-text-muted)] bg-[var(--color-bg-card)] px-1.5 py-0.5 rounded border border-[var(--color-border-subtle)] uppercase tracking-wide shrink-0">{{ item.type }}</span>
                   </div>
                 }
               </div>

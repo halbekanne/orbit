@@ -14,12 +14,12 @@ import { Idea } from '../../models/work-item.model';
       [attr.aria-label]="idea().title"
     >
       <span class="mt-0.5 shrink-0 text-sm" aria-hidden="true">💡</span>
-      <p class="text-sm font-medium leading-snug text-stone-800 flex-1"
-        [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''">
+      <p class="text-sm font-medium leading-snug text-[var(--color-text-heading)] flex-1"
+        [class]="idea().status === 'wont-do' ? 'line-through text-[var(--color-text-muted)]' : ''">
         {{ idea().title }}
       </p>
       <div
-        class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
+        class="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-muted)] cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
         aria-hidden="true"
       >⠿</div>
     </button>

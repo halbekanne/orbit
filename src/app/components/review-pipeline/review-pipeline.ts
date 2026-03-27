@@ -10,22 +10,22 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
   template: `
     @let p = pipeline();
     @if (p.agents.length > 0) {
-      <div class="border-b border-stone-100">
+      <div class="border-b border-[var(--color-border-subtle)]">
         <button
           type="button"
-          class="px-6 py-2.5 flex items-center gap-2 text-xs text-stone-400 w-full cursor-pointer hover:text-stone-500 hover:bg-stone-50/30 transition-colors"
+          class="px-6 py-2.5 flex items-center gap-2 text-xs text-[var(--color-text-muted)] w-full cursor-pointer hover:text-[var(--color-text-muted)] hover:bg-[var(--color-bg-surface)] transition-colors"
           [attr.aria-expanded]="sectionOpen()"
           aria-controls="pipeline-content"
           (click)="sectionOpen.set(!sectionOpen())"
         >
-          <h2 id="pipeline-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+          <h2 id="pipeline-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
             Review-Pipeline
           </h2>
           @if (p.totalDuration != null) {
-            <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.totalDuration!) }}</span>
+            <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(p.totalDuration!) }}</span>
           }
           <svg
-            class="w-3 h-3 text-stone-400 ml-auto transition-transform duration-150"
+            class="w-3 h-3 text-[var(--color-text-muted)] ml-auto transition-transform duration-150"
             [class.rotate-180]="sectionOpen()"
             viewBox="0 0 12 12"
             fill="none"
@@ -49,19 +49,19 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                 ></span>
                 <div class="min-w-0 flex-1">
                 <div class="flex items-baseline gap-2 flex-wrap">
-                  <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                  <span class="text-sm font-medium text-[var(--color-text-body)]">{{ agent.label }}</span>
                   <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ agent.temperature }}</span>
                   @if (agent.thinkingBudget != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ agent.thinkingBudget }}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">TB={{ agent.thinkingBudget }}</span>
                   }
                   @if (agent.duration != null) {
-                    <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
+                    <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(agent.duration!) }}</span>
                   }
                 </div>
-                <p class="text-xs text-stone-500 mt-0.5">{{ agentDescription(agent.agent) }}</p>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ agentDescription(agent.agent) }}</p>
                 @if (agent.summary) {
-                  <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
+                  <p class="text-xs text-[var(--color-text-muted)] mt-1">{{ agent.summary }}</p>
                 }
                 @if (agent.error) {
                   <p class="text-xs text-red-600 mt-1">{{ agent.error }}</p>
@@ -69,7 +69,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                 @if (agent.thoughts || agent.rawResponse != null) {
                   <div class="mt-1.5">
                     <button type="button"
-                      class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
+                      class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                       (click)="toggleAgentDetails(agent.agent)">
                       <svg class="w-3 h-3 transition-transform duration-150" [class.rotate-90]="isAgentDetailsOpen(agent.agent)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
                       Details anzeigen
@@ -78,13 +78,13 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                       <div class="mt-2 space-y-2">
                         @if (agent.thoughts) {
                           <div>
-                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Denkprozess</span>
-                            <pre class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ agent.thoughts }}</pre>
+                            <span class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Denkprozess</span>
+                            <pre class="mt-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-body)] font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ agent.thoughts }}</pre>
                           </div>
                         }
                         @if (agent.rawResponse != null) {
                           <div>
-                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">JSON-Antwort</span>
+                            <span class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">JSON-Antwort</span>
                             <pre class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48">{{ agent.rawResponse | json }}</pre>
                           </div>
                         }
@@ -106,21 +106,21 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                 ></span>
                 <div class="min-w-0 flex-1">
                 <div class="flex items-baseline gap-2 flex-wrap">
-                  <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                  <span class="text-sm font-medium text-[var(--color-text-body)]">Konsolidierer</span>
                   <span class="text-xs" [class]="statusTextClass(consolidatorDisplayStatus())">{{ statusText(consolidatorDisplayStatus()) }}</span>
                   @if (p.consolidator.temperature != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ p.consolidator.temperature }}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ p.consolidator.temperature }}</span>
                   }
                   @if (p.consolidator.thinkingBudget != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">TB={{ p.consolidator.thinkingBudget }}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">TB={{ p.consolidator.thinkingBudget }}</span>
                   }
                   @if (p.consolidator.duration != null) {
-                    <span class="font-mono text-xs text-stone-400">{{ formatDuration(p.consolidator.duration!) }}</span>
+                    <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(p.consolidator.duration!) }}</span>
                   }
                 </div>
-                <p class="text-xs text-stone-500 mt-0.5">{{ consolidatorDescription }}</p>
+                <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ consolidatorDescription }}</p>
                 @if (p.consolidator.summary) {
-                  <p class="text-xs text-stone-500 mt-1">{{ p.consolidator.summary }}</p>
+                  <p class="text-xs text-[var(--color-text-muted)] mt-1">{{ p.consolidator.summary }}</p>
                 }
                 @if (p.consolidator.error) {
                   <p class="text-xs text-red-600 mt-1">{{ p.consolidator.error }}</p>
@@ -133,8 +133,8 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                           class="shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-medium"
                           [class]="decisionBadgeClass(decision.action)"
                         >{{ decisionLabel(decision.action) }}</span>
-                        <span class="text-stone-700">{{ decision.finding }}</span>
-                        <span class="text-stone-400 italic">{{ decision.reason }}</span>
+                        <span class="text-[var(--color-text-body)]">{{ decision.finding }}</span>
+                        <span class="text-[var(--color-text-muted)] italic">{{ decision.reason }}</span>
                       </div>
                     }
                   </div>
@@ -142,7 +142,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                 @if (p.consolidator.thoughts || p.consolidator.rawResponse != null) {
                   <div class="mt-1.5">
                     <button type="button"
-                      class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
+                      class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                       (click)="consolidatorDetailsOpen.set(!consolidatorDetailsOpen())">
                       <svg class="w-3 h-3 transition-transform duration-150" [class.rotate-90]="consolidatorDetailsOpen()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
                       Details anzeigen
@@ -151,13 +151,13 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                       <div class="mt-2 space-y-2">
                         @if (p.consolidator.thoughts) {
                           <div>
-                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Denkprozess</span>
-                            <pre class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ p.consolidator.thoughts }}</pre>
+                            <span class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Denkprozess</span>
+                            <pre class="mt-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-body)] font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ p.consolidator.thoughts }}</pre>
                           </div>
                         }
                         @if (p.consolidator.rawResponse != null) {
                           <div>
-                            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">JSON-Antwort</span>
+                            <span class="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">JSON-Antwort</span>
                             <pre class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48">{{ p.consolidator.rawResponse | json }}</pre>
                           </div>
                         }

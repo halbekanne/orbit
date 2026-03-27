@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, output, viewChild } fro
       type="text"
       placeholder="Neue Aufgabe..."
       aria-label="Neue Aufgabe hinzufügen"
-      class="bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+      class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
       (keydown)="onKeydown($event)"
     />
   `,

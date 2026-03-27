@@ -11,11 +11,11 @@ import { SubTask } from '../../models/sub-task.model';
   imports: [SubTaskListComponent],
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
-      <header class="pb-5 border-b border-stone-200">
+      <header class="pb-5 border-b border-[var(--color-border-subtle)]">
         <div class="flex items-start gap-2 mb-2">
           <span class="text-lg" aria-hidden="true">💡</span>
           <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-            [class]="idea().status === 'wont-do' ? 'bg-stone-100 text-stone-500' : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'">
+            [class]="idea().status === 'wont-do' ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]' : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'">
             {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
           </span>
         </div>
@@ -23,7 +23,7 @@ import { SubTask } from '../../models/sub-task.model';
         @if (editingTitle()) {
           <input
             type="text"
-            class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
+            class="text-xl font-semibold text-[var(--color-text-heading)] leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
             [value]="draftTitle()"
             (input)="draftTitle.set($any($event.target).value)"
             (blur)="saveTitle()"
@@ -32,8 +32,8 @@ import { SubTask } from '../../models/sub-task.model';
           />
         } @else {
           <h1
-            class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
-            [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''"
+            class="text-xl font-semibold text-[var(--color-text-heading)] leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
+            [class]="idea().status === 'wont-do' ? 'line-through text-[var(--color-text-muted)]' : ''"
             (click)="startEditTitle()"
             tabindex="0"
             (keydown.enter)="startEditTitle()"
@@ -42,31 +42,31 @@ import { SubTask } from '../../models/sub-task.model';
         }
       </header>
 
-      <div class="py-5 border-b border-stone-200">
+      <div class="py-5 border-b border-[var(--color-border-subtle)]">
         <dl>
           <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
-            <dd class="text-sm text-stone-700">{{ formatDate(idea().createdAt) }}</dd>
+            <dt class="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide mb-1">Erstellt am</dt>
+            <dd class="text-sm text-[var(--color-text-body)]">{{ formatDate(idea().createdAt) }}</dd>
           </div>
         </dl>
       </div>
 
       <div class="flex-1 py-5 overflow-y-auto">
-        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Notizen</h2>
+        <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Notizen</h2>
 
         @if (editingDescription()) {
           <textarea
-            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
+            class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
             [value]="draftDescription()"
             (input)="draftDescription.set($any($event.target).value)"
             (blur)="saveDescription()"
             (keydown)="onDescriptionKeydown($event)"
             aria-label="Notizen bearbeiten"
           ></textarea>
-          <p class="text-xs text-stone-400 mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
         } @else {
           <div
-            class="text-sm text-stone-700 leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-stone-50 rounded-md p-1 -m-1 transition-colors"
+            class="text-sm text-[var(--color-text-body)] leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-[var(--color-bg-surface)] rounded-md p-1 -m-1 transition-colors"
             (click)="startEditDescription()"
             tabindex="0"
             (keydown.enter)="startEditDescription()"
@@ -75,12 +75,12 @@ import { SubTask } from '../../models/sub-task.model';
             @if (idea().description) {
               {{ idea().description }}
             } @else {
-              <span class="text-stone-400 italic">Notizen hinzufügen…</span>
+              <span class="text-[var(--color-text-muted)] italic">Notizen hinzufügen…</span>
             }
           </div>
         }
 
-        <div class="py-5 border-t border-stone-200">
+        <div class="py-5 border-t border-[var(--color-border-subtle)]">
           <app-sub-task-list
             [subtasks]="idea().subtasks ?? []"
             (subtasksChange)="onSubtasksChange($event)"

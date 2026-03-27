@@ -23,7 +23,7 @@ import { JiraTicket } from '../../models/work-item.model';
         </div>
       } @else if (ticket() === 'no-ticket') {
         <p
-          class="text-sm text-stone-400 italic py-1"
+          class="text-sm text-[var(--color-text-muted)] italic py-1"
           role="status"
         >Kein Jira-Ticket gefunden</p>
       } @else if (ticket() === 'error') {
@@ -79,17 +79,17 @@ import { JiraTicket } from '../../models/work-item.model';
               </a>
             </div>
 
-            <p class="text-[13px] font-semibold text-stone-900 leading-snug mb-2">{{ ticketData()!.summary }}</p>
+            <p class="text-[13px] font-semibold text-[var(--color-text-heading)] leading-snug mb-2">{{ ticketData()!.summary }}</p>
 
             <div class="flex items-center gap-1.5">
-              <span class="text-[9.5px] font-semibold text-stone-400 uppercase tracking-wide">Zugewiesen</span>
+              <span class="text-[9.5px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Zugewiesen</span>
               @if (ticketData()!.assignee !== 'Nicht zugeordnet') {
                 <span
                   class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] text-[8px] font-bold shrink-0"
                   aria-hidden="true"
                 >{{ assigneeInitials() }}</span>
               }
-              <span class="text-[11.5px] text-stone-600 font-medium">{{ ticketData()!.assignee }}</span>
+              <span class="text-[11.5px] text-[var(--color-text-body)] font-medium">{{ ticketData()!.assignee }}</span>
             </div>
           </div>
 
@@ -145,9 +145,9 @@ export class JiraPrCardComponent {
       'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       'In Review':   'bg-amber-50 text-amber-700 border-amber-200',
       'Done':        'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'To Do':       'bg-stone-100 text-stone-500 border-stone-200',
+      'To Do':       'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]',
     };
-    return (status && map[status]) ?? 'bg-stone-100 text-stone-500 border-stone-200';
+    return (status && map[status]) ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]';
   });
 
   statusDotClass = computed(() => {

@@ -22,7 +22,7 @@ type CaptureMode = 'todo' | 'idea';
         class="fixed inset-0 pointer-events-none"
       >
         <div
-          class="bg-white rounded-xl shadow-lg border border-stone-200 w-full max-w-md mx-auto mt-[20vh] p-4 pointer-events-auto"
+          class="bg-[var(--color-bg-card)] rounded-xl shadow-lg border border-[var(--color-border-subtle)] w-full max-w-md mx-auto mt-[20vh] p-4 pointer-events-auto"
           (keydown)="onKeydown($event)"
         >
           <input
@@ -30,13 +30,13 @@ type CaptureMode = 'todo' | 'idea';
             type="text"
             [placeholder]="mode() === 'todo' ? 'Neue Aufgabe…' : 'Neue Idee…'"
             [attr.aria-label]="mode() === 'todo' ? 'Aufgabe eingeben' : 'Idee eingeben'"
-            class="bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+            class="bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
           />
           <div class="flex gap-2 mt-3" role="group" aria-label="Art der Erfassung">
             <button
               type="button"
               class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-              [class]="mode() === 'todo' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              [class]="mode() === 'todo' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-border-default)]'"
               (click)="mode.set('todo')"
               [attr.aria-pressed]="mode() === 'todo'"
             >
@@ -45,7 +45,7 @@ type CaptureMode = 'todo' | 'idea';
             <button
               type="button"
               class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-              [class]="mode() === 'idea' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              [class]="mode() === 'idea' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-border-default)]'"
               (click)="mode.set('idea')"
               [attr.aria-pressed]="mode() === 'idea'"
             >

@@ -28,10 +28,10 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
     @switch (overlayState()) {
       @case ('focus-end') {
         <div class="fixed inset-0 bg-black/40 backdrop-blur-[3px] z-[60] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Fokuszeit beendet">
-          <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+          <div class="bg-[var(--color-bg-card)] rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
             <div class="w-12 h-12 mx-auto mb-4 bg-amber-50 rounded-full flex items-center justify-center text-2xl">☀️</div>
-            <h2 class="text-lg font-semibold text-stone-900 mb-1">{{ congratsMessage() }}</h2>
-            <p class="text-sm text-stone-500 mb-5">{{ focusMinutes() }} Minuten Fokuszeit geschafft.</p>
+            <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">{{ congratsMessage() }}</h2>
+            <p class="text-sm text-[var(--color-text-muted)] mb-5">{{ focusMinutes() }} Minuten Fokuszeit geschafft.</p>
             <div class="bg-[var(--color-primary-bg)] rounded-lg px-4 py-2.5 mb-5 text-sm text-[var(--color-primary-text)]">💡 {{ breakSuggestion() }}</div>
             <div class="flex flex-col gap-2">
               <button type="button"
@@ -40,7 +40,7 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
                 Pause starten ({{ breakMinutes() }} Min)
               </button>
               <button type="button"
-                class="w-full rounded-xl border border-stone-200 text-stone-500 py-2 text-sm hover:border-stone-300 hover:text-stone-700 transition-colors"
+                class="w-full rounded-xl border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] py-2 text-sm hover:border-[var(--color-border-default)] hover:text-[var(--color-text-body)] transition-colors"
                 (click)="snooze()">
                 Noch 5 Minuten arbeiten
               </button>
@@ -123,10 +123,10 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
 
       @case ('break-end') {
         <div class="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[60] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Pause beendet">
-          <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+          <div class="bg-[var(--color-bg-card)] rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
             <div class="w-12 h-12 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-2xl">🚀</div>
-            <h2 class="text-lg font-semibold text-stone-900 mb-1">Pause vorbei!</h2>
-            <p class="text-sm text-stone-500 mb-5">Bereit für die nächste Runde?</p>
+            <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Pause vorbei!</h2>
+            <p class="text-sm text-[var(--color-text-muted)] mb-5">Bereit für die nächste Runde?</p>
             <div class="flex flex-col gap-2">
               <button type="button"
                 class="w-full rounded-xl bg-[var(--color-primary-solid)] text-white py-2.5 text-sm font-semibold hover:bg-[var(--color-primary-solid-hover)] transition-colors shadow-md shadow-violet-200"
@@ -134,7 +134,7 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
                 Neue Fokuszeit starten
               </button>
               <button type="button"
-                class="w-full rounded-xl border border-stone-200 text-stone-500 py-2 text-sm hover:border-stone-300 hover:text-stone-700 transition-colors"
+                class="w-full rounded-xl border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] py-2 text-sm hover:border-[var(--color-border-default)] hover:text-[var(--color-text-body)] transition-colors"
                 (click)="finish()">
                 Fertig für jetzt
               </button>

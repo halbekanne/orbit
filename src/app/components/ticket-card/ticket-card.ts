@@ -79,7 +79,7 @@ import { TicketLocalDataService } from '../../services/ticket-local-data.service
                   <path d="M16 12H3"/><path d="M16 6H3"/>
                 </svg>
                 <span style="font-variant-numeric: tabular-nums;">
-                  <span [class]="subtaskDoneTextClass()">{{ subtaskDone() }}</span><span class="text-stone-400">/{{ subtaskTotal() }}</span>
+                  <span [class]="subtaskDoneTextClass()">{{ subtaskDone() }}</span><span class="text-[var(--color-text-muted)]">/{{ subtaskTotal() }}</span>
                 </span>
               </span>
             }
@@ -133,14 +133,14 @@ export class TicketCardComponent {
 
   readonly subtaskIndicatorClass = computed(() => {
     if (this.subtaskAllDone()) return { icon: 'stroke-emerald-600', text: 'text-emerald-600 font-semibold' };
-    if (this.subtaskDone() > 0) return { icon: 'stroke-[var(--color-primary-solid)]', text: 'text-stone-500' };
-    return { icon: 'stroke-stone-400', text: 'text-stone-400' };
+    if (this.subtaskDone() > 0) return { icon: 'stroke-[var(--color-primary-solid)]', text: 'text-[var(--color-text-muted)]' };
+    return { icon: 'stroke-[var(--color-text-muted)]', text: 'text-[var(--color-text-muted)]' };
   });
 
   readonly subtaskDoneTextClass = computed(() => {
     if (this.subtaskAllDone()) return 'text-emerald-600 font-semibold';
     if (this.subtaskDone() > 0) return 'text-[var(--color-primary-text)] font-semibold';
-    return 'text-stone-400 font-semibold';
+    return 'text-[var(--color-text-muted)] font-semibold';
   });
 
   issueTypeKey = computed(() => {

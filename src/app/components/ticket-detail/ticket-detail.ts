@@ -25,7 +25,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
     <article [attr.aria-label]="ticket().key + ': ' + ticket().summary">
 
       <!-- ── Sticky header ─────────────────────────────────────────── -->
-      <header class="sticky top-0 z-10 bg-white border-b border-stone-200">
+      <header class="sticky top-0 z-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)]">
         <div class="max-w-2xl mx-auto relative">
           <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="statusStripeClass()" aria-hidden="true"></div>
 
@@ -54,14 +54,14 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                   {{ ticket().issueType }}
                 </span>
 
-                <span class="text-stone-300" aria-hidden="true">·</span>
+                <span class="text-[var(--color-text-muted)]" aria-hidden="true">·</span>
                 <span class="font-mono text-sm font-bold text-[var(--color-primary-text)] tracking-wide shrink-0">{{ ticket().key }}</span>
               </div>
 
             </div>
 
             <!-- Summary -->
-            <h1 class="text-lg font-semibold text-stone-900 leading-snug mb-3">{{ ticket().summary }}</h1>
+            <h1 class="text-lg font-semibold text-[var(--color-text-heading)] leading-snug mb-3">{{ ticket().summary }}</h1>
 
             <!-- Status + Labels -->
             <div class="flex items-center gap-2 flex-wrap mb-2.5">
@@ -80,8 +80,8 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
             </div>
 
             <!-- Meta -->
-            <p class="text-xs text-stone-400 leading-relaxed">
-              von <span class="text-stone-500 font-medium">{{ ticket().creator }}</span>
+            <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+              von <span class="text-[var(--color-text-muted)] font-medium">{{ ticket().creator }}</span>
               <span aria-hidden="true"> · </span>erstellt {{ formatDate(ticket().createdAt) }}
               <span aria-hidden="true"> · </span>geändert {{ formatDate(ticket().updatedAt) }}
             </p>
@@ -92,18 +92,18 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
       <!-- ── Body ──────────────────────────────────────────────────── -->
 
       <!-- Description -->
-      <section class="border-b border-stone-100" aria-labelledby="desc-heading">
+      <section class="border-b border-[var(--color-border-subtle)]" aria-labelledby="desc-heading">
         <div class="max-w-2xl mx-auto px-6 py-5">
-          <h2 id="desc-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Beschreibung</h2>
+          <h2 id="desc-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Beschreibung</h2>
           @if (ticket().description) {
             <div class="jira-markup" [innerHTML]="ticket().description | jiraMarkup"></div>
           } @else {
-            <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
+            <p class="text-sm text-[var(--color-text-muted)] italic">Keine Beschreibung vorhanden.</p>
           }
         </div>
       </section>
 
-      <div class="border-b border-stone-100">
+      <div class="border-b border-[var(--color-border-subtle)]">
         <div class="max-w-2xl mx-auto px-6 py-5">
           <app-sub-task-list
             [subtasks]="ticketLocalData.subtasks()"
@@ -114,9 +114,9 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
       <!-- Epic Link -->
       @if (ticket().epicLink) {
-        <section class="border-b border-stone-100">
+        <section class="border-b border-[var(--color-border-subtle)]">
           <div class="max-w-2xl mx-auto px-6 py-3.5 flex items-center gap-3">
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider shrink-0">Epic</span>
+            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider shrink-0">Epic</span>
             <span class="font-mono text-xs font-bold text-violet-600">{{ ticket().epicLink }}</span>
           </div>
         </section>
@@ -124,11 +124,11 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
       <!-- Components -->
       @if (ticket().components.length) {
-        <section class="border-b border-stone-100" aria-label="Komponenten">
+        <section class="border-b border-[var(--color-border-subtle)]" aria-label="Komponenten">
           <div class="max-w-2xl mx-auto px-6 py-3.5 flex items-center gap-3 flex-wrap">
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider shrink-0">Komponenten</span>
+            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider shrink-0">Komponenten</span>
             @for (comp of ticket().components; track comp) {
-              <span class="text-xs text-stone-600 bg-stone-100 rounded px-2 py-0.5 border border-stone-200">{{ comp }}</span>
+              <span class="text-xs text-[var(--color-text-body)] bg-[var(--color-bg-surface)] rounded px-2 py-0.5 border border-[var(--color-border-subtle)]">{{ comp }}</span>
             }
           </div>
         </section>
@@ -136,20 +136,20 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
       <!-- Relations -->
       @if (ticket().relations.length) {
-        <section class="border-b border-stone-100" aria-labelledby="relations-heading">
+        <section class="border-b border-[var(--color-border-subtle)]" aria-labelledby="relations-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-[var(--color-bg-surface)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('relations')"
               [attr.aria-expanded]="expandedSections().has('relations')"
               aria-controls="relations-content"
             >
               <div class="flex items-center gap-2">
-                <h2 id="relations-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Verknüpfungen</h2>
-                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-stone-200 text-stone-600 text-[10px] font-bold px-1" aria-label="{{ ticket().relations.length }} Verknüpfungen">{{ ticket().relations.length }}</span>
+                <h2 id="relations-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Verknüpfungen</h2>
+                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-body)] text-[10px] font-bold px-1" aria-label="{{ ticket().relations.length }} Verknüpfungen">{{ ticket().relations.length }}</span>
               </div>
               <svg
-                class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
+                class="w-3.5 h-3.5 text-[var(--color-text-muted)] transition-transform duration-150"
                 [class.rotate-180]="expandedSections().has('relations')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
@@ -159,7 +159,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
               <div id="relations-content" class="px-6 pb-4 space-y-2.5">
                 @for (rel of ticket().relations; track rel.key) {
                   <div class="flex items-baseline gap-2">
-                    <span class="text-xs text-stone-400 shrink-0 w-32">{{ rel.relationLabel }}</span>
+                    <span class="text-xs text-[var(--color-text-muted)] shrink-0 w-32">{{ rel.relationLabel }}</span>
                     <a
                       [href]="rel.url"
                       target="_blank"
@@ -167,9 +167,9 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                       class="group flex items-baseline gap-1.5 flex-1 min-w-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] rounded"
                     >
                       <span class="font-mono text-xs font-bold text-[var(--color-primary-text)] shrink-0">{{ rel.key }}</span>
-                      <span class="text-xs text-stone-600 truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ rel.summary }}</span>
+                      <span class="text-xs text-[var(--color-text-body)] truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ rel.summary }}</span>
                     </a>
-                    <span class="text-xs text-stone-400 shrink-0">{{ rel.status }}</span>
+                    <span class="text-xs text-[var(--color-text-muted)] shrink-0">{{ rel.status }}</span>
                   </div>
                 }
               </div>
@@ -180,20 +180,20 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
       <!-- Comments -->
       @if (ticket().comments.length) {
-        <section class="border-b border-stone-100" aria-labelledby="comments-heading">
+        <section class="border-b border-[var(--color-border-subtle)]" aria-labelledby="comments-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-[var(--color-bg-surface)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('comments')"
               [attr.aria-expanded]="expandedSections().has('comments')"
               aria-controls="comments-content"
             >
               <div class="flex items-center gap-2">
-                <h2 id="comments-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Kommentare</h2>
-                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-stone-200 text-stone-600 text-[10px] font-bold px-1" aria-label="{{ ticket().comments.length }} Kommentare">{{ ticket().comments.length }}</span>
+                <h2 id="comments-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Kommentare</h2>
+                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-body)] text-[10px] font-bold px-1" aria-label="{{ ticket().comments.length }} Kommentare">{{ ticket().comments.length }}</span>
               </div>
               <svg
-                class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
+                class="w-3.5 h-3.5 text-[var(--color-text-muted)] transition-transform duration-150"
                 [class.rotate-180]="expandedSections().has('comments')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
@@ -202,10 +202,10 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
             @if (expandedSections().has('comments')) {
               <div id="comments-content" class="px-6 pb-4 space-y-4">
                 @for (comment of ticket().comments; track comment.id) {
-                  <div class="border-l-2 border-stone-200 pl-3">
+                  <div class="border-l-2 border-[var(--color-border-subtle)] pl-3">
                     <div class="flex items-center gap-2 mb-1.5">
-                      <span class="text-xs font-semibold text-stone-600">{{ comment.author }}</span>
-                      <span class="text-xs text-stone-400">{{ formatDate(comment.createdAt) }}</span>
+                      <span class="text-xs font-semibold text-[var(--color-text-body)]">{{ comment.author }}</span>
+                      <span class="text-xs text-[var(--color-text-muted)]">{{ formatDate(comment.createdAt) }}</span>
                     </div>
                     <div class="jira-markup" [innerHTML]="comment.body | jiraMarkup"></div>
                   </div>
@@ -218,20 +218,20 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
       <!-- Attachments -->
       @if (ticket().attachments.length) {
-        <section class="border-b border-stone-100" aria-labelledby="attachments-heading">
+        <section class="border-b border-[var(--color-border-subtle)]" aria-labelledby="attachments-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-[var(--color-bg-surface)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('attachments')"
               [attr.aria-expanded]="expandedSections().has('attachments')"
               aria-controls="attachments-content"
             >
               <div class="flex items-center gap-2">
-                <h2 id="attachments-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Anhänge</h2>
-                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-stone-200 text-stone-600 text-[10px] font-bold px-1" aria-label="{{ ticket().attachments.length }} Anhänge">{{ ticket().attachments.length }}</span>
+                <h2 id="attachments-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Anhänge</h2>
+                <span class="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-body)] text-[10px] font-bold px-1" aria-label="{{ ticket().attachments.length }} Anhänge">{{ ticket().attachments.length }}</span>
               </div>
               <svg
-                class="w-3.5 h-3.5 text-stone-400 transition-transform duration-150"
+                class="w-3.5 h-3.5 text-[var(--color-text-muted)] transition-transform duration-150"
                 [class.rotate-180]="expandedSections().has('attachments')"
                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                 aria-hidden="true"
@@ -249,15 +249,15 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                       [attr.aria-label]="attachment.filename + ' öffnen'"
                     >
                       @if (attachment.thumbnail) {
-                        <div class="aspect-video bg-stone-100 rounded-md overflow-hidden border border-stone-200 group-hover:border-[var(--color-primary-border)] transition-colors duration-150">
+                        <div class="aspect-video bg-[var(--color-bg-surface)] rounded-md overflow-hidden border border-[var(--color-border-subtle)] group-hover:border-[var(--color-primary-border)] transition-colors duration-150">
                           <img [src]="attachment.thumbnail" [alt]="attachment.filename" class="w-full h-full object-cover" />
                         </div>
                       } @else {
-                        <div class="aspect-video bg-stone-50 rounded-md border border-stone-200 group-hover:border-[var(--color-primary-border)] transition-colors duration-150 flex items-center justify-center">
-                          <svg class="w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <div class="aspect-video bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border-subtle)] group-hover:border-[var(--color-primary-border)] transition-colors duration-150 flex items-center justify-center">
+                          <svg class="w-5 h-5 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
                       }
-                      <p class="text-xs text-stone-500 mt-1 truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ attachment.filename }}</p>
+                      <p class="text-xs text-[var(--color-text-muted)] mt-1 truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ attachment.filename }}</p>
                     </a>
                   }
                 </div>
@@ -326,9 +326,9 @@ export class TicketDetailComponent {
       'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       'In Review': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'To Do': 'bg-stone-100 text-stone-600 border-stone-200',
+      'To Do': 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]',
     };
-    return map[this.ticket().status] ?? 'bg-stone-100 text-stone-600 border-stone-200';
+    return map[this.ticket().status] ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]';
   }
 
   statusDotClass(): string {

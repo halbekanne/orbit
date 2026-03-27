@@ -20,33 +20,33 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
   styles: [`:host { display: block; }`],
   template: `
     @let review = reviewState();
-    <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+    <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
       <!-- Card header -->
       <button
         type="button"
-        class="w-full flex items-center gap-2.5 px-5 py-4 cursor-pointer hover:bg-stone-50/50 transition-colors duration-100"
+        class="w-full flex items-center gap-2.5 px-5 py-4 cursor-pointer hover:bg-[var(--color-bg-surface)] transition-colors duration-100"
         [attr.aria-expanded]="sectionExpanded()"
         (click)="sectionExpanded.set(!sectionExpanded())"
       >
         <svg
-          class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150"
+          class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
           [class.rotate-90]="sectionExpanded()"
           viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
         ><path d="M4 2l4 4-4 4" /></svg>
-        <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
           <path d="M19.5 7.125L16.862 4.487" />
         </svg>
-        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">KI-Review</span>
+        <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Review</span>
 
         @if (review === 'idle') {
-          <span class="text-xs text-stone-400">Noch nicht gestartet</span>
+          <span class="text-xs text-[var(--color-text-muted)]">Noch nicht gestartet</span>
         } @else if (review.status === 'running') {
           <span class="flex items-center gap-1.5 text-xs text-[var(--color-primary-solid)]">
             <span class="w-2 h-2 rounded-full bg-[var(--color-primary-solid)] pulse-dot"></span>
             Analyse läuft...
           </span>
-          <span class="ml-auto font-mono text-xs text-stone-400">{{ formatElapsed(elapsedSeconds()) }}</span>
+          <span class="ml-auto font-mono text-xs text-[var(--color-text-muted)]">{{ formatElapsed(elapsedSeconds()) }}</span>
         } @else if (review.status === 'error') {
           <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 font-medium">Fehlgeschlagen</span>
         } @else if (review.status === 'result') {
@@ -59,24 +59,24 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                 <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium" style="animation-delay: 0.08s">{{ counts.important }} Wichtig</span>
               }
               @if (counts.minor > 0) {
-                <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200 font-medium" style="animation-delay: 0.16s">{{ counts.minor }} Gering</span>
+                <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)] font-medium" style="animation-delay: 0.16s">{{ counts.minor }} Gering</span>
               }
             </span>
           }
           @if (review.pipeline.totalDuration != null) {
-            <span class="ml-auto font-mono text-xs text-stone-400">{{ formatDuration(review.pipeline.totalDuration!) }}</span>
+            <span class="ml-auto font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(review.pipeline.totalDuration!) }}</span>
           }
         }
       </button>
 
       <!-- Card body -->
       @if (sectionExpanded()) {
-        <div class="border-t border-stone-100">
+        <div class="border-t border-[var(--color-border-subtle)]">
           @if (review !== 'idle' && review.status === 'running') {
             <!-- Running state -->
             <div class="px-5 py-4">
               @if (progressInfo(); as pi) {
-                <div class="h-1.5 bg-stone-100 rounded-full overflow-hidden mb-4">
+                <div class="h-1.5 bg-[var(--color-bg-surface)] rounded-full overflow-hidden mb-4">
                   <div
                     class="h-full bg-gradient-to-r from-violet-500 to-violet-400 rounded-full transition-all duration-500"
                     [style.width.%]="pi.done / pi.total * 100"
@@ -93,36 +93,36 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                       </span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap slide-in">
-                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">{{ agent.label }}</span>
                           <span class="text-xs text-emerald-600">&#10003; fertig</span>
-                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ agent.temperature }}</span>
                           @if (agent.duration != null) {
-                            <span class="font-mono text-xs text-stone-400">{{ formatDuration(agent.duration!) }}</span>
+                            <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(agent.duration!) }}</span>
                           }
                         </div>
                         @if (agent.summary) {
-                          <p class="text-xs text-stone-500 mt-1">{{ agent.summary }}</p>
+                          <p class="text-xs text-[var(--color-text-muted)] mt-1">{{ agent.summary }}</p>
                         }
                       </div>
                     } @else if (agent.status === 'running') {
                       <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-violet-400 pulse-dot" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap">
-                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">{{ agent.label }}</span>
                           <span class="flex items-center gap-0.5 text-xs text-[var(--color-primary-solid)]">
                             <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                             <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                             <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                           </span>
-                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ agent.temperature }}</span>
                         </div>
                       </div>
                     } @else {
-                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full border-2 border-dashed border-stone-300" aria-hidden="true"></span>
+                      <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full border-2 border-dashed border-[var(--color-border-default)]" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1 opacity-50">
                         <div class="flex items-baseline gap-2 flex-wrap">
-                          <span class="text-sm font-medium text-stone-700">{{ agent.label }}</span>
-                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200">T={{ agent.temperature }}</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">{{ agent.label }}</span>
+                          <span class="text-[11px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ agent.temperature }}</span>
                         </div>
                       </div>
                     }
@@ -137,10 +137,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                       </span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap slide-in">
-                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">Konsolidierer</span>
                           <span class="text-xs text-emerald-600">&#10003; fertig</span>
                           @if (review.pipeline.consolidator.duration != null) {
-                            <span class="font-mono text-xs text-stone-400">{{ formatDuration(review.pipeline.consolidator.duration!) }}</span>
+                            <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(review.pipeline.consolidator.duration!) }}</span>
                           }
                         </div>
                       </div>
@@ -148,7 +148,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                       <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-violet-400 pulse-dot" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap">
-                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">Konsolidierer</span>
                           <span class="flex items-center gap-0.5 text-xs text-[var(--color-primary-solid)]">
                             <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
                             <span class="thinking-dot w-1 h-1 rounded-full bg-violet-400"></span>
@@ -160,7 +160,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                       <span class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
                       <div class="min-w-0 flex-1">
                         <div class="flex items-baseline gap-2 flex-wrap">
-                          <span class="text-sm font-medium text-stone-700">Konsolidierer</span>
+                          <span class="text-sm font-medium text-[var(--color-text-body)]">Konsolidierer</span>
                           <span class="text-xs text-red-600">&#10007; Fehler</span>
                         </div>
                       </div>
@@ -180,8 +180,8 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                   <path d="M19.5 7.125L16.862 4.487" />
                 </svg>
               </div>
-              <p class="text-sm font-medium text-stone-800 mb-1">Review konnte nicht durchgeführt werden</p>
-              <p class="text-sm text-stone-500 text-center max-w-xs mb-5">Der Review-Service war nicht erreichbar. Das kann an einer kurzzeitigen Störung liegen — versuch es einfach nochmal.</p>
+              <p class="text-sm font-medium text-[var(--color-text-heading)] mb-1">Review konnte nicht durchgeführt werden</p>
+              <p class="text-sm text-[var(--color-text-muted)] text-center max-w-xs mb-5">Der Review-Service war nicht erreichbar. Das kann an einer kurzzeitigen Störung liegen — versuch es einfach nochmal.</p>
               <button
                 type="button"
                 class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100 cursor-pointer"
@@ -193,8 +193,8 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                 Nochmal versuchen
               </button>
               <details class="mt-6 w-full max-w-md">
-                <summary class="text-xs text-stone-400 cursor-pointer hover:text-stone-600">Technische Details</summary>
-                <pre class="mt-2 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-xs p-3 rounded-md overflow-x-auto whitespace-pre-wrap">{{ review.message }}</pre>
+                <summary class="text-xs text-[var(--color-text-muted)] cursor-pointer hover:text-[var(--color-text-body)]">Technische Details</summary>
+                <pre class="mt-2 bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-body)] font-mono text-xs p-3 rounded-md overflow-x-auto whitespace-pre-wrap">{{ review.message }}</pre>
               </details>
             </div>
           } @else if (review !== 'idle' && review.status === 'result' && isPartialResult()) {
@@ -223,25 +223,25 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               } @else {
                 <div class="space-y-3 mt-3">
                   @for (group of fileGroups(); track group.file) {
-                    <div [attr.data-file-group]="group.file" class="bg-stone-50/50 rounded-lg border border-stone-100">
+                    <div [attr.data-file-group]="group.file" class="bg-[var(--color-bg-surface)] rounded-lg border border-[var(--color-border-subtle)]">
                       <button
                         type="button"
-                        class="w-full text-left px-4 py-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50 rounded-lg"
+                        class="w-full text-left px-4 py-3 flex items-center gap-2 cursor-pointer hover:bg-[var(--color-bg-surface)] rounded-lg"
                         [attr.aria-expanded]="isExpanded(group.file)"
                         (click)="toggleGroup(group.file)"
                       >
                         <svg
-                          class="w-3 h-3 text-stone-400 shrink-0 transition-transform duration-150"
+                          class="w-3 h-3 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
                           [class.rotate-90]="isExpanded(group.file)"
                           viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
                         ><path d="M4 2l4 4-4 4" /></svg>
-                        <span class="font-mono text-sm text-stone-700 break-all leading-snug min-w-0 flex-1">{{ group.file }}</span>
+                        <span class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1">{{ group.file }}</span>
                         <span class="flex items-center gap-1 shrink-0">
                           @for (sev of group.severities; track sev) {
                             <span data-severity-dot class="w-2 h-2 rounded-full" [class]="severityDotClass(sev)" aria-hidden="true"></span>
                           }
                         </span>
-                        <span class="text-xs text-stone-400 shrink-0">{{ group.findings.length }}</span>
+                        <span class="text-xs text-[var(--color-text-muted)] shrink-0">{{ group.findings.length }}</span>
                       </button>
 
                       @if (isExpanded(group.file)) {
@@ -252,18 +252,18 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                                 <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
                                 <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
                                 @if (finding.wcagCriterion) {
-                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200">WCAG {{ finding.wcagCriterion }}</span>
+                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]">WCAG {{ finding.wcagCriterion }}</span>
                                 }
-                                <span class="font-mono text-xs text-stone-400 ml-auto pr-2">Zeile {{ finding.line }}</span>
+                                <span class="font-mono text-xs text-[var(--color-text-muted)] ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
-                              <p class="text-sm font-medium text-stone-800 mb-1">{{ finding.title }}</p>
+                              <p class="text-sm font-medium text-[var(--color-text-heading)] mb-1">{{ finding.title }}</p>
                               @if (finding.codeSnippet) {
-                                <pre class="font-mono text-xs bg-stone-50 border border-stone-200 text-stone-700 rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
+                                <pre class="font-mono text-xs bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-body)] rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
                               }
-                              <div class="bg-stone-50 rounded px-3 py-2 text-sm text-stone-600 leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
+                              <div class="bg-[var(--color-bg-surface)] rounded px-3 py-2 text-sm text-[var(--color-text-body)] leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
                               @if (finding.suggestion) {
-                                <div class="mt-1.5 text-sm text-stone-600">
-                                  <span class="font-medium text-stone-700">Vorschlag:</span>
+                                <div class="mt-1.5 text-sm text-[var(--color-text-body)]">
+                                  <span class="font-medium text-[var(--color-text-body)]">Vorschlag:</span>
                                   <span [innerHTML]="' ' + finding.suggestion | inlineCode"></span>
                                 </div>
                               }
@@ -292,25 +292,25 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               } @else {
                 <div class="space-y-3 mt-3">
                   @for (group of fileGroups(); track group.file) {
-                    <div [attr.data-file-group]="group.file" class="bg-stone-50/50 rounded-lg border border-stone-100">
+                    <div [attr.data-file-group]="group.file" class="bg-[var(--color-bg-surface)] rounded-lg border border-[var(--color-border-subtle)]">
                       <button
                         type="button"
-                        class="w-full text-left px-4 py-3 flex items-center gap-2 cursor-pointer hover:bg-stone-50 rounded-lg"
+                        class="w-full text-left px-4 py-3 flex items-center gap-2 cursor-pointer hover:bg-[var(--color-bg-surface)] rounded-lg"
                         [attr.aria-expanded]="isExpanded(group.file)"
                         (click)="toggleGroup(group.file)"
                       >
                         <svg
-                          class="w-3 h-3 text-stone-400 shrink-0 transition-transform duration-150"
+                          class="w-3 h-3 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
                           [class.rotate-90]="isExpanded(group.file)"
                           viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
                         ><path d="M4 2l4 4-4 4" /></svg>
-                        <span class="font-mono text-sm text-stone-700 break-all leading-snug min-w-0 flex-1">{{ group.file }}</span>
+                        <span class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1">{{ group.file }}</span>
                         <span class="flex items-center gap-1 shrink-0">
                           @for (sev of group.severities; track sev) {
                             <span data-severity-dot class="w-2 h-2 rounded-full" [class]="severityDotClass(sev)" aria-hidden="true"></span>
                           }
                         </span>
-                        <span class="text-xs text-stone-400 shrink-0">{{ group.findings.length }}</span>
+                        <span class="text-xs text-[var(--color-text-muted)] shrink-0">{{ group.findings.length }}</span>
                       </button>
 
                       @if (isExpanded(group.file)) {
@@ -321,18 +321,18 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                                 <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
                                 <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
                                 @if (finding.wcagCriterion) {
-                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200">WCAG {{ finding.wcagCriterion }}</span>
+                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]">WCAG {{ finding.wcagCriterion }}</span>
                                 }
-                                <span class="font-mono text-xs text-stone-400 ml-auto pr-2">Zeile {{ finding.line }}</span>
+                                <span class="font-mono text-xs text-[var(--color-text-muted)] ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
-                              <p class="text-sm font-medium text-stone-800 mb-1">{{ finding.title }}</p>
+                              <p class="text-sm font-medium text-[var(--color-text-heading)] mb-1">{{ finding.title }}</p>
                               @if (finding.codeSnippet) {
-                                <pre class="font-mono text-xs bg-stone-50 border border-stone-200 text-stone-700 rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
+                                <pre class="font-mono text-xs bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-body)] rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
                               }
-                              <div class="bg-stone-50 rounded px-3 py-2 text-sm text-stone-600 leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
+                              <div class="bg-[var(--color-bg-surface)] rounded px-3 py-2 text-sm text-[var(--color-text-body)] leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
                               @if (finding.suggestion) {
-                                <div class="mt-1.5 text-sm text-stone-600">
-                                  <span class="font-medium text-stone-700">Vorschlag:</span>
+                                <div class="mt-1.5 text-sm text-[var(--color-text-body)]">
+                                  <span class="font-medium text-[var(--color-text-body)]">Vorschlag:</span>
                                   <span [innerHTML]="' ' + finding.suggestion | inlineCode"></span>
                                 </div>
                               }
@@ -348,14 +348,14 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
           } @else {
             <div class="flex flex-col items-center justify-center py-12 px-6">
               <div class="relative w-24 h-24 mb-6">
-                <div class="absolute inset-0 rounded-full border-2 border-dashed border-stone-200 orbit-breathe"></div>
-                <div class="absolute inset-3 rounded-full border-2 border-dashed border-stone-200 orbit-breathe" style="animation-delay: -1.5s"></div>
-                <svg class="absolute inset-0 m-auto w-8 h-8 text-stone-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <div class="absolute inset-0 rounded-full border-2 border-dashed border-[var(--color-border-subtle)] orbit-breathe"></div>
+                <div class="absolute inset-3 rounded-full border-2 border-dashed border-[var(--color-border-subtle)] orbit-breathe" style="animation-delay: -1.5s"></div>
+                <svg class="absolute inset-0 m-auto w-8 h-8 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
                   <path d="M19.5 7.125L16.862 4.487" />
                 </svg>
               </div>
-              <p class="text-sm text-stone-500 text-center max-w-xs mb-5">Lass die KI den Code analysieren. Prüft Code-Qualität und Abgleich mit den Akzeptanzkriterien.</p>
+              <p class="text-sm text-[var(--color-text-muted)] text-center max-w-xs mb-5">Lass die KI den Code analysieren. Prüft Code-Qualität und Abgleich mit den Akzeptanzkriterien.</p>
               <button
                 type="button"
                 class="cta-shimmer px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100"
@@ -510,7 +510,7 @@ export class ReviewFindingsComponent {
     switch (severity) {
       case 'critical': return 'bg-red-50 text-red-700 border-red-200';
       case 'important': return 'bg-amber-50 text-amber-700 border-amber-200';
-      default: return 'bg-stone-100 text-stone-500 border-stone-200';
+      default: return 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]';
     }
   }
 
@@ -523,8 +523,8 @@ export class ReviewFindingsComponent {
   }
 
   private readonly categoryConfig: Record<string, { label: string; classes: string }> = {
-    'ak-abgleich': { label: 'AK-Abgleich', classes: 'bg-stone-100 text-stone-500 border-stone-200' },
-    'code-quality': { label: 'Code-Qualität', classes: 'bg-stone-100 text-stone-500 border-stone-200' },
+    'ak-abgleich': { label: 'AK-Abgleich', classes: 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]' },
+    'code-quality': { label: 'Code-Qualität', classes: 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]' },
     'accessibility': { label: 'Barrierefreiheit', classes: 'bg-teal-50 text-teal-700 border-teal-200' },
   };
 
@@ -533,7 +533,7 @@ export class ReviewFindingsComponent {
   }
 
   categoryBadgeClass(category: string): string {
-    const dynamic = this.categoryConfig[category]?.classes ?? 'bg-stone-100 text-stone-600 border-stone-200';
+    const dynamic = this.categoryConfig[category]?.classes ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]';
     return `text-[11px] px-1.5 py-0.5 rounded border font-medium ${dynamic}`;
   }
 }

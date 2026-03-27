@@ -113,25 +113,25 @@ function formatGermanDate(): string {
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
                 </svg>
               }
-              <h1 class="text-xl font-semibold text-stone-900">
+              <h1 class="text-xl font-semibold text-[var(--color-text-heading)]">
                 {{ isMorning() ? 'Tagesfokus' : 'Tagesreflektion' }}
               </h1>
-              <p class="text-sm text-stone-400 mt-1">{{ formattedDate() }}</p>
+              <p class="text-sm text-[var(--color-text-muted)] mt-1">{{ formattedDate() }}</p>
             </header>
 
             @if (!isMorning()) {
               @if (entry()?.morningFocus) {
                 <div class="mb-6 border-l-[3px] border-[var(--color-primary-border)] pl-4">
                   <p class="font-serif italic text-sm text-[var(--color-primary-solid)] mb-1">{{ entry()!.morningQuestion }}</p>
-                  <p class="font-serif italic text-base text-stone-600 leading-relaxed">{{ entry()!.morningFocus }}</p>
+                  <p class="font-serif italic text-base text-[var(--color-text-body)] leading-relaxed">{{ entry()!.morningFocus }}</p>
                 </div>
               }
               <div class="mb-8">
                 @if (completedItems().length > 0) {
-                  <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">Heute geschafft</h2>
+                  <h2 class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">Heute geschafft</h2>
                   <ul class="space-y-2" role="list">
                     @for (item of completedItems(); track item.id) {
-                      <li class="flex items-center gap-2 text-sm text-stone-600">
+                      <li class="flex items-center gap-2 text-sm text-[var(--color-text-body)]">
                         <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                           <path d="M20 6 9 17l-5-5"/>
                         </svg>
@@ -140,7 +140,7 @@ function formatGermanDate(): string {
                     }
                   </ul>
                 } @else {
-                  <p class="text-sm text-stone-400 font-serif italic">
+                  <p class="text-sm text-[var(--color-text-muted)] font-serif italic">
                     Kein Problem — nicht jeder Tag ist ein Produktivitätstag.
                   </p>
                 }
@@ -148,13 +148,13 @@ function formatGermanDate(): string {
             }
 
             <div class="mb-6" [class]="isMorning() ? 'border-l-[3px] border-[var(--color-primary-solid)] pl-4' : 'border-l-[3px] border-amber-400 pl-4'">
-              <p [id]="questionId" class="font-serif italic text-lg text-stone-700">
+              <p [id]="questionId" class="font-serif italic text-lg text-[var(--color-text-body)]">
                 {{ question() }}
               </p>
             </div>
 
             <textarea
-              class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-800 placeholder:text-stone-400 resize-none transition-shadow duration-150"
+              class="w-full rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] px-4 py-3 text-[var(--color-text-heading)] placeholder:text-[var(--color-text-muted)] resize-none transition-shadow duration-150"
               [class]="isMorning() ? 'focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-primary-border)]' : 'focus:ring-2 focus:ring-amber-300 focus:border-amber-300'"
               rows="4"
               [placeholder]="isMorning() ? 'Dein Fokus für heute...' : 'Deine Gedanken zum Tag...'"
@@ -167,7 +167,7 @@ function formatGermanDate(): string {
               <button
                 type="button"
                 class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2"
-                [class]="isMorning() ? 'bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] focus-visible:outline-[var(--color-focus-ring)]' : 'bg-stone-800 hover:bg-stone-900 focus-visible:outline-stone-600'"
+                [class]="isMorning() ? 'bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] focus-visible:outline-[var(--color-focus-ring)]' : 'bg-stone-800 hover:bg-stone-900 focus-visible:outline-[var(--color-text-body)]'"
                 [disabled]="!textValue().trim()"
                 (click)="onSubmit()"
                 data-testid="btn-submit"
@@ -176,7 +176,7 @@ function formatGermanDate(): string {
               </button>
               <button
                 type="button"
-                class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
+                class="rounded-xl px-5 py-2.5 text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-text-muted)]"
                 (click)="onSkip()"
                 data-testid="btn-skip"
               >
@@ -192,11 +192,11 @@ function formatGermanDate(): string {
             <svg class="w-9 h-9 text-[var(--color-primary-solid)] mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
-            <p class="text-sm text-stone-400 mt-1">Wie sieht dein Tag heute aus?</p>
+            <h1 class="text-xl font-semibold text-[var(--color-text-heading)]">Tagesplan erstellen</h1>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">Wie sieht dein Tag heute aus?</p>
           </header>
 
-          <div class="flex-1 w-full max-w-[520px] min-h-0 border border-stone-200 rounded-xl overflow-hidden bg-white">
+          <div class="flex-1 w-full max-w-[520px] min-h-0 border border-[var(--color-border-subtle)] rounded-xl overflow-hidden bg-[var(--color-bg-card)]">
             <app-day-timeline
               [appointments]="calendarAppointments()"
               (appointmentCreate)="onCalendarCreate($event)"
@@ -214,7 +214,7 @@ function formatGermanDate(): string {
             >Fertig</button>
             <button
               type="button"
-              class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
+              class="rounded-xl px-5 py-2.5 text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-text-muted)]"
               (click)="onCalendarSkip()"
               data-testid="btn-calendar-skip"
             >Überspringen</button>
@@ -254,7 +254,7 @@ function formatGermanDate(): string {
                 }
               </div>
               @if (animPhase() === 'text' || animPhase() === 'hold' || animPhase() === 'fade-out') {
-                <p class="mt-4 font-serif text-lg text-stone-700 anim-text-fade-in">
+                <p class="mt-4 font-serif text-lg text-[var(--color-text-body)] anim-text-fade-in">
                   {{ isMorning() ? 'Guten Start!' : 'Reflektion gespeichert!' }}
                 </p>
               }
@@ -270,25 +270,25 @@ function formatGermanDate(): string {
                 <svg class="w-11 h-11 text-[var(--color-primary-solid)] mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
                 </svg>
-                <h1 class="text-2xl font-semibold text-stone-900">Tagesfokus</h1>
+                <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">Tagesfokus</h1>
               } @else {
                 <svg class="w-11 h-11 text-amber-500 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
                 </svg>
-                <h1 class="text-2xl font-semibold text-stone-900">Tagesreflektion</h1>
+                <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">Tagesreflektion</h1>
               }
-              <p class="text-sm text-stone-400 mt-1.5">{{ formattedDate() }}</p>
+              <p class="text-sm text-[var(--color-text-muted)] mt-1.5">{{ formattedDate() }}</p>
             </header>
 
             @if (readonlyMorning()) {
               <div class="mb-2 border-l-[3px] border-[var(--color-primary-border)] pl-5">
-                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                <p class="font-serif italic text-lg text-[var(--color-text-muted)] leading-relaxed">
                   {{ entry()?.morningQuestion }}
                 </p>
               </div>
               @if (entry()?.morningFocus) {
-                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
-                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                <div class="bg-[var(--color-bg-surface)] rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-[var(--color-text-body)] leading-relaxed">
                     {{ entry()!.morningFocus }}
                   </p>
                 </div>
@@ -296,25 +296,25 @@ function formatGermanDate(): string {
             } @else {
               @if (entry()?.morningFocus) {
                 <div class="mb-2 border-l-[3px] border-[var(--color-primary-border)] pl-5">
-                  <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                  <p class="font-serif italic text-lg text-[var(--color-text-muted)] leading-relaxed">
                     {{ entry()!.morningQuestion }}
                   </p>
                 </div>
-                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
-                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                <div class="bg-[var(--color-bg-surface)] rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-[var(--color-text-body)] leading-relaxed">
                     {{ entry()!.morningFocus }}
                   </p>
                 </div>
               }
 
               <div class="mb-2 border-l-[3px] border-amber-300 pl-5">
-                <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
+                <p class="font-serif italic text-lg text-[var(--color-text-muted)] leading-relaxed">
                   {{ entry()?.eveningQuestion }}
                 </p>
               </div>
               @if (entry()?.eveningReflection) {
-                <div class="bg-stone-50/80 rounded-2xl px-7 py-6 mb-8">
-                  <p class="font-serif italic text-xl text-stone-700 leading-relaxed">
+                <div class="bg-[var(--color-bg-surface)] rounded-2xl px-7 py-6 mb-8">
+                  <p class="font-serif italic text-xl text-[var(--color-text-body)] leading-relaxed">
                     {{ entry()!.eveningReflection }}
                   </p>
                 </div>
@@ -322,10 +322,10 @@ function formatGermanDate(): string {
 
               @if (completedItems().length > 0) {
                 <div class="mt-2">
-                  <h2 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">Heute geschafft</h2>
+                  <h2 class="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">Heute geschafft</h2>
                   <ul class="space-y-2.5" role="list">
                     @for (item of completedItems(); track item.id) {
-                      <li class="flex items-center gap-2.5 text-sm text-stone-600">
+                      <li class="flex items-center gap-2.5 text-sm text-[var(--color-text-body)]">
                         <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                           <path d="M20 6 9 17l-5-5"/>
                         </svg>

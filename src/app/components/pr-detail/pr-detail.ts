@@ -67,14 +67,14 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </div>
       }
 
-      <header class="sticky top-0 z-10 bg-white border-b border-stone-200 shadow-sm">
+      <header class="sticky top-0 z-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)] shadow-sm">
         <div class="max-w-2xl mx-auto relative">
           <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="stripeClass()" aria-hidden="true"></div>
 
           <div class="px-6 pt-5 pb-4 pl-7">
             <div class="flex items-center gap-2 mb-2 flex-wrap">
-              <span class="font-mono text-xs font-semibold text-stone-400 tracking-wide">{{ pr().fromRef.repository.slug }}</span>
-              <span class="text-stone-300" aria-hidden="true">&middot;</span>
+              <span class="font-mono text-xs font-semibold text-[var(--color-text-muted)] tracking-wide">{{ pr().fromRef.repository.slug }}</span>
+              <span class="text-[var(--color-text-muted)]" aria-hidden="true">&middot;</span>
               <span
                 class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border"
                 [class]="statusBadgeClass()"
@@ -83,25 +83,25 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 {{ statusLabel() }}
               </span>
               @if (pr().isAuthoredByMe) {
-                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-stone-100 text-stone-500 border border-stone-200 uppercase tracking-wide">Dein PR</span>
+                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)] uppercase tracking-wide">Dein PR</span>
               }
               @if (pr().isDraft) {
                 <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">Entwurf</span>
               }
             </div>
 
-            <h1 class="text-lg font-semibold text-stone-900 leading-snug mb-2">{{ pr().title }}</h1>
+            <h1 class="text-lg font-semibold text-[var(--color-text-heading)] leading-snug mb-2">{{ pr().title }}</h1>
 
             @if (pr().isAuthoredByMe) {
               <div class="flex items-center gap-2 flex-wrap">
-                <p class="text-sm text-stone-400">
+                <p class="text-sm text-[var(--color-text-muted)]">
                   erstellt {{ pr().createdDate | date:'dd.MM.yyyy' }}
-                  <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>geändert {{ pr().updatedDate | date:'dd.MM.yyyy' }}
+                  <span class="text-[var(--color-text-muted)] mx-1" aria-hidden="true">&middot;</span>geändert {{ pr().updatedDate | date:'dd.MM.yyyy' }}
                 </p>
               </div>
               @if (pr().reviewers.length > 0) {
                 <div class="flex items-center gap-2 mt-2 flex-wrap">
-                  <span class="text-sm text-stone-400 font-medium shrink-0">Reviewer:</span>
+                  <span class="text-sm text-[var(--color-text-muted)] font-medium shrink-0">Reviewer:</span>
                   @for (reviewer of pr().reviewers; track reviewer.user.id) {
                     <span
                       class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border"
@@ -109,7 +109,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : reviewer.status === 'NEEDS_WORK'
                           ? 'bg-amber-50 text-amber-800 border-amber-300'
-                          : 'bg-stone-50 text-stone-500 border-stone-200'"
+                          : 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]'"
                     >
                       @if (reviewer.status === 'APPROVED') {
                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
@@ -123,23 +123,23 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               }
             } @else {
               <div class="flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-stone-200 text-stone-600 text-[9px] font-bold shrink-0" aria-hidden="true">{{ authorInitials() }}</span>
-                <p class="text-sm text-stone-400">
-                  von <span class="text-stone-500 font-medium">{{ pr().author.user.displayName }}</span>
-                  <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>erstellt {{ pr().createdDate | date:'dd.MM.yyyy' }}
-                  <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>geändert {{ pr().updatedDate | date:'dd.MM.yyyy' }}
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-body)] text-[9px] font-bold shrink-0" aria-hidden="true">{{ authorInitials() }}</span>
+                <p class="text-sm text-[var(--color-text-muted)]">
+                  von <span class="text-[var(--color-text-muted)] font-medium">{{ pr().author.user.displayName }}</span>
+                  <span class="text-[var(--color-text-muted)] mx-1" aria-hidden="true">&middot;</span>erstellt {{ pr().createdDate | date:'dd.MM.yyyy' }}
+                  <span class="text-[var(--color-text-muted)] mx-1" aria-hidden="true">&middot;</span>geändert {{ pr().updatedDate | date:'dd.MM.yyyy' }}
                 </p>
               </div>
             }
 
             <div class="flex items-center gap-2 mt-3 flex-wrap">
-              <span class="text-sm text-stone-400 font-medium shrink-0">von</span>
-              <code class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 break-all">{{ pr().fromRef.displayId }}</code>
-              <svg class="w-3.5 h-3.5 text-stone-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+              <span class="text-sm text-[var(--color-text-muted)] font-medium shrink-0">von</span>
+              <code class="font-mono text-[13px] text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all">{{ pr().fromRef.displayId }}</code>
+              <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
               @if (isNonDefaultTarget()) {
-                <code class="font-mono text-[13px] text-amber-700 font-semibold bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 break-all">{{ pr().toRef.displayId }}</code>
+                <code class="font-mono text-[13px] text-amber-700 font-semibold bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all">{{ pr().toRef.displayId }}</code>
               } @else {
-                <code class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 break-all">{{ pr().toRef.displayId }}</code>
+                <code class="font-mono text-[13px] text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all">{{ pr().toRef.displayId }}</code>
               }
             </div>
 
@@ -147,8 +147,8 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               <div class="flex items-center gap-4 mt-2.5">
                 @if (pr().commentCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    <span class="text-sm text-stone-500">{{ pr().commentCount }} Kommentar{{ pr().commentCount === 1 ? '' : 'e' }}</span>
+                    <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span class="text-sm text-[var(--color-text-muted)]">{{ pr().commentCount }} Kommentar{{ pr().commentCount === 1 ? '' : 'e' }}</span>
                   </div>
                 }
                 @if (pr().openTaskCount > 0) {
@@ -176,45 +176,45 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
       </header>
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
-        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
           <button
             type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-stone-50/50 transition-colors"
+            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
             (click)="jiraExpanded.set(!jiraExpanded())"
             [attr.aria-expanded]="jiraExpanded()"
           >
-            <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="jiraExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Jira-Ticket</span>
+            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="jiraExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
+            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
+            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Jira-Ticket</span>
             @if (resolvedJiraTicket(); as ticket) {
               <span class="font-mono text-xs text-[var(--color-primary-text)] font-semibold">{{ ticket.key }}</span>
-              <span class="text-xs text-stone-400">— {{ ticket.status }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">— {{ ticket.status }}</span>
             }
           </button>
           @if (jiraExpanded()) {
-            <div class="border-t border-stone-100 px-6 py-4">
+            <div class="border-t border-[var(--color-border-subtle)] px-6 py-4">
               <app-jira-pr-card [ticket]="jiraTicket()" />
             </div>
           }
         </div>
 
-        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
           <button
             type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-stone-50/50 transition-colors"
+            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
             (click)="descExpanded.set(!descExpanded())"
             [attr.aria-expanded]="descExpanded()"
           >
-            <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="descExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Beschreibung</span>
+            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="descExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
+            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Beschreibung</span>
           </button>
           @if (descExpanded()) {
-            <div class="border-t border-stone-100 px-6 pb-5 pt-4">
+            <div class="border-t border-[var(--color-border-subtle)] px-6 pb-5 pt-4">
               @if (pr().description) {
                 <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
               } @else {
-                <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
+                <p class="text-sm text-[var(--color-text-muted)] italic">Keine Beschreibung vorhanden.</p>
               }
             </div>
           }
@@ -222,30 +222,30 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 
         <app-review-findings [reviewState]="cosiReview.reviewState()" />
 
-        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
           <button
             type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-stone-50/50 transition-colors"
+            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
             (click)="diffExpanded.set(!diffExpanded())"
             [attr.aria-expanded]="diffExpanded()"
           >
-            <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="diffExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
-            <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Änderungen</span>
+            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="diffExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
+            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
+            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Änderungen</span>
             @if (diffFileCount() > 0) {
-              <span class="text-xs text-stone-400">{{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">{{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}</span>
             }
           </button>
           @if (diffExpanded()) {
-            <div class="border-t border-stone-100 px-6 py-4">
+            <div class="border-t border-[var(--color-border-subtle)] px-6 py-4">
               @if (diffData() === 'loading') {
-                <p class="text-sm text-stone-400 italic">Änderungen laden...</p>
+                <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen laden...</p>
               } @else if (diffData() === 'error') {
-                <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
+                <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen konnten nicht geladen werden.</p>
               } @else if (diffFileCount() === 0) {
-                <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
+                <p class="text-sm text-[var(--color-text-muted)] italic">Keine Änderungen vorhanden.</p>
               } @else {
-                <div #diffContainer class="overflow-x-auto rounded border border-stone-200"></div>
+                <div #diffContainer class="overflow-x-auto rounded border border-[var(--color-border-subtle)]"></div>
               }
             </div>
           }

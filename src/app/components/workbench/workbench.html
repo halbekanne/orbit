@@ -1,6 +1,6 @@
 <main class="h-full flex flex-col" aria-label="Arbeitsbereich">
   @if (data.rhythmSelected()) {
-    <div class="flex-1 overflow-y-auto bg-stone-50">
+    <div class="flex-1 overflow-y-auto bg-[var(--color-bg-surface)]">
       <app-rhythm-detail
         (submitted)="onRhythmSubmitted()"
         (skipped)="onRhythmSkipped()"
@@ -15,8 +15,8 @@
           <div class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4" aria-hidden="true">
             <div class="w-7 h-7 rounded-full border-4 border-[var(--color-primary-solid)]"></div>
           </div>
-          <h2 class="text-lg font-semibold text-stone-800 mb-1">Bereit loszulegen?</h2>
-          <p class="text-sm text-stone-400 leading-relaxed">Wähle ein Ticket, einen Pull Request oder ein Todo aus der linken Spalte, um die Details hier anzuzeigen.</p>
+          <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Bereit loszulegen?</h2>
+          <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">Wähle ein Ticket, einen Pull Request oder ein Todo aus der linken Spalte, um die Details hier anzuzeigen.</p>
         </div>
       </div>
     }

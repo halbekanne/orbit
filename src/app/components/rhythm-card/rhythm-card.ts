@@ -65,7 +65,7 @@ const GERMAN_WEEKDAYS = [
           @case ('morning-open') {
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-primary-solid)]">Tagesfokus</span>
-              <span class="text-xs text-stone-400">{{ weekday() }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-center gap-2">
               <svg class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -77,7 +77,7 @@ const GERMAN_WEEKDAYS = [
           @case ('morning-filled') {
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-primary-solid)]">Tagesfokus</span>
-              <span class="text-xs text-stone-400">{{ weekday() }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
               <svg class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -85,10 +85,10 @@ const GERMAN_WEEKDAYS = [
               </svg>
               <div class="min-w-0">
                 @if (displayEntry()?.morningQuestion) {
-                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ displayEntry()!.morningQuestion }}</p>
+                  <p class="font-serif italic text-xs text-[var(--color-text-muted)] mb-0.5">{{ displayEntry()!.morningQuestion }}</p>
                 }
                 @if (displayEntry()?.morningFocus) {
-                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ displayEntry()!.morningFocus }}</p>
+                  <p class="font-serif italic text-[13px] text-[var(--color-text-body)] line-clamp-2">{{ displayEntry()!.morningFocus }}</p>
                 }
               </div>
             </div>
@@ -96,7 +96,7 @@ const GERMAN_WEEKDAYS = [
           @case ('evening-open') {
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-600">Tagesreflektion</span>
-              <span class="text-xs text-stone-400">{{ weekday() }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-center gap-2">
               <svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -108,7 +108,7 @@ const GERMAN_WEEKDAYS = [
           @case ('evening-filled') {
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-600">Tag abgeschlossen</span>
-              <span class="text-xs text-stone-400">{{ weekday() }}</span>
+              <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
               <svg class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -116,10 +116,10 @@ const GERMAN_WEEKDAYS = [
               </svg>
               <div class="min-w-0">
                 @if (displayEntry()?.eveningQuestion) {
-                  <p class="font-serif italic text-xs text-stone-400 mb-0.5">{{ displayEntry()!.eveningQuestion }}</p>
+                  <p class="font-serif italic text-xs text-[var(--color-text-muted)] mb-0.5">{{ displayEntry()!.eveningQuestion }}</p>
                 }
                 @if (displayEntry()?.eveningReflection) {
-                  <p class="font-serif italic text-[13px] text-stone-600 line-clamp-2">{{ displayEntry()!.eveningReflection }}</p>
+                  <p class="font-serif italic text-[13px] text-[var(--color-text-body)] line-clamp-2">{{ displayEntry()!.eveningReflection }}</p>
                 }
                 @if (completionChips().length) {
                   <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -242,13 +242,13 @@ export class RhythmCardComponent {
       case 'morning-open':
         return 'bg-gradient-to-br from-violet-50/80 to-white ring-1 ring-[var(--color-primary-border)]/50 hover:ring-violet-300';
       case 'morning-filled':
-        return 'bg-white ring-1 ring-[var(--color-primary-border)] hover:ring-violet-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-primary-border)] hover:ring-violet-300';
       case 'evening-open':
         return 'bg-gradient-to-br from-amber-50/80 to-white ring-1 ring-amber-200/50 hover:ring-amber-300';
       case 'evening-filled':
-        return 'bg-white ring-1 ring-stone-200 hover:ring-stone-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-stone-200 hover:ring-stone-300';
       default:
-        return 'bg-white ring-1 ring-stone-200';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-stone-200';
     }
   });
 

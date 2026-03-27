@@ -30,7 +30,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         </svg>
       </button>
     } @else {
-      <div class="flex items-center justify-between px-4 py-3 border-b border-stone-200">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)]">
         <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Tagesplan</span>
         <button
           class="text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] rounded p-0.5 transition-colors"
@@ -43,8 +43,8 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           </svg>
         </button>
       </div>
-      <app-action-rail class="shrink-0 border-b border-stone-200" />
-      <div class="shrink-0 p-3 border-b border-stone-200">
+      <app-action-rail class="shrink-0 border-b border-[var(--color-border-subtle)]" />
+      <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
         @if (pomodoro.state() === 'idle') {
           <button type="button"
             class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
@@ -64,7 +64,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
             <span class="text-xs text-[var(--color-text-muted)] tabular-nums">{{ pomodoroRemainingLabel() }}</span>
           </div>
           <button type="button"
-            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-500 hover:border-red-300 hover:text-red-600 hover:bg-red-50"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-600 hover:bg-red-50"
             (click)="showCancelConfirm.set(true)">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
             Pomodoro abbrechen
@@ -102,12 +102,12 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
     @if (showCancelConfirm()) {
       <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" (click)="showCancelConfirm.set(false)"></div>
       <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-        <div class="bg-white rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro abbrechen">
-          <h3 class="text-sm font-semibold text-stone-800 mb-2">Pomodoro abbrechen?</h3>
-          <p class="text-xs text-stone-500 mb-4">Deine aktuelle Fokuszeit wird beendet.</p>
+        <div class="bg-[var(--color-bg-card)] rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro abbrechen">
+          <h3 class="text-sm font-semibold text-[var(--color-text-heading)] mb-2">Pomodoro abbrechen?</h3>
+          <p class="text-xs text-[var(--color-text-muted)] mb-4">Deine aktuelle Fokuszeit wird beendet.</p>
           <div class="flex gap-2">
             <button type="button"
-              class="flex-1 rounded-lg border border-stone-200 text-stone-600 py-2 text-sm font-medium hover:bg-stone-50 transition-colors"
+              class="flex-1 rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-body)] py-2 text-sm font-medium hover:bg-[var(--color-bg-surface)] transition-colors"
               (click)="showCancelConfirm.set(false)">
               Weiterarbeiten
             </button>
@@ -134,8 +134,8 @@ export class DayCalendarPanelComponent {
 
   readonly hostClass = computed(() =>
     this.collapsed()
-      ? 'w-8 shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col'
-      : 'w-[260px] shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col transition-[width] duration-150'
+      ? 'w-8 shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] flex flex-col'
+      : 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] flex flex-col transition-[width] duration-150'
   );
 
   toggleCollapse(): void {
