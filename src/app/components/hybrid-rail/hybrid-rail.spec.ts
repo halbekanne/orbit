@@ -1,8 +1,25 @@
 import { TestBed } from '@angular/core/testing';
 import { HybridRailComponent } from './hybrid-rail';
 
+const mockMatchMedia = () => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+};
+
 describe('HybridRailComponent', () => {
   beforeEach(async () => {
+    mockMatchMedia();
     await TestBed.configureTestingModule({
       imports: [HybridRailComponent],
     }).compileComponents();
@@ -17,10 +34,10 @@ describe('HybridRailComponent', () => {
     const fixture = TestBed.createComponent(HybridRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    expect(buttons.length).toBe(2);
-    expect(buttons[0].textContent).toContain('Arbeit');
-    expect(buttons[1].textContent).toContain('Logbuch');
+    const navButtons = fixture.nativeElement.querySelectorAll('nav button');
+    expect(navButtons.length).toBe(2);
+    expect(navButtons[0].textContent).toContain('Arbeit');
+    expect(navButtons[1].textContent).toContain('Logbuch');
   });
 
   it('should mark the active view with aria-current', () => {

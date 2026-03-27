@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ThemeService } from '../../services/theme.service';
 
 interface OrbitView {
   id: string;
@@ -14,11 +15,11 @@ const VIEWS: OrbitView[] = [
   selector: 'app-hybrid-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'w-16 shrink-0 bg-stone-900 flex flex-col items-center',
+    class: 'w-16 shrink-0 bg-[var(--color-rail-bg)] flex flex-col items-center',
   },
   template: `
     <div class="w-full h-12 flex items-center justify-center border-b border-white/[0.06]" aria-hidden="true">
-      <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]">
+      <div class="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-[0_0_12px_rgba(139,92,246,0.25)]">
         <div class="w-3 h-3 rounded-full border-2 border-white"></div>
       </div>
     </div>
@@ -27,8 +28,8 @@ const VIEWS: OrbitView[] = [
       @for (view of views; track view.id) {
         <button
           type="button"
-          class="flex flex-col items-center justify-center w-[52px] h-12 rounded-lg text-center transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 cursor-pointer"
-          [class.bg-indigo-600]="activeView() === view.id"
+          class="flex flex-col items-center justify-center w-[52px] h-12 rounded-lg text-center transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 cursor-pointer"
+          [class.bg-violet-500]="activeView() === view.id"
           [class.text-white]="activeView() === view.id"
           [class.text-stone-400]="activeView() !== view.id"
           [class.hover:text-stone-200]="activeView() !== view.id"
@@ -49,6 +50,33 @@ const VIEWS: OrbitView[] = [
         </button>
       }
     </nav>
+
+    <div class="flex-1"></div>
+
+    <button
+      type="button"
+      (click)="theme.cycle()"
+      [attr.aria-label]="themeLabel()"
+      class="w-10 h-10 mb-3 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+    >
+      @switch (theme.preference()) {
+        @case ('light') {
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+          </svg>
+        }
+        @case ('dark') {
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        }
+        @case ('system') {
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+          </svg>
+        }
+      }
+    </button>
   `,
 })
 export class HybridRailComponent {
@@ -56,6 +84,12 @@ export class HybridRailComponent {
   viewChange = output<string>();
 
   protected readonly views = VIEWS;
+  protected readonly theme = inject(ThemeService);
+
+  protected readonly themeLabel = computed(() => {
+    const labels = { system: 'Design: System', light: 'Design: Hell', dark: 'Design: Dunkel' };
+    return labels[this.theme.preference()];
+  });
 
   onKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement;

@@ -1,8 +1,25 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
+const mockMatchMedia = () => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+};
+
 describe('App', () => {
   beforeEach(async () => {
+    mockMatchMedia();
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
