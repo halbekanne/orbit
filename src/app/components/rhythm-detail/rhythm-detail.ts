@@ -105,7 +105,7 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[460px]">
             <header class="mb-8 text-center">
               @if (isMorning()) {
-                <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="w-9 h-9 text-[var(--color-primary-solid)] mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
                 </svg>
               } @else {
@@ -121,8 +121,8 @@ function formatGermanDate(): string {
 
             @if (!isMorning()) {
               @if (entry()?.morningFocus) {
-                <div class="mb-6 border-l-[3px] border-indigo-300 pl-4">
-                  <p class="font-serif italic text-sm text-indigo-400 mb-1">{{ entry()!.morningQuestion }}</p>
+                <div class="mb-6 border-l-[3px] border-[var(--color-primary-border)] pl-4">
+                  <p class="font-serif italic text-sm text-[var(--color-primary-solid)] mb-1">{{ entry()!.morningQuestion }}</p>
                   <p class="font-serif italic text-base text-stone-600 leading-relaxed">{{ entry()!.morningFocus }}</p>
                 </div>
               }
@@ -147,7 +147,7 @@ function formatGermanDate(): string {
               </div>
             }
 
-            <div class="mb-6" [class]="isMorning() ? 'border-l-[3px] border-indigo-400 pl-4' : 'border-l-[3px] border-amber-400 pl-4'">
+            <div class="mb-6" [class]="isMorning() ? 'border-l-[3px] border-[var(--color-primary-solid)] pl-4' : 'border-l-[3px] border-amber-400 pl-4'">
               <p [id]="questionId" class="font-serif italic text-lg text-stone-700">
                 {{ question() }}
               </p>
@@ -155,7 +155,7 @@ function formatGermanDate(): string {
 
             <textarea
               class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-800 placeholder:text-stone-400 resize-none transition-shadow duration-150"
-              [class]="isMorning() ? 'focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300' : 'focus:ring-2 focus:ring-amber-300 focus:border-amber-300'"
+              [class]="isMorning() ? 'focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-primary-border)]' : 'focus:ring-2 focus:ring-amber-300 focus:border-amber-300'"
               rows="4"
               [placeholder]="isMorning() ? 'Dein Fokus für heute...' : 'Deine Gedanken zum Tag...'"
               [attr.aria-labelledby]="questionId"
@@ -167,7 +167,7 @@ function formatGermanDate(): string {
               <button
                 type="button"
                 class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2"
-                [class]="isMorning() ? 'bg-indigo-600 hover:bg-indigo-700 focus-visible:outline-indigo-500' : 'bg-stone-800 hover:bg-stone-900 focus-visible:outline-stone-600'"
+                [class]="isMorning() ? 'bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] focus-visible:outline-[var(--color-focus-ring)]' : 'bg-stone-800 hover:bg-stone-900 focus-visible:outline-stone-600'"
                 [disabled]="!textValue().trim()"
                 (click)="onSubmit()"
                 data-testid="btn-submit"
@@ -189,7 +189,7 @@ function formatGermanDate(): string {
       @case ('calendar-setup') {
         <div class="h-full flex flex-col items-center pt-6 px-6 anim-page-in">
           <header class="mb-4 text-center shrink-0">
-            <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg class="w-9 h-9 text-[var(--color-primary-solid)] mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
             <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
@@ -208,7 +208,7 @@ function formatGermanDate(): string {
           <div class="flex gap-3 mt-4 mb-6 shrink-0">
             <button
               type="button"
-              class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
               (click)="onCalendarDone()"
               data-testid="btn-calendar-done"
             >Fertig</button>
@@ -245,7 +245,7 @@ function formatGermanDate(): string {
             >
               <div
                 class="w-16 h-16 rounded-full flex items-center justify-center anim-circle-pop"
-                [class]="isMorning() ? 'bg-indigo-600' : 'bg-stone-800'"
+                [class]="isMorning() ? 'bg-[var(--color-primary-solid)]' : 'bg-stone-800'"
               >
                 @if (animPhase() !== 'circle') {
                   <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -267,7 +267,7 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[520px]">
             <header class="mb-10 text-center">
               @if (readonlyMorning()) {
-                <svg class="w-11 h-11 text-indigo-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="w-11 h-11 text-[var(--color-primary-solid)] mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
                 </svg>
                 <h1 class="text-2xl font-semibold text-stone-900">Tagesfokus</h1>
@@ -281,7 +281,7 @@ function formatGermanDate(): string {
             </header>
 
             @if (readonlyMorning()) {
-              <div class="mb-2 border-l-[3px] border-indigo-300 pl-5">
+              <div class="mb-2 border-l-[3px] border-[var(--color-primary-border)] pl-5">
                 <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
                   {{ entry()?.morningQuestion }}
                 </p>
@@ -295,7 +295,7 @@ function formatGermanDate(): string {
               }
             } @else {
               @if (entry()?.morningFocus) {
-                <div class="mb-2 border-l-[3px] border-indigo-300 pl-5">
+                <div class="mb-2 border-l-[3px] border-[var(--color-primary-border)] pl-5">
                   <p class="font-serif italic text-lg text-stone-400 leading-relaxed">
                     {{ entry()!.morningQuestion }}
                   </p>

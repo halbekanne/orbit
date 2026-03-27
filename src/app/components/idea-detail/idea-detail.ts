@@ -15,7 +15,7 @@ import { SubTask } from '../../models/sub-task.model';
         <div class="flex items-start gap-2 mb-2">
           <span class="text-lg" aria-hidden="true">💡</span>
           <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-            [class]="idea().status === 'wont-do' ? 'bg-stone-100 text-stone-500' : 'bg-indigo-100 text-indigo-700'">
+            [class]="idea().status === 'wont-do' ? 'bg-stone-100 text-stone-500' : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'">
             {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
           </span>
         </div>
@@ -23,7 +23,7 @@ import { SubTask } from '../../models/sub-task.model';
         @if (editingTitle()) {
           <input
             type="text"
-            class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-indigo-400 focus:outline-none"
+            class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
             [value]="draftTitle()"
             (input)="draftTitle.set($any($event.target).value)"
             (blur)="saveTitle()"
@@ -32,7 +32,7 @@ import { SubTask } from '../../models/sub-task.model';
           />
         } @else {
           <h1
-            class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-indigo-700 transition-colors"
+            class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
             [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''"
             (click)="startEditTitle()"
             tabindex="0"
@@ -56,7 +56,7 @@ import { SubTask } from '../../models/sub-task.model';
 
         @if (editingDescription()) {
           <textarea
-            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-indigo-400 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-none"
+            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
             [value]="draftDescription()"
             (input)="draftDescription.set($any($event.target).value)"
             (blur)="saveDescription()"

@@ -162,7 +162,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                     @if (build.type === 'failed') {
                       <svg class="w-3.5 h-3.5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     } @else if (build.type === 'running') {
-                      <svg class="w-3.5 h-3.5 text-indigo-600 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                      <svg class="w-3.5 h-3.5 text-[var(--color-primary-solid)] animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
                     } @else {
                       <svg class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
                     }
@@ -187,7 +187,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
             <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
             <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Jira-Ticket</span>
             @if (resolvedJiraTicket(); as ticket) {
-              <span class="font-mono text-xs text-indigo-600 font-semibold">{{ ticket.key }}</span>
+              <span class="font-mono text-xs text-[var(--color-primary-text)] font-semibold">{{ ticket.key }}</span>
               <span class="text-xs text-stone-400">— {{ ticket.status }}</span>
             }
           </button>
@@ -407,7 +407,7 @@ export class PrDetailComponent {
     const build = this.pr().buildStatus;
     if (!build) return null;
     if (build.failed > 0) return { type: 'failed', text: 'Build fehlgeschlagen', colorClass: 'text-red-600' };
-    if (build.inProgress > 0) return { type: 'running', text: 'Build läuft', colorClass: 'text-indigo-600' };
+    if (build.inProgress > 0) return { type: 'running', text: 'Build läuft', colorClass: 'text-[var(--color-primary-text)]' };
     if (build.successful > 0) return { type: 'success', text: 'Build erfolgreich', colorClass: 'text-emerald-600' };
     return null;
   });

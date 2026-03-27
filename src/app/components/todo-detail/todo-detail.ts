@@ -30,7 +30,7 @@ import { SubTask } from '../../models/sub-task.model';
               <input
                 #titleInput
                 type="text"
-                class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-indigo-400 focus:outline-none"
+                class="text-xl font-semibold text-stone-900 leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
                 [value]="draftTitle()"
                 (input)="draftTitle.set($any($event.target).value)"
                 (blur)="saveTitle()"
@@ -39,7 +39,7 @@ import { SubTask } from '../../models/sub-task.model';
               />
             } @else {
               <h1
-                class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-indigo-700 transition-colors"
+                class="text-xl font-semibold text-stone-900 leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
                 [class]="todo().status === 'done' ? 'line-through text-stone-400' : ''"
                 (click)="startEditTitle()"
                 tabindex="0"
@@ -56,7 +56,7 @@ import { SubTask } from '../../models/sub-task.model';
 
         @if (editingDescription()) {
           <textarea
-            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-indigo-400 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-none"
+            class="text-sm text-stone-700 leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
             [value]="draftDescription()"
             (input)="draftDescription.set($any($event.target).value)"
             (blur)="saveDescription()"
@@ -129,7 +129,7 @@ export class TodoDetailComponent {
     switch (this.todo().status) {
       case 'done': return 'bg-emerald-100 text-emerald-700';
       case 'wont-do': return 'bg-stone-100 text-stone-500';
-      default: return 'bg-indigo-100 text-indigo-700';
+      default: return 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]';
     }
   }
 
