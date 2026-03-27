@@ -24,8 +24,8 @@ const GERMAN_WEEKDAYS = [
   host: { class: 'block' },
   styles: `
     @keyframes gentlePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
-      50% { box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
+      50% { box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15); }
     }
     @keyframes gentlePulseAmber {
       0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
@@ -38,7 +38,7 @@ const GERMAN_WEEKDAYS = [
   template: `
     <button
       type="button"
-      class="group relative w-full text-left rounded-[10px] overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      class="group relative w-full text-left rounded-[10px] overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-solid)]"
       [class]="cardClass()"
       [style.animation]="pulseAnimation()"
       [style.animation-play-state]="hovered() ? 'paused' : 'running'"
@@ -64,23 +64,23 @@ const GERMAN_WEEKDAYS = [
         @switch (displayPhase()) {
           @case ('morning-open') {
             <div class="flex items-start justify-between gap-2 mb-1">
-              <span class="text-[10px] font-semibold uppercase tracking-wider text-indigo-500">Tagesfokus</span>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-primary-solid)]">Tagesfokus</span>
               <span class="text-xs text-stone-400">{{ weekday() }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
               </svg>
-              <span class="text-sm text-indigo-600 font-medium">Fokus setzen &rarr;</span>
+              <span class="text-sm text-[var(--color-primary-text)] font-medium">Fokus setzen &rarr;</span>
             </div>
           }
           @case ('morning-filled') {
             <div class="flex items-start justify-between gap-2 mb-1">
-              <span class="text-[10px] font-semibold uppercase tracking-wider text-indigo-500">Tagesfokus</span>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-primary-solid)]">Tagesfokus</span>
               <span class="text-xs text-stone-400">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
-              <svg class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
               </svg>
               <div class="min-w-0">
@@ -145,7 +145,7 @@ const GERMAN_WEEKDAYS = [
         [class]="animating() ? 'z-10' : '-z-10'"
         [style.width]="animating() ? overlayWidth() : '4px'"
         [style.opacity]="animating() ? 1 : 0"
-        [class.bg-indigo-500]="displayPhase() === 'morning-open' || displayPhase() === 'morning-filled'"
+        [class.bg-violet-500]="displayPhase() === 'morning-open' || displayPhase() === 'morning-filled'"
         [class.bg-stone-800]="displayPhase() === 'evening-open' || displayPhase() === 'evening-filled'"
         aria-hidden="true"
       >
@@ -228,7 +228,7 @@ export class RhythmCardComponent {
     if (prs > 0) {
       chips.push({
         label: `${prs} PR`,
-        cls: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        cls: 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       });
     }
     return chips;
@@ -236,13 +236,13 @@ export class RhythmCardComponent {
 
   readonly cardClass = computed(() => {
     if (this.selected()) {
-      return 'bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200/80';
+      return 'bg-[var(--color-card-selected-bg)] shadow-sm ring-1 ring-[var(--color-card-selected-ring)]';
     }
     switch (this.displayPhase()) {
       case 'morning-open':
-        return 'bg-gradient-to-br from-indigo-50/80 to-white ring-1 ring-indigo-200/50 hover:ring-indigo-300';
+        return 'bg-gradient-to-br from-violet-50/80 to-white ring-1 ring-[var(--color-primary-border)]/50 hover:ring-violet-300';
       case 'morning-filled':
-        return 'bg-white ring-1 ring-indigo-200 hover:ring-indigo-300';
+        return 'bg-white ring-1 ring-[var(--color-primary-border)] hover:ring-violet-300';
       case 'evening-open':
         return 'bg-gradient-to-br from-amber-50/80 to-white ring-1 ring-amber-200/50 hover:ring-amber-300';
       case 'evening-filled':
@@ -255,13 +255,13 @@ export class RhythmCardComponent {
   readonly stripeClass = computed(() => {
     switch (this.displayPhase()) {
       case 'morning-open':
-        return 'bg-gradient-to-b from-indigo-400 to-indigo-300';
+        return 'bg-gradient-to-b from-violet-400 to-violet-300';
       case 'morning-filled':
-        return 'bg-indigo-400';
+        return 'bg-violet-400';
       case 'evening-open':
         return 'bg-gradient-to-b from-amber-400 to-amber-300';
       case 'evening-filled':
-        return 'bg-gradient-to-b from-indigo-400 to-amber-400';
+        return 'bg-gradient-to-b from-violet-400 to-amber-400';
       default:
         return 'bg-stone-300';
     }
