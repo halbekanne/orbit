@@ -8,20 +8,11 @@ import { TicketLocalDataService } from '../../services/ticket-local-data.service
   template: `
     <button
       type="button"
-      class="group relative w-full text-left rounded-lg overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      [class]="selected()
-        ? 'bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200/80'
-        : 'bg-white ring-1 ring-stone-200 hover:ring-stone-300 hover:bg-stone-50/60'"
+      [class]="cardClasses()"
       (click)="select.emit(ticket())"
       [attr.aria-pressed]="selected()"
       [attr.aria-label]="ticket().key + ': ' + ticket().summary"
     >
-      <div
-        class="absolute left-0 top-0 bottom-0 w-[3px] transition-opacity duration-150"
-        [class]="statusStripeClass()"
-        aria-hidden="true"
-      ></div>
-
       <div class="pl-4 pr-3 pt-2.5 pb-2.5">
         <div class="flex items-start justify-between gap-2 mb-1.5">
           <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
@@ -48,7 +39,7 @@ import { TicketLocalDataService } from '../../services/ticket-local-data.service
 
             <span
               class="font-mono text-[11px] font-bold tracking-wide shrink-0"
-              [class]="selected() ? 'text-indigo-600' : 'text-stone-400'"
+              [class]="selected() ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-text-muted)]'"
             >{{ ticket().key }}</span>
           </div>
 
@@ -56,7 +47,7 @@ import { TicketLocalDataService } from '../../services/ticket-local-data.service
             [href]="ticket().url"
             target="_blank"
             rel="noopener noreferrer"
-            class="shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 text-stone-400 hover:text-indigo-500 transition-all duration-150 rounded p-0.5 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+            class="shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 text-[var(--color-text-muted)] hover:text-[var(--color-primary-solid)] transition-all duration-150 rounded p-0.5 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)]"
             [attr.aria-label]="'Öffne ' + ticket().key + ' in Jira'"
             (click)="$event.stopPropagation()"
           >
@@ -66,7 +57,7 @@ import { TicketLocalDataService } from '../../services/ticket-local-data.service
 
         <p
           class="text-[13px] font-medium leading-snug line-clamp-2 mb-1.5"
-          [class]="selected() ? 'text-stone-900' : 'text-stone-700'"
+          [class]="selected() ? 'text-[var(--color-text-heading)]' : 'text-[var(--color-text-heading)]'"
         >{{ ticket().summary }}</p>
 
         <div class="flex items-center gap-1.5 flex-wrap">
@@ -110,15 +101,45 @@ export class TicketCardComponent {
   readonly hasSubtasks = computed(() => this.subtaskTotal() > 0);
   readonly subtaskAllDone = computed(() => this.hasSubtasks() && this.subtaskDone() === this.subtaskTotal());
 
+  readonly cardState = computed<'inactive' | 'normal' | 'attention'>(() => {
+    const ticket = this.ticket();
+    if (ticket.status === 'Done') return 'inactive';
+    const prio = ticket.priority?.toLowerCase() ?? '';
+    if (prio === 'highest' || prio === 'high') return 'attention';
+    return 'normal';
+  });
+
+  readonly cardClasses = computed(() => {
+    const state = this.cardState();
+    const sel = this.selected();
+
+    const base = 'group relative w-full text-left rounded-lg overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]';
+
+    if (sel) {
+      return `${base} bg-[var(--color-card-selected-bg)] shadow-sm ring-1 ring-[var(--color-card-selected-ring)]`;
+    }
+
+    let classes = `${base} bg-[var(--color-bg-card)] ring-1 ring-[var(--color-border-subtle)] hover:ring-[var(--color-border-default)]`;
+
+    if (state === 'inactive') {
+      classes += ' opacity-[var(--card-inactive-opacity)]';
+    } else if (state === 'attention') {
+      classes = classes.replace('rounded-lg', 'rounded-r-lg rounded-l-none');
+      classes += ' border-l-4 border-l-[var(--color-card-attention-bar)]';
+    }
+
+    return classes;
+  });
+
   readonly subtaskIndicatorClass = computed(() => {
     if (this.subtaskAllDone()) return { icon: 'stroke-emerald-600', text: 'text-emerald-600 font-semibold' };
-    if (this.subtaskDone() > 0) return { icon: 'stroke-indigo-500', text: 'text-stone-500' };
+    if (this.subtaskDone() > 0) return { icon: 'stroke-[var(--color-primary-solid)]', text: 'text-stone-500' };
     return { icon: 'stroke-stone-400', text: 'text-stone-400' };
   });
 
   readonly subtaskDoneTextClass = computed(() => {
     if (this.subtaskAllDone()) return 'text-emerald-600 font-semibold';
-    if (this.subtaskDone() > 0) return 'text-indigo-600 font-semibold';
+    if (this.subtaskDone() > 0) return 'text-[var(--color-primary-text)] font-semibold';
     return 'text-stone-400 font-semibold';
   });
 
@@ -131,41 +152,27 @@ export class TicketCardComponent {
     return 'task';
   });
 
-  statusStripeClass(): string {
-    const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-400',
-      'In Review': 'bg-indigo-400',
-      'Done': 'bg-emerald-500',
-      'To Do': 'bg-stone-300',
-    };
-    return map[this.ticket().status] ?? 'bg-stone-300';
-  }
-
   statusBadgeClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'In Review': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'To Do': 'bg-stone-100 text-stone-500 border-stone-200',
+      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
+      'In Review': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
+      'Done': 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]',
+      'To Do': 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-default)]',
     };
-    return map[this.ticket().status] ?? 'bg-stone-100 text-stone-500 border-stone-200';
+    return map[this.ticket().status] ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-default)]';
   }
 
   statusDotClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-400',
-      'In Review': 'bg-indigo-400',
-      'Done': 'bg-emerald-500',
-      'To Do': 'bg-stone-400',
+      'In Progress': 'bg-[var(--color-primary-solid)]',
+      'In Review': 'bg-[var(--color-primary-solid)]',
+      'Done': 'bg-[var(--color-success-solid)]',
+      'To Do': 'bg-[var(--color-text-muted)]',
     };
-    return map[this.ticket().status] ?? 'bg-stone-400';
+    return map[this.ticket().status] ?? 'bg-[var(--color-text-muted)]';
   }
 
   issueTypeBadgeClass(): string {
-    const k = this.issueTypeKey();
-    if (k === 'bug') return 'bg-red-50 text-red-600 border border-red-200';
-    if (k === 'story') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-    if (k === 'epic') return 'bg-violet-50 text-violet-700 border border-violet-200';
-    return 'bg-sky-50 text-sky-700 border border-sky-200';
+    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border border-[var(--color-type-badge-border)]';
   }
 }
