@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { PullRequest } from '../../models/work-item.model';
-import { prStripeClass, prStatusBadgeClass } from '../pr-status-colors';
+import { prStatusBadgeClass } from '../pr-status-colors';
 import { prStatusLabel } from '../pr-status-label';
+
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
 @Component({
   selector: 'app-pr-card',
@@ -9,31 +11,22 @@ import { prStatusLabel } from '../pr-status-label';
   template: `
     <button
       type="button"
-      class="group relative w-full text-left rounded-lg overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      [class]="selected()
-        ? 'bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200/80'
-        : 'bg-white ring-1 ring-stone-200 hover:ring-stone-300 hover:bg-stone-50/60'"
+      [class]="cardClasses()"
       (click)="select.emit(pr())"
       [attr.aria-pressed]="selected()"
       [attr.aria-label]="(pr().isDraft ? 'Entwurf – ' : '') + (pr().isAuthoredByMe ? 'Mein PR: ' : 'PR: ') + pr().title"
     >
-      <div
-        class="absolute left-0 top-0 bottom-0 w-[3px] transition-opacity duration-150"
-        [class]="stripeClass()"
-        aria-hidden="true"
-      ></div>
-
       <div class="pl-4 pr-3 pt-2.5 pb-2.5">
         <div class="flex items-center justify-between gap-2 mb-1.5">
           <span
             class="font-mono text-[10px] font-semibold tracking-wide truncate"
-            [class]="selected() ? 'text-indigo-500' : 'text-stone-400'"
+            [class]="selected() ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-text-muted)]'"
           >{{ pr().fromRef.repository.slug }}</span>
           <a
             [href]="pr().url"
             target="_blank"
             rel="noopener noreferrer"
-            class="shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 text-stone-400 hover:text-indigo-500 transition-all duration-150 rounded p-0.5 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+            class="shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 text-[var(--color-text-muted)] hover:text-[var(--color-primary-solid)] transition-all duration-150 rounded p-0.5 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)]"
             aria-label="Öffne PR in Bitbucket"
             (click)="$event.stopPropagation()"
           >
@@ -52,13 +45,12 @@ import { prStatusLabel } from '../pr-status-label';
 
         @if (pr().isAuthoredByMe && !pr().isDraft) {
           <div class="mb-1.5">
-            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-stone-100 text-stone-500 border border-stone-200 leading-none uppercase tracking-wide">Mein PR</span>
+            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-default)] leading-none uppercase tracking-wide">Mein PR</span>
           </div>
         }
 
         <p
-          class="text-[13px] font-medium leading-snug line-clamp-2 mb-2"
-          [class]="selected() ? 'text-stone-900' : 'text-stone-700'"
+          class="text-[13px] font-medium leading-snug line-clamp-2 mb-2 text-[var(--color-text-heading)]"
         >{{ pr().title }}</p>
 
         <div class="flex items-center justify-between gap-2">
@@ -83,17 +75,17 @@ import { prStatusLabel } from '../pr-status-label';
                 </span>
               }
               @if (pr().openTaskCount === 0 && !buildIcon()) {
-                <span class="text-[11px] text-stone-400 italic">Keine offenen Punkte</span>
+                <span class="text-[11px] text-[var(--color-text-muted)] italic">Keine offenen Punkte</span>
               }
             </div>
           } @else {
             <div class="flex items-center gap-1.5 min-w-0">
               <span
                 class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[8px] font-bold shrink-0"
-                [class]="selected() ? 'bg-indigo-200 text-indigo-700' : 'bg-stone-200 text-stone-600'"
+                [class]="selected() ? 'bg-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]'"
                 aria-hidden="true"
               >{{ authorInitials() }}</span>
-              <span class="text-[11px] text-stone-500 truncate font-medium">{{ pr().author.user.displayName }}</span>
+              <span class="text-[11px] text-[var(--color-text-secondary)] truncate font-medium">{{ pr().author.user.displayName }}</span>
             </div>
           }
 
@@ -103,7 +95,7 @@ import { prStatusLabel } from '../pr-status-label';
               [class]="statusBadgeClass()"
             >{{ statusLabel() }}</span>
             @if (pr().commentCount > 0 && !pr().isAuthoredByMe) {
-              <span class="flex items-center gap-0.5 text-[11px] text-stone-400" [attr.aria-label]="pr().commentCount + ' Kommentare'">
+              <span class="flex items-center gap-0.5 text-[11px] text-[var(--color-text-muted)]" [attr.aria-label]="pr().commentCount + ' Kommentare'">
                 <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 {{ pr().commentCount }}
               </span>
@@ -128,21 +120,58 @@ export class PrCardComponent {
       .slice(0, 2)
   );
 
-  stripeClass = computed(() => prStripeClass(this.pr()));
   statusBadgeClass = computed(() => prStatusBadgeClass(this.pr()));
   statusLabel = computed(() => prStatusLabel(this.pr()));
+
+  readonly cardState = computed<'inactive' | 'normal' | 'attention'>(() => {
+    const pr = this.pr();
+
+    if (pr.state === 'MERGED' || pr.state === 'DECLINED') return 'inactive';
+    if (!pr.isAuthoredByMe && pr.myReviewStatus === 'Approved by Others') return 'inactive';
+
+    if (pr.isAuthoredByMe) {
+      if (pr.myReviewStatus === 'Needs Re-review') return 'attention';
+      if (pr.myReviewStatus === 'Changes Requested') return 'attention';
+      if (pr.buildStatus && pr.buildStatus.failed > 0) return 'attention';
+      if (Date.now() - pr.createdDate > TWO_DAYS_MS && pr.myReviewStatus === 'Awaiting Review') return 'attention';
+    }
+
+    return 'normal';
+  });
+
+  readonly cardClasses = computed(() => {
+    const state = this.cardState();
+    const sel = this.selected();
+
+    const base = 'group relative w-full text-left rounded-lg overflow-hidden transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]';
+
+    if (sel) {
+      return `${base} bg-[var(--color-card-selected-bg)] shadow-sm ring-1 ring-[var(--color-card-selected-ring)]`;
+    }
+
+    let classes = `${base} bg-[var(--color-bg-card)] ring-1 ring-[var(--color-border-subtle)] hover:ring-[var(--color-border-default)]`;
+
+    if (state === 'inactive') {
+      classes += ' opacity-[var(--card-inactive-opacity)]';
+    } else if (state === 'attention') {
+      classes = classes.replace('rounded-lg', 'rounded-r-lg rounded-l-none');
+      classes += ' border-l-4 border-l-[var(--color-card-attention-bar)]';
+    }
+
+    return classes;
+  });
 
   taskColorClass = computed(() => {
     const status = this.pr().myReviewStatus;
     if (this.pr().isAuthoredByMe && status === 'Changes Requested') return 'text-amber-700';
-    return 'text-stone-500';
+    return 'text-[var(--color-text-secondary)]';
   });
 
   buildIcon = computed((): { type: 'success' | 'failed' | 'running'; colorClass: string } | null => {
     const build = this.pr().buildStatus;
     if (!build) return null;
     if (build.failed > 0) return { type: 'failed', colorClass: 'text-red-600' };
-    if (build.inProgress > 0) return { type: 'running', colorClass: 'text-indigo-600' };
+    if (build.inProgress > 0) return { type: 'running', colorClass: 'text-[var(--color-primary-text)]' };
     if (build.successful > 0) return { type: 'success', colorClass: 'text-emerald-600' };
     return null;
   });
