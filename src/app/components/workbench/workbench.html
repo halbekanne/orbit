@@ -1,6 +1,6 @@
 <main class="h-full flex flex-col" aria-label="Arbeitsbereich">
   @if (data.rhythmSelected()) {
-    <div class="flex-1 overflow-y-auto bg-[var(--color-bg-surface)]">
+    <div class="flex-1 overflow-y-auto bg-[var(--color-bg-page)]">
       <app-rhythm-detail
         (submitted)="onRhythmSubmitted()"
         (skipped)="onRhythmSkipped()"
