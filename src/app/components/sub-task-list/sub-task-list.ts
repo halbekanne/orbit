@@ -60,8 +60,8 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             <button
               type="button"
               data-testid="subtask-checkbox"
-              class="st-checkbox w-4 h-4 rounded border-2 transition-colors flex items-center justify-center shrink-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 mt-2"
-              [class]="subtask.status === 'done' ? 'bg-emerald-500 border-emerald-500' : 'border-stone-300 hover:border-indigo-400'"
+              class="st-checkbox w-4 h-4 rounded border-2 transition-colors flex items-center justify-center shrink-0 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)] mt-2"
+              [class]="subtask.status === 'done' ? 'bg-emerald-500 border-emerald-500' : 'border-stone-300 hover:border-[var(--color-primary-border)]'"
               (click)="toggleSubtask(i, $event)"
               [attr.aria-label]="subtask.status === 'done' ? 'Als offen markieren' : 'Als erledigt markieren'"
               [attr.aria-checked]="subtask.status === 'done'"
@@ -75,7 +75,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             @if (editingIndex() === i) {
               <input
                 type="text"
-                class="flex-1 text-sm text-stone-800 bg-transparent border-b-2 border-indigo-400 focus:outline-none mt-1.5"
+                class="flex-1 text-sm text-stone-800 bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none mt-1.5"
                 [value]="editDraft()"
                 (input)="editDraft.set($any($event.target).value)"
                 (blur)="saveEdit(i)"
@@ -85,7 +85,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             } @else {
               <span
                 class="flex-1 text-sm cursor-pointer mt-1.5 transition-colors"
-                [class]="subtask.status === 'done' ? 'line-through text-stone-400' : 'text-stone-800 hover:text-indigo-700'"
+                [class]="subtask.status === 'done' ? 'line-through text-stone-400' : 'text-stone-800 hover:text-[var(--color-primary-text)]'"
                 (click)="startEdit(i)"
                 tabindex="0"
                 (keydown.enter)="startEdit(i)"
@@ -96,7 +96,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
             <button
               type="button"
               data-testid="subtask-delete"
-              class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 hover:text-red-500 shrink-0 p-0.5 rounded focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
+              class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 hover:text-red-500 shrink-0 p-0.5 rounded focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)]"
               (click)="deleteSubtask(i)"
               [attr.aria-label]="'Aufgabe löschen: ' + subtask.title"
             >
@@ -110,7 +110,7 @@ import { spawnConfetti, playChime } from '../../shared/celebration';
         <input
           type="text"
           data-testid="subtask-input"
-          class="w-full text-sm text-stone-600 bg-transparent border-b border-stone-200 focus:border-indigo-400 focus:outline-none py-1.5 px-2 placeholder:text-stone-400 placeholder:italic transition-colors"
+          class="w-full text-sm text-stone-600 bg-transparent border-b border-stone-200 focus:border-[var(--color-primary-border)] focus:outline-none py-1.5 px-2 placeholder:text-stone-400 placeholder:italic transition-colors"
           placeholder="Neue Aufgabe hinzufügen…"
           [value]="newTitle()"
           (input)="newTitle.set($any($event.target).value)"
@@ -137,7 +137,7 @@ export class SubTaskListComponent {
 
   counterClasses = computed(() => {
     if (this.allDone()) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (this.doneCount() > 0) return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    if (this.doneCount() > 0) return 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]';
     return 'bg-stone-100 text-stone-500 border-stone-200';
   });
 

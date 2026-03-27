@@ -55,7 +55,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                 </span>
 
                 <span class="text-stone-300" aria-hidden="true">·</span>
-                <span class="font-mono text-sm font-bold text-indigo-600 tracking-wide shrink-0">{{ ticket().key }}</span>
+                <span class="font-mono text-sm font-bold text-[var(--color-primary-text)] tracking-wide shrink-0">{{ ticket().key }}</span>
               </div>
 
             </div>
@@ -139,7 +139,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
         <section class="border-b border-stone-100" aria-labelledby="relations-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('relations')"
               [attr.aria-expanded]="expandedSections().has('relations')"
               aria-controls="relations-content"
@@ -164,10 +164,10 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                       [href]="rel.url"
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="group flex items-baseline gap-1.5 flex-1 min-w-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded"
+                      class="group flex items-baseline gap-1.5 flex-1 min-w-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] rounded"
                     >
-                      <span class="font-mono text-xs font-bold text-indigo-600 shrink-0">{{ rel.key }}</span>
-                      <span class="text-xs text-stone-600 truncate group-hover:text-indigo-600 transition-colors duration-150">{{ rel.summary }}</span>
+                      <span class="font-mono text-xs font-bold text-[var(--color-primary-text)] shrink-0">{{ rel.key }}</span>
+                      <span class="text-xs text-stone-600 truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ rel.summary }}</span>
                     </a>
                     <span class="text-xs text-stone-400 shrink-0">{{ rel.status }}</span>
                   </div>
@@ -183,7 +183,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
         <section class="border-b border-stone-100" aria-labelledby="comments-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('comments')"
               [attr.aria-expanded]="expandedSections().has('comments')"
               aria-controls="comments-content"
@@ -221,7 +221,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
         <section class="border-b border-stone-100" aria-labelledby="attachments-heading">
           <div class="max-w-2xl mx-auto">
             <button
-              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo-500"
+              class="w-full flex items-center justify-between px-6 py-3.5 text-left hover:bg-stone-50/70 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]"
               (click)="toggleSection('attachments')"
               [attr.aria-expanded]="expandedSections().has('attachments')"
               aria-controls="attachments-content"
@@ -245,19 +245,19 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
                       [href]="attachment.url"
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-md"
+                      class="group block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] rounded-md"
                       [attr.aria-label]="attachment.filename + ' öffnen'"
                     >
                       @if (attachment.thumbnail) {
-                        <div class="aspect-video bg-stone-100 rounded-md overflow-hidden border border-stone-200 group-hover:border-indigo-300 transition-colors duration-150">
+                        <div class="aspect-video bg-stone-100 rounded-md overflow-hidden border border-stone-200 group-hover:border-[var(--color-primary-border)] transition-colors duration-150">
                           <img [src]="attachment.thumbnail" [alt]="attachment.filename" class="w-full h-full object-cover" />
                         </div>
                       } @else {
-                        <div class="aspect-video bg-stone-50 rounded-md border border-stone-200 group-hover:border-indigo-300 transition-colors duration-150 flex items-center justify-center">
+                        <div class="aspect-video bg-stone-50 rounded-md border border-stone-200 group-hover:border-[var(--color-primary-border)] transition-colors duration-150 flex items-center justify-center">
                           <svg class="w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
                       }
-                      <p class="text-xs text-stone-500 mt-1 truncate group-hover:text-indigo-600 transition-colors duration-150">{{ attachment.filename }}</p>
+                      <p class="text-xs text-stone-500 mt-1 truncate group-hover:text-[var(--color-primary-text)] transition-colors duration-150">{{ attachment.filename }}</p>
                     </a>
                   }
                 </div>
@@ -313,8 +313,8 @@ export class TicketDetailComponent {
 
   statusStripeClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-400',
-      'In Review': 'bg-indigo-400',
+      'In Progress': 'bg-violet-400',
+      'In Review': 'bg-violet-400',
       'Done': 'bg-emerald-500',
       'To Do': 'bg-stone-300',
     };
@@ -323,8 +323,8 @@ export class TicketDetailComponent {
 
   statusBadgeClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'In Review': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
+      'In Review': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
       'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200',
       'To Do': 'bg-stone-100 text-stone-600 border-stone-200',
     };
@@ -333,8 +333,8 @@ export class TicketDetailComponent {
 
   statusDotClass(): string {
     const map: Record<string, string> = {
-      'In Progress': 'bg-indigo-400',
-      'In Review': 'bg-indigo-400',
+      'In Progress': 'bg-violet-400',
+      'In Review': 'bg-violet-400',
       'Done': 'bg-emerald-500',
       'To Do': 'bg-stone-400',
     };
@@ -346,6 +346,6 @@ export class TicketDetailComponent {
     if (k === 'bug') return 'bg-red-50 text-red-600 border border-red-200';
     if (k === 'story') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     if (k === 'epic') return 'bg-violet-50 text-violet-700 border border-violet-200';
-    return 'bg-sky-50 text-sky-700 border border-sky-200';
+    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border border-[var(--color-type-badge-border)]';
   }
 }

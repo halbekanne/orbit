@@ -22,7 +22,7 @@ import { DayAppointment } from '../../models/day-schedule.model';
           <label class="text-[10px] font-medium uppercase tracking-wide text-stone-400 block mb-1.5">Name</label>
           <input
             type="text"
-            class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none transition-colors duration-100"
+            class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-primary-border)] outline-none transition-colors duration-100"
             #nameInput
             [ngModel]="name()"
             (ngModelChange)="name.set($event)"
@@ -37,7 +37,7 @@ import { DayAppointment } from '../../models/day-schedule.model';
           <div class="flex items-center gap-2">
             <input
               type="text"
-              class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 text-center tabular-nums focus:bg-white focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none transition-colors duration-100"
+              class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 text-center tabular-nums focus:bg-white focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-primary-border)] outline-none transition-colors duration-100"
               [ngModel]="startTime()"
               (ngModelChange)="startTime.set($event)"
               data-testid="apt-start"
@@ -46,7 +46,7 @@ import { DayAppointment } from '../../models/day-schedule.model';
             <span class="text-stone-400 text-sm select-none flex-shrink-0">–</span>
             <input
               type="text"
-              class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 text-center tabular-nums focus:bg-white focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none transition-colors duration-100"
+              class="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 text-center tabular-nums focus:bg-white focus:ring-2 focus:ring-[var(--color-focus-ring)] focus:border-[var(--color-primary-border)] outline-none transition-colors duration-100"
               [ngModel]="endTime()"
               (ngModelChange)="endTime.set($event)"
               data-testid="apt-end"
@@ -58,7 +58,7 @@ import { DayAppointment } from '../../models/day-schedule.model';
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="flex-1 rounded-lg px-3 py-2 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-100"
+            class="flex-1 rounded-lg px-3 py-2 text-xs font-medium text-white bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed transition-colors duration-100"
             [disabled]="!name().trim()"
             (click)="onSave()"
             data-testid="apt-save"
