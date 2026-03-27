@@ -4,6 +4,7 @@ import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
 import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
 import { DayRhythmService } from './services/day-rhythm.service';
+import { ThemeService } from './services/theme.service';
 import { PomodoroProgressBarComponent } from './components/pomodoro-progress-bar/pomodoro-progress-bar';
 import { PomodoroOverlayComponent } from './components/pomodoro-overlay/pomodoro-overlay';
 
@@ -22,6 +23,7 @@ const STORAGE_KEY = 'orbit.activeView';
 export class App {
   private readonly dayRhythm = inject(DayRhythmService);
   private readonly appRef = inject(ApplicationRef);
+  private theme = inject(ThemeService);
 
   activeView = signal(localStorage.getItem(STORAGE_KEY) ?? 'arbeit');
   overlayOpen = signal(false);

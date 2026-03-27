@@ -4,9 +4,9 @@
 @import 'diff2html/bundles/css/diff2html.min.css';
 
 @keyframes highlight-flash {
-  0%   { box-shadow: 0 0 0 0 rgb(99 102 241 / 0.35); }
-  50%  { box-shadow: 0 0 0 6px rgb(99 102 241 / 0.15); }
-  100% { box-shadow: 0 0 0 0 rgb(99 102 241 / 0); }
+  0%   { box-shadow: 0 0 0 0 rgb(139 92 246 / 0.35); }
+  50%  { box-shadow: 0 0 0 6px rgb(139 92 246 / 0.15); }
+  100% { box-shadow: 0 0 0 0 rgb(139 92 246 / 0); }
 }
 
 @layer utilities {
@@ -59,8 +59,8 @@
 .jira-markup .jira-h5,
 .jira-markup .jira-h6 { font-size: 0.875rem; }
 
-.jira-markup .jira-link { color: rgb(79 70 229); text-decoration: underline; text-underline-offset: 2px; }
-.jira-markup .jira-link:hover { color: rgb(67 56 202); }
+.jira-markup .jira-link { color: rgb(124 58 237); text-decoration: underline; text-underline-offset: 2px; }
+.jira-markup .jira-link:hover { color: rgb(109 40 217); }
 
 .jira-markup .jira-inline-code {
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
@@ -99,7 +99,7 @@
 }
 
 .jira-markup .jira-quote {
-  border-left: 3px solid rgb(199 195 253); padding: 0.375rem 0 0.375rem 0.875rem;
+  border-left: 3px solid rgb(221 214 254); padding: 0.375rem 0 0.375rem 0.875rem;
   margin: 0.625rem 0; color: rgb(87 83 78); font-style: italic;
 }
 .jira-markup .jira-quote .jira-p { margin: 0; }
@@ -130,9 +130,9 @@
 
 .jira-markup .jira-mention {
   display: inline-flex; align-items: center;
-  background: rgb(238 242 255); color: rgb(79 70 229);
+  background: rgb(245 243 255); color: rgb(124 58 237);
   font-size: 0.75rem; font-weight: 500;
-  padding: 0.1em 0.5em; border-radius: 9999px; border: 1px solid rgb(199 195 253);
+  padding: 0.1em 0.5em; border-radius: 9999px; border: 1px solid rgb(221 214 254);
 }
 .jira-markup .jira-image-placeholder {
   display: inline-flex; align-items: center; gap: 0.25rem;
@@ -235,8 +235,8 @@
 }
 
 @keyframes gentlePulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.04), 0 2px 8px rgba(99,102,241,0.06); }
-  50% { box-shadow: 0 0 0 2px rgba(99,102,241,0.08), 0 2px 12px rgba(99,102,241,0.1); }
+  0%, 100% { box-shadow: 0 0 0 1px rgba(139,92,246,0.04), 0 2px 8px rgba(139,92,246,0.06); }
+  50% { box-shadow: 0 0 0 2px rgba(139,92,246,0.08), 0 2px 12px rgba(139,92,246,0.1); }
 }
 
 @keyframes gentlePulseAmber {
