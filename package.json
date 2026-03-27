@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "concurrently \"ng serve --port 6200\" \"node proxy/index.js\" \"node mock-server/jira.js\" \"node mock-server/bitbucket.js\"",
-    "start:real": "concurrently \"ng serve --port 6200\" \"node proxy/index.js\"",
-    "proxy": "node proxy/index.js",
+    "start": "concurrently \"ng serve --port 6200\" \"node server/index.js\" \"node mock-server/jira.js\" \"node mock-server/bitbucket.js\"",
+    "start:real": "concurrently \"ng serve --port 6200\" \"node server/index.js\"",
+    "server": "node server/index.js",
     "mock:jira": "node mock-server/jira.js",
     "mock:bitbucket": "node mock-server/bitbucket.js",
     "build": "ng build",
