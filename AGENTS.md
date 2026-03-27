@@ -74,6 +74,14 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ---
 
+## Problem Statement
+
+I work as a frontend software engineer at a German insurance company. I work with Jira as a ticket system and Bitbucket for working with Git Repos and doing Reviews for Pull Requests and so on. As I have ADHD, the tool switching exhausts and overwhelms me mentally sometimes. I wish I had one place where I could see my in progress tickets, see the pull requests I have to review (I could click on it and it would open the right page for the review as a new tab) and maybe where I can add my own tasks as well. I wish I had a single web page that just works as my personal command center, where I could connect it to various tools and it all comes together to aide me in my workday / with my typical workflows.
+
+## Project Idea
+
+"Orbit" is a tool designed to fix exactly that. It is a modern frontend (maybe backend too if we need it later for features) that reduces noise and shows me an overview of what really matters for my work. It hooks into the tools I use daily via their APIs (and e.g. a personal access token), for example shows me in progress tickets from Jira, shows me Pull Requests waiting for my review and maybe my additional tasks that I want to do to help me not get overwhelmed, still be somewhat organized, staying on top of things and just helps me as much as possible for my typical workflows that I have on the job. Maybe it also has tools like starting a promodoro timer, or telling me how long it is until the next meeting or stuff like that, but that are nice to have things, there is potentially a lot of stuff that could be extended there.
+
 ## Project Identity
 
 Orbit is a personal command center for a frontend engineer at a German insurance company. It lives permanently on a dedicated second monitor, visible throughout the workday. It integrates with work tools (Jira, Bitbucket, and others) — real API integrations come in later iterations.

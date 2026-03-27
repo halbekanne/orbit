@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { CosiReviewService } from '../../services/cosi-review.service';
@@ -135,7 +135,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
   `,
 })
 export class ActionRailComponent {
-  protected readonly data = inject(WorkDataService);
+  protected readonly data = inject(WorkspaceService);
   protected readonly focusService = inject(FocusService);
   protected readonly cosiReview = inject(CosiReviewService);
   private readonly todoService = inject(TodoService);

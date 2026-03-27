@@ -1,12 +1,13 @@
 # Orbit — Ideen-Matrix (Aufwand x Wert)
 
-> Stand: 2026-03-23
+> Stand: 2026-03-28
 
 ---
 
 ## Hoher Wert / Geringer Aufwand (Quick Wins)
 
 - **Direkte Erstellung von Ideen** — Analog zu Aufgaben bereits gebaut, Pattern kopieren; senkt Hürde für Ideenerfassung (ADHS-kritisch).
+- **Auto-Aktualisierung (Polling + Sync-Button)** — Polling-Intervall + manueller Refresh-Button ist technisch simpel; verhindert veraltete Daten ohne mentalen Aufwand ans Aktualisieren zu denken (ADHS-relevant). Intervall später im Settings Panel einstellbar.
 
 ---
 
@@ -17,6 +18,7 @@
 - **Wartend-Zustand mit Wiedervorlage** — Verhindert, dass Aufgaben im Kopf mitgeschleppt werden (ADHS-Entlastung); braucht Datenhaltung + Reminder-Logik.
 - **Optionen/Settings Panel** — Grundinfrastruktur für viele andere Features (API-Keys, Toggles, Templates); mittel weil UI + Persistenz.
 - **Tages-Terminplan (Zeitstrahl mit Drag & Drop)** — Tagesstruktur ist für ADHS-Gehirne extrem wichtig gegen Zeitblindheit; Drag-to-create braucht solide Interaktionslogik, Persistenz und seitliche Layout-Integration.
+- **URL-Routing (Deep Links)** — URL-Änderung bei Selektion von Tickets, PRs, Tasks, Logbuch etc. ermöglicht Browser-Navigation (Zurück/Vorwärts), Bookmarks und teilbare Links; alle Views und Selektionszustände müssen auf Routen/Parameter gemappt werden.
 
 ---
 
@@ -115,6 +117,8 @@ Hier sind meine Gedanken, Punkte, Ideen, in beliebiger Reihenfolge:
 - Spotify-Integration: Man kann eine Playlist o.ä. wählen, die abgespielt wird und hat einen Mini-Player, oder es synchronisiert sich mit dem Promodoro Timer und man hat für Fokus und Pausen andere Musik, irgendwie so?
 - Mehr Gamification: Das ist noch nicht ganz klar, wie kann das aussehen? Vllt. ein Level-System, Challenges, Rewards? Oder doch zu verspielt und einfach too much? Vllt. auch unnötig, nicht ganz klar, müsste man mal explorieren.
 - Bug im Logbuch, es steht ich habe "x weitere" Sachen erledigt aber ich kann es nicht aufklappen, ich würde das feature dass max. 3 Sachen angezeigt werden einfach erstmal entfernen, es sollen einfach alle Sachen die man geschafft hat angezeigt werden.
+- URL-Routing: Wenn man ein Ticket, Pull Request, Task etc. auswählt oder auf das Logbuch wechselt, soll sich die URL ändern. So kann man Browser-Navigation (Zurück/Vorwärts) nutzen, Bookmarks setzen und Links teilen. Logische URL-Struktur.
+- Auto-Aktualisierung: Orbit soll sich automatisch alle X Minuten aktualisieren (Daten neu laden), das Intervall soll später im Einstellungsfenster konfigurierbar sein. Zusätzlich ein manueller Sync-Button zum sofortigen Aktualisieren.
 - Am Anfang des Tages soll man seine Termine auf einem Zeitstrahl / Tagesanzeige per Drag & Drop ziehen können. Also ich sehe den Zeitstrahl, mache drag & drop darauf, es       
   bildet sich ein Kasten der die Zeit angibt. Beim Loslassen werde ich direkt gefragt wie der Termin heißt. So ist eine Blitzschnelle Anlage von einem Tagesplan möglich. Der Tages-Terminplan soll dann die    
   ganze Zeit z.B. am rechten Rand der Anwendung einblendbar sein. Keine Wochenansicht, keine Monatsansicht, nur die Tagesansicht. In der Reflektion kann man auch sehen, welche Termine man hatte. Keine        

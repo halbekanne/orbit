@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { TicketDetailComponent } from '../ticket-detail/ticket-detail';
 import { PrDetailComponent } from '../pr-detail/pr-detail';
 import { TodoDetailComponent } from '../todo-detail/todo-detail';
@@ -14,7 +14,7 @@ import { RhythmDetailComponent } from '../rhythm-detail/rhythm-detail';
   host: { class: 'flex flex-col h-full' },
 })
 export class WorkbenchComponent {
-  protected readonly data = inject(WorkDataService);
+  protected readonly data = inject(WorkspaceService);
 
   onRhythmSubmitted(): void {}
   onRhythmSkipped(): void {}

@@ -10,7 +10,7 @@ import { IdeaService } from './idea.service';
 import { TicketLocalDataService } from './ticket-local-data.service';
 
 @Injectable({ providedIn: 'root' })
-export class WorkDataService {
+export class WorkspaceService {
   private readonly jira = inject(JiraService);
   private readonly bitbucket = inject(BitbucketService);
   private readonly todoService = inject(TodoService);

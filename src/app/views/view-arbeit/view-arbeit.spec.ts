@@ -3,12 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { ViewArbeitComponent } from './view-arbeit';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { CosiReviewService } from '../../services/cosi-review.service';
 
-const mockWorkDataService = {
+const mockWorkspaceService = {
   tickets: signal([]),
   ticketsLoading: signal(false),
   ticketsError: signal(false),
@@ -55,7 +55,7 @@ describe('ViewArbeitComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ViewArbeitComponent],
       providers: [
-        { provide: WorkDataService, useValue: mockWorkDataService },
+        { provide: WorkspaceService, useValue: mockWorkspaceService },
         { provide: TodoService, useValue: mockTodoService },
         { provide: IdeaService, useValue: mockIdeaService },
         { provide: CosiReviewService, useValue: mockCosiReviewService },

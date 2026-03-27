@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { CosiReviewService } from '../../services/cosi-review.service';
@@ -47,7 +47,7 @@ describe('ActionRailComponent', () => {
     TestBed.configureTestingModule({
       imports: [ActionRailComponent],
       providers: [
-        { provide: WorkDataService, useValue: { selectedItem: mockData.selectedItem, promoteToTodo: promoteSpy, demoteToIdea: demoteSpy } },
+        { provide: WorkspaceService, useValue: { selectedItem: mockData.selectedItem, promoteToTodo: promoteSpy, demoteToIdea: demoteSpy } },
         { provide: TodoService, useValue: { update: updateSpy, todos: signal([]) } },
         { provide: IdeaService, useValue: { update: vi.fn() } },
         { provide: CosiReviewService, useValue: mockCosiReview },

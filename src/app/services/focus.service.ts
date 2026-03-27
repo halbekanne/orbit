@@ -1,6 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { FocusTarget, WorkItem } from '../models/work-item.model';
-import { WorkDataService } from './work-data.service';
+import { WorkspaceService } from './workspace.service';
 import { TodoService } from './todo.service';
 import { IdeaService } from './idea.service';
 
@@ -8,7 +8,7 @@ const STORAGE_KEY = 'orbit.focus.state';
 
 @Injectable({ providedIn: 'root' })
 export class FocusService {
-  private readonly data = inject(WorkDataService);
+  private readonly data = inject(WorkspaceService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
 

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { FocusService } from './focus.service';
-import { WorkDataService } from './work-data.service';
+import { WorkspaceService } from './workspace.service';
 import { TodoService } from './todo.service';
 import { IdeaService } from './idea.service';
 import { Todo, Idea, JiraTicket } from '../models/work-item.model';
@@ -42,7 +42,7 @@ describe('FocusService', () => {
         FocusService,
         { provide: TodoService, useValue: { todos: todosSignal } },
         { provide: IdeaService, useValue: { ideas: ideasSignal } },
-        { provide: WorkDataService, useValue: { tickets: ticketsSignal, pullRequests: pullRequestsSignal } },
+        { provide: WorkspaceService, useValue: { tickets: ticketsSignal, pullRequests: pullRequestsSignal } },
       ],
     });
     service = TestBed.inject(FocusService);

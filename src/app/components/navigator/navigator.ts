@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CdkDragDrop, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { FocusService } from '../../services/focus.service';
@@ -32,7 +32,7 @@ interface CollapsedState {
   host: { class: 'flex flex-col h-full' },
 })
 export class NavigatorComponent {
-  protected readonly data = inject(WorkDataService);
+  protected readonly data = inject(WorkspaceService);
   protected readonly todoService = inject(TodoService);
   protected readonly ideaService = inject(IdeaService);
   protected readonly focusService = inject(FocusService);

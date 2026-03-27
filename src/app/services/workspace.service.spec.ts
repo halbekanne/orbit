@@ -3,7 +3,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { Idea, JiraTicket, PullRequest, Todo } from '../models/work-item.model';
 import { JiraService } from './jira.service';
 import { BitbucketService } from './bitbucket.service';
-import { WorkDataService } from './work-data.service';
+import { WorkspaceService } from './workspace.service';
 import { IdeaService } from './idea.service';
 import { TodoService } from './todo.service';
 
@@ -32,14 +32,14 @@ const mockTicket: JiraTicket = {
   epicLink: null,
 };
 
-function setup(tickets$: Observable<JiraTicket[]>): WorkDataService {
+function setup(tickets$: Observable<JiraTicket[]>): WorkspaceService {
   TestBed.configureTestingModule({
     providers: [
-      WorkDataService,
+      WorkspaceService,
       { provide: JiraService, useValue: { getAssignedActiveTickets: () => tickets$ } },
     ],
   });
-  return TestBed.inject(WorkDataService);
+  return TestBed.inject(WorkspaceService);
 }
 
 const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review', id = 'P/repo/1'): PullRequest => ({
@@ -82,7 +82,7 @@ const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review
   isAuthoredByMe: false,
 });
 
-describe('WorkDataService', () => {
+describe('WorkspaceService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('populates tickets and clears loading on success', () => {
@@ -105,7 +105,7 @@ describe('WorkDataService', () => {
   });
 });
 
-describe('WorkDataService — pullRequests loading', () => {
+describe('WorkspaceService — pullRequests loading', () => {
   const mockJira = { getAssignedActiveTickets: () => of([]) };
 
   beforeEach(() => {
@@ -121,7 +121,7 @@ describe('WorkDataService — pullRequests loading', () => {
       getAuthoredPullRequests: () => of([]),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     expect(service.pullRequestsLoading()).toBe(true);
     TestBed.tick();
     expect(service.pullRequestsLoading()).toBe(false);
@@ -134,7 +134,7 @@ describe('WorkDataService — pullRequests loading', () => {
       getAuthoredPullRequests: () => of([]),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests()).toEqual([pr]);
   });
@@ -145,7 +145,7 @@ describe('WorkDataService — pullRequests loading', () => {
       getAuthoredPullRequests: () => of([]),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequestsError()).toBe(true);
     expect(service.pullRequests()).toEqual([]);
@@ -159,13 +159,13 @@ describe('WorkDataService — pullRequests loading', () => {
       getReviewerPrActivityStatus: () => of('Changes Requested' as const),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.awaitingReviewCount()).toBe(2);
   });
 });
 
-describe('WorkDataService — enrichment', () => {
+describe('WorkspaceService — enrichment', () => {
   const mockJira = { getAssignedActiveTickets: () => of([]) };
 
   beforeEach(() => {
@@ -183,7 +183,7 @@ describe('WorkDataService — enrichment', () => {
       getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests()[0].myReviewStatus).toBe('Needs Re-review');
   });
@@ -196,7 +196,7 @@ describe('WorkDataService — enrichment', () => {
       getReviewerPrActivityStatus: () => of('Changes Requested' as const),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests()[0].myReviewStatus).toBe('Changes Requested');
   });
@@ -210,7 +210,7 @@ describe('WorkDataService — enrichment', () => {
       getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     const statuses = service.pullRequests().map(pr => pr.myReviewStatus);
     expect(statuses).toContain('Awaiting Review');
@@ -226,7 +226,7 @@ describe('WorkDataService — enrichment', () => {
       getReviewerPrActivityStatus: activitySpy,
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    TestBed.inject(WorkDataService);
+    TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(activitySpy).not.toHaveBeenCalled();
   });
@@ -241,7 +241,7 @@ describe('WorkDataService — enrichment', () => {
         of((pr as PullRequest).id === 'P/repo/2' ? ('Needs Re-review' as const) : ('Changes Requested' as const)),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     const sorted = service.pullRequests();
     expect(sorted[0].myReviewStatus).toBe('Needs Re-review');
@@ -249,7 +249,7 @@ describe('WorkDataService — enrichment', () => {
   });
 });
 
-describe('WorkDataService — authored PRs', () => {
+describe('WorkspaceService — authored PRs', () => {
   const mockJira = { getAssignedActiveTickets: () => of([]) };
 
   beforeEach(() => {
@@ -272,7 +272,7 @@ describe('WorkDataService — authored PRs', () => {
       getBuildStatusStats: () => of({ successful: 1, failed: 0, inProgress: 0 }),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests().length).toBe(1);
     expect(service.pullRequests()[0].isAuthoredByMe).toBe(true);
@@ -286,7 +286,7 @@ describe('WorkDataService — authored PRs', () => {
       getAuthoredPullRequests: () => of([authoredPr]),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests().length).toBe(1);
     expect(service.pullRequests()[0].isAuthoredByMe).toBe(false);
@@ -304,7 +304,7 @@ describe('WorkDataService — authored PRs', () => {
       getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     const ids = service.pullRequests().map(pr => pr.id);
     expect(ids).toEqual(['P/repo/r1', 'P/repo/a1', 'P/repo/r2', 'P/repo/a2']);
@@ -318,7 +318,7 @@ describe('WorkDataService — authored PRs', () => {
       getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.pullRequests().length).toBe(1);
   });
@@ -331,13 +331,13 @@ describe('WorkDataService — authored PRs', () => {
       getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkDataService);
+    const service = TestBed.inject(WorkspaceService);
     TestBed.tick();
     expect(service.awaitingReviewCount()).toBe(0);
   });
 });
 
-describe('WorkDataService — coordinator', () => {
+describe('WorkspaceService — coordinator', () => {
   const mockJira = { getAssignedActiveTickets: () => of([]) };
   const mockBitbucket = { getReviewerPullRequests: () => of([]), getAuthoredPullRequests: () => of([]) };
 
@@ -370,7 +370,7 @@ describe('WorkDataService — coordinator', () => {
     TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
     TestBed.overrideProvider(TodoService, { useValue: mockTodo });
 
-    const svc = TestBed.inject(WorkDataService);
+    const svc = TestBed.inject(WorkspaceService);
     svc.promoteToTodo(idea);
 
     expect(updatedIdeas[0]).toEqual({ ...idea, status: 'wont-do' });
@@ -403,7 +403,7 @@ describe('WorkDataService — coordinator', () => {
     TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
     TestBed.overrideProvider(TodoService, { useValue: mockTodo });
 
-    const svc = TestBed.inject(WorkDataService);
+    const svc = TestBed.inject(WorkspaceService);
     svc.demoteToIdea(todo);
 
     expect(removedIds).toContain('td1');

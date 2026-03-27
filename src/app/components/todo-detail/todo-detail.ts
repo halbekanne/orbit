@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal, effect } from '@angular/core';
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
 
@@ -108,7 +108,7 @@ import { SubTask } from '../../models/sub-task.model';
 export class TodoDetailComponent {
   todo = input.required<Todo>();
   private readonly todoService = inject(TodoService);
-  private readonly workData = inject(WorkDataService);
+  private readonly workData = inject(WorkspaceService);
 
   editingTitle = signal(false);
   editingDescription = signal(false);

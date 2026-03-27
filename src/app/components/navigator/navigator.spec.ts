@@ -1,9 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { WorkDataService } from '../../services/work-data.service';
+import { WorkspaceService } from '../../services/workspace.service';
 import { NavigatorComponent } from './navigator';
 
-const mockWorkDataService = {
+const mockWorkspaceService = {
   tickets: signal([]),
   ticketsLoading: signal(false),
   ticketsError: signal(false),
@@ -28,7 +28,7 @@ describe('NavigatorComponent – collapse logic', () => {
     await TestBed.configureTestingModule({
       imports: [NavigatorComponent],
       providers: [
-        { provide: WorkDataService, useValue: mockWorkDataService },
+        { provide: WorkspaceService, useValue: mockWorkspaceService },
       ],
     }).compileComponents();
   });
