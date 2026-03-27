@@ -16,7 +16,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
     @if (item) {
       <button type="button"
         class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-        [class]="focusService.isFocused(item.id) ? 'bg-indigo-100 border-indigo-300 text-indigo-700 hover:bg-indigo-200' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+        [class]="focusService.isFocused(item.id) ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-stone-600 hover:border-stone-300'"
         (click)="toggleFocus(item)">
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         {{ focusService.isFocused(item.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
@@ -76,7 +76,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
       @let idea = asIdea(item);
       @if (idea.status === 'active') {
         <button type="button"
-          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+          class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
           (click)="data.promoteToTodo(idea)">
           Zur Aufgabe machen
         </button>
@@ -101,7 +101,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
         [href]="ticket.url"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center no-underline bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center no-underline bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
       >
         In Jira öffnen ↗
       </a>
@@ -112,7 +112,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
       @let review = cosiReview.reviewState();
       <button type="button"
         class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-        [class]="review === 'idle' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+        [class]="review === 'idle' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]' : 'bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-stone-600 hover:border-stone-300'"
         [disabled]="(review !== 'idle' && review.status === 'running') || !cosiReview.canReview()"
         (click)="cosiReview.triggerReview()">
         @if (review !== 'idle' && review.status === 'running') {
@@ -127,7 +127,7 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
         [href]="pr.url"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center no-underline bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+        class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center no-underline bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
       >
         In Bitbucket öffnen ↗
       </a>

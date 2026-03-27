@@ -30,13 +30,13 @@ type CaptureMode = 'todo' | 'idea';
             type="text"
             [placeholder]="mode() === 'todo' ? 'Neue Aufgabe…' : 'Neue Idee…'"
             [attr.aria-label]="mode() === 'todo' ? 'Aufgabe eingeben' : 'Idee eingeben'"
-            class="bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            class="bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
           />
           <div class="flex gap-2 mt-3" role="group" aria-label="Art der Erfassung">
             <button
               type="button"
-              class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              [class]="mode() === 'todo' ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+              [class]="mode() === 'todo' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
               (click)="mode.set('todo')"
               [attr.aria-pressed]="mode() === 'todo'"
             >
@@ -44,8 +44,8 @@ type CaptureMode = 'todo' | 'idea';
             </button>
             <button
               type="button"
-              class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              [class]="mode() === 'idea' ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+              [class]="mode() === 'idea' ? 'bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)]' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
               (click)="mode.set('idea')"
               [attr.aria-pressed]="mode() === 'idea'"
             >

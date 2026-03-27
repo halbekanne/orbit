@@ -20,7 +20,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
   template: `
     @if (collapsed()) {
       <button
-        class="h-full w-full flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+        class="h-full w-full flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors"
         (click)="toggleCollapse()"
         data-testid="collapse-toggle"
         aria-label="Tagesplan einblenden"
@@ -31,9 +31,9 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
       </button>
     } @else {
       <div class="flex items-center justify-between px-4 py-3 border-b border-stone-200">
-        <span class="font-semibold text-stone-800 text-sm tracking-wide">Tagesplan</span>
+        <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Tagesplan</span>
         <button
-          class="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded p-0.5 transition-colors"
+          class="text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] rounded p-0.5 transition-colors"
           (click)="toggleCollapse()"
           data-testid="collapse-toggle"
           aria-label="Tagesplan ausblenden"
@@ -47,7 +47,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
       <div class="shrink-0 p-3 border-b border-stone-200">
         @if (pomodoro.state() === 'idle') {
           <button type="button"
-            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
             (click)="showPomodoroConfig.set(true)">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
             Pomodoro starten
@@ -56,12 +56,12 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           <div class="flex items-center justify-between gap-2 mb-2">
             <div class="flex items-center gap-1.5">
               <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary-solid)] opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary-solid)]"></span>
               </span>
-              <span class="text-xs font-medium text-indigo-700">Fokus läuft</span>
+              <span class="text-xs font-medium text-[var(--color-primary-text)]">Fokus läuft</span>
             </div>
-            <span class="text-xs text-stone-400 tabular-nums">{{ pomodoroRemainingLabel() }}</span>
+            <span class="text-xs text-[var(--color-text-muted)] tabular-nums">{{ pomodoroRemainingLabel() }}</span>
           </div>
           <button type="button"
             class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-stone-50 border-stone-200 text-stone-500 hover:border-red-300 hover:text-red-600 hover:bg-red-50"
