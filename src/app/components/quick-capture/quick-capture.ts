@@ -30,7 +30,7 @@ type CaptureMode = 'todo' | 'idea';
             type="text"
             [placeholder]="mode() === 'todo' ? 'Neue Aufgabe…' : 'Neue Idee…'"
             [attr.aria-label]="mode() === 'todo' ? 'Aufgabe eingeben' : 'Idee eingeben'"
-            class="bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+            class="bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded-lg px-3 py-2 text-sm text-[var(--color-text-heading)] placeholder:text-[var(--color-text-muted)] w-full focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
           />
           <div class="flex gap-2 mt-3" role="group" aria-label="Art der Erfassung">
             <button

@@ -240,15 +240,15 @@ export class RhythmCardComponent {
     }
     switch (this.displayPhase()) {
       case 'morning-open':
-        return 'bg-gradient-to-br from-violet-50/80 to-white ring-1 ring-[var(--color-primary-border)]/50 hover:ring-violet-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-primary-border)] hover:ring-[var(--color-primary-solid)]';
       case 'morning-filled':
-        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-primary-border)] hover:ring-violet-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-primary-border)] hover:ring-[var(--color-primary-solid)]';
       case 'evening-open':
-        return 'bg-gradient-to-br from-amber-50/80 to-white ring-1 ring-amber-200/50 hover:ring-amber-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-amber-300 dark:ring-amber-500/30 hover:ring-amber-400 dark:hover:ring-amber-500/50';
       case 'evening-filled':
-        return 'bg-[var(--color-bg-card)] ring-1 ring-stone-200 hover:ring-stone-300';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-border-subtle)] hover:ring-[var(--color-border-default)]';
       default:
-        return 'bg-[var(--color-bg-card)] ring-1 ring-stone-200';
+        return 'bg-[var(--color-bg-card)] ring-1 ring-[var(--color-border-subtle)]';
     }
   });
 

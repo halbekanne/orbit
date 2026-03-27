@@ -74,6 +74,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --color-bg-page: var(--color-stone-950);
   --color-bg-surface: var(--color-stone-900);
   --color-bg-card: var(--color-stone-800);

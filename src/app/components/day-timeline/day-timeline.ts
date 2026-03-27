@@ -65,22 +65,22 @@ interface DragState {
       top: 0;
       left: 44px;
       right: 0;
-      border-top: 1px solid #d6d3d1;
+      border-top: 1px solid var(--color-border-default);
     }
     .quarter-line {
       position: absolute;
       left: 44px;
       right: 0;
-      border-top: 1px solid #f0efed;
+      border-top: 1px solid var(--color-border-subtle);
     }
     .half-line {
       border-top-style: dashed;
-      border-top-color: #e7e5e4;
+      border-top-color: var(--color-border-default);
     }
     .hour-label {
       width: 44px;
       font-size: 11px;
-      color: #a8a29e;
+      color: var(--color-text-muted);
       line-height: 1;
       transform: translateY(-5px);
       text-align: right;
@@ -90,9 +90,9 @@ interface DragState {
       position: absolute;
       left: 46px;
       right: 4px;
-      background: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-left: 3px solid #6366f1;
+      background: var(--color-primary-bg);
+      border: 1px solid var(--color-primary-border);
+      border-left: 3px solid var(--color-primary-solid);
       border-radius: 4px;
       z-index: 2;
       overflow: hidden;
@@ -100,14 +100,14 @@ interface DragState {
       transition: background 100ms ease;
     }
     .appointment-block:hover {
-      background: #e0e7ff;
+      background: var(--color-primary-bg-hover);
     }
     .current-time-line {
       position: absolute;
       left: 44px;
       right: 4px;
       height: 2px;
-      background: #ef4444;
+      background: var(--color-timeline-now);
       z-index: 5;
       pointer-events: none;
     }
@@ -118,14 +118,14 @@ interface DragState {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #ef4444;
+      background: var(--color-timeline-now);
     }
     .drag-preview {
       position: absolute;
       left: 46px;
       right: 4px;
-      background: #eef2ff80;
-      border: 2px dashed #818cf8;
+      background: color-mix(in srgb, var(--color-primary-bg) 50%, transparent);
+      border: 2px dashed var(--color-primary-solid);
       border-radius: 4px;
       z-index: 3;
       pointer-events: none;
@@ -133,7 +133,7 @@ interface DragState {
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      color: #6366f1;
+      color: var(--color-primary-solid);
       font-weight: 500;
     }
     .resize-handle {
@@ -151,7 +151,7 @@ interface DragState {
       right: 25%;
       top: 50%;
       height: 2px;
-      background: #818cf8;
+      background: var(--color-primary-solid);
       border-radius: 1px;
       transform: translateY(-50%);
     }
@@ -165,9 +165,9 @@ interface DragState {
       position: absolute;
       left: 58px;
       right: 8px;
-      border: 2px dashed #818cf8;
+      border: 2px dashed var(--color-primary-solid);
       border-radius: 8px;
-      background: rgba(238, 242, 255, 0.5);
+      background: var(--color-primary-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -177,7 +177,7 @@ interface DragState {
     .pomodoro-block-label {
       font-size: 11px;
       font-weight: 600;
-      color: #6366f1;
+      color: var(--color-primary-solid);
       opacity: 0.8;
     }
   `],
@@ -218,8 +218,8 @@ interface DragState {
         >
           <div class="resize-handle resize-handle-top" data-resize="top" [attr.data-appointment-id]="apt.id"></div>
           <div style="padding: 3px 6px; pointer-events: none;">
-            <div style="font-size: 12px; font-weight: 600; color: #4338ca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ apt.title }}</div>
-            <div style="font-size: 11px; color: #6366f1;">{{ apt.startTime }} – {{ apt.endTime }}</div>
+            <div style="font-size: 12px; font-weight: 600; color: var(--color-primary-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ apt.title }}</div>
+            <div style="font-size: 11px; color: var(--color-primary-solid);">{{ apt.startTime }} – {{ apt.endTime }}</div>
           </div>
           <div class="resize-handle resize-handle-bottom" data-resize="bottom" [attr.data-appointment-id]="apt.id"></div>
         </div>
