@@ -1,16 +1,27 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal, effect } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, input, signal, effect, viewChild } from '@angular/core';
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
+import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
+import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 
 @Component({
   selector: 'app-todo-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SubTaskListComponent],
+  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent],
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Todo: ' + todo().title">
+
+      <app-compact-header-bar
+        [visible]="showCompactBar()"
+        [title]="todo().title"
+        [statusLabel]="statusLabelText()"
+        [statusClass]="statusBadgeClass()"
+        [stripeColor]="statusStripeClass()"
+      />
+
       <header class="pb-5 border-b border-[var(--color-border-subtle)]">
         <div class="flex items-start gap-4">
           <div class="flex-1 min-w-0">
@@ -50,6 +61,9 @@ import { SubTask } from '../../models/sub-task.model';
           </div>
         </div>
       </header>
+
+      <div #headerSentinel></div>
+      <app-detail-action-bar [item]="todo()" />
 
       <div class="flex-1 py-5 overflow-y-auto">
         <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Notizen</h2>
@@ -109,11 +123,29 @@ export class TodoDetailComponent {
   todo = input.required<Todo>();
   private readonly todoService = inject(TodoService);
   private readonly workData = inject(WorkspaceService);
+  private readonly destroyRef = inject(DestroyRef);
 
   editingTitle = signal(false);
   editingDescription = signal(false);
   draftTitle = signal('');
   draftDescription = signal('');
+
+  readonly showCompactBar = signal(false);
+  private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('headerSentinel');
+
+  readonly statusStripeClass = computed(() => {
+    const s = this.todo().status;
+    if (s === 'done') return 'bg-emerald-500';
+    if (s === 'wont-do') return 'bg-stone-400';
+    return 'bg-violet-500';
+  });
+
+  readonly statusLabelText = computed(() => {
+    const s = this.todo().status;
+    if (s === 'done') return 'Erledigt';
+    if (s === 'wont-do') return 'Nicht erledigt';
+    return 'Offen';
+  });
 
   constructor() {
     effect(() => {
@@ -122,6 +154,17 @@ export class TodoDetailComponent {
       this.draftDescription.set(t.description);
       this.editingTitle.set(false);
       this.editingDescription.set(false);
+    });
+
+    afterNextRender(() => {
+      const sentinel = this.scrollSentinel()?.nativeElement;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => this.showCompactBar.set(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(sentinel);
+      this.destroyRef.onDestroy(() => observer.disconnect());
     });
   }
 
