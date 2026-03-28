@@ -24,7 +24,7 @@ function isConfigured(settings) {
   });
 }
 
-function createSettingsRoutes() {
+function createSettingsRoutes({ onSettingsSaved } = {}) {
   const router = Router();
 
   router.get('/api/settings/status', async (_req, res) => {
@@ -48,6 +48,7 @@ function createSettingsRoutes() {
       return res.status(400).json({ error: 'Missing required fields', fields: missing });
     }
     await writeJson(SETTINGS_FILE, settings);
+    if (onSettingsSaved) await onSettingsSaved();
     res.json(settings);
   });
 

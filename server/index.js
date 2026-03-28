@@ -24,7 +24,7 @@ function getSettings() {
   const PORT = 6201;
 
   app.use(cors({ origin: 'http://localhost:6200' }));
-  app.use(createSettingsRoutes());
+  app.use(createSettingsRoutes({ onSettingsSaved: loadSettings }));
   app.use(createAiRoutes({ getSettings }));
   app.use(express.json());
   app.use(createProxyRoutes({ getSettings }));
