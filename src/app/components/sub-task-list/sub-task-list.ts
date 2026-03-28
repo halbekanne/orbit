@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { SubTask, createSubTask } from '../../models/sub-task.model';
-import { spawnConfetti, playChime } from '../../shared/celebration';
+import { spawnConfetti, playChime } from '../../utils/celebration';
 
 @Component({
   selector: 'app-sub-task-list',

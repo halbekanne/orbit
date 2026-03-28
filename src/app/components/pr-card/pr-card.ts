@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { PullRequest } from '../../models/work-item.model';
-import { prStatusBadgeClass } from '../pr-status-colors';
-import { prStatusLabel } from '../pr-status-label';
+import { prStatusBadgeClass, prStatusLabel } from '../../utils/pr-status';
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 

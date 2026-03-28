@@ -1,5 +1,35 @@
 import { PullRequest, PrStatus } from '../models/work-item.model';
 
+const statusLabelMap: Record<PrStatus, string> = {
+  'Awaiting Review': 'Wartet auf Review',
+  'Needs Re-review': 'Erneutes Review nötig',
+  'Changes Requested': 'Änderungen angefordert',
+  'Approved': 'Genehmigt',
+  'Approved by Others': 'Von Anderen genehmigt',
+  'In Review': 'Im Review',
+  'Ready to Merge': 'Bereit zum Mergen',
+};
+
+export function prStatusLabel(pr: PullRequest): string {
+  if (pr.myReviewStatus === 'Changes Requested' && pr.isAuthoredByMe) {
+    return 'Änderungen nötig';
+  }
+  return statusLabelMap[pr.myReviewStatus] ?? pr.myReviewStatus;
+}
+
+export function prStatusClass(status: PrStatus): string {
+  const map: Record<PrStatus, string> = {
+    'Awaiting Review': 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-500',
+    'Needs Re-review': 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-500',
+    'Changes Requested': 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]',
+    'Approved': 'bg-[var(--color-success-bg)] text-[var(--color-success-text)]',
+    'Approved by Others': 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]',
+    'In Review': 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]',
+    'Ready to Merge': 'bg-[var(--color-success-bg)] text-[var(--color-success-text)]',
+  };
+  return map[status];
+}
+
 const stripeMap: Record<PrStatus, string> = {
   'Awaiting Review': 'bg-violet-400',
   'Needs Re-review': 'bg-amber-500',

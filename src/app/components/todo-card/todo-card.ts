@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, injec
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
-import { spawnConfetti, playChime } from '../../shared/celebration';
+import { spawnConfetti, playChime } from '../../utils/celebration';
 
 @Component({
   selector: 'app-todo-card',
