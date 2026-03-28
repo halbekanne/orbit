@@ -51,6 +51,7 @@
 
   --card-inactive-opacity: 0.55;
   --color-card-attention-bar: var(--color-signal-bar);
+  --color-card-attention-bar-danger: theme(colors.red.500);
 
   --color-pr-approved-bg: var(--color-success-bg);
   --color-pr-approved-text: var(--color-success-text);
@@ -128,5 +129,6 @@
   --color-primary-bg-opaque-hover: var(--color-violet-900);
 
   --card-inactive-opacity: 0.62;
+  --color-card-attention-bar-danger: theme(colors.red.500);
 }
 }
