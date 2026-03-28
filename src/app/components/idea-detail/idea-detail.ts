@@ -1,16 +1,28 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal, effect } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, input, signal, effect, viewChild } from '@angular/core';
 import { Idea } from '../../models/work-item.model';
 import { IdeaService } from '../../services/idea.service';
 import { WorkspaceService } from '../../services/workspace.service';
 import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
+import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
+import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 
 @Component({
   selector: 'app-idea-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SubTaskListComponent],
+  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent],
   template: `
     <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
+
+      <app-compact-header-bar
+        [visible]="showCompactBar()"
+        [title]="idea().title"
+        [statusLabel]="statusLabelText()"
+        [statusClass]="statusBadgeClass()"
+        [stripeColor]="statusStripeClass()"
+        [prefix]="'💡'"
+      />
+
       <header class="pb-5 border-b border-[var(--color-border-subtle)]">
         <div class="flex items-start gap-2 mb-2">
           <span class="text-lg" aria-hidden="true">💡</span>
@@ -41,6 +53,9 @@ import { SubTask } from '../../models/sub-task.model';
           >{{ idea().title }}</h1>
         }
       </header>
+
+      <div #headerSentinel></div>
+      <app-detail-action-bar [item]="idea()" />
 
       <div class="py-5 border-b border-[var(--color-border-subtle)]">
         <dl>
@@ -94,11 +109,29 @@ export class IdeaDetailComponent {
   idea = input.required<Idea>();
   private readonly ideaService = inject(IdeaService);
   private readonly workData = inject(WorkspaceService);
+  private readonly destroyRef = inject(DestroyRef);
 
   editingTitle = signal(false);
   editingDescription = signal(false);
   draftTitle = signal('');
   draftDescription = signal('');
+
+  readonly showCompactBar = signal(false);
+  private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('headerSentinel');
+
+  readonly statusStripeClass = computed(() =>
+    this.idea().status === 'wont-do' ? 'bg-stone-400' : 'bg-amber-500'
+  );
+
+  readonly statusLabelText = computed(() =>
+    this.idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv'
+  );
+
+  readonly statusBadgeClass = computed(() =>
+    this.idea().status === 'wont-do'
+      ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]'
+      : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'
+  );
 
   constructor() {
     effect(() => {
@@ -107,6 +140,17 @@ export class IdeaDetailComponent {
       this.draftDescription.set(i.description);
       this.editingTitle.set(false);
       this.editingDescription.set(false);
+    });
+
+    afterNextRender(() => {
+      const sentinel = this.scrollSentinel()?.nativeElement;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => this.showCompactBar.set(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(sentinel);
+      this.destroyRef.onDestroy(() => observer.disconnect());
     });
   }
 
