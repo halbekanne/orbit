@@ -122,19 +122,17 @@ Every new UI element, interaction, or feature must be evaluated against these co
 
 - **Warm over cold**: The palette should feel calm and human, not clinical. Warm neutrals (stone family) over cool grays (slate/zinc).
 - **Reduce eye strain**: This UI is open all day. High contrast is good; high saturation is not. Keep backgrounds low-key.
-- **Accent sparingly**: Use the primary accent color (indigo) only to signal interactivity or selection — never decoratively.
+- **Accent sparingly**: Use the primary accent color (violet) only to signal interactivity or selection — never decoratively.
 - **Typography signals hierarchy**: Key identifiers (ticket keys, branch names) use monospace. Use weight and size, not color, to establish reading order.
 
-## Attention Tier Color System
+## Three Card States
 
-Cards use a deliberate three-tier color language for the left-side stripe and status badges. The goal is ADHD-friendly at-a-glance scanning: grey = nothing to do, indigo = your turn, amber = act soon.
+Every card (ticket, PR, todo, idea) falls into exactly one tier:
 
-| Tier | Stripe | Badge | When to use |
-|------|--------|-------|-------------|
-| **Tier 1 — Passive** | `bg-stone-300` | `bg-stone-100 text-stone-500 border-stone-200` | Not your turn / purely informational (Changes Requested, Approved by Others) |
-| **Tier 2 — Available** | `bg-indigo-400` | `bg-indigo-50 text-indigo-700 border-indigo-200` | Your turn, do when ready — no urgency (Awaiting Review, In Progress, In Review) |
-| **Tier 3 — Act Soon** | `bg-amber-500` | `bg-amber-50 text-amber-800 border-amber-300` | Someone is waiting on you (Needs Re-review) |
-| **Completion** | `bg-emerald-500` | `bg-emerald-50 text-emerald-700 border-emerald-200` | Done / Approved — positive, passive |
-| **Draft** | `bg-amber-300` | amber warning badge inline, status badge stone | Not ready yet — caution, not urgent |
+| State | Visual | When |
+|---|---|---|
+| **Inactive** | Reduced opacity (55% light / 62% dark), no color | User doesn't need to act (Done, approved by others, not assigned to me) |
+| **Normal** | Neutral card, no left stripe | User's item at normal priority |
+| **Attention** | `border-l-4 border-amber-500` left bar | Urgent or overdue — user needs to act soon |
 
-The dot inside pill badges matches the stripe color of its tier.
+The attention bar must remain visible even when a card is selected. Cards never have colored backgrounds. Color lives only in badges, icons, text, and the amber attention bar. Type badges ("Fehler", "Aufgabe", "User Story") are always neutral stone — only status badges carry semantic colors.
