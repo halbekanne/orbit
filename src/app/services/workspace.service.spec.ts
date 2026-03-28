@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError, Observable } from 'rxjs';
 import { Idea, JiraTicket, PullRequest, Todo } from '../models/work-item.model';
@@ -32,55 +33,24 @@ const mockTicket: JiraTicket = {
   epicLink: null,
 };
 
+const mockBitbucket = {
+  pullRequests: signal<PullRequest[]>([]),
+  loading: signal(false),
+  error: signal(false),
+  awaitingReviewCount: signal(0),
+  loadAll: () => {},
+};
+
 function setup(tickets$: Observable<JiraTicket[]>): WorkspaceService {
   TestBed.configureTestingModule({
     providers: [
       WorkspaceService,
       { provide: JiraService, useValue: { getAssignedActiveTickets: () => tickets$ } },
+      { provide: BitbucketService, useValue: mockBitbucket },
     ],
   });
   return TestBed.inject(WorkspaceService);
 }
-
-const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review', id = 'P/repo/1'): PullRequest => ({
-  type: 'pr',
-  id,
-  prNumber: 1,
-  title: 'Test PR',
-  description: '',
-  state: 'OPEN',
-  open: true,
-  closed: false,
-  locked: false,
-  isDraft: false,
-  createdDate: 0,
-  updatedDate: 0,
-  fromRef: {
-    id: 'refs/heads/feature/test',
-    displayId: 'feature/test',
-    latestCommit: 'abc',
-    repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'Project', browseUrl: '' },
-  },
-  toRef: {
-    id: 'refs/heads/main',
-    displayId: 'main',
-    latestCommit: 'def',
-    repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'Project', browseUrl: '' },
-  },
-  author: {
-    user: { id: 1, name: 'u', displayName: 'User', emailAddress: '', slug: 'u', active: true, type: 'NORMAL', profileUrl: '' },
-    role: 'AUTHOR',
-    approved: false,
-    status: 'UNAPPROVED',
-  },
-  reviewers: [],
-  participants: [],
-  commentCount: 0,
-  openTaskCount: 0,
-  url: 'http://example.com/pr/1',
-  myReviewStatus,
-  isAuthoredByMe: false,
-});
 
 describe('WorkspaceService', () => {
   afterEach(() => TestBed.resetTestingModule());
@@ -103,244 +73,17 @@ describe('WorkspaceService', () => {
     const service = setup(new Observable());
     expect(service.ticketsLoading()).toBe(true);
   });
-});
 
-describe('WorkspaceService — pullRequests loading', () => {
-  const mockJira = { getAssignedActiveTickets: () => of([]) };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    TestBed.overrideProvider(JiraService, { useValue: mockJira });
-  });
-
-  afterEach(() => TestBed.resetTestingModule());
-
-  it('pullRequestsLoading starts true and becomes false after data loads', () => {
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([makePr()]),
-      getAuthoredPullRequests: () => of([]),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    expect(service.pullRequestsLoading()).toBe(true);
-    TestBed.tick();
-    expect(service.pullRequestsLoading()).toBe(false);
-  });
-
-  it('populates pullRequests from BitbucketService', () => {
-    const pr = makePr('Awaiting Review');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([pr]),
-      getAuthoredPullRequests: () => of([]),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests()).toEqual([pr]);
-  });
-
-  it('sets pullRequestsError on BitbucketService failure', () => {
-    const mockBitbucket = {
-      getReviewerPullRequests: () => throwError(() => new Error('Network error')),
-      getAuthoredPullRequests: () => of([]),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequestsError()).toBe(true);
-    expect(service.pullRequests()).toEqual([]);
-  });
-
-  it('awaitingReviewCount counts Awaiting Review and Needs Re-review PRs', () => {
-    const prs = [makePr('Awaiting Review'), makePr('Needs Re-review'), makePr('Approved')];
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of(prs),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: () => of('Changes Requested' as const),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.awaitingReviewCount()).toBe(2);
-  });
-});
-
-describe('WorkspaceService — enrichment', () => {
-  const mockJira = { getAssignedActiveTickets: () => of([]) };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    TestBed.overrideProvider(JiraService, { useValue: mockJira });
-  });
-
-  afterEach(() => TestBed.resetTestingModule());
-
-  it('patches a Changes Requested PR to Needs Re-review when activity check returns Needs Re-review', () => {
-    const pr = makePr('Changes Requested');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([pr]),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests()[0].myReviewStatus).toBe('Needs Re-review');
-  });
-
-  it('keeps a Changes Requested PR as Changes Requested when activity check returns Changes Requested', () => {
-    const pr = makePr('Changes Requested');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([pr]),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: () => of('Changes Requested' as const),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests()[0].myReviewStatus).toBe('Changes Requested');
-  });
-
-  it('does not affect PRs with other statuses during enrichment', () => {
-    const awaiting = makePr('Awaiting Review', 'P/repo/1');
-    const changesRequested = makePr('Changes Requested', 'P/repo/2');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([awaiting, changesRequested]),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: () => of('Needs Re-review' as const),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    const statuses = service.pullRequests().map(pr => pr.myReviewStatus);
-    expect(statuses).toContain('Awaiting Review');
-    expect(statuses).toContain('Needs Re-review');
-    expect(statuses).not.toContain('Changes Requested');
-  });
-
-  it('does not call getReviewerPrActivityStatus when no Changes Requested PRs exist', () => {
-    const activitySpy = vi.fn().mockReturnValue(of('Changes Requested' as const));
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([makePr('Awaiting Review')]),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: activitySpy,
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(activitySpy).not.toHaveBeenCalled();
-  });
-
-  it('sorts Needs Re-review before Changes Requested after enrichment promotes one PR', () => {
-    const pr1 = makePr('Changes Requested', 'P/repo/1');
-    const pr2 = makePr('Changes Requested', 'P/repo/2');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([pr1, pr2]),
-      getAuthoredPullRequests: () => of([]),
-      getReviewerPrActivityStatus: (pr: Pick<PullRequest, 'prNumber' | 'toRef'>) =>
-        of((pr as PullRequest).id === 'P/repo/2' ? ('Needs Re-review' as const) : ('Changes Requested' as const)),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    const sorted = service.pullRequests();
-    expect(sorted[0].myReviewStatus).toBe('Needs Re-review');
-    expect(sorted[1].myReviewStatus).toBe('Changes Requested');
-  });
-});
-
-describe('WorkspaceService — authored PRs', () => {
-  const mockJira = { getAssignedActiveTickets: () => of([]) };
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    TestBed.overrideProvider(JiraService, { useValue: mockJira });
-  });
-
-  afterEach(() => TestBed.resetTestingModule());
-
-  const makeAuthoredPr = (status: PullRequest['myReviewStatus'], id = 'P/repo/authored-1'): PullRequest => ({
-    ...makePr(status, id),
-    isAuthoredByMe: true,
-  });
-
-  it('includes authored PRs in pullRequests list', () => {
-    const authored = makeAuthoredPr('In Review', 'P/repo/a1');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([]),
-      getAuthoredPullRequests: () => of([authored]),
-      getBuildStatusStats: () => of({ successful: 1, failed: 0, inProgress: 0 }),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests().length).toBe(1);
-    expect(service.pullRequests()[0].isAuthoredByMe).toBe(true);
-  });
-
-  it('deduplicates PRs that appear in both reviewer and authored lists', () => {
-    const reviewerPr = makePr('Awaiting Review', 'P/repo/shared');
-    const authoredPr = makeAuthoredPr('In Review', 'P/repo/shared');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([reviewerPr]),
-      getAuthoredPullRequests: () => of([authoredPr]),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests().length).toBe(1);
-    expect(service.pullRequests()[0].isAuthoredByMe).toBe(false);
-  });
-
-  it('sorts authored action PRs between reviewer action and passive PRs', () => {
-    const reviewerAwaiting = makePr('Awaiting Review', 'P/repo/r1');
-    const authoredChanges = makeAuthoredPr('Changes Requested', 'P/repo/a1');
-    const reviewerChanges = makePr('Changes Requested', 'P/repo/r2');
-    const authoredInReview = makeAuthoredPr('In Review', 'P/repo/a2');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([reviewerAwaiting, reviewerChanges]),
-      getAuthoredPullRequests: () => of([authoredChanges, authoredInReview]),
-      getReviewerPrActivityStatus: () => of('Changes Requested' as const),
-      getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    const ids = service.pullRequests().map(pr => pr.id);
-    expect(ids).toEqual(['P/repo/r1', 'P/repo/a1', 'P/repo/r2', 'P/repo/a2']);
-  });
-
-  it('does not filter out authored PRs regardless of status', () => {
-    const authored = makeAuthoredPr('In Review');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([]),
-      getAuthoredPullRequests: () => of([authored]),
-      getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.pullRequests().length).toBe(1);
-  });
-
-  it('does not count authored PRs in awaitingReviewCount', () => {
-    const authoredChanges = makeAuthoredPr('Changes Requested');
-    const mockBitbucket = {
-      getReviewerPullRequests: () => of([]),
-      getAuthoredPullRequests: () => of([authoredChanges]),
-      getBuildStatusStats: () => of({ successful: 0, failed: 0, inProgress: 0 }),
-    };
-    TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
-    const service = TestBed.inject(WorkspaceService);
-    TestBed.tick();
-    expect(service.awaitingReviewCount()).toBe(0);
+  it('delegates pullRequests to BitbucketService', () => {
+    const service = setup(of([]));
+    expect(service.pullRequests).toBe(mockBitbucket.pullRequests);
+    expect(service.pullRequestsLoading).toBe(mockBitbucket.loading);
+    expect(service.pullRequestsError).toBe(mockBitbucket.error);
+    expect(service.awaitingReviewCount).toBe(mockBitbucket.awaitingReviewCount);
   });
 });
 
 describe('WorkspaceService — coordinator', () => {
-  const mockJira = { getAssignedActiveTickets: () => of([]) };
-  const mockBitbucket = { getReviewerPullRequests: () => of([]), getAuthoredPullRequests: () => of([]) };
-
   afterEach(() => TestBed.resetTestingModule());
 
   it('promoteToTodo marks idea as wont-do and adds a new todo', () => {
@@ -365,7 +108,7 @@ describe('WorkspaceService — coordinator', () => {
     };
 
     TestBed.configureTestingModule({});
-    TestBed.overrideProvider(JiraService, { useValue: mockJira });
+    TestBed.overrideProvider(JiraService, { useValue: { getAssignedActiveTickets: () => of([]) } });
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
     TestBed.overrideProvider(TodoService, { useValue: mockTodo });
@@ -398,7 +141,7 @@ describe('WorkspaceService — coordinator', () => {
     };
 
     TestBed.configureTestingModule({});
-    TestBed.overrideProvider(JiraService, { useValue: mockJira });
+    TestBed.overrideProvider(JiraService, { useValue: { getAssignedActiveTickets: () => of([]) } });
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     TestBed.overrideProvider(IdeaService, { useValue: mockIdea });
     TestBed.overrideProvider(TodoService, { useValue: mockTodo });

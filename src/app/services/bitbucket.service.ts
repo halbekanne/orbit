@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import {
   PullRequest,
   PrStatus,
@@ -149,6 +149,105 @@ export class BitbucketService {
   private readonly config$ = this.http
     .get<{ bitbucketUserSlug: string }>(`${environment.proxyUrl}/config`)
     .pipe(shareReplay(1));
+
+  readonly loading = signal(true);
+  readonly error = signal(false);
+  private readonly _rawPullRequests = signal<PullRequest[]>([]);
+
+  readonly pullRequests = computed(() => {
+    const sortOrder = (pr: PullRequest): number => {
+      if (pr.myReviewStatus === 'Awaiting Review') return 0;
+      if (pr.myReviewStatus === 'Needs Re-review') return 1;
+      if (pr.myReviewStatus === 'Ready to Merge') return 2;
+      if (pr.myReviewStatus === 'Changes Requested' && pr.isAuthoredByMe) return 3;
+      if (pr.myReviewStatus === 'Changes Requested') return 4;
+      if (pr.myReviewStatus === 'In Review') return 5;
+      if (pr.myReviewStatus === 'Approved by Others') return 6;
+      if (pr.myReviewStatus === 'Approved') return 7;
+      return 8;
+    };
+    return this._rawPullRequests()
+      .filter(pr => !(pr.myReviewStatus === 'Approved' && !pr.isAuthoredByMe))
+      .sort((a, b) => sortOrder(a) - sortOrder(b));
+  });
+
+  readonly awaitingReviewCount = computed(() =>
+    this.pullRequests().filter(
+      pr => pr.myReviewStatus === 'Awaiting Review' || pr.myReviewStatus === 'Needs Re-review'
+    ).length
+  );
+
+  loadAll(): void {
+    forkJoin([
+      this.getReviewerPullRequests(),
+      this.getAuthoredPullRequests().pipe(catchError(() => of([] as PullRequest[]))),
+    ]).pipe(
+      tap(([reviewerPrs, authoredPrs]) => {
+        this.loading.set(false);
+        const reviewerIds = new Set(reviewerPrs.map(pr => pr.id));
+        const dedupedAuthored = authoredPrs.filter(pr => !reviewerIds.has(pr.id));
+        this._rawPullRequests.set([...reviewerPrs, ...dedupedAuthored]);
+      }),
+      switchMap(([reviewerPrs, authoredPrs]) => {
+        const enrichments: Observable<unknown>[] = [];
+
+        const needsWorkPrs = reviewerPrs.filter(pr => pr.myReviewStatus === 'Changes Requested');
+        if (needsWorkPrs.length > 0) {
+          enrichments.push(
+            forkJoin(
+              needsWorkPrs.map(pr =>
+                this.getReviewerPrActivityStatus(pr).pipe(
+                  catchError(() => of('Changes Requested' as const))
+                )
+              )
+            ).pipe(
+              tap(results => {
+                const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update(all =>
+                  all.map(pr => {
+                    const enriched = statusById.get(pr.id);
+                    return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+                  })
+                );
+              })
+            )
+          );
+        }
+
+        const reviewerIds = new Set(reviewerPrs.map(pr => pr.id));
+        const dedupedAuthored = authoredPrs.filter(pr => !reviewerIds.has(pr.id));
+        if (dedupedAuthored.length > 0) {
+          enrichments.push(
+            forkJoin(
+              dedupedAuthored.map(pr =>
+                this.getBuildStatusStats(pr.fromRef.latestCommit).pipe(
+                  catchError(() => of({ successful: 0, failed: 0, inProgress: 0 }))
+                )
+              )
+            ).pipe(
+              tap(results => {
+                const buildById = new Map(dedupedAuthored.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update(all =>
+                  all.map(pr => {
+                    const build = buildById.get(pr.id);
+                    return build ? { ...pr, buildStatus: build } : pr;
+                  })
+                );
+              })
+            )
+          );
+        }
+
+        return enrichments.length > 0 ? forkJoin(enrichments) : of(null);
+      }),
+      catchError(err => {
+        console.error('Failed to load Bitbucket pull requests:', err);
+        this.error.set(true);
+        this.loading.set(false);
+        return of(null);
+      }),
+    ).subscribe();
+  }
 
   getReviewerPullRequests(): Observable<PullRequest[]> {
     return this.config$.pipe(
