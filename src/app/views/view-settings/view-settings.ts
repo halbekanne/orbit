@@ -95,12 +95,17 @@ export class ViewSettingsComponent {
     }
   }
 
+  private scrollLock = false;
+
   scrollTo(sectionId: string): void {
     this.activeSection.set(sectionId);
+    this.scrollLock = true;
     document.getElementById('section-' + sectionId)?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => this.scrollLock = false, 500);
   }
 
   onContentScroll(event: Event): void {
+    if (this.scrollLock) return;
     const container = event.target as HTMLElement;
     const sectionElements = container.querySelectorAll('[data-section]');
     let currentSection = 'verbindungen';
