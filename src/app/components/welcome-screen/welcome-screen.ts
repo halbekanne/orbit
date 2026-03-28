@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-welcome-screen',
@@ -6,11 +6,12 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
   host: {
     style: 'position:fixed;inset:0;z-index:50;display:block',
   },
+  encapsulation: ViewEncapsulation.None,
   styles: [`
-    @keyframes twinkle { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-    @keyframes fade-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-    @keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes planet-pulse {
+    @keyframes orbit-twinkle { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    @keyframes orbit-fade-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+    @keyframes orbit-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes orbit-planet-pulse {
       0%, 100% { box-shadow: 0 0 30px rgba(167,139,250,0.3), 0 0 60px rgba(124,58,237,0.12); }
       50% { box-shadow: 0 0 40px rgba(167,139,250,0.4), 0 0 80px rgba(124,58,237,0.18); }
     }
@@ -19,7 +20,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
     @keyframes orbit-3 { from { transform: translate(-50%,-50%) rotate(180deg); } to { transform: translate(-50%,-50%) rotate(540deg); } }
   `],
   template: `
-    <div class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden"
+    <div class="absolute inset-0 flex flex-col items-center justify-center overflow-y-auto"
          style="background:
            #0c0a09;
            ">
@@ -33,7 +34,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
       <!-- Starfield -->
       <div class="absolute inset-0 pointer-events-none"
-           style="animation: twinkle 12s ease-in-out infinite alternate;
+           style="animation: orbit-twinkle 12s ease-in-out infinite alternate;
                   background:
                     radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5), transparent),
                     radial-gradient(1.2px 1.2px at 25% 8%, rgba(255,255,255,0.4), transparent),
@@ -69,7 +70,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 
       <!-- Orbit illustration -->
       <div class="relative shrink-0"
-           style="width: 260px; height: 260px; animation: fade-in 1.2s ease-out both">
+           style="width: 260px; height: 260px; animation: orbit-fade-in 1.2s ease-out both">
 
         <!-- Ring 3 (outermost) -->
         <div class="absolute rounded-full"
@@ -90,7 +91,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
         <div class="absolute rounded-full"
              style="width: 56px; height: 56px; top: 50%; left: 50%; transform: translate(-50%,-50%);
                     background: radial-gradient(circle at 35% 35%, #c4b5fd 0%, #7c3aed 40%, #3b0764 100%);
-                    animation: planet-pulse 6s ease-in-out infinite">
+                    animation: orbit-planet-pulse 6s ease-in-out infinite">
           <div class="absolute rounded-full"
                style="width: 22px; height: 14px; top: 12px; left: 10px;
                       background: radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)"></div>
@@ -136,7 +137,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
       <div class="flex flex-col items-center text-center mt-8" style="max-width: 440px">
         <!-- Title -->
         <h1 style="font-family: 'Nunito', sans-serif; font-size: 30px; font-weight: 800;
-                    animation: fade-up 0.8s ease-out both; animation-delay: 0.3s; opacity: 0">
+                    animation: orbit-fade-up 0.8s ease-out both; animation-delay: 0.3s; opacity: 0">
           <span style="color: #e7e5e4">Willkommen bei </span>
           <span style="background: linear-gradient(135deg, #a78bfa, #c4b5fd, #a78bfa);
                        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -146,13 +147,13 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
         <!-- Subtitle -->
         <p class="mt-3 px-4"
            style="font-size: 15px; color: #a8a29e; line-height: 1.65;
-                  animation: fade-up 0.8s ease-out both; animation-delay: 0.4s; opacity: 0">
+                  animation: orbit-fade-up 0.8s ease-out both; animation-delay: 0.4s; opacity: 0">
           Deine persönliche Kommandozentrale für den Arbeitsalltag — gebaut für Fokus, Struktur und Orientierung.
         </p>
 
         <!-- Feature chips -->
         <div class="flex flex-wrap justify-center gap-2.5 mt-5"
-             style="animation: fade-up 0.8s ease-out both; animation-delay: 0.55s; opacity: 0">
+             style="animation: orbit-fade-up 0.8s ease-out both; animation-delay: 0.55s; opacity: 0">
           <div class="flex items-center gap-2 transition-all duration-150 cursor-default"
                style="border-radius: 100px; padding: 8px 14px;
                       background: rgba(28,25,23,0.7); backdrop-filter: blur(8px);
@@ -196,7 +197,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
                        box-shadow: 0 6px 24px rgba(124,58,237,0.25);
                        font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: white;
                        border: none;
-                       animation: fade-up 0.8s ease-out both; animation-delay: 0.7s; opacity: 0"
+                       animation: orbit-fade-up 0.8s ease-out both; animation-delay: 0.7s; opacity: 0"
                 onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(124,58,237,0.35)'"
                 onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 24px rgba(124,58,237,0.25)'">
           <span class="flex items-center gap-2">
@@ -210,7 +211,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
         <!-- Hint -->
         <p class="mt-4"
            style="font-size: 12px; color: #44403c;
-                  animation: fade-up 0.8s ease-out both; animation-delay: 0.85s; opacity: 0">
+                  animation: orbit-fade-up 0.8s ease-out both; animation-delay: 0.85s; opacity: 0">
           Dauert nur wenige Minuten
         </p>
       </div>

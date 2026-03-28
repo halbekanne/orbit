@@ -1,4 +1,5 @@
-@if (!settingsService.isConfigured() && settingsService.loaded() && activeView() !== 'einstellungen') {
+@if (!settingsService.loaded()) {
+} @else if (!settingsService.isConfigured() && activeView() !== 'einstellungen') {
   <app-welcome-screen (configure)="onWelcomeConfigure()" />
 } @else {
   @if (settingsService.pomodoroEnabled()) {

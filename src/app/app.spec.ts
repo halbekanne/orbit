@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { App } from './app';
+import { SettingsService } from './services/settings.service';
 
 const mockMatchMedia = () => {
   Object.defineProperty(window, 'matchMedia', {
@@ -17,12 +19,31 @@ const mockMatchMedia = () => {
   });
 };
 
+const mockSettingsService = {
+  loaded: signal(true),
+  isConfigured: signal(true),
+  settings: signal({} as never),
+  theme: signal('system' as const),
+  pomodoroEnabled: signal(true),
+  aiReviewsEnabled: signal(false),
+  dayCalendarEnabled: signal(true),
+  pomodoroDefaults: signal({ focusMinutes: 25, breakMinutes: 5 }),
+  jiraConfig: signal({ baseUrl: '', apiKey: '' }),
+  bitbucketConfig: signal({ baseUrl: '', apiKey: '', userSlug: '' }),
+  vertexAiConfig: signal({ url: '', customHeaders: [] }),
+  load: () => Promise.resolve(),
+  save: () => Promise.resolve(),
+};
+
 describe('App', () => {
   beforeEach(async () => {
     mockMatchMedia();
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [
+        { provide: SettingsService, useValue: mockSettingsService },
+      ],
     }).compileComponents();
   });
 
