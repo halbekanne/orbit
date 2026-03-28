@@ -1,16 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
 import { TicketSubtaskService } from '../../services/ticket-subtask.service';
+import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
+import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 
 type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
 @Component({
   selector: 'app-ticket-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe, SubTaskListComponent],
+  imports: [JiraMarkupPipe, SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent],
   styles: [`
     @keyframes ticketFadeIn {
       from { opacity: 0; }
@@ -24,8 +26,16 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
   template: `
     <article [attr.aria-label]="ticket().key + ': ' + ticket().summary">
 
-      <!-- ── Sticky header ─────────────────────────────────────────── -->
-      <header class="sticky top-0 z-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)]">
+      <app-compact-header-bar
+        [visible]="showCompactBar()"
+        [title]="ticket().summary"
+        [statusLabel]="ticket().status"
+        [statusClass]="statusBadgeClass()"
+        [stripeColor]="statusStripeClass()"
+        [prefix]="ticket().key"
+      />
+
+      <header class="bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)]">
         <div class="max-w-2xl mx-auto relative">
           <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="statusStripeClass()" aria-hidden="true"></div>
 
@@ -88,6 +98,9 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
           </div>
         </div>
       </header>
+
+      <div #headerSentinel></div>
+      <app-detail-action-bar [item]="ticket()" />
 
       <!-- ── Body ──────────────────────────────────────────────────── -->
 
@@ -276,11 +289,26 @@ export class TicketDetailComponent {
   ticket = input.required<JiraTicket>();
 
   protected readonly ticketSubtaskService = inject(TicketSubtaskService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly showCompactBar = signal(false);
+  private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('headerSentinel');
 
   constructor() {
     effect(() => {
       const key = this.ticket().key;
       this.ticketSubtaskService.loadForTicket(key);
+    });
+
+    afterNextRender(() => {
+      const sentinel = this.scrollSentinel()?.nativeElement;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => this.showCompactBar.set(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(sentinel);
+      this.destroyRef.onDestroy(() => observer.disconnect());
     });
   }
 
