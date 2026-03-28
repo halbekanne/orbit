@@ -109,7 +109,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
             <button type="button" [class]="focusClass(it)" (click)="toggleFocus(it)">
               {{ focusService.isFocused(it.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
             </button>
-            <button type="button" class="${PRIMARY}" (click)="data.promoteToTodo(idea)">
+            <button type="button" class="${SUCCESS}" (click)="data.promoteToTodo(idea)">
               Zur Aufgabe machen
             </button>
             <div class="${DIVIDER}" aria-hidden="true"></div>
