@@ -96,6 +96,7 @@ export class ViewSettingsComponent {
   }
 
   scrollTo(sectionId: string): void {
+    this.activeSection.set(sectionId);
     document.getElementById('section-' + sectionId)?.scrollIntoView({ behavior: 'smooth' });
   }
 

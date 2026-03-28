@@ -6,23 +6,22 @@
     <div class="mb-4">
       <button
         type="button"
-        class="w-full text-left text-sm font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center gap-2"
+        class="w-full text-left text-sm font-semibold py-1.5 px-3 transition-colors flex items-center gap-2"
         [class.text-violet-400]="activeSection() === section.id"
-        [class.border-l-2]="activeSection() === section.id"
-        [class.border-violet-400]="activeSection() === section.id"
         [class.text-[var(--color-text-body)]]="activeSection() !== section.id"
         [class.hover:text-[var(--color-text-heading)]]="activeSection() !== section.id"
         (click)="scrollTo(section.id)">
+        <span class="w-0.5 h-4 rounded-full shrink-0 transition-colors"
+          [class.bg-violet-400]="activeSection() === section.id"
+          [class.bg-transparent]="activeSection() !== section.id"></span>
         {{ section.label }}
       </button>
 
       @for (child of section.children; track child.id) {
         <button
           type="button"
-          class="w-full text-left text-xs py-1 pl-6 pr-2 rounded-lg transition-colors"
+          class="w-full text-left text-xs py-1 pl-6 pr-2 transition-colors"
           [class.text-violet-400]="activeSection() === child.id"
-          [class.border-l-2]="activeSection() === child.id"
-          [class.border-violet-400]="activeSection() === child.id"
           [class.text-[var(--color-text-muted)]]="activeSection() !== child.id"
           [class.hover:text-[var(--color-text-body)]]="activeSection() !== child.id"
           (click)="scrollTo(child.id)">
@@ -333,33 +332,35 @@
   </div>
 
   <!-- Sticky Footer -->
-  <div class="shrink-0 flex items-center justify-end gap-3 px-8 py-4 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
-    @if (isDirty()) {
+  <div class="shrink-0 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-8 py-4">
+    <div class="max-w-2xl flex items-center justify-end gap-3">
+      @if (isDirty()) {
+        <button
+          type="button"
+          class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:text-[var(--color-text-heading)] transition-colors cursor-pointer"
+          (click)="discard()">
+          Verwerfen
+        </button>
+      }
       <button
         type="button"
-        class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:text-[var(--color-text-heading)] transition-colors cursor-pointer"
-        (click)="discard()">
-        Verwerfen
+        class="px-5 py-2 text-sm rounded-lg font-medium transition-colors"
+        [class.bg-violet-500]="canSave()"
+        [class.text-[var(--color-primary-on-solid)]]="canSave()"
+        [class.hover:bg-violet-600]="canSave()"
+        [class.bg-[var(--color-bg-surface)]]="!canSave()"
+        [class.text-[var(--color-text-muted)]]="!canSave()"
+        [class.cursor-not-allowed]="!canSave()"
+        [class.cursor-pointer]="canSave()"
+        [disabled]="!canSave()"
+        (click)="save()">
+        @switch (saveState()) {
+          @case ('idle') { Speichern }
+          @case ('saving') { Speichern... }
+          @case ('saved') { Gespeichert &#x2713; }
+          @case ('error') { Fehler }
+        }
       </button>
-    }
-    <button
-      type="button"
-      class="px-5 py-2 text-sm rounded-lg font-medium transition-colors"
-      [class.bg-violet-500]="canSave()"
-      [class.text-[var(--color-primary-on-solid)]]="canSave()"
-      [class.hover:bg-violet-600]="canSave()"
-      [class.bg-[var(--color-bg-surface)]]="!canSave()"
-      [class.text-[var(--color-text-muted)]]="!canSave()"
-      [class.cursor-not-allowed]="!canSave()"
-      [class.cursor-pointer]="canSave()"
-      [disabled]="!canSave()"
-      (click)="save()">
-      @switch (saveState()) {
-        @case ('idle') { Speichern }
-        @case ('saving') { Speichern... }
-        @case ('saved') { Gespeichert &#x2713; }
-        @case ('error') { Fehler }
-      }
-    </button>
+    </div>
   </div>
 </div>
