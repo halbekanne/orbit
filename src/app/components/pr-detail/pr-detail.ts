@@ -11,7 +11,7 @@ import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { ReviewFindingsComponent } from '../review-findings/review-findings';
 import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
 import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 import { extractJiraKey } from '../../utils/pr-jira-key';
 import * as Diff2Html from 'diff2html';
 import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
@@ -233,7 +233,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           }
         </div>
 
-        <app-review-findings [reviewState]="cosiReview.reviewState()" />
+        <app-review-findings [reviewState]="aiReview.reviewState()" />
 
         <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
           <button
@@ -276,7 +276,7 @@ export class PrDetailComponent {
 
   private readonly jiraService = inject(JiraService);
   private readonly bitbucketService = inject(BitbucketService);
-  protected readonly cosiReview = inject(CosiReviewService);
+  protected readonly aiReview = inject(AiReviewService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly diffContainer = viewChild<ElementRef<HTMLElement>>('diffContainer');
@@ -306,20 +306,20 @@ export class PrDetailComponent {
       PrDetailComponent.hljsRegistered = true;
     }
 
-    this.cosiReview.reviewRequested$.pipe(
+    this.aiReview.reviewRequested$.pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(() => {
       const diff = this.diffData();
       if (diff === 'loading' || diff === 'error') return;
       const ticket = this.jiraTicket();
       const resolvedTicket = (ticket !== 'loading' && ticket !== 'error' && ticket !== 'no-ticket') ? ticket : null;
-      this.cosiReview.requestReview(diff, resolvedTicket);
+      this.aiReview.requestReview(diff, resolvedTicket);
     });
 
     toObservable(this.pr).pipe(
       skip(1),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe(() => this.cosiReview.reset());
+    ).subscribe(() => this.aiReview.reset());
 
     afterNextRender(() => {
       const sentinel = this.scrollSentinel()?.nativeElement;
@@ -389,7 +389,7 @@ export class PrDetailComponent {
   });
 
   private dataReadyEffect = effect(() => {
-    this.cosiReview.canReview.set(this.dataReady());
+    this.aiReview.canReview.set(this.dataReady());
   });
 
   private renderEffect = effect(() => {

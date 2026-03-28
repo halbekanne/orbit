@@ -4,7 +4,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { PrDetailComponent } from './pr-detail';
 import { JiraService } from '../../services/jira.service';
 import { BitbucketService } from '../../services/bitbucket.service';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 import { WorkspaceService } from '../../services/workspace.service';
 import { FocusService } from '../../services/focus.service';
 import { TodoService } from '../../services/todo.service';
@@ -72,7 +72,7 @@ describe('PrDetailComponent', () => {
   let fixture: ComponentFixture<PrDetailComponent>;
   const getTicketByKey = vi.fn();
   const getPullRequestDiff = vi.fn();
-  const mockCosiReview = {
+  const mockAiReview = {
     reviewState: signal<import('../../models/review.model').ReviewState>('idle'),
     canReview: signal(false),
     reviewRequested$: new Subject<void>(),
@@ -84,16 +84,16 @@ describe('PrDetailComponent', () => {
   beforeEach(() => {
     getTicketByKey.mockReset();
     getPullRequestDiff.mockReset();
-    mockCosiReview.reset.mockReset();
-    mockCosiReview.requestReview.mockReset();
-    mockCosiReview.reviewState.set('idle');
-    mockCosiReview.canReview.set(false);
+    mockAiReview.reset.mockReset();
+    mockAiReview.requestReview.mockReset();
+    mockAiReview.reviewState.set('idle');
+    mockAiReview.canReview.set(false);
     TestBed.configureTestingModule({
       imports: [PrDetailComponent],
       providers: [
         { provide: JiraService, useValue: { getTicketByKey } },
         { provide: BitbucketService, useValue: { getPullRequestDiff } },
-        { provide: CosiReviewService, useValue: mockCosiReview },
+        { provide: AiReviewService, useValue: mockAiReview },
         { provide: WorkspaceService, useValue: { selectedItem: signal(null), demoteToIdea: vi.fn(), promoteToTodo: vi.fn() } },
         { provide: FocusService, useValue: { isFocused: () => false, setFocus: vi.fn(), clearFocus: vi.fn() } },
         { provide: TodoService, useValue: { update: vi.fn(), todos: signal([]) } },
@@ -256,7 +256,7 @@ describe('PrDetailComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(mockCosiReview.reset).toHaveBeenCalled();
+    expect(mockAiReview.reset).toHaveBeenCalled();
   });
 
   it('sets canReview to true when diff and ticket are loaded', async () => {
@@ -269,7 +269,7 @@ describe('PrDetailComponent', () => {
     fixture.detectChanges();
     TestBed.tick();
 
-    expect(mockCosiReview.canReview()).toBe(true);
+    expect(mockAiReview.canReview()).toBe(true);
   });
 
   it('shows merge banner when PR is Ready to Merge', async () => {

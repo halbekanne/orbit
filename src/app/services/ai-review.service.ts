@@ -11,8 +11,8 @@ import {
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class CosiReviewService {
-  private readonly baseUrl = `${environment.proxyUrl}/api/cosi/review`;
+export class AiReviewService {
+  private readonly baseUrl = `${environment.proxyUrl}/api/ai/review`;
   private readonly reviewRequestedSubject = new Subject<void>();
   private abortController?: AbortController;
 

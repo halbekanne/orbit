@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ReviewFindingsComponent } from './review-findings';
 import { ReviewState, ReviewFinding, createInitialPipeline } from '../../models/review.model';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 
 const makeFinding = (overrides: Partial<ReviewFinding> = {}): ReviewFinding => ({
   severity: 'important',
@@ -20,7 +20,7 @@ describe('ReviewFindingsComponent', () => {
       imports: [ReviewFindingsComponent],
       providers: [
         {
-          provide: CosiReviewService,
+          provide: AiReviewService,
           useValue: { canReview: () => true, triggerReview: () => {} },
         },
       ],

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { ReviewFinding, ReviewState } from '../../models/review.model';
 import { ReviewPipelineComponent } from '../review-pipeline/review-pipeline';
 import { InlineCodePipe } from '../../pipes/inline-code.pipe';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 
 interface FileGroup {
   file: string;
@@ -185,7 +185,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               <button
                 type="button"
                 class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100 cursor-pointer"
-                (click)="cosiReview.triggerReview()"
+                (click)="aiReview.triggerReview()"
               >
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -359,10 +359,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               <button
                 type="button"
                 class="cta-shimmer px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100"
-                [class.opacity-50]="!cosiReview.canReview()"
-                [class.cursor-not-allowed]="!cosiReview.canReview()"
-                [disabled]="!cosiReview.canReview()"
-                (click)="cosiReview.canReview() && cosiReview.triggerReview()"
+                [class.opacity-50]="!aiReview.canReview()"
+                [class.cursor-not-allowed]="!aiReview.canReview()"
+                [disabled]="!aiReview.canReview()"
+                (click)="aiReview.canReview() && aiReview.triggerReview()"
               >Review starten</button>
             </div>
           }
@@ -372,7 +372,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
   `,
 })
 export class ReviewFindingsComponent {
-  readonly cosiReview = inject(CosiReviewService);
+  readonly aiReview = inject(AiReviewService);
   reviewState = input.required<ReviewState>();
 
   readonly sectionExpanded = signal(true);

@@ -3,7 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 import { FocusService } from '../../services/focus.service';
 import { DetailActionBarComponent } from './detail-action-bar';
 import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work-item.model';
@@ -56,7 +56,7 @@ describe('DetailActionBarComponent', () => {
   let promoteSpy: ReturnType<typeof vi.fn>;
   let demoteSpy: ReturnType<typeof vi.fn>;
   let mockFocus: { isFocused: ReturnType<typeof vi.fn>; setFocus: ReturnType<typeof vi.fn>; clearFocus: ReturnType<typeof vi.fn> };
-  let mockCosiReview: { reviewState: ReturnType<typeof signal<ReviewState>>; canReview: ReturnType<typeof signal<boolean>>; triggerReview: ReturnType<typeof vi.fn> };
+  let mockAiReview: { reviewState: ReturnType<typeof signal<ReviewState>>; canReview: ReturnType<typeof signal<boolean>>; triggerReview: ReturnType<typeof vi.fn> };
 
   function setup(item: WorkItem) {
     updateTodoSpy = vi.fn();
@@ -64,7 +64,7 @@ describe('DetailActionBarComponent', () => {
     promoteSpy = vi.fn();
     demoteSpy = vi.fn();
     mockFocus = { isFocused: vi.fn().mockReturnValue(false), setFocus: vi.fn(), clearFocus: vi.fn() };
-    mockCosiReview = { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() };
+    mockAiReview = { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() };
 
     TestBed.configureTestingModule({
       imports: [TestHost],
@@ -73,7 +73,7 @@ describe('DetailActionBarComponent', () => {
         { provide: TodoService, useValue: { update: updateTodoSpy, todos: signal([]) } },
         { provide: IdeaService, useValue: { update: updateIdeaSpy } },
         { provide: FocusService, useValue: mockFocus },
-        { provide: CosiReviewService, useValue: mockCosiReview },
+        { provide: AiReviewService, useValue: mockAiReview },
       ],
     });
 
@@ -130,7 +130,7 @@ describe('DetailActionBarComponent', () => {
 
     it('shows "Review läuft..." and disables button during review', () => {
       setup(makePr());
-      mockCosiReview.reviewState.set({ status: 'running', pipeline: { agents: [], consolidator: { status: 'pending' }, warnings: [] } });
+      mockAiReview.reviewState.set({ status: 'running', pipeline: { agents: [], consolidator: { status: 'pending' }, warnings: [] } });
       fixture.detectChanges();
       const btn = Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('Review läuft'));
       expect(btn).toBeTruthy();
@@ -139,7 +139,7 @@ describe('DetailActionBarComponent', () => {
 
     it('shows "Erneut reviewen" after review completes', () => {
       setup(makePr());
-      mockCosiReview.reviewState.set({
+      mockAiReview.reviewState.set({
         status: 'result',
         pipeline: { agents: [], consolidator: { status: 'pending' }, warnings: [] },
         data: { findings: [], summary: '', warnings: [], reviewedAt: '' },
@@ -150,7 +150,7 @@ describe('DetailActionBarComponent', () => {
 
     it('disables KI-Review when canReview is false', () => {
       setup(makePr());
-      mockCosiReview.canReview.set(false);
+      mockAiReview.canReview.set(false);
       fixture.detectChanges();
       const btn = Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('KI-Review starten')) as HTMLButtonElement;
       expect(btn.disabled).toBe(true);
@@ -159,7 +159,7 @@ describe('DetailActionBarComponent', () => {
     it('calls triggerReview on click', () => {
       setup(makePr());
       clickButton('KI-Review starten');
-      expect(mockCosiReview.triggerReview).toHaveBeenCalled();
+      expect(mockAiReview.triggerReview).toHaveBeenCalled();
     });
 
     it('links to the PR URL', () => {
@@ -295,7 +295,7 @@ describe('DetailActionBarComponent', () => {
           { provide: TodoService, useValue: { update: vi.fn(), todos: signal([]) } },
           { provide: IdeaService, useValue: { update: vi.fn() } },
           { provide: FocusService, useValue: mockFocus },
-          { provide: CosiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
+          { provide: AiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
         ],
       });
 
@@ -318,7 +318,7 @@ describe('DetailActionBarComponent', () => {
           { provide: TodoService, useValue: { update: vi.fn(), todos: signal([]) } },
           { provide: IdeaService, useValue: { update: vi.fn() } },
           { provide: FocusService, useValue: mockFocus },
-          { provide: CosiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
+          { provide: AiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
         ],
       });
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 import { FocusService } from '../../services/focus.service';
 import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work-item.model';
 
@@ -41,15 +41,15 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
 
       @case ('pr') {
         @let pr = asPr(it);
-        @let review = cosiReview.reviewState();
+        @let review = aiReview.reviewState();
         <button type="button" [class]="focusClass(it)" (click)="toggleFocus(it)">
           {{ focusService.isFocused(it.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
         </button>
         <div class="${DIVIDER}" aria-hidden="true"></div>
         <button type="button"
           [class]="review === 'idle' ? '${PRIMARY}' : '${NEUTRAL}'"
-          [disabled]="(review !== 'idle' && review.status === 'running') || !cosiReview.canReview()"
-          (click)="cosiReview.triggerReview()">
+          [disabled]="(review !== 'idle' && review.status === 'running') || !aiReview.canReview()"
+          (click)="aiReview.triggerReview()">
           @if (review !== 'idle' && review.status === 'running') {
             Review läuft...
           } @else if (review === 'idle') {
@@ -134,7 +134,7 @@ export class DetailActionBarComponent {
 
   protected readonly data = inject(WorkspaceService);
   protected readonly focusService = inject(FocusService);
-  protected readonly cosiReview = inject(CosiReviewService);
+  protected readonly aiReview = inject(AiReviewService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
 

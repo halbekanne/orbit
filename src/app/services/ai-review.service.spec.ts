@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CosiReviewService } from './cosi-review.service';
+import { AiReviewService } from './ai-review.service';
 import { JiraTicket } from '../models/work-item.model';
 import { ReviewState } from '../models/review.model';
 
@@ -29,14 +29,14 @@ function mockFetchSSE(events: string) {
   return vi.fn().mockResolvedValue({ ok: true, body: stream } as unknown as Response);
 }
 
-describe('CosiReviewService', () => {
-  let service: CosiReviewService;
+describe('AiReviewService', () => {
+  let service: AiReviewService;
   let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
     originalFetch = globalThis.fetch;
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CosiReviewService);
+    service = TestBed.inject(AiReviewService);
   });
 
   afterEach(() => {

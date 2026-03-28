@@ -6,7 +6,7 @@ import { ViewArbeitComponent } from './view-arbeit';
 import { WorkspaceService } from '../../services/workspace.service';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
-import { CosiReviewService } from '../../services/cosi-review.service';
+import { AiReviewService } from '../../services/ai-review.service';
 
 const mockWorkspaceService = {
   tickets: signal([]),
@@ -45,7 +45,7 @@ const mockIdeaService = {
   reorder: () => {},
 };
 
-const mockCosiReviewService = {
+const mockAiReviewService = {
   reviewState: signal('idle'),
   canReview: signal(false),
   triggerReview: () => {},
@@ -60,7 +60,7 @@ describe('ViewArbeitComponent', () => {
         { provide: WorkspaceService, useValue: mockWorkspaceService },
         { provide: TodoService, useValue: mockTodoService },
         { provide: IdeaService, useValue: mockIdeaService },
-        { provide: CosiReviewService, useValue: mockCosiReviewService },
+        { provide: AiReviewService, useValue: mockAiReviewService },
         { provide: HttpClient, useValue: { get: () => of([]), post: () => of({}) } },
       ],
     }).compileComponents();
