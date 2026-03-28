@@ -40,8 +40,11 @@ export class NavigatorComponent {
   readonly filteredTickets = computed(() =>
     this.data.tickets().filter(t => !this.focusService.isFocused(t.id))
   );
-  readonly filteredPullRequests = computed(() =>
-    this.data.pullRequests().filter(p => !this.focusService.isFocused(p.id))
+  readonly filteredReviewPrs = computed(() =>
+    this.data.reviewPullRequests().filter(p => !this.focusService.isFocused(p.id))
+  );
+  readonly filteredMyPrs = computed(() =>
+    this.data.myPullRequests().filter(p => !this.focusService.isFocused(p.id))
   );
   readonly filteredOpenTodos = computed(() =>
     this.todoService.openTodos().filter(t => !this.focusService.isFocused(t.id))

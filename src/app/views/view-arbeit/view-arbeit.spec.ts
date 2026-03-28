@@ -13,6 +13,8 @@ const mockWorkspaceService = {
   ticketsLoading: signal(false),
   ticketsError: signal(false),
   pullRequests: signal([]),
+  reviewPullRequests: signal([]),
+  myPullRequests: signal([]),
   pullRequestsLoading: signal(false),
   pullRequestsError: signal(false),
   selectedItem: signal(null),

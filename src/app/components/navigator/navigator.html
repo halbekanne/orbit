@@ -139,17 +139,30 @@
         } @else if (data.pullRequestsError()) {
           <p class="px-1 py-2 text-xs text-[var(--color-danger-solid)]" role="alert">Pull Requests konnten nicht geladen werden.</p>
         } @else {
-          <ul class="space-y-1.5" role="list">
-            @for (pr of filteredPullRequests(); track pr.id) {
-              <li>
-                <app-pr-card
-                  [pr]="pr"
-                  [selected]="isSelected(pr)"
-                  (select)="selectItem($event)"
-                />
-              </li>
-            }
-          </ul>
+          @if (filteredReviewPrs().length > 0) {
+            <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide">
+              Wartet auf dein Review
+            </div>
+            <ul class="space-y-1.5" role="list">
+              @for (pr of filteredReviewPrs(); track pr.id) {
+                <li>
+                  <app-pr-card [pr]="pr" [selected]="isSelected(pr)" (select)="selectItem($event)" />
+                </li>
+              }
+            </ul>
+          }
+          @if (filteredMyPrs().length > 0) {
+            <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide">
+              Deine PRs
+            </div>
+            <ul class="space-y-1.5" role="list">
+              @for (pr of filteredMyPrs(); track pr.id) {
+                <li>
+                  <app-pr-card [pr]="pr" [selected]="isSelected(pr)" (select)="selectItem($event)" />
+                </li>
+              }
+            </ul>
+          }
         }
       </div>
     </section>

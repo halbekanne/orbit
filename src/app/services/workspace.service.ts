@@ -33,6 +33,8 @@ export class WorkspaceService {
   readonly tickets = toSignal(this.tickets$, { initialValue: [] as JiraTicket[] });
 
   readonly pullRequests = this.bitbucket.pullRequests;
+  readonly reviewPullRequests = this.bitbucket.reviewPullRequests;
+  readonly myPullRequests = this.bitbucket.myPullRequests;
   readonly pullRequestsLoading = this.bitbucket.loading;
   readonly pullRequestsError = this.bitbucket.error;
   readonly awaitingReviewCount = this.bitbucket.awaitingReviewCount;
