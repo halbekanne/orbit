@@ -8,11 +8,11 @@ import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work
 
 const BTN = 'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-100 cursor-pointer select-none whitespace-nowrap';
 const NEUTRAL = `${BTN} bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)] hover:shadow-sm active:scale-[0.97]`;
-const PRIMARY = `${BTN} bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)] hover:shadow-sm active:scale-[0.97]`;
+const PRIMARY = `${BTN} bg-[var(--color-primary-solid)] border-[var(--color-primary-solid)] text-white hover:bg-[var(--color-primary-solid-hover)] hover:shadow-sm active:scale-[0.97]`;
 const SUCCESS = `${BTN} bg-[var(--color-success-bg)] border-[var(--color-success-border)] text-[var(--color-success-text)] hover:opacity-85 hover:shadow-sm active:scale-[0.97]`;
 const WARNING = `${BTN} bg-[var(--color-signal-bg)] border-[var(--color-signal-border)] text-[var(--color-signal-text)] hover:opacity-85 hover:shadow-sm active:scale-[0.97]`;
 const DANGER = `${BTN} bg-[var(--color-danger-bg)] border-[var(--color-danger-border)] text-[var(--color-danger-text)] hover:opacity-85 hover:shadow-sm active:scale-[0.97]`;
-const LINK = `${BTN} no-underline bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)] hover:shadow-sm active:scale-[0.97]`;
+const LINK = `${BTN} no-underline bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)] hover:shadow-sm active:scale-[0.97]`;
 const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
 
 @Component({
@@ -137,7 +137,7 @@ export class DetailActionBarComponent {
   private readonly ideaService = inject(IdeaService);
 
   protected focusClass(it: WorkItem): string {
-    return this.focusService.isFocused(it.id) ? PRIMARY : NEUTRAL;
+    return this.focusService.isFocused(it.id) ? NEUTRAL : PRIMARY;
   }
 
   asTodo(item: unknown): Todo { return item as Todo; }
