@@ -38,11 +38,13 @@
 - **Feedback (Mailto-Link)** — Trivial umzusetzen; wichtig für Testphase, aber kein Kernfeature.
 - **Notizen-Text-Bug (Escape ≠ Abbrechen)** — Falscher Hilfetext, schneller Fix; verhindert Verwirrung.
 - **Quick Capture Speichern-Button** — Kleines UI-Element; hilft Nutzern die Enter nicht intuitiv finden.
+- **Intelligenter Workbench-Leerstand** — Statt "Bereit loszulegen?" den Nutzer zur ersten Aktion des Tages leiten (z.B. Reflektion starten, dringendste Aufgabe vorschlagen).
 
 ---
 
 ## Mittlerer Wert / Mittlerer Aufwand
 
+- **KI-geschätzte Review-Dauer auf PR-Karten** — Badge mit geschätzter Review-Zeit basierend auf Diff-Analyse (z.B. "~10 Min", ">30 Min"); bei kleinen Diffs KI-Einschätzung, bei großen pauschale Angabe. Hilft bei Priorisierung welches Review man als nächstes angeht.
 - **Einklappbare Seitenleiste** — Flexibleres Layout; braucht Konzeption des Collapsed-State + Animation.
 - **Linksammlung / Schnellzugang** — Reduziert Tab-Chaos; UI-Konzept + Konfigurierbarkeit + evtl. iFrame-Probleme.
 - **Rückgängig-Machen Notizenfeld** — Gutes Safety-Net; Undo-State-Management ist nicht trivial.
