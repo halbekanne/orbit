@@ -1,18 +1,25 @@
-<app-pomodoro-progress-bar />
-<div class="flex h-screen overflow-hidden">
-  <app-rail
-    [activeView]="activeView()"
-    (viewChange)="activeView.set($event)"
-  />
+@if (!settingsService.isConfigured() && settingsService.loaded() && activeView() !== 'einstellungen') {
+  <app-welcome-screen (configure)="onWelcomeConfigure()" />
+} @else {
+  <app-pomodoro-progress-bar />
+  <div class="flex h-screen overflow-hidden">
+    <app-rail
+      [activeView]="activeView()"
+      (viewChange)="activeView.set($event)"
+    />
 
-  @switch (activeView()) {
-    @case ('arbeit') {
-      <app-view-arbeit class="flex-1 overflow-hidden" />
+    @switch (activeView()) {
+      @case ('arbeit') {
+        <app-view-arbeit class="flex-1 overflow-hidden" />
+      }
+      @case ('logbuch') {
+        <app-view-logbuch class="flex-1 overflow-hidden bg-[var(--color-bg-page)]" />
+      }
+      @case ('einstellungen') {
+        <app-view-settings class="flex-1 overflow-hidden bg-[var(--color-bg-page)]" />
+      }
     }
-    @case ('logbuch') {
-      <app-view-logbuch class="flex-1 overflow-hidden bg-[var(--color-bg-page)]" />
-    }
-  }
-</div>
-<app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
-<app-pomodoro-overlay />
+  </div>
+  <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
+  <app-pomodoro-overlay />
+}

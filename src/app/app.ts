@@ -2,9 +2,12 @@ import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, sig
 import { AppRailComponent } from './components/app-rail/app-rail';
 import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
 import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
+import { ViewSettingsComponent } from './views/view-settings/view-settings';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
+import { WelcomeScreenComponent } from './components/welcome-screen/welcome-screen';
 import { DailyReflectionService } from './services/daily-reflection.service';
 import { ThemeService } from './services/theme.service';
+import { SettingsService } from './services/settings.service';
 import { PomodoroProgressBarComponent } from './components/pomodoro-progress-bar/pomodoro-progress-bar';
 import { PomodoroOverlayComponent } from './components/pomodoro-overlay/pomodoro-overlay';
 
@@ -13,7 +16,7 @@ const STORAGE_KEY = 'orbit.activeView';
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppRailComponent, ViewArbeitComponent, ViewLogbuchComponent, QuickCaptureComponent, PomodoroProgressBarComponent, PomodoroOverlayComponent],
+  imports: [AppRailComponent, ViewArbeitComponent, ViewLogbuchComponent, ViewSettingsComponent, QuickCaptureComponent, WelcomeScreenComponent, PomodoroProgressBarComponent, PomodoroOverlayComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: {
@@ -24,12 +27,14 @@ export class App {
   private readonly reflectionService = inject(DailyReflectionService);
   private readonly appRef = inject(ApplicationRef);
   private theme = inject(ThemeService);
+  readonly settingsService = inject(SettingsService);
 
   activeView = signal(localStorage.getItem(STORAGE_KEY) ?? 'arbeit');
   overlayOpen = signal(false);
   private previousFocus: HTMLElement | null = null;
 
   constructor() {
+    this.settingsService.load();
     effect(() => {
       localStorage.setItem(STORAGE_KEY, this.activeView());
     });
@@ -61,6 +66,10 @@ export class App {
       console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.reflectionPhase()}`);
       this.appRef.tick();
     }
+  }
+
+  onWelcomeConfigure(): void {
+    this.activeView.set('einstellungen');
   }
 
   onOverlayClose(): void {
