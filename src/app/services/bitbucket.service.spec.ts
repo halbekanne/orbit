@@ -394,3 +394,316 @@ describe('BitbucketService — getPullRequestDiff', () => {
     expect(error).toBeTruthy();
   });
 });
+
+const makePrRawWithId = (
+  id: number,
+  reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
+  overrides: Partial<{
+    authorSlug: string;
+    reviewerSlug: string;
+    reviewers: ReturnType<typeof makePrRaw>['reviewers'];
+    draft: boolean;
+    openTaskCount: number;
+    latestCommit: string;
+  }> = {},
+) => {
+  const raw = makePrRaw(reviewerStatus);
+  raw.id = id;
+  if (overrides.authorSlug) {
+    raw.author = { ...raw.author, user: makeUser(overrides.authorSlug) };
+  }
+  if (overrides.reviewerSlug) {
+    raw.reviewers = [{
+      user: makeUser(overrides.reviewerSlug),
+      role: 'REVIEWER' as const,
+      approved: reviewerStatus === 'APPROVED',
+      status: reviewerStatus,
+    }];
+  }
+  if (overrides.reviewers) {
+    raw.reviewers = overrides.reviewers;
+  }
+  if (overrides.draft !== undefined) {
+    (raw as Record<string, unknown>)['draft'] = overrides.draft;
+  }
+  if (overrides.openTaskCount !== undefined) {
+    raw.properties = { ...raw.properties, openTaskCount: overrides.openTaskCount };
+  }
+  if (overrides.latestCommit) {
+    raw.fromRef = { ...raw.fromRef, latestCommit: overrides.latestCommit };
+  }
+  return raw;
+};
+
+const flushLoadAll = (
+  httpTesting: HttpTestingController,
+  reviewerPrs: ReturnType<typeof makePrRaw>[],
+  authoredPrs: ReturnType<typeof makePrRaw>[],
+  slug = 'dominik.mueller',
+) => {
+  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: slug });
+  const dashboardReqs = httpTesting.match(req => req.url.includes('dashboard/pull-requests'));
+  expect(dashboardReqs.length).toBe(2);
+  const reviewerReq = dashboardReqs.find(r => r.request.params.get('role') === 'REVIEWER')!;
+  const authorReq = dashboardReqs.find(r => r.request.params.get('role') === 'AUTHOR')!;
+  reviewerReq.flush({ values: reviewerPrs, isLastPage: true });
+  authorReq.flush({ values: authoredPrs, isLastPage: true });
+};
+
+describe('BitbucketService — loadAll loading state', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('starts with loading=true and sets loading=false after data loads', () => {
+    expect(service.loading()).toBe(true);
+    expect(service.error()).toBe(false);
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [], []);
+    TestBed.tick();
+
+    expect(service.loading()).toBe(false);
+    expect(service.error()).toBe(false);
+  });
+
+  it('sets error=true on failure', () => {
+    service.loadAll();
+    httpTesting.expectOne(req => req.url.endsWith('/config'))
+      .flush('error', { status: 500, statusText: 'Internal Server Error' });
+
+    expect(service.error()).toBe(true);
+    expect(service.loading()).toBe(false);
+  });
+});
+
+describe('BitbucketService — pullRequests computed', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('filters out Approved PRs that are not authored by me', () => {
+    const approvedPr = makePrRawWithId(1, 'APPROVED');
+    const awaitingPr = makePrRawWithId(2, 'UNAPPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [approvedPr, awaitingPr], []);
+    TestBed.tick();
+
+    const prs = service.pullRequests();
+    expect(prs.length).toBe(1);
+    expect(prs[0].prNumber).toBe(2);
+  });
+
+  it('sorts PRs by priority order', () => {
+    const awaitingPr = makePrRawWithId(1, 'UNAPPROVED');
+
+    const approvedByOthersPr = makePrRawWithId(3, 'UNAPPROVED', {
+      reviewers: [
+        { user: makeUser('dominik.mueller'), role: 'REVIEWER' as const, approved: false, status: 'UNAPPROVED' as const },
+        { user: makeUser('another'), role: 'REVIEWER' as const, approved: true, status: 'APPROVED' as const },
+      ],
+    });
+
+    const inReviewAuthored = makePrRawWithId(4, 'UNAPPROVED');
+    const readyToMergeAuthored = makePrRawWithId(5, 'APPROVED', {
+      openTaskCount: 0,
+      reviewers: [
+        { user: makeUser('reviewer1'), role: 'REVIEWER' as const, approved: true, status: 'APPROVED' as const },
+      ],
+    });
+    const changesRequestedAuthored = makePrRawWithId(6, 'NEEDS_WORK');
+
+    service.loadAll();
+    flushLoadAll(
+      httpTesting,
+      [approvedByOthersPr, awaitingPr],
+      [changesRequestedAuthored, readyToMergeAuthored, inReviewAuthored],
+    );
+
+    const buildReqs = httpTesting.match(req => req.url.includes('/commits/stats/'));
+    buildReqs.forEach(req => req.flush({ successful: 0, failed: 0, inProgress: 0 }));
+    TestBed.tick();
+
+    const prs = service.pullRequests();
+    const statuses = prs.map(pr => pr.myReviewStatus);
+    expect(statuses).toEqual([
+      'Awaiting Review',
+      'Ready to Merge',
+      'Changes Requested',
+      'In Review',
+      'Approved by Others',
+    ]);
+  });
+});
+
+describe('BitbucketService — awaitingReviewCount', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('counts Awaiting Review PRs', () => {
+    const pr1 = makePrRawWithId(1, 'UNAPPROVED');
+    const pr2 = makePrRawWithId(2, 'UNAPPROVED');
+    const pr3 = makePrRawWithId(3, 'APPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [pr1, pr2, pr3], []);
+    TestBed.tick();
+
+    expect(service.awaitingReviewCount()).toBe(2);
+  });
+
+  it('does not count authored PRs in awaitingReviewCount', () => {
+    const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
+    const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
+
+    httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req =>
+      req.flush({ successful: 0, failed: 0, inProgress: 0 })
+    );
+    TestBed.tick();
+
+    expect(service.awaitingReviewCount()).toBe(1);
+  });
+});
+
+describe('BitbucketService — loadAll deduplication', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('keeps only the reviewer version when a PR appears in both lists', () => {
+    const reviewerVersion = makePrRawWithId(412, 'UNAPPROVED');
+    const authoredVersion = makePrRawWithId(412, 'UNAPPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [reviewerVersion], [authoredVersion]);
+    TestBed.tick();
+
+    const prs = service.pullRequests();
+    expect(prs.length).toBe(1);
+    expect(prs[0].isAuthoredByMe).toBe(false);
+  });
+});
+
+describe('BitbucketService — loadAll enrichment (activity status)', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('enriches Changes Requested reviewer PRs to Needs Re-review when activity indicates it', () => {
+    const needsWorkPr = makePrRawWithId(10, 'NEEDS_WORK');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [needsWorkPr], []);
+
+    httpTesting.expectOne(req => req.url.includes('/activities')).flush({
+      values: [
+        makeActivity('COMMENTED', 'sarah.kowalski'),
+        makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
+      ],
+      isLastPage: true,
+    });
+    TestBed.tick();
+
+    expect(service.pullRequests()[0].myReviewStatus).toBe('Needs Re-review');
+  });
+
+  it('keeps Changes Requested when activity confirms it', () => {
+    const needsWorkPr = makePrRawWithId(10, 'NEEDS_WORK');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [needsWorkPr], []);
+
+    httpTesting.expectOne(req => req.url.includes('/activities')).flush({
+      values: [
+        makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
+      ],
+      isLastPage: true,
+    });
+    TestBed.tick();
+
+    expect(service.pullRequests()[0].myReviewStatus).toBe('Changes Requested');
+  });
+});
+
+describe('BitbucketService — loadAll enrichment (build status)', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('enriches authored PRs with build status', () => {
+    const authoredPr = makePrRawWithId(20, 'UNAPPROVED', { latestCommit: 'commit-abc' });
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [], [authoredPr]);
+    TestBed.tick();
+
+    httpTesting.expectOne(req => req.url.includes('/commits/stats/commit-abc')).flush({
+      successful: 5,
+      failed: 1,
+      inProgress: 2,
+    });
+    TestBed.tick();
+
+    const pr = service.pullRequests()[0];
+    expect(pr.buildStatus).toEqual({ successful: 5, failed: 1, inProgress: 2 });
+  });
+});
