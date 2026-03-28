@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { SubTask } from '../models/sub-task.model';
 import { environment } from '../../environments/environment';
 
-interface TicketLocalData {
+interface TicketSubtaskData {
   key: string;
   subtasks: SubTask[];
 }
@@ -33,7 +33,7 @@ export class TicketSubtaskService {
       return;
     }
 
-    this.http.get<TicketLocalData>(`${this.baseUrl}/${key}`).subscribe({
+    this.http.get<TicketSubtaskData>(`${this.baseUrl}/${key}`).subscribe({
       next: data => {
         const subtasks = data.subtasks ?? [];
         this.subtasks.set(subtasks);
@@ -61,7 +61,7 @@ export class TicketSubtaskService {
     for (const key of keys) {
       if (this.cache().has(key) || this.pendingKeys.has(key)) continue;
       this.pendingKeys.add(key);
-      this.http.get<TicketLocalData>(`${this.baseUrl}/${key}`).subscribe({
+      this.http.get<TicketSubtaskData>(`${this.baseUrl}/${key}`).subscribe({
         next: data => {
           this.updateCache(key, data.subtasks ?? []);
           this.pendingKeys.delete(key);
