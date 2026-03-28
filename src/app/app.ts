@@ -30,6 +30,7 @@ export class App {
   readonly settingsService = inject(SettingsService);
 
   activeView = signal(localStorage.getItem(STORAGE_KEY) ?? 'arbeit');
+  pendingViewChange = signal<string | null>(null);
   overlayOpen = signal(false);
   private previousFocus: HTMLElement | null = null;
 
@@ -66,6 +67,36 @@ export class App {
       console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.reflectionPhase()}`);
       this.appRef.tick();
     }
+  }
+
+  onViewChange(viewId: string): void {
+    if (this.activeView() === 'einstellungen' && viewId !== 'einstellungen') {
+      if (document.querySelector('[data-settings-dirty="true"]')) {
+        this.pendingViewChange.set(viewId);
+        return;
+      }
+    }
+    this.activeView.set(viewId);
+  }
+
+  confirmDiscard(): void {
+    const pending = this.pendingViewChange();
+    if (pending) {
+      this.pendingViewChange.set(null);
+      this.activeView.set(pending);
+    }
+  }
+
+  confirmSave(): void {
+    const pending = this.pendingViewChange();
+    if (pending) {
+      this.pendingViewChange.set(null);
+      this.activeView.set(pending);
+    }
+  }
+
+  cancelNavigation(): void {
+    this.pendingViewChange.set(null);
   }
 
   onWelcomeConfigure(): void {

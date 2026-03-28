@@ -5,7 +5,7 @@
   <div class="flex h-screen overflow-hidden">
     <app-rail
       [activeView]="activeView()"
-      (viewChange)="activeView.set($event)"
+      (viewChange)="onViewChange($event)"
     />
 
     @switch (activeView()) {
@@ -22,4 +22,18 @@
   </div>
   <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
   <app-pomodoro-overlay />
+
+  @if (pendingViewChange()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      <div class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-xl p-6 max-w-sm shadow-xl">
+        <h3 class="text-[var(--color-text-heading)] font-semibold mb-2">Ungespeicherte Änderungen</h3>
+        <p class="text-[var(--color-text-secondary)] text-sm mb-5">Du hast ungespeicherte Änderungen in den Einstellungen. Möchtest du speichern oder verwerfen?</p>
+        <div class="flex gap-2 justify-end">
+          <button (click)="cancelNavigation()" class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer">Abbrechen</button>
+          <button (click)="confirmDiscard()" class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer">Verwerfen</button>
+          <button (click)="confirmSave()" class="px-4 py-2 text-sm rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors cursor-pointer">Speichern</button>
+        </div>
+      </div>
+    </div>
+  }
 }
