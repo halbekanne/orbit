@@ -1,16 +1,17 @@
 <!-- Left column — Section Navigation -->
-<nav class="sticky top-0 shrink-0 w-44 h-full p-4 overflow-y-auto">
-  <h2 class="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-4">Einstellungen</h2>
+<nav class="sticky top-0 shrink-0 w-56 h-full py-8 pl-8 pr-4 overflow-y-auto">
+  <h2 class="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-6">Einstellungen</h2>
 
   @for (section of sections; track section.id) {
-    <div class="mb-3">
+    <div class="mb-4">
       <button
         type="button"
-        class="w-full text-left text-sm font-medium py-1 px-2 rounded transition-colors"
-        [class.text-[var(--color-primary-text)]]="activeSection() === section.id"
+        class="w-full text-left text-sm font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center gap-2"
+        [class.text-violet-400]="activeSection() === section.id"
         [class.border-l-2]="activeSection() === section.id"
         [class.border-violet-400]="activeSection() === section.id"
         [class.text-[var(--color-text-body)]]="activeSection() !== section.id"
+        [class.hover:text-[var(--color-text-heading)]]="activeSection() !== section.id"
         (click)="scrollTo(section.id)">
         {{ section.label }}
       </button>
@@ -18,13 +19,14 @@
       @for (child of section.children; track child.id) {
         <button
           type="button"
-          class="w-full text-left text-xs py-0.5 pl-4 pr-2 rounded transition-colors"
-          [class.text-[var(--color-primary-text)]]="activeSection() === child.id"
+          class="w-full text-left text-xs py-1 pl-6 pr-2 rounded-lg transition-colors"
+          [class.text-violet-400]="activeSection() === child.id"
           [class.border-l-2]="activeSection() === child.id"
           [class.border-violet-400]="activeSection() === child.id"
           [class.text-[var(--color-text-muted)]]="activeSection() !== child.id"
+          [class.hover:text-[var(--color-text-body)]]="activeSection() !== child.id"
           (click)="scrollTo(child.id)">
-          <span class="mr-1">›</span>{{ child.label }}
+          <span class="mr-1.5 text-[var(--color-text-muted)]">›</span>{{ child.label }}
         </button>
       }
     </div>
@@ -32,318 +34,324 @@
 </nav>
 
 <!-- Right column — Scrollable Content -->
-<div class="flex-1 flex flex-col overflow-hidden border-l border-[var(--color-border-subtle)]">
-  <div class="flex-1 overflow-y-auto p-6" (scroll)="onContentScroll($event)">
+<div class="flex-1 flex flex-col overflow-hidden">
+  <div class="flex-1 overflow-y-auto py-8 px-8" (scroll)="onContentScroll($event)">
+    <div class="max-w-2xl">
 
-    <!-- Section: Verbindungen -->
-    <section data-section="verbindungen" id="section-verbindungen" class="mb-8">
-      <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Verbindungen</h3>
-      <p class="text-sm text-[var(--color-text-muted)] mb-4">Zugangsdaten für externe Dienste</p>
+      <!-- Section: Verbindungen -->
+      <section data-section="verbindungen" id="section-verbindungen" class="mb-12">
+        <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Verbindungen</h3>
+        <p class="text-sm text-[var(--color-text-muted)] mb-5">Zugangsdaten für externe Dienste</p>
 
-      <!-- Jira -->
-      <div data-section="jira" id="section-jira" class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3">
-        <h4 class="font-bold text-[var(--color-text-heading)] mb-3">Jira</h4>
+        <!-- Jira -->
+        <div data-section="jira" id="section-jira" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+          <h4 class="font-bold text-[var(--color-text-heading)] mb-4">Jira</h4>
 
-        <div class="mb-3">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">
-            Server-URL <span class="text-[var(--color-danger-text)]">*</span>
-          </label>
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-            placeholder="https://jira.example.com"
-            [value]="draft().connections.jira.baseUrl"
-            (input)="updateDraft(d => d.connections.jira.baseUrl = $any($event.target).value)">
-        </div>
-
-        <div class="mb-1">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">
-            Personal Access Token <span class="text-[var(--color-danger-text)]">*</span>
-          </label>
-          <div class="relative">
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">
+              Server-URL <span class="text-[var(--color-danger-text)]">*</span>
+            </label>
             <input
-              [type]="showJiraToken() ? 'text' : 'password'"
-              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-10"
-              [value]="draft().connections.jira.apiKey"
-              (input)="updateDraft(d => d.connections.jira.apiKey = $any($event.target).value)">
-            <button
-              type="button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors"
-              (click)="showJiraToken.set(!showJiraToken())">
-              {{ showJiraToken() ? 'Verbergen' : 'Anzeigen' }}
-            </button>
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              placeholder="https://jira.example.com"
+              [value]="draft().connections.jira.baseUrl"
+              (input)="updateDraft(d => d.connections.jira.baseUrl = $any($event.target).value)">
           </div>
-          <p class="text-xs text-[var(--color-text-muted)] mt-1">Erstelle einen Token in deinen Jira-Profileinstellungen</p>
-        </div>
-      </div>
 
-      <!-- Bitbucket -->
-      <div data-section="bitbucket" id="section-bitbucket" class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3">
-        <h4 class="font-bold text-[var(--color-text-heading)] mb-3">Bitbucket</h4>
-
-        <div class="mb-3">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">
-            Server-URL <span class="text-[var(--color-danger-text)]">*</span>
-          </label>
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-            placeholder="https://bitbucket.example.com"
-            [value]="draft().connections.bitbucket.baseUrl"
-            (input)="updateDraft(d => d.connections.bitbucket.baseUrl = $any($event.target).value)">
-        </div>
-
-        <div class="mb-3">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">
-            Personal Access Token <span class="text-[var(--color-danger-text)]">*</span>
-          </label>
-          <div class="relative">
-            <input
-              [type]="showBitbucketToken() ? 'text' : 'password'"
-              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-10"
-              [value]="draft().connections.bitbucket.apiKey"
-              (input)="updateDraft(d => d.connections.bitbucket.apiKey = $any($event.target).value)">
-            <button
-              type="button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors"
-              (click)="showBitbucketToken.set(!showBitbucketToken())">
-              {{ showBitbucketToken() ? 'Verbergen' : 'Anzeigen' }}
-            </button>
-          </div>
-        </div>
-
-        <div class="mb-1">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">
-            Benutzername / Slug <span class="text-[var(--color-danger-text)]">*</span>
-          </label>
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-            [value]="draft().connections.bitbucket.userSlug"
-            (input)="updateDraft(d => d.connections.bitbucket.userSlug = $any($event.target).value)">
-          <p class="text-xs text-[var(--color-text-muted)] mt-1">Dein Bitbucket-Benutzername, zu finden in deinem Profil</p>
-        </div>
-      </div>
-
-      <!-- Vertex AI Proxy -->
-      <div data-section="vertex-ai" id="section-vertex-ai" class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-[var(--color-text-heading)]">Vertex AI Proxy</h4>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
-        </div>
-
-        <div class="mb-3">
-          <label class="block text-sm text-[var(--color-text-body)] mb-1">URL</label>
-          <input
-            type="text"
-            class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-            placeholder="https://example.com/v1/models/.../gemini-2.5-flash"
-            [value]="draft().connections.vertexAi.url"
-            (input)="updateDraft(d => d.connections.vertexAi.url = $any($event.target).value)">
-          <p class="text-xs text-[var(--color-text-muted)] mt-1">Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch angehängt.</p>
-        </div>
-
-        <div>
-          <label class="block text-sm text-[var(--color-text-body)] mb-2">Custom Headers</label>
-
-          @for (header of draft().connections.vertexAi.customHeaders; track $index) {
-            <div class="flex items-center gap-2 mb-2">
+          <div>
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">
+              Personal Access Token <span class="text-[var(--color-danger-text)]">*</span>
+            </label>
+            <div class="relative">
               <input
-                type="text"
-                class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-                placeholder="Name"
-                [value]="header.name"
-                (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].name = $any($event.target).value)">
-              <input
-                type="password"
-                class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-                placeholder="Wert"
-                [value]="header.value"
-                (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].value = $any($event.target).value)">
+                [type]="showJiraToken() ? 'text' : 'password'"
+                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
+                [value]="draft().connections.jira.apiKey"
+                (input)="updateDraft(d => d.connections.jira.apiKey = $any($event.target).value)">
               <button
                 type="button"
-                class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors"
-                (click)="removeCustomHeader($index)">
-                &times;
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
+                (click)="showJiraToken.set(!showJiraToken())">
+                {{ showJiraToken() ? 'Verbergen' : 'Anzeigen' }}
               </button>
             </div>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Erstelle einen Token in deinen Jira-Profileinstellungen</p>
+          </div>
+        </div>
+
+        <!-- Bitbucket -->
+        <div data-section="bitbucket" id="section-bitbucket" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+          <h4 class="font-bold text-[var(--color-text-heading)] mb-4">Bitbucket</h4>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">
+              Server-URL <span class="text-[var(--color-danger-text)]">*</span>
+            </label>
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              placeholder="https://bitbucket.example.com"
+              [value]="draft().connections.bitbucket.baseUrl"
+              (input)="updateDraft(d => d.connections.bitbucket.baseUrl = $any($event.target).value)">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">
+              Personal Access Token <span class="text-[var(--color-danger-text)]">*</span>
+            </label>
+            <div class="relative">
+              <input
+                [type]="showBitbucketToken() ? 'text' : 'password'"
+                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
+                [value]="draft().connections.bitbucket.apiKey"
+                (input)="updateDraft(d => d.connections.bitbucket.apiKey = $any($event.target).value)">
+              <button
+                type="button"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
+                (click)="showBitbucketToken.set(!showBitbucketToken())">
+                {{ showBitbucketToken() ? 'Verbergen' : 'Anzeigen' }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">
+              Benutzername / Slug <span class="text-[var(--color-danger-text)]">*</span>
+            </label>
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              [value]="draft().connections.bitbucket.userSlug"
+              (input)="updateDraft(d => d.connections.bitbucket.userSlug = $any($event.target).value)">
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Dein Bitbucket-Benutzername, zu finden in deinem Profil</p>
+          </div>
+        </div>
+
+        <!-- Vertex AI Proxy -->
+        <div data-section="vertex-ai" id="section-vertex-ai" class="bg-[var(--color-bg-card)] rounded-xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-[var(--color-text-heading)]">Vertex AI Proxy</h4>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">URL</label>
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              placeholder="https://example.com/v1/models/.../gemini-2.5-flash"
+              [value]="draft().connections.vertexAi.url"
+              (input)="updateDraft(d => d.connections.vertexAi.url = $any($event.target).value)">
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch angehängt.</p>
+          </div>
+
+          <div>
+            <label class="block text-sm text-[var(--color-text-body)] mb-2">Custom Headers</label>
+
+            @for (header of draft().connections.vertexAi.customHeaders; track $index) {
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  placeholder="Name"
+                  [value]="header.name"
+                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].name = $any($event.target).value)">
+                <input
+                  type="password"
+                  class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  placeholder="Wert"
+                  [value]="header.value"
+                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].value = $any($event.target).value)">
+                <button
+                  type="button"
+                  class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
+                  (click)="removeCustomHeader($index)">
+                  &times;
+                </button>
+              </div>
+            }
+
+            <button
+              type="button"
+              class="text-sm text-[var(--color-primary-text)] hover:underline cursor-pointer"
+              (click)="addCustomHeader()">
+              + Header hinzufügen
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Funktionen -->
+      <section data-section="funktionen" id="section-funktionen" class="mb-12">
+        <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Funktionen</h3>
+        <p class="text-sm text-[var(--color-text-muted)] mb-5">Aktiviere oder deaktiviere einzelne Module</p>
+
+        <!-- Pomodoro-Timer -->
+        <div data-section="pomodoro" id="section-pomodoro"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4 transition-opacity"
+          [class.opacity-50]="!draft().features.pomodoro.enabled">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-[var(--color-text-heading)]">Pomodoro-Timer</h4>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer"
+                [checked]="draft().features.pomodoro.enabled"
+                (change)="updateDraft(d => d.features.pomodoro.enabled = $any($event.target).checked)">
+              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
+                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
+              </div>
+            </label>
+          </div>
+
+          <div [class.pointer-events-none]="!draft().features.pomodoro.enabled">
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Fokus-Dauer (Min.)</label>
+                <input
+                  type="number"
+                  class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  [value]="draft().features.pomodoro.focusMinutes"
+                  (input)="updateDraft(d => d.features.pomodoro.focusMinutes = +$any($event.target).value)">
+              </div>
+              <div class="flex-1">
+                <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Pausen-Dauer (Min.)</label>
+                <input
+                  type="number"
+                  class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  [value]="draft().features.pomodoro.breakMinutes"
+                  (input)="updateDraft(d => d.features.pomodoro.breakMinutes = +$any($event.target).value)">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KI-gestützte Reviews -->
+        <div data-section="ai-reviews" id="section-ai-reviews"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4 transition-opacity"
+          [class.opacity-50]="!draft().features.aiReviews.enabled">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-[var(--color-text-heading)]">KI-gestützte Reviews</h4>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer"
+                [checked]="draft().features.aiReviews.enabled"
+                (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)">
+              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
+                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
+              </div>
+            </label>
+          </div>
+
+          @if (needsVertexWarning()) {
+            <p class="mt-3 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2">
+              Benötigt Vertex AI Proxy-Konfiguration
+            </p>
           }
-
-          <button
-            type="button"
-            class="text-sm text-[var(--color-primary-text)] hover:underline"
-            (click)="addCustomHeader()">
-            + Header hinzufügen
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section: Funktionen -->
-    <section data-section="funktionen" id="section-funktionen" class="mb-8">
-      <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Funktionen</h3>
-      <p class="text-sm text-[var(--color-text-muted)] mb-4">Aktiviere oder deaktiviere einzelne Module</p>
-
-      <!-- Pomodoro-Timer -->
-      <div data-section="pomodoro" id="section-pomodoro"
-        class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3 transition-opacity"
-        [class.opacity-50]="!draft().features.pomodoro.enabled">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-[var(--color-text-heading)]">Pomodoro-Timer</h4>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer"
-              [checked]="draft().features.pomodoro.enabled"
-              (change)="updateDraft(d => d.features.pomodoro.enabled = $any($event.target).checked)">
-            <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-              after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-              after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-            </div>
-          </label>
         </div>
 
-        <div [class.pointer-events-none]="!draft().features.pomodoro.enabled">
-          <div class="flex gap-4">
-            <div class="flex-1">
-              <label class="block text-sm text-[var(--color-text-body)] mb-1">Fokus-Dauer (Min.)</label>
-              <input
-                type="number"
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-                [value]="draft().features.pomodoro.focusMinutes"
-                (input)="updateDraft(d => d.features.pomodoro.focusMinutes = +$any($event.target).value)">
-            </div>
-            <div class="flex-1">
-              <label class="block text-sm text-[var(--color-text-body)] mb-1">Pausen-Dauer (Min.)</label>
-              <input
-                type="number"
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-                [value]="draft().features.pomodoro.breakMinutes"
-                (input)="updateDraft(d => d.features.pomodoro.breakMinutes = +$any($event.target).value)">
-            </div>
+        <!-- Tageskalender -->
+        <div data-section="kalender" id="section-kalender"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 transition-opacity"
+          [class.opacity-50]="!draft().features.dayCalendar.enabled">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-[var(--color-text-heading)]">Tageskalender</h4>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer"
+                [checked]="draft().features.dayCalendar.enabled"
+                (change)="updateDraft(d => d.features.dayCalendar.enabled = $any($event.target).checked)">
+              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
+                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
+              </div>
+            </label>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- KI-gestützte Reviews -->
-      <div data-section="ai-reviews" id="section-ai-reviews"
-        class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3 transition-opacity"
-        [class.opacity-50]="!draft().features.aiReviews.enabled">
-        <div class="flex items-center justify-between">
-          <h4 class="font-bold text-[var(--color-text-heading)]">KI-gestützte Reviews</h4>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer"
-              [checked]="draft().features.aiReviews.enabled"
-              (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)">
-            <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-              after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-              after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-            </div>
-          </label>
+      <!-- Section: Darstellung -->
+      <section data-section="darstellung" id="section-darstellung" class="mb-12">
+        <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Darstellung</h3>
+        <p class="text-sm text-[var(--color-text-muted)] mb-5">Farbschema</p>
+
+        <div class="bg-[var(--color-bg-card)] rounded-xl p-5">
+          <div class="flex gap-5">
+            <!-- Hell -->
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 cursor-pointer"
+              (click)="setTheme('light')">
+              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
+                [class.border-violet-400]="draft().appearance.theme === 'light'"
+                [class.border-transparent]="draft().appearance.theme !== 'light'">
+                <div class="w-3 h-full bg-stone-200"></div>
+                <div class="flex-1 bg-stone-100 flex flex-col p-1.5 gap-1">
+                  <div class="h-1 w-full rounded-full bg-stone-300"></div>
+                  <div class="h-1 w-3/4 rounded-full bg-stone-200"></div>
+                  <div class="h-1 w-1/2 rounded-full bg-stone-200"></div>
+                </div>
+              </div>
+              <span class="text-xs text-[var(--color-text-body)]">Hell</span>
+            </button>
+
+            <!-- Dunkel -->
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 cursor-pointer"
+              (click)="setTheme('dark')">
+              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
+                [class.border-violet-400]="draft().appearance.theme === 'dark'"
+                [class.border-transparent]="draft().appearance.theme !== 'dark'">
+                <div class="w-3 h-full bg-stone-800"></div>
+                <div class="flex-1 bg-stone-900 flex flex-col p-1.5 gap-1">
+                  <div class="h-1 w-full rounded-full bg-stone-700"></div>
+                  <div class="h-1 w-3/4 rounded-full bg-stone-700"></div>
+                  <div class="h-1 w-1/2 rounded-full bg-stone-700"></div>
+                </div>
+              </div>
+              <span class="text-xs text-[var(--color-text-body)]">Dunkel</span>
+            </button>
+
+            <!-- System -->
+            <button
+              type="button"
+              class="flex flex-col items-center gap-2 cursor-pointer"
+              (click)="setTheme('system')">
+              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden transition-colors relative"
+                [class.border-violet-400]="draft().appearance.theme === 'system'"
+                [class.border-transparent]="draft().appearance.theme !== 'system'">
+                <div class="absolute inset-0 bg-stone-100"></div>
+                <div class="absolute inset-0 bg-stone-900" style="clip-path: polygon(100% 0, 100% 100%, 0 100%)"></div>
+              </div>
+              <span class="text-xs text-[var(--color-text-body)]">System</span>
+            </button>
+          </div>
         </div>
+      </section>
 
-        @if (needsVertexWarning()) {
-          <p class="mt-2 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2">
-            Benötigt Vertex AI Proxy-Konfiguration
-          </p>
-        }
-      </div>
-
-      <!-- Tageskalender -->
-      <div data-section="kalender" id="section-kalender"
-        class="bg-[var(--color-bg-card)] rounded-xl p-4 mb-3 transition-opacity"
-        [class.opacity-50]="!draft().features.dayCalendar.enabled">
-        <div class="flex items-center justify-between">
-          <h4 class="font-bold text-[var(--color-text-heading)]">Tageskalender</h4>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer"
-              [checked]="draft().features.dayCalendar.enabled"
-              (change)="updateDraft(d => d.features.dayCalendar.enabled = $any($event.target).checked)">
-            <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-              after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-              after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-            </div>
-          </label>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section: Darstellung -->
-    <section data-section="darstellung" id="section-darstellung" class="mb-8">
-      <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Darstellung</h3>
-      <p class="text-sm text-[var(--color-text-muted)] mb-4">Farbschema</p>
-
-      <div class="flex gap-4">
-        <!-- Hell -->
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1.5"
-          (click)="setTheme('light')">
-          <div class="w-20 h-11 rounded-lg border-2 overflow-hidden flex transition-colors"
-            [class.border-violet-400]="draft().appearance.theme === 'light'"
-            [class.border-transparent]="draft().appearance.theme !== 'light'">
-            <div class="w-3 h-full bg-stone-200"></div>
-            <div class="flex-1 bg-stone-100 flex flex-col p-1 gap-0.5">
-              <div class="h-1 w-full rounded-full bg-stone-300"></div>
-              <div class="h-1 w-3/4 rounded-full bg-stone-200"></div>
-              <div class="h-1 w-1/2 rounded-full bg-stone-200"></div>
-            </div>
-          </div>
-          <span class="text-xs text-[var(--color-text-body)]">Hell</span>
-        </button>
-
-        <!-- Dunkel -->
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1.5"
-          (click)="setTheme('dark')">
-          <div class="w-20 h-11 rounded-lg border-2 overflow-hidden flex transition-colors"
-            [class.border-violet-400]="draft().appearance.theme === 'dark'"
-            [class.border-transparent]="draft().appearance.theme !== 'dark'">
-            <div class="w-3 h-full bg-stone-800"></div>
-            <div class="flex-1 bg-stone-900 flex flex-col p-1 gap-0.5">
-              <div class="h-1 w-full rounded-full bg-stone-700"></div>
-              <div class="h-1 w-3/4 rounded-full bg-stone-700"></div>
-              <div class="h-1 w-1/2 rounded-full bg-stone-700"></div>
-            </div>
-          </div>
-          <span class="text-xs text-[var(--color-text-body)]">Dunkel</span>
-        </button>
-
-        <!-- System -->
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1.5"
-          (click)="setTheme('system')">
-          <div class="w-20 h-11 rounded-lg border-2 overflow-hidden transition-colors relative"
-            [class.border-violet-400]="draft().appearance.theme === 'system'"
-            [class.border-transparent]="draft().appearance.theme !== 'system'">
-            <div class="absolute inset-0 bg-stone-100"></div>
-            <div class="absolute inset-0 bg-stone-900" style="clip-path: polygon(100% 0, 100% 100%, 0 100%)"></div>
-          </div>
-          <span class="text-xs text-[var(--color-text-body)]">System</span>
-        </button>
-      </div>
-    </section>
+    </div>
   </div>
 
   <!-- Sticky Footer -->
-  <div class="shrink-0 flex items-center justify-end gap-3 px-6 py-3 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+  <div class="shrink-0 flex items-center justify-end gap-3 px-8 py-4 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
     @if (isDirty()) {
       <button
         type="button"
-        class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:text-[var(--color-text-heading)] transition-colors"
+        class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:text-[var(--color-text-heading)] transition-colors cursor-pointer"
         (click)="discard()">
         Verwerfen
       </button>
     }
     <button
       type="button"
-      class="px-4 py-2 text-sm rounded-lg font-medium transition-colors"
+      class="px-5 py-2 text-sm rounded-lg font-medium transition-colors"
       [class.bg-violet-500]="canSave()"
       [class.text-[var(--color-primary-on-solid)]]="canSave()"
       [class.hover:bg-violet-600]="canSave()"
       [class.bg-[var(--color-bg-surface)]]="!canSave()"
       [class.text-[var(--color-text-muted)]]="!canSave()"
       [class.cursor-not-allowed]="!canSave()"
+      [class.cursor-pointer]="canSave()"
       [disabled]="!canSave()"
       (click)="save()">
       @switch (saveState()) {
