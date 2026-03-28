@@ -23,7 +23,7 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
         [prefix]="'💡'"
       />
 
-      <header class="pb-5 border-b border-[var(--color-border-subtle)]">
+      <header class="px-6 lg:px-8 pt-6 lg:pt-8 pb-5 border-b border-[var(--color-border-subtle)]">
         <div class="flex items-start gap-2 mb-2">
           <span class="text-lg" aria-hidden="true">💡</span>
           <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
@@ -57,7 +57,7 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
       <div #headerSentinel></div>
       <app-detail-action-bar [item]="idea()" />
 
-      <div class="py-5 border-b border-[var(--color-border-subtle)]">
+      <div class="px-6 lg:px-8 py-5 border-b border-[var(--color-border-subtle)]">
         <dl>
           <div>
             <dt class="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide mb-1">Erstellt am</dt>
@@ -66,7 +66,7 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
         </dl>
       </div>
 
-      <div class="flex-1 py-5 overflow-y-auto">
+      <div class="flex-1 px-6 lg:px-8 py-5 overflow-y-auto">
         <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Notizen</h2>
 
         @if (editingDescription()) {

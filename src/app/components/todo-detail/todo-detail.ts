@@ -22,7 +22,7 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
         [stripeColor]="statusStripeClass()"
       />
 
-      <header class="pb-5 border-b border-[var(--color-border-subtle)]">
+      <header class="px-6 lg:px-8 pt-6 lg:pt-8 pb-5 border-b border-[var(--color-border-subtle)]">
         <div class="flex items-start gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2">
@@ -65,7 +65,7 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
       <div #headerSentinel></div>
       <app-detail-action-bar [item]="todo()" />
 
-      <div class="flex-1 py-5 overflow-y-auto">
+      <div class="flex-1 px-6 lg:px-8 py-5 overflow-y-auto">
         <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Notizen</h2>
 
         @if (editingDescription()) {

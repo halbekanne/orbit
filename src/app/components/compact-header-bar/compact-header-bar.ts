@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-compact-header-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block sticky top-0 z-20',
+    class: 'h-0 overflow-visible sticky top-0 z-20',
   },
   template: `
     <div data-testid="compact-bar"

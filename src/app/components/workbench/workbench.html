@@ -34,13 +34,13 @@
     }
 
     @if (item?.type === 'todo') {
-      <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <div class="flex-1 overflow-y-auto">
         <app-todo-detail [todo]="$any(item)" />
       </div>
     }
 
     @if (item?.type === 'idea') {
-      <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <div class="flex-1 overflow-y-auto">
         <app-idea-detail [idea]="$any(item)" />
       </div>
     }
