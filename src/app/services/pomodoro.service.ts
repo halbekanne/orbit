@@ -22,7 +22,7 @@ const SESSION_KEY = 'orbit.pomodoro.session';
 export class PomodoroService {
   private readonly settingsService = inject(SettingsService);
   private readonly session = signal<PomodoroSession | null>(this.loadSession());
-  private readonly defaults = signal<PomodoroDefaults>(this.loadDefaults());
+  private readonly defaults = signal<PomodoroDefaults | null>(null);
   readonly tick = signal(Date.now());
   private tickInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -30,8 +30,9 @@ export class PomodoroService {
   readonly startedAt = computed(() => this.session()?.startedAt ?? null);
   readonly focusMinutes = computed(() => this.session()?.focusMinutes ?? 0);
   readonly breakMinutes = computed(() => this.session()?.breakMinutes ?? 0);
-  readonly defaultFocusMinutes = computed(() => this.defaults().focusMinutes);
-  readonly defaultBreakMinutes = computed(() => this.defaults().breakMinutes);
+  readonly defaultFocusMinutes = computed(() => this.defaults()?.focusMinutes ?? this.settingsService.pomodoroDefaults().focusMinutes);
+  readonly defaultBreakMinutes = computed(() => this.defaults()?.breakMinutes ?? this.settingsService.pomodoroDefaults().breakMinutes);
+
 
   readonly elapsedMs = computed(() => {
     this.tick();
@@ -131,12 +132,11 @@ export class PomodoroService {
   startNewRound(): void {
     const s = this.session();
     if (!s) return;
-    const d = this.defaults();
     this.session.set({
       state: 'running',
       startedAt: Date.now(),
-      focusMinutes: d.focusMinutes,
-      breakMinutes: d.breakMinutes,
+      focusMinutes: this.defaultFocusMinutes(),
+      breakMinutes: this.defaultBreakMinutes(),
       breakStartedAt: null,
     });
   }
@@ -184,10 +184,4 @@ export class PomodoroService {
     return null;
   }
 
-  private loadDefaults(): PomodoroDefaults {
-    return {
-      focusMinutes: this.settingsService.pomodoroDefaults().focusMinutes,
-      breakMinutes: this.settingsService.pomodoroDefaults().breakMinutes,
-    };
-  }
 }
