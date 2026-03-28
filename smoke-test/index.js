@@ -65,7 +65,7 @@ async function run() {
   children.push(mockBitbucket);
   mockBitbucket.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`)); });
 
-  const proxy = spawn('node', ['proxy/index.js'], {
+  const server = spawn('node', ['server/index.js'], {
     cwd: ROOT,
     stdio: 'pipe',
     env: {
@@ -77,8 +77,8 @@ async function run() {
       BITBUCKET_USER_SLUG: 'dominik.mueller',
     },
   });
-  children.push(proxy);
-  proxy.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`proxy exited with code ${code}`)); });
+  children.push(server);
+  server.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`server exited with code ${code}`)); });
 
   try {
     await Promise.all([waitForPort(6202), waitForPort(6203), waitForPort(6201)]);
