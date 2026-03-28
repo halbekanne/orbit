@@ -7,8 +7,9 @@ const PORT = 6202;
 app.use(cors());
 app.use(express.json());
 
+const MOCK_DELAY = parseInt(process.env.MOCK_DELAY ?? '300', 10);
 app.use((_req, _res, next) => {
-  setTimeout(next, 3000);
+  setTimeout(next, MOCK_DELAY);
 });
 
 const BASE = `http://localhost:${PORT}`;
