@@ -21,4 +21,13 @@ async function writeJson(file, data) {
   await fsp.rename(tmp, file);
 }
 
-module.exports = { ORBIT_DIR, TICKETS_DIR, readJson, writeJson };
+async function readJsonObject(file) {
+  try {
+    const data = await fsp.readFile(file, 'utf8');
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+module.exports = { ORBIT_DIR, TICKETS_DIR, readJson, readJsonObject, writeJson };
