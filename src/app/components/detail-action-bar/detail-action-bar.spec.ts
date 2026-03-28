@@ -5,6 +5,7 @@ import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { AiReviewService } from '../../services/ai-review.service';
 import { FocusService } from '../../services/focus.service';
+import { SettingsService } from '../../services/settings.service';
 import { DetailActionBarComponent } from './detail-action-bar';
 import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work-item.model';
 import { ReviewState } from '../../models/review.model';
@@ -74,6 +75,7 @@ describe('DetailActionBarComponent', () => {
         { provide: IdeaService, useValue: { update: updateIdeaSpy } },
         { provide: FocusService, useValue: mockFocus },
         { provide: AiReviewService, useValue: mockAiReview },
+        { provide: SettingsService, useValue: { aiReviewsEnabled: signal(true) } },
       ],
     });
 
@@ -296,6 +298,7 @@ describe('DetailActionBarComponent', () => {
           { provide: IdeaService, useValue: { update: vi.fn() } },
           { provide: FocusService, useValue: mockFocus },
           { provide: AiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
+          { provide: SettingsService, useValue: { aiReviewsEnabled: signal(true) } },
         ],
       });
 
@@ -319,6 +322,7 @@ describe('DetailActionBarComponent', () => {
           { provide: IdeaService, useValue: { update: vi.fn() } },
           { provide: FocusService, useValue: mockFocus },
           { provide: AiReviewService, useValue: { reviewState: signal<ReviewState>('idle'), canReview: signal(true), triggerReview: vi.fn() } },
+          { provide: SettingsService, useValue: { aiReviewsEnabled: signal(true) } },
         ],
       });
 

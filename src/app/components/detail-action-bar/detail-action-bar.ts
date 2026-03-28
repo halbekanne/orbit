@@ -4,6 +4,7 @@ import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 import { AiReviewService } from '../../services/ai-review.service';
 import { FocusService } from '../../services/focus.service';
+import { SettingsService } from '../../services/settings.service';
 import { Todo, Idea, JiraTicket, PullRequest, WorkItem } from '../../models/work-item.model';
 
 const BTN = 'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-100 cursor-pointer select-none whitespace-nowrap';
@@ -45,19 +46,21 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
         <button type="button" [class]="focusClass(it)" (click)="toggleFocus(it)">
           {{ focusService.isFocused(it.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
         </button>
-        <div class="${DIVIDER}" aria-hidden="true"></div>
-        <button type="button"
-          [class]="review === 'idle' ? '${PRIMARY}' : '${NEUTRAL}'"
-          [disabled]="(review !== 'idle' && review.status === 'running') || !aiReview.canReview()"
-          (click)="aiReview.triggerReview()">
-          @if (review !== 'idle' && review.status === 'running') {
-            Review läuft...
-          } @else if (review === 'idle') {
-            KI-Review starten
-          } @else {
-            Erneut reviewen
-          }
-        </button>
+        @if (settingsService.aiReviewsEnabled()) {
+          <div class="${DIVIDER}" aria-hidden="true"></div>
+          <button type="button"
+            [class]="review === 'idle' ? '${PRIMARY}' : '${NEUTRAL}'"
+            [disabled]="(review !== 'idle' && review.status === 'running') || !aiReview.canReview()"
+            (click)="aiReview.triggerReview()">
+            @if (review !== 'idle' && review.status === 'running') {
+              Review läuft...
+            } @else if (review === 'idle') {
+              KI-Review starten
+            } @else {
+              Erneut reviewen
+            }
+          </button>
+        }
         <a [href]="pr.url" target="_blank" rel="noopener noreferrer" class="${LINK}">
           In Bitbucket öffnen ↗
         </a>
@@ -135,6 +138,7 @@ export class DetailActionBarComponent {
   protected readonly data = inject(WorkspaceService);
   protected readonly focusService = inject(FocusService);
   protected readonly aiReview = inject(AiReviewService);
+  protected readonly settingsService = inject(SettingsService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
 

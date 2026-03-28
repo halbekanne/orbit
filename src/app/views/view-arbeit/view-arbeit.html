@@ -9,5 +9,7 @@
   <div class="flex-1 overflow-hidden bg-[var(--color-bg-page)]">
     <app-workbench />
   </div>
-  <app-day-calendar-panel />
+  @if (settingsService.dayCalendarEnabled()) {
+    <app-day-calendar-panel />
+  }
 </div>

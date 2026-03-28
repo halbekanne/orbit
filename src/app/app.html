@@ -1,7 +1,9 @@
 @if (!settingsService.isConfigured() && settingsService.loaded() && activeView() !== 'einstellungen') {
   <app-welcome-screen (configure)="onWelcomeConfigure()" />
 } @else {
-  <app-pomodoro-progress-bar />
+  @if (settingsService.pomodoroEnabled()) {
+    <app-pomodoro-progress-bar />
+  }
   <div class="flex h-screen overflow-hidden">
     <app-rail
       [activeView]="activeView()"
@@ -21,7 +23,9 @@
     }
   </div>
   <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
-  <app-pomodoro-overlay />
+  @if (settingsService.pomodoroEnabled()) {
+    <app-pomodoro-overlay />
+  }
 
   @if (pendingViewChange()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
