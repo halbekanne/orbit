@@ -5,6 +5,10 @@ import { PrDetailComponent } from './pr-detail';
 import { JiraService } from '../../services/jira.service';
 import { BitbucketService } from '../../services/bitbucket.service';
 import { CosiReviewService } from '../../services/cosi-review.service';
+import { WorkspaceService } from '../../services/workspace.service';
+import { FocusService } from '../../services/focus.service';
+import { TodoService } from '../../services/todo.service';
+import { IdeaService } from '../../services/idea.service';
 import { PullRequest, JiraTicket } from '../../models/work-item.model';
 import { signal } from '@angular/core';
 
@@ -90,6 +94,10 @@ describe('PrDetailComponent', () => {
         { provide: JiraService, useValue: { getTicketByKey } },
         { provide: BitbucketService, useValue: { getPullRequestDiff } },
         { provide: CosiReviewService, useValue: mockCosiReview },
+        { provide: WorkspaceService, useValue: { selectedItem: signal(null), demoteToIdea: vi.fn(), promoteToTodo: vi.fn() } },
+        { provide: FocusService, useValue: { isFocused: () => false, setFocus: vi.fn(), clearFocus: vi.fn() } },
+        { provide: TodoService, useValue: { update: vi.fn(), todos: signal([]) } },
+        { provide: IdeaService, useValue: { update: vi.fn() } },
       ],
     });
   });

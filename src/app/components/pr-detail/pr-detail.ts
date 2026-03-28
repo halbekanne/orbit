@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, skip, switchMap } from 'rxjs';
@@ -9,6 +9,8 @@ import { BitbucketService } from '../../services/bitbucket.service';
 import { JiraService } from '../../services/jira.service';
 import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { ReviewFindingsComponent } from '../review-findings/review-findings';
+import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
+import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 import { CosiReviewService } from '../../services/cosi-review.service';
 import { extractJiraKey } from '../../utils/pr-jira-key';
 import * as Diff2Html from 'diff2html';
@@ -34,7 +36,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent],
+  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent, CompactHeaderBarComponent, DetailActionBarComponent],
   styles: [`
     @keyframes prFadeIn {
       from { opacity: 0; }
@@ -47,6 +49,15 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
   `],
   template: `
     <article [attr.aria-label]="(pr().isAuthoredByMe ? 'Mein PR: ' : 'PR: ') + pr().title">
+
+      <app-compact-header-bar
+        [visible]="showCompactBar()"
+        [title]="pr().title"
+        [statusLabel]="statusLabel()"
+        [statusClass]="statusBadgeClass()"
+        [stripeColor]="stripeClass()"
+        [prefix]="pr().fromRef.repository.slug"
+      />
 
       @if (pr().myReviewStatus === 'Ready to Merge') {
         <div class="bg-emerald-50 border-b border-emerald-200" role="status">
@@ -66,7 +77,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </div>
       }
 
-      <header class="sticky top-0 z-10 bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)] shadow-sm">
+      <header class="bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)]">
         <div class="max-w-2xl mx-auto relative">
           <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="stripeClass()" aria-hidden="true"></div>
 
@@ -174,6 +185,9 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </div>
       </header>
 
+      <div #headerSentinel></div>
+      <app-detail-action-bar [item]="pr()" />
+
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
           <button
@@ -266,6 +280,9 @@ export class PrDetailComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly diffContainer = viewChild<ElementRef<HTMLElement>>('diffContainer');
+  private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('headerSentinel');
+
+  readonly showCompactBar = signal(false);
 
   constructor() {
     if (!PrDetailComponent.hljsRegistered) {
@@ -303,6 +320,17 @@ export class PrDetailComponent {
       skip(1),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(() => this.cosiReview.reset());
+
+    afterNextRender(() => {
+      const sentinel = this.scrollSentinel()?.nativeElement;
+      if (!sentinel) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => this.showCompactBar.set(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(sentinel);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   readonly jiraTicket = toSignal(
