@@ -12,6 +12,7 @@ import {
   BuildStatusSummary,
 } from '../models/work-item.model';
 import { environment } from '../../environments/environment';
+import { businessDaysSince } from '../utils/business-days';
 
 interface BitbucketLinkRaw {
   href: string;
@@ -154,25 +155,40 @@ export class BitbucketService {
   readonly error = signal(false);
   private readonly _rawPullRequests = signal<PullRequest[]>([]);
 
-  readonly pullRequests = computed(() => {
+  readonly reviewPullRequests = computed(() => {
+    const prs = this._rawPullRequests().filter(pr => !pr.isAuthoredByMe && pr.state === 'OPEN');
+
     const sortOrder = (pr: PullRequest): number => {
-      if (pr.myReviewStatus === 'Awaiting Review') return 0;
-      if (pr.myReviewStatus === 'Needs Re-review') return 1;
-      if (pr.myReviewStatus === 'Ready to Merge') return 2;
-      if (pr.myReviewStatus === 'Changes Requested' && pr.isAuthoredByMe) return 3;
-      if (pr.myReviewStatus === 'Changes Requested') return 4;
-      if (pr.myReviewStatus === 'In Review') return 5;
-      if (pr.myReviewStatus === 'Approved by Others') return 6;
-      if (pr.myReviewStatus === 'Approved') return 7;
-      return 8;
+      if (pr.myReviewStatus === 'Approved by Others') return 3;
+      const days = businessDaysSince(pr.createdDate);
+      if (days >= 2) return 0;
+      return 1;
     };
-    return this._rawPullRequests()
-      .filter(pr => !(pr.myReviewStatus === 'Approved' && !pr.isAuthoredByMe))
-      .sort((a, b) => sortOrder(a) - sortOrder(b));
+
+    return prs.sort((a, b) => {
+      const orderDiff = sortOrder(a) - sortOrder(b);
+      if (orderDiff !== 0) return orderDiff;
+      return a.createdDate - b.createdDate;
+    });
   });
 
+  readonly myPullRequests = computed(() => {
+    const prs = this._rawPullRequests().filter(pr => pr.isAuthoredByMe && pr.state === 'OPEN');
+
+    const sortOrder = (pr: PullRequest): number => {
+      if (pr.buildStatus && pr.buildStatus.failed > 0) return 0;
+      if (pr.myReviewStatus === 'Changes Requested' || pr.myReviewStatus === 'Needs Re-review') return 1;
+      if (pr.myReviewStatus === 'Ready to Merge' || pr.myReviewStatus === 'Approved') return 2;
+      return 3;
+    };
+
+    return prs.sort((a, b) => sortOrder(a) - sortOrder(b));
+  });
+
+  readonly pullRequests = computed(() => [...this.reviewPullRequests(), ...this.myPullRequests()]);
+
   readonly awaitingReviewCount = computed(() =>
-    this.pullRequests().filter(
+    this.reviewPullRequests().filter(
       pr => pr.myReviewStatus === 'Awaiting Review' || pr.myReviewStatus === 'Needs Re-review'
     ).length
   );

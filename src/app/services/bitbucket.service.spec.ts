@@ -506,22 +506,67 @@ describe('BitbucketService — pullRequests computed', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('filters out Approved PRs that are not authored by me', () => {
-    const approvedPr = makePrRawWithId(1, 'APPROVED');
-    const awaitingPr = makePrRawWithId(2, 'UNAPPROVED');
+  it('combines reviewPullRequests and myPullRequests', () => {
+    const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
+    const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
 
     service.loadAll();
-    flushLoadAll(httpTesting, [approvedPr, awaitingPr], []);
+    flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
+
+    httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req =>
+      req.flush({ successful: 0, failed: 0, inProgress: 0 })
+    );
     flushDiffstats(httpTesting);
     TestBed.tick();
 
     const prs = service.pullRequests();
-    expect(prs.length).toBe(1);
-    expect(prs[0].prNumber).toBe(2);
+    expect(prs.length).toBe(2);
+    expect(prs[0].isAuthoredByMe).toBe(false);
+    expect(prs[1].isAuthoredByMe).toBe(true);
+  });
+});
+
+describe('BitbucketService — reviewPullRequests', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
   });
 
-  it('sorts PRs by priority order', () => {
-    const awaitingPr = makePrRawWithId(1, 'UNAPPROVED');
+  afterEach(() => httpTesting.verify());
+
+  it('only includes PRs not authored by me', () => {
+    const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
+    const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
+
+    httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req =>
+      req.flush({ successful: 0, failed: 0, inProgress: 0 })
+    );
+    flushDiffstats(httpTesting);
+    TestBed.tick();
+
+    const prs = service.reviewPullRequests();
+    expect(prs.length).toBe(1);
+    expect(prs[0].isAuthoredByMe).toBe(false);
+  });
+
+  it('sorts long-waiting PRs first and already-reviewed last', () => {
+    const twoDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    const oldPr = makePrRawWithId(1, 'UNAPPROVED');
+    oldPr.createdDate = twoDaysAgo;
+
+    const recentPr = makePrRawWithId(2, 'UNAPPROVED');
+    recentPr.createdDate = now;
 
     const approvedByOthersPr = makePrRawWithId(3, 'UNAPPROVED', {
       reviewers: [
@@ -529,37 +574,76 @@ describe('BitbucketService — pullRequests computed', () => {
         { user: makeUser('another'), role: 'REVIEWER' as const, approved: true, status: 'APPROVED' as const },
       ],
     });
+    approvedByOthersPr.createdDate = twoDaysAgo;
 
-    const inReviewAuthored = makePrRawWithId(4, 'UNAPPROVED');
-    const readyToMergeAuthored = makePrRawWithId(5, 'APPROVED', {
+    service.loadAll();
+    flushLoadAll(httpTesting, [recentPr, approvedByOthersPr, oldPr], []);
+    flushDiffstats(httpTesting);
+    TestBed.tick();
+
+    const prs = service.reviewPullRequests();
+    expect(prs.map(pr => pr.prNumber)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('BitbucketService — myPullRequests', () => {
+  let service: BitbucketService;
+  let httpTesting: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(BitbucketService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpTesting.verify());
+
+  it('only includes PRs authored by me', () => {
+    const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
+    const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
+
+    service.loadAll();
+    flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
+
+    httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req =>
+      req.flush({ successful: 0, failed: 0, inProgress: 0 })
+    );
+    flushDiffstats(httpTesting);
+    TestBed.tick();
+
+    const prs = service.myPullRequests();
+    expect(prs.length).toBe(1);
+    expect(prs[0].isAuthoredByMe).toBe(true);
+  });
+
+  it('sorts build fail > changes requested > approved > in review', () => {
+    const inReviewPr = makePrRawWithId(1, 'UNAPPROVED');
+    const readyToMergePr = makePrRawWithId(2, 'APPROVED', {
       openTaskCount: 0,
       reviewers: [
         { user: makeUser('reviewer1'), role: 'REVIEWER' as const, approved: true, status: 'APPROVED' as const },
       ],
     });
-    const changesRequestedAuthored = makePrRawWithId(6, 'NEEDS_WORK');
+    const changesRequestedPr = makePrRawWithId(3, 'NEEDS_WORK');
+    const buildFailPr = makePrRawWithId(4, 'UNAPPROVED', { latestCommit: 'fail-commit' });
 
     service.loadAll();
-    flushLoadAll(
-      httpTesting,
-      [approvedByOthersPr, awaitingPr],
-      [changesRequestedAuthored, readyToMergeAuthored, inReviewAuthored],
-    );
+    flushLoadAll(httpTesting, [], [inReviewPr, readyToMergePr, changesRequestedPr, buildFailPr]);
 
-    const buildReqs = httpTesting.match(req => req.url.includes('/commits/stats/'));
-    buildReqs.forEach(req => req.flush({ successful: 0, failed: 0, inProgress: 0 }));
+    httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req => {
+      if (req.request.url.includes('fail-commit')) {
+        req.flush({ successful: 0, failed: 2, inProgress: 0 });
+      } else {
+        req.flush({ successful: 0, failed: 0, inProgress: 0 });
+      }
+    });
     flushDiffstats(httpTesting);
     TestBed.tick();
 
-    const prs = service.pullRequests();
-    const statuses = prs.map(pr => pr.myReviewStatus);
-    expect(statuses).toEqual([
-      'Awaiting Review',
-      'Ready to Merge',
-      'Changes Requested',
-      'In Review',
-      'Approved by Others',
-    ]);
+    const prs = service.myPullRequests();
+    expect(prs.map(pr => pr.prNumber)).toEqual([4, 3, 2, 1]);
   });
 });
 
