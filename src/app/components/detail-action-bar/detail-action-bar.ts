@@ -19,12 +19,13 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
   selector: 'app-detail-action-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex items-center gap-1.5 flex-wrap px-4 py-2 bg-[var(--color-bg-surface)] border-b border-[var(--color-border-default)]',
+    class: 'block border-b border-[var(--color-border-subtle)]',
     role: 'toolbar',
     '[attr.aria-label]': '"Aktionen"',
   },
   template: `
     @let it = item();
+    <div class="max-w-2xl mx-auto flex items-center gap-1.5 flex-wrap px-6 py-2">
 
     @switch (it.type) {
       @case ('ticket') {
@@ -125,6 +126,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
         }
       }
     }
+    </div>
   `,
 })
 export class DetailActionBarComponent {
