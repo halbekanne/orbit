@@ -1,11 +1,11 @@
 const { Router, json } = require('express');
-const { runReview } = require('../cosi');
-const { runMockReview } = require('../cosi-mock');
+const { runReview } = require('../ai');
+const { runMockReview } = require('../ai-mock');
 
-function createReviewRoutes({ getSettings }) {
+function createAiRoutes({ getSettings }) {
   const router = Router();
 
-  router.post('/api/cosi/review', json({ limit: '2mb' }), async (req, res) => {
+  router.post('/api/ai/review', json({ limit: '2mb' }), async (req, res) => {
     const { diff, jiraTicket } = req.body;
     if (!diff || typeof diff !== 'string') {
       return res.status(400).json({ error: 'diff is required and must be a string' });
@@ -22,14 +22,15 @@ function createReviewRoutes({ getSettings }) {
     };
 
     try {
-      const vertexAi = getSettings()?.connections?.vertexAi;
+      const s = getSettings();
+      const vertexAi = s?.connections?.vertexAi;
       if (vertexAi?.url) {
-        await runReview(diff, jiraTicket || null, emit);
+        await runReview(diff, jiraTicket || null, emit, { vertexAi });
       } else {
         await runMockReview(emit);
       }
     } catch (err) {
-      console.error('[CoSi Review] Error:', err);
+      console.error('[AI Review] Error:', err);
       emit('error', { message: 'Review fehlgeschlagen: ' + err.message });
     }
 
@@ -39,4 +40,4 @@ function createReviewRoutes({ getSettings }) {
   return router;
 }
 
-module.exports = { createReviewRoutes };
+module.exports = { createAiRoutes };

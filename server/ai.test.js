@@ -1,18 +1,18 @@
-const { describe, it, mock, beforeEach } = require('node:test');
+const { describe, it, mock } = require('node:test');
 const assert = require('node:assert/strict');
 
 function freshRequire() {
-  delete require.cache[require.resolve('./cosi')];
-  return require('./cosi');
+  delete require.cache[require.resolve('./ai')];
+  return require('./ai');
 }
 
-describe('callCoSi', () => {
-  beforeEach(() => {
-    process.env.COSI_API_KEY = 'test-key';
-    process.env.COSI_BASE_URL = 'https://cosi.test/generate';
-  });
+const TEST_VERTEX_AI = {
+  url: 'https://ai.test/generate',
+  customHeaders: [{ name: 'x-api-key', value: 'test-key' }],
+};
 
-  it('sends correct request to CoSi API', async () => {
+describe('callAi', () => {
+  it('sends correct request to AI API', async () => {
     const mockResponse = {
       candidates: [{
         content: {
@@ -27,12 +27,12 @@ describe('callCoSi', () => {
     }));
     mock.method(global, 'fetch', fetchMock);
 
-    const { callCoSi } = freshRequire();
-    const result = await callCoSi('test prompt', 'You are a reviewer.', { temperature: 0.2 });
+    const { callAi } = freshRequire();
+    const result = await callAi('test prompt', 'You are a reviewer.', { temperature: 0.2 }, { vertexAi: TEST_VERTEX_AI });
 
     assert.equal(fetchMock.mock.calls.length, 1);
     const [url, options] = fetchMock.mock.calls[0].arguments;
-    assert.equal(url, 'https://cosi.test/generate');
+    assert.equal(url, 'https://ai.test/generate:generateContent');
     assert.equal(options.method, 'POST');
 
     const headers = options.headers;
@@ -55,9 +55,9 @@ describe('callCoSi', () => {
       text: () => Promise.resolve('Rate limited'),
     }));
 
-    const { callCoSi } = freshRequire();
+    const { callAi } = freshRequire();
     await assert.rejects(
-      () => callCoSi('prompt', 'system', {}),
+      () => callAi('prompt', 'system', {}, { vertexAi: TEST_VERTEX_AI }),
       (err) => {
         assert.match(err.message, /429/);
         return true;
@@ -67,11 +67,6 @@ describe('callCoSi', () => {
 });
 
 describe('runReview', () => {
-  beforeEach(() => {
-    process.env.COSI_API_KEY = 'test-key';
-    process.env.COSI_BASE_URL = 'https://cosi.test/generate';
-  });
-
   it('emits agent:start, agent:done for all agents and consolidator events', async () => {
     const agent1Result = { findings: [{ severity: 'critical', title: 'AK #1 fehlt', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }] };
     const agent2Result = { findings: [{ severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' }] };
@@ -109,7 +104,7 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit);
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, { vertexAi: TEST_VERTEX_AI });
 
     const types = events.map(e => e.type);
     assert.deepEqual(types, [
@@ -204,7 +199,7 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', null, emit);
+    await runReview('diff content', null, emit, { vertexAi: TEST_VERTEX_AI });
 
     const types = events.map(e => e.type);
     assert.deepEqual(types, [
@@ -259,7 +254,7 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'desc' }, emit);
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'desc' }, emit, { vertexAi: TEST_VERTEX_AI });
 
     const types = events.map(e => e.type);
     assert.ok(types.includes('agent:start'));
@@ -298,7 +293,7 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit);
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, { vertexAi: TEST_VERTEX_AI });
 
     const types = events.map(e => e.type);
     assert.ok(!types.includes('consolidator:start'));

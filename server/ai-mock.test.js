@@ -1,6 +1,6 @@
 const { describe, it, before } = require('node:test');
 const assert = require('node:assert/strict');
-const { runMockReview, setSkipDelays } = require('./cosi-mock');
+const { runMockReview, setSkipDelays } = require('./ai-mock');
 
 describe('runMockReview', () => {
   before(() => setSkipDelays(true));
@@ -22,7 +22,7 @@ describe('runMockReview', () => {
     assert.ok(starts.length >= 1);
 
     for (const start of starts) {
-      assert.ok(['ak-abgleich', 'code-quality'].includes(start.data.agent));
+      assert.ok(['ak-abgleich', 'code-quality', 'accessibility'].includes(start.data.agent));
       assert.equal(typeof start.data.label, 'string');
       assert.equal(typeof start.data.temperature, 'number');
     }

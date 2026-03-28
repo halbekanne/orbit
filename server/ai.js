@@ -1,11 +1,7 @@
 const { SHARED_CONSTRAINTS } = require('./agents/agent-definition');
 const { AGENT_REGISTRY } = require('./agents');
 
-const COSI_API_KEY = process.env.COSI_API_KEY;
-const COSI_BASE_URL = process.env.COSI_BASE_URL ||
-  'https://api.co-si.system.local/v1/models/locations/europe-west4/publishers/google/models/gemini-2.5-flash:generateContent';
-
-async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
+async function callAi(userPrompt, systemInstruction, generationConfig = {}, { vertexAi } = {}) {
   const requestBody = {
     contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
     generationConfig: {
@@ -18,19 +14,23 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
     requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
   }
 
-  const response = await fetch(COSI_BASE_URL, {
+  const headers = { 'Content-Type': 'application/json' };
+  if (vertexAi?.customHeaders) {
+    for (const { name, value } of vertexAi.customHeaders) {
+      headers[name] = value;
+    }
+  }
+
+  const response = await fetch(vertexAi.url + ':generateContent', {
     method: 'POST',
-    headers: {
-      'x-api-key': COSI_API_KEY,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(requestBody),
     signal: AbortSignal.timeout(300_000),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`CoSi API error: ${response.status} — ${errorText}`);
+    throw new Error(`AI API error: ${response.status} — ${errorText}`);
   }
 
   const data = await response.json();
@@ -48,7 +48,7 @@ async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
 
   const text = textParts.join('');
   if (!text) {
-    throw new Error('CoSi returned no content');
+    throw new Error('AI returned no content');
   }
 
   return { result: JSON.parse(text), thoughts: thoughtTexts.join('\n') || null };
@@ -215,7 +215,7 @@ function describeConsolidation(agentResults, consolidated) {
   return `${inputCount} Findings geprüft, ${removed} gefiltert, ${outputCount} übernommen`;
 }
 
-async function runReview(diff, jiraTicket, emit) {
+async function runReview(diff, jiraTicket, emit, { vertexAi } = {}) {
   const warnings = [];
   const processedDiff = preprocessDiff(diff);
 
@@ -240,7 +240,7 @@ async function runReview(diff, jiraTicket, emit) {
         thinkingBudget: agent.thinkingBudget,
       });
       const start = Date.now();
-      return callCoSi(
+      return callAi(
         agent.buildUserPrompt(processedDiff, jiraTicket),
         agent.systemPrompt,
         {
@@ -248,7 +248,8 @@ async function runReview(diff, jiraTicket, emit) {
           maxOutputTokens: 65536,
           thinkingConfig: { thinkingBudget: agent.thinkingBudget, includeThoughts: true },
           responseSchema: agent.responseSchema,
-        }
+        },
+        { vertexAi },
       )
         .then(({ result, thoughts }) => {
           emit('agent:done', {
@@ -278,7 +279,7 @@ async function runReview(diff, jiraTicket, emit) {
   emit('consolidator:start', { temperature: 0.2, thinkingBudget: 16384 });
   const consolStart = Date.now();
 
-  const { result: consolidated, thoughts: consolidatorThoughts } = await callCoSi(
+  const { result: consolidated, thoughts: consolidatorThoughts } = await callAi(
     buildConsolidatorPrompt(agentResults, processedDiff),
     SYSTEM_PROMPTS.consolidator,
     {
@@ -287,6 +288,7 @@ async function runReview(diff, jiraTicket, emit) {
       thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
       responseSchema: CONSOLIDATOR_SCHEMA,
     },
+    { vertexAi },
   );
 
   emit('consolidator:done', {
@@ -306,4 +308,4 @@ async function runReview(diff, jiraTicket, emit) {
   emit('done', {});
 }
 
-module.exports = { callCoSi, preprocessDiff, runReview };
+module.exports = { callAi, preprocessDiff, runReview };

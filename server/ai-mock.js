@@ -262,7 +262,7 @@ const SCENARIOS = [
       emit('agent:start', { agent: 'accessibility', label: 'Barrierefreiheit', temperature: 0.3, thinkingBudget: 16384 });
 
       await delay(1000, 2000);
-      emit('agent:error', { agent: 'ak-abgleich', error: 'CoSi API error: 503 — Service Unavailable' });
+      emit('agent:error', { agent: 'ak-abgleich', error: 'AI API error: 503 — Service Unavailable' });
 
       await delay(1000, 2000);
       const cqFindings = [FINDINGS.shadowDom];
@@ -297,7 +297,7 @@ const SCENARIOS = [
         result: {
           findings: cqFindings,
           summary: '1 Auffälligkeit: 1 Wichtig',
-          warnings: ['Agent 1 (AK-Abgleich) fehlgeschlagen: CoSi API error: 503 — Service Unavailable'],
+          warnings: ['Agent 1 (AK-Abgleich) fehlgeschlagen: AI API error: 503 — Service Unavailable'],
           reviewedAt: new Date().toISOString(),
         },
         decisions,
@@ -380,7 +380,7 @@ const SCENARIOS = [
 
 async function runMockReview(emit) {
   const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
-  console.log(`[CoSi Mock] Szenario: ${scenario.name}`);
+  console.log(`[AI Mock] Szenario: ${scenario.name}`);
   await scenario.run(emit);
 }
 
