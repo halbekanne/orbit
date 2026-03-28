@@ -3,6 +3,10 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({ name: 'inlineCode' })
 export class InlineCodePipe implements PipeTransform {
   transform(value: string): string {
-    return value.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const escaped = value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 }

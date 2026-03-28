@@ -18,4 +18,13 @@ describe('InlineCodePipe', () => {
   it('handles empty string', () => {
     expect(pipe.transform('')).toBe('');
   });
+
+  it('escapes HTML tags in plain text', () => {
+    expect(pipe.transform('Use a <button> element')).toBe('Use a &lt;button&gt; element');
+  });
+
+  it('escapes HTML but preserves backtick-to-code conversion', () => {
+    expect(pipe.transform('Use `<button>` instead of <div>'))
+      .toBe('Use <code>&lt;button&gt;</code> instead of &lt;div&gt;');
+  });
 });
