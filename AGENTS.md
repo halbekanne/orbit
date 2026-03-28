@@ -1,138 +1,134 @@
-You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
-
-- **Bundle size**: Ignore bundle size warnings/limits. This is a local tool, not a customer-facing product.
-- Do not add explanatory comments to the code.
-
-## TypeScript Best Practices
-
-- Use strict type checking
-- Prefer type inference when the type is obvious
-- Avoid the `any` type; use `unknown` when type is uncertain
-
-## Angular Best Practices
-
-- Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
-- Use signals for state management
-- Implement lazy loading for feature routes
-- Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
-- Use `NgOptimizedImage` for all static images.
-  - `NgOptimizedImage` does not work for inline base64 images.
-
-## Accessibility Requirements
-
-- It MUST pass all AXE checks.
-- It MUST follow all WCAG AA minimums, including focus management, color contrast, and ARIA attributes.
-
-### Components
-
-- Keep components small and focused on a single responsibility
-- Use `input()` and `output()` functions instead of decorators
-- Use `computed()` for derived state
-- Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
-- Prefer inline templates for small components
-- Prefer Reactive forms instead of Template-driven ones
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
-- When using external templates/styles, use paths relative to the component TS file.
-
-## State Management
-
-- Use signals for local component state
-- Use `computed()` for derived state
-- Keep state transformations pure and predictable
-- Do NOT use `mutate` on signals, use `update` or `set` instead
-
-## Templates
-
-- Keep templates simple and avoid complex logic
-- Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
-- Use the async pipe to handle observables
-- Do not assume globals like (`new Date()`) are available.
-
-## Services
-
-- Design services around a single responsibility
-- Use the `providedIn: 'root'` option for singleton services
-- Use the `inject()` function instead of constructor injection
-
-## Testing
-
-- **Test runner:** Vitest via `@angular/build:unit-test` — run with `ng test --no-watch`
-- **No Zone.js** — this project is fully zoneless. Do NOT use `fakeAsync` or `tick` from `@angular/core/testing`
-- **Flushing effects:** Use `TestBed.tick()` to flush pending signal effects in tests (`flushEffects()` is deprecated)
-- **Component tests:** Use `TestBed.configureTestingModule({ imports: [MyComponent] })` — no `NgModule` needed
-
-## Development Workflow
-
-- **Always run tests AND build the frontend after making changes:**
-  ```bash
-  npm test -- --no-watch
-  npm run build
-  ```
-  This ensures both code correctness and build integrity.
-
----
-
-## Problem Statement
-
-I work as a frontend software engineer at a German insurance company. I work with Jira as a ticket system and Bitbucket for working with Git Repos and doing Reviews for Pull Requests and so on. As I have ADHD, the tool switching exhausts and overwhelms me mentally sometimes. I wish I had one place where I could see my in progress tickets, see the pull requests I have to review (I could click on it and it would open the right page for the review as a new tab) and maybe where I can add my own tasks as well. I wish I had a single web page that just works as my personal command center, where I could connect it to various tools and it all comes together to aide me in my workday / with my typical workflows.
-
-## Project Idea
-
-"Orbit" is a tool designed to fix exactly that. It is a modern frontend (maybe backend too if we need it later for features) that reduces noise and shows me an overview of what really matters for my work. It hooks into the tools I use daily via their APIs (and e.g. a personal access token), for example shows me in progress tickets from Jira, shows me Pull Requests waiting for my review and maybe my additional tasks that I want to do to help me not get overwhelmed, still be somewhat organized, staying on top of things and just helps me as much as possible for my typical workflows that I have on the job. Maybe it also has tools like starting a promodoro timer, or telling me how long it is until the next meeting or stuff like that, but that are nice to have things, there is potentially a lot of stuff that could be extended there.
+# Orbit — Coding Agent Guidelines
 
 ## Project Identity
 
-Orbit is a personal command center for a frontend engineer at a German insurance company. It lives permanently on a dedicated second monitor, visible throughout the workday. It integrates with work tools (Jira, Bitbucket, and others) — real API integrations come in later iterations.
+Orbit is a personal command center for software engineers working at a German company.
+It lives permanently on a dedicated second monitor, integrating company tools like Jira, Bitbucket, and local task management into a single calm interface.
 
 - **UI language is German** — all user-facing text must be in German
-- **The "anti-Jira" principle**: Orbit must feel instant, clean, and low-noise — the opposite of cluttered enterprise tools
+- **The "anti-Jira" principle** — Orbit must feel instant, clean, and low-noise
+- **Bundle size is irrelevant** — this is a local tool, not a customer-facing product
 
-Read the `/project-idea.md` file to gain more understanding about this project.
+## Architecture Overview
 
-## The User
+```
+Angular SPA (:6200) → Express BFF (:6201) → Jira / Bitbucket APIs
+                                           → Local JSON files (~/.orbit/)
+                                           → CoSi AI review (SSE)
+Mock servers (:6202, :6203) simulate Jira and Bitbucket for local dev.
+```
 
-The primary user has ADHD. This is the single most important design constraint — it is why Orbit exists.
+- **Frontend:** Angular 21, zoneless, signal-based, no router (signal-driven view switching)
+- **Backend (`server/`):** Express app with three roles — API proxy (auth injection), local data CRUD, CoSi review SSE endpoint. Routes are split into `server/routes/`.
+- **Mock servers (`mock-server/`):** Standalone Express apps returning realistic German-language test data
+- **State:** External data (tickets, PRs) is read-only from APIs. Local data that is important and should be stored safely (e.g. todos, ideas, logbook, schedule, subtasks) is persisted as JSON in `~/.orbit/`. Information that is only interesting temporarily (e.g. Pomodoro end time, information on expanded sections) use localStorage.
 
-- Tool-switching is mentally exhausting → surface everything relevant in one place
-- Context loss on distraction is costly → spatial stability, predictability, and visual calm are essential
-- Overwhelm is a real risk → prefer showing less but clearer, over more but busier
+## Design for ADHD users
 
-## ADHD UX Principles
+This is the single most important design constraint — it is why Orbit exists.
 
-Follow these guiding principles when working on the UX/UI:
+- Tool-switching is mentally exhausting — surface everything relevant in one place
+- Context loss on distraction is costly — spatial stability and visual calm are essential
+- Overwhelm is a real risk — show less but clearer, not more but busier
 
-- **Unified Context and the Single Source of Truth**: Orbit must act as a cognitive consolidator. Every time a user has to hunt for information across tabs, they pay a mental tax. The goal is to bring the task, the context, and the collaboration into a single, unified view where the user's focus is never broken by the need to navigate elsewhere.
-- **Scaffolding through Progressive Disclosure**: Do not barrage the user with data. Reveal information in layers. Start with the most salient facts and allow the user to drill down into details at their own request. This prevents the mental freeze that occurs when an ADHD brain is presented with a complex, high-stakes decision all at once.
-- **Language must be supportive and literal**: Design for the vulnerable brain in distress by using forgiving error messages and non-blaming language. Every button and link should act like a crystal ball, telling the user exactly what will happen when they click it. Avoiding jargon and technical abbreviations reduces the cognitive leap required to process commands. System tones should avoid the authoritative voice that can trigger oppositional behavior.
-- **Meaningful Rewards and Dopamine Closing**: Close the loop for every task. Provide immediate, tangible visual feedback for completion. This is also the part where fun animations, sounds, etc. play a vital role, here there are not distracting but rather engaging. This provides the dopamine boost necessary for sustained engagement and prevents open-loop anxiety, where the user feels they have forgotten to finish a sub-task.
-- **Be mindful of the users focus and attention**: Orbit should act as a digital companion that supports the user's focus without becoming another source of interruption or pressure.
+Every UI element, interaction, or feature must be evaluated against these principles:
 
-Every new UI element, interaction, or feature must be evaluated against these constraints:
+- **Spatial Stability**: Layout must not shift or reorder. Users orient by position — losing that orientation is jarring and costly. Elements should stay where they are across interactions and data loads.
+- **Zero-Depth Navigation**: No nested menus, no back buttons. Every interaction should resolve in one step, or as few steps as possible. If a user has to remember where they came from, the design has failed.
+- **Status at a Glance**: State and status must be communicated visually through color, icons, and spatial position. Scanning beats reading — a user should understand what needs attention without reading a single word.
+- **Chunking**: Group related information with strong visual separation. Avoid walls of undifferentiated content. White space and borders are tools for reducing cognitive load.
+- **Frictionless Transitions**: Links to external tools (Jira, Bitbucket) must open in a new tab without breaking Orbit's context. The user should never lose their place.
+- **Low Motion**: No auto-playing animations. Subtle transitions only (≤150ms). Movement draws attention — use it deliberately, not decoratively. The exception is dopamine feedback (e.g. confetti on task completion), where motion is engaging rather than distracting.
+- **Progressive Disclosure**: Don't barrage the user with data. Reveal information in layers — start with the most salient facts and let the user drill down on demand. This prevents the mental freeze that occurs when an ADHD brain faces too much information at once.
+- **Supportive Language**: Use forgiving error messages and non-blaming language. Every button and link should tell the user exactly what will happen when they click it. Avoid jargon and technical abbreviations — reduce the cognitive leap required to process commands.
+- **Dopamine Closing**: Close the loop for every task. Provide immediate, tangible visual and audio feedback for completion. This provides the dopamine boost necessary for sustained engagement and prevents open-loop anxiety.
 
-- **Spatial Stability**: Layout must not shift or reorder. Users orient by position; losing that orientation is jarring.
-- **Zero-Depth Navigation**: No nested menus, no back buttons. Every interaction should resolve in one step, or in as few steps as possible.
-- **Status at a Glance**: State/status must be communicated visually (color, icon) — scanning beats reading.
-- **Chunking**: Group related information with strong visual separation. Avoid walls of undifferentiated content.
-- **Frictionless Transitions**: Links to external tools (Jira, Bitbucket) must open in a new tab without breaking Orbit's context.
-- **Low Motion**: No auto-playing animations. Subtle transitions only (≤150ms). Movement draws attention — use it deliberately, e.g. to trigger a dopamine boost when a task is complete.
+## Coding Standards
 
-## Visual Design Philosophy
+### TypeScript
 
-- **Warm over cold**: The palette should feel calm and human, not clinical. Warm neutrals (stone family) over cool grays (slate/zinc).
-- **Reduce eye strain**: This UI is open all day. High contrast is good; high saturation is not. Keep backgrounds low-key.
-- **Accent sparingly**: Use the primary accent color (violet) only to signal interactivity or selection — never decoratively.
-- **Typography signals hierarchy**: Key identifiers (ticket keys, branch names) use monospace. Use weight and size, not color, to establish reading order.
+- Strict type checking, prefer type inference when obvious
+- Never use `any` — use `unknown` when type is uncertain
+- Do not add explanatory comments to code
 
-## Three Card States
+### Angular
 
-Every card (ticket, PR, todo, idea) falls into exactly one tier:
+- Standalone components only (do NOT set `standalone: true` — it's the default in Angular v20+)
+- Signals for state, `computed()` for derived state, `OnPush` change detection everywhere
+- `input()` / `output()` functions, not decorators
+- `inject()` function, not constructor injection
+- `host` object in `@Component` decorator, not `@HostBinding` / `@HostListener`
+- Native control flow (`@if`, `@for`, `@switch`), not structural directives
+- Class bindings, not `ngClass`. Style bindings, not `ngStyle`.
+- `NgOptimizedImage` for all static images (not for inline base64)
+- Reactive forms over template-driven forms
+- Do not assume globals like `new Date()` are available in templates
+
+### Testing
+
+- **Runner:** Vitest via `@angular/build:unit-test` — run with `ng test --no-watch`
+- **Zoneless project** — do NOT use `fakeAsync` or `tick` from `@angular/core/testing`
+- **Flush effects:** `TestBed.tick()` (not the deprecated `flushEffects()`)
+- **Component tests:** `TestBed.configureTestingModule({ imports: [MyComponent] })`
+
+### After Making Changes
+
+Always run both:
+```bash
+ng test --no-watch
+npx ng build
+```
+
+## Visual Design System
+
+### Philosophy
+
+- **Warm over cold** — stone family, not slate/zinc. Calm and human, not clinical.
+- **Reduce eye strain** — this UI is open all day. High contrast is good; high saturation is not.
+- **Accent sparingly** — violet only for interactivity or selection, never decoratively.
+- **Typography signals hierarchy** — ticket keys and branch names use monospace. Weight and size establish reading order, not color.
+
+### Color Rules
+
+Orbit uses semantic CSS custom properties defined in `src/styles/tokens.css`. Dark mode is toggled via a `dark` class on `<html>` (managed by `ThemeService`). The tokens redefine themselves under `.dark`, so **using token variables is usually all you need** — dark mode comes for free. Only when you need a color not covered by an existing token do you need to add a new token with both light and dark values to `tokens.css`. 
+
+**Mandatory:**
+- **Never hardcode neutral colors.** No `bg-white`, `bg-stone-50`, `text-stone-800`, `#ff00dd` etc. Use token variables that are defined in [src/styles/tokens.css](src/styles/tokens.css) and add them as needed. Some examples:
+  - Backgrounds: `bg-[var(--color-bg-card)]`, `bg-[var(--color-bg-page)]`, `bg-[var(--color-bg-surface)]`
+  - Text: `text-[var(--color-text-heading)]`, `text-[var(--color-text-body)]`, `text-[var(--color-text-muted)]`
+  - Borders: `border-[var(--color-border-default)]`, `border-[var(--color-border-subtle)]`
+  - Primary: `bg-[var(--color-primary-bg)]`, `text-[var(--color-primary-text)]`, `bg-[var(--color-primary-solid)]`
+- **Semantic colors also use tokens.** Success, danger, signal, and info all have tokens (e.g. `--color-success-text`, `--color-danger-bg`, `--color-signal-bar`). Use these instead of direct Tailwind classes like `text-emerald-700`. If a needed shade doesn't have a token yet, add one to `tokens.css` first.
+- **Form inputs** must have explicit `text-[var(--color-text-heading)]` and `placeholder:text-[var(--color-text-muted)]`.
+- **No hex values** in component styles (except purely decorative SVGs).
+- **Every component must work in both light and dark mode.**
+
+### Allowed Palettes
+
+| Role | Palette |
+|---|---|
+| Neutral | `stone` |
+| Primary | `violet` |
+| Attention | `amber` |
+| Success | `emerald` |
+| Error | `red` |
+| Info | `blue` (links only) |
+
+No other palettes (`gray`, `slate`, `zinc`, `indigo`, `sky`, etc.) may be used.
+
+### Card States
+
+Every card (ticket, PR, todo, idea) has exactly one state:
 
 | State | Visual | When |
 |---|---|---|
-| **Inactive** | Reduced opacity (55% light / 62% dark), no color | User doesn't need to act (Done, approved by others, not assigned to me) |
-| **Normal** | Neutral card, no left stripe | User's item at normal priority |
-| **Attention** | `border-l-4 border-amber-500` left bar | Urgent or overdue — user needs to act soon |
+| **Inactive** | Reduced opacity (55% light / 62% dark) | User doesn't need to act |
+| **Normal** | Neutral card, no accent | Default state |
+| **Attention** | `border-l-4 border-amber-500` | Urgent or overdue |
 
-The attention bar must remain visible even when a card is selected. Cards never have colored backgrounds. Color lives only in badges, icons, text, and the amber attention bar. Type badges ("Fehler", "Aufgabe", "User Story") are always neutral stone — only status badges carry semantic colors.
+Cards never have colored backgrounds. Color lives only in badges, icons, text, and the amber attention bar. Type badges ("Fehler", "Aufgabe", "User Story") are always neutral stone — only status badges carry semantic colors.
+
+## Accessibility
+
+- Must pass all AXE checks
+- Must meet WCAG AA minimums: focus management, color contrast, ARIA attributes
