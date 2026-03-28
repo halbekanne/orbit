@@ -4,10 +4,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-compact-header-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'h-0 overflow-visible sticky top-0 z-20',
+    class: 'sticky top-0 z-20',
+    style: 'display:block;height:0;overflow:visible;pointer-events:none',
   },
   template: `
     <div data-testid="compact-bar"
+         style="pointer-events:auto"
          class="flex items-center gap-2 px-4 h-9 bg-[var(--color-bg-card)] border-b border-[var(--color-border-default)] shadow-sm transition-all duration-150 ease-out"
          [class.-translate-y-full]="!visible()"
          [class.opacity-0]="!visible()"
