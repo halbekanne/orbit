@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { SettingsService } from './settings.service';
 import {
   PullRequest,
   PrStatus,
@@ -144,12 +145,9 @@ function mapParticipant(raw: BitbucketParticipantRaw): PrParticipant {
 @Injectable({ providedIn: 'root' })
 export class BitbucketService {
   private readonly http = inject(HttpClient);
+  private readonly settingsService = inject(SettingsService);
   private readonly baseUrl = `${environment.proxyUrl}/bitbucket/rest/api/latest`;
   private readonly buildStatusUrl = `${environment.proxyUrl}/bitbucket/rest/build-status/latest`;
-
-  private readonly config$ = this.http
-    .get<{ bitbucketUserSlug: string }>(`${environment.proxyUrl}/config`)
-    .pipe(shareReplay(1));
 
   readonly loading = signal(true);
   readonly error = signal(false);
@@ -291,33 +289,25 @@ export class BitbucketService {
   }
 
   getReviewerPullRequests(): Observable<PullRequest[]> {
-    return this.config$.pipe(
-      switchMap(config =>
-        this.http
-          .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
-            params: new HttpParams()
-              .set('role', 'REVIEWER')
-              .set('state', 'OPEN')
-              .set('limit', '50'),
-          })
-          .pipe(map(page => page.values.map(pr => this.mapPr(pr, config.bitbucketUserSlug))))
-      )
-    );
+    return this.http
+      .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
+        params: new HttpParams()
+          .set('role', 'REVIEWER')
+          .set('state', 'OPEN')
+          .set('limit', '50'),
+      })
+      .pipe(map(page => page.values.map(pr => this.mapPr(pr, this.settingsService.bitbucketConfig().userSlug))));
   }
 
   getAuthoredPullRequests(): Observable<PullRequest[]> {
-    return this.config$.pipe(
-      switchMap(config =>
-        this.http
-          .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
-            params: new HttpParams()
-              .set('role', 'AUTHOR')
-              .set('state', 'OPEN')
-              .set('limit', '50'),
-          })
-          .pipe(map(page => page.values.map(pr => this.mapAuthoredPr(pr))))
-      )
-    );
+    return this.http
+      .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
+        params: new HttpParams()
+          .set('role', 'AUTHOR')
+          .set('state', 'OPEN')
+          .set('limit', '50'),
+      })
+      .pipe(map(page => page.values.map(pr => this.mapAuthoredPr(pr))));
   }
 
   getBuildStatusStats(commitId: string): Observable<BuildStatusSummary> {
@@ -339,29 +329,26 @@ export class BitbucketService {
     const { projectKey } = pr.toRef.repository;
     const repoSlug = pr.toRef.repository.slug;
     const prId = pr.prNumber;
+    const userSlug = this.settingsService.bitbucketConfig().userSlug;
 
-    return this.config$.pipe(
-      switchMap(config =>
-        this.http
-          .get<BitbucketActivityPageRaw>(
-            `${this.baseUrl}/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}/activities`
-          )
-          .pipe(
-            map(page => {
-              const activities = page.values;
-              const needsWorkIndex = activities.findIndex(
-                a =>
-                  a.action === 'REVIEWED' &&
-                  a.user.slug === config.bitbucketUserSlug &&
-                  a.reviewedStatus === 'NEEDS_WORK'
-              );
-              if (needsWorkIndex === -1) return 'Changes Requested' as const;
-              return needsWorkIndex > 0 ? ('Needs Re-review' as const) : ('Changes Requested' as const);
-            }),
-            catchError(() => of('Changes Requested' as const))
-          )
+    return this.http
+      .get<BitbucketActivityPageRaw>(
+        `${this.baseUrl}/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}/activities`
       )
-    );
+      .pipe(
+        map(page => {
+          const activities = page.values;
+          const needsWorkIndex = activities.findIndex(
+            a =>
+              a.action === 'REVIEWED' &&
+              a.user.slug === userSlug &&
+              a.reviewedStatus === 'NEEDS_WORK'
+          );
+          if (needsWorkIndex === -1) return 'Changes Requested' as const;
+          return needsWorkIndex > 0 ? ('Needs Re-review' as const) : ('Changes Requested' as const);
+        }),
+        catchError(() => of('Changes Requested' as const))
+      );
   }
 
   getDiffstat(projectKey: string, repoSlug: string, prId: number): Observable<{ additions: number; deletions: number; total: number }> {

@@ -53,11 +53,9 @@ const VIEWS: OrbitView[] = [
 
     <div class="flex-1"></div>
 
-    <button
-      type="button"
-      (click)="theme.cycle()"
+    <div
       [attr.aria-label]="themeLabel()"
-      class="w-10 h-10 mb-3 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+      class="w-10 h-10 mb-3 flex items-center justify-center rounded-lg text-stone-400"
     >
       @switch (theme.preference()) {
         @case ('light') {
@@ -76,7 +74,7 @@ const VIEWS: OrbitView[] = [
           </svg>
         }
       }
-    </button>
+    </div>
   `,
 })
 export class AppRailComponent {

@@ -1,4 +1,5 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { SettingsService } from './settings.service';
 
 export type PomodoroState = 'idle' | 'running' | 'break';
 
@@ -16,10 +17,10 @@ interface PomodoroDefaults {
 }
 
 const SESSION_KEY = 'orbit.pomodoro.session';
-const DEFAULTS_KEY = 'orbit.pomodoro.defaults';
 
 @Injectable({ providedIn: 'root' })
 export class PomodoroService {
+  private readonly settingsService = inject(SettingsService);
   private readonly session = signal<PomodoroSession | null>(this.loadSession());
   private readonly defaults = signal<PomodoroDefaults>(this.loadDefaults());
   readonly tick = signal(Date.now());
@@ -102,7 +103,6 @@ export class PomodoroService {
       breakStartedAt: null,
     });
     this.defaults.set(config);
-    localStorage.setItem(DEFAULTS_KEY, JSON.stringify(config));
     this.startTicking();
   }
 
@@ -185,10 +185,9 @@ export class PomodoroService {
   }
 
   private loadDefaults(): PomodoroDefaults {
-    try {
-      const raw = localStorage.getItem(DEFAULTS_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return { focusMinutes: 25, breakMinutes: 5 };
+    return {
+      focusMinutes: this.settingsService.pomodoroDefaults().focusMinutes,
+      breakMinutes: this.settingsService.pomodoroDefaults().breakMinutes,
+    };
   }
 }

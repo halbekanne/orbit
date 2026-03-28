@@ -1,12 +1,18 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { PomodoroService, PomodoroState } from './pomodoro.service';
+import { SettingsService } from './settings.service';
+
+const mockSettingsService = {
+  pomodoroDefaults: signal({ focusMinutes: 25, breakMinutes: 5 }),
+};
 
 describe('PomodoroService', () => {
   let service: PomodoroService;
 
   beforeEach(() => {
     localStorage.clear();
-    TestBed.configureTestingModule({ providers: [PomodoroService] });
+    TestBed.configureTestingModule({ providers: [PomodoroService, { provide: SettingsService, useValue: mockSettingsService }] });
     service = TestBed.inject(PomodoroService);
   });
 
@@ -81,21 +87,9 @@ describe('PomodoroService', () => {
     expect(stored.focusMinutes).toBe(25);
   });
 
-  it('persists default durations to localStorage', () => {
-    service.start({ focusMinutes: 30, breakMinutes: 10 });
-    TestBed.tick();
-    const defaults = JSON.parse(localStorage.getItem('orbit.pomodoro.defaults')!);
-    expect(defaults.focusMinutes).toBe(30);
-    expect(defaults.breakMinutes).toBe(10);
-  });
-
-  it('loads default durations from localStorage', () => {
-    localStorage.setItem('orbit.pomodoro.defaults', JSON.stringify({ focusMinutes: 45, breakMinutes: 10 }));
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({ providers: [PomodoroService] });
-    const freshService = TestBed.inject(PomodoroService);
-    expect(freshService.defaultFocusMinutes()).toBe(45);
-    expect(freshService.defaultBreakMinutes()).toBe(10);
+  it('loads default durations from SettingsService', () => {
+    expect(service.defaultFocusMinutes()).toBe(25);
+    expect(service.defaultBreakMinutes()).toBe(5);
   });
 
   it('computes timeline block from running session', () => {

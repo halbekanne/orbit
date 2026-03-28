@@ -1,8 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { BitbucketService } from './bitbucket.service';
+import { SettingsService } from './settings.service';
 import { PullRequest } from '../models/work-item.model';
+
+const mockSettingsService = {
+  bitbucketConfig: signal({ baseUrl: '', apiKey: '', userSlug: 'dominik.mueller' }),
+};
 
 const makeRepo = () => ({
   id: 1,
@@ -67,9 +73,7 @@ const makePrRaw = (reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED') => 
 const flushRequests = (
   httpTesting: HttpTestingController,
   reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
-  slug = 'dominik.mueller',
 ) => {
-  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: slug });
   httpTesting
     .expectOne(req => req.url.includes('dashboard/pull-requests'))
     .flush({ values: [makePrRaw(reviewerStatus)], isLastPage: true });
@@ -81,7 +85,7 @@ describe('BitbucketService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -89,9 +93,8 @@ describe('BitbucketService', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('calls /config then /dashboard/pull-requests with correct params', () => {
+  it('calls /dashboard/pull-requests with correct params', () => {
     service.getReviewerPullRequests().subscribe();
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const prReq = httpTesting.expectOne(req => req.url.includes('dashboard/pull-requests'));
     expect(prReq.request.params.get('role')).toBe('REVIEWER');
     expect(prReq.request.params.get('state')).toBe('OPEN');
@@ -138,10 +141,12 @@ describe('BitbucketService', () => {
   });
 
   it('returns Approved by Others when configured slug is not in reviewers but another reviewer approved', () => {
+    mockSettingsService.bitbucketConfig.set({ baseUrl: '', apiKey: '', userSlug: 'someone-else' });
     let result: PullRequest[] | undefined;
     service.getReviewerPullRequests().subscribe(prs => (result = prs));
-    flushRequests(httpTesting, 'APPROVED', 'someone-else');
+    flushRequests(httpTesting, 'APPROVED');
     expect(result![0].myReviewStatus).toBe('Approved by Others');
+    mockSettingsService.bitbucketConfig.set({ baseUrl: '', apiKey: '', userSlug: 'dominik.mueller' });
   });
 
   it('sets isAuthoredByMe to false for reviewer PRs', () => {
@@ -158,7 +163,7 @@ describe('BitbucketService — getAuthoredPullRequests', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -170,7 +175,6 @@ describe('BitbucketService — getAuthoredPullRequests', () => {
     reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
     allApproved = false,
   ) => {
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const raw = makePrRaw(reviewerStatus);
     if (allApproved) {
       raw.reviewers = raw.reviewers.map(r => ({ ...r, approved: true, status: 'APPROVED' as const }));
@@ -182,7 +186,6 @@ describe('BitbucketService — getAuthoredPullRequests', () => {
 
   it('calls dashboard/pull-requests with role=AUTHOR', () => {
     service.getAuthoredPullRequests().subscribe();
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const prReq = httpTesting.expectOne(req => req.url.includes('dashboard/pull-requests'));
     expect(prReq.request.params.get('role')).toBe('AUTHOR');
     prReq.flush({ values: [], isLastPage: true });
@@ -212,7 +215,6 @@ describe('BitbucketService — getAuthoredPullRequests', () => {
   it('maps to Ready to Merge when all reviewers approved and no open tasks', () => {
     let result: PullRequest[] | undefined;
     service.getAuthoredPullRequests().subscribe(prs => (result = prs));
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const raw = makePrRaw('APPROVED');
     raw.reviewers = [{ ...raw.reviewers[0], approved: true, status: 'APPROVED' }];
     raw.properties = { commentCount: 0, openTaskCount: 0 };
@@ -225,7 +227,6 @@ describe('BitbucketService — getAuthoredPullRequests', () => {
   it('maps to In Review when all approved but has open tasks', () => {
     let result: PullRequest[] | undefined;
     service.getAuthoredPullRequests().subscribe(prs => (result = prs));
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const raw = makePrRaw('APPROVED');
     raw.reviewers = [{ ...raw.reviewers[0], approved: true, status: 'APPROVED' }];
     raw.properties = { commentCount: 0, openTaskCount: 2 };
@@ -242,7 +243,7 @@ describe('BitbucketService — getBuildStatusStats', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -293,7 +294,6 @@ const makeActivity = (action: string, slug: string, reviewedStatus?: 'APPROVED' 
 });
 
 const flushActivity = (httpTesting: HttpTestingController, activities: ReturnType<typeof makeActivity>[]) => {
-  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
   httpTesting
     .expectOne(req => req.url.includes('/activities'))
     .flush({ values: activities, isLastPage: true });
@@ -305,7 +305,7 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -345,7 +345,6 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
   it('returns Changes Requested on API error', () => {
     let result: string | undefined;
     service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     httpTesting
       .expectOne(req => req.url.includes('/activities'))
       .flush('error', { status: 500, statusText: 'Internal Server Error' });
@@ -354,7 +353,6 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
 
   it('requests the correct activities URL', () => {
     service.getReviewerPrActivityStatus(makePrRef()).subscribe();
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
     const req = httpTesting.expectOne(req => req.url.includes('/activities'));
     expect(req.request.url).toContain('/projects/SL/repos/versicherung-shared-lib/pull-requests/89/activities');
     req.flush({ values: [], isLastPage: true });
@@ -367,7 +365,7 @@ describe('BitbucketService — getPullRequestDiff', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -445,9 +443,7 @@ const flushLoadAll = (
   httpTesting: HttpTestingController,
   reviewerPrs: ReturnType<typeof makePrRaw>[],
   authoredPrs: ReturnType<typeof makePrRaw>[],
-  slug = 'dominik.mueller',
 ) => {
-  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: slug });
   const dashboardReqs = httpTesting.match(req => req.url.includes('dashboard/pull-requests'));
   expect(dashboardReqs.length).toBe(2);
   const reviewerReq = dashboardReqs.find(r => r.request.params.get('role') === 'REVIEWER')!;
@@ -462,7 +458,7 @@ describe('BitbucketService — loadAll loading state', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -484,8 +480,8 @@ describe('BitbucketService — loadAll loading state', () => {
 
   it('sets error=true on failure', () => {
     service.loadAll();
-    httpTesting.expectOne(req => req.url.endsWith('/config'))
-      .flush('error', { status: 500, statusText: 'Internal Server Error' });
+    const dashboardReqs = httpTesting.match(req => req.url.includes('dashboard/pull-requests'));
+    dashboardReqs[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
 
     expect(service.error()).toBe(true);
     expect(service.loading()).toBe(false);
@@ -498,7 +494,7 @@ describe('BitbucketService — pullRequests computed', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -532,7 +528,7 @@ describe('BitbucketService — reviewPullRequests', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -592,7 +588,7 @@ describe('BitbucketService — myPullRequests', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -653,7 +649,7 @@ describe('BitbucketService — awaitingReviewCount', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -697,7 +693,7 @@ describe('BitbucketService — loadAll deduplication', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -726,7 +722,7 @@ describe('BitbucketService — loadAll enrichment (activity status)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);
@@ -778,7 +774,7 @@ describe('BitbucketService — loadAll enrichment (build status)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SettingsService, useValue: mockSettingsService }],
     });
     service = TestBed.inject(BitbucketService);
     httpTesting = TestBed.inject(HttpTestingController);

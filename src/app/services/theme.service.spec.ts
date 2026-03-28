@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from './theme.service';
+import { SettingsService } from './settings.service';
+import { signal } from '@angular/core';
 
 const mockMatchMedia = (matches = false) => {
   Object.defineProperty(window, 'matchMedia', {
@@ -19,54 +21,45 @@ const mockMatchMedia = (matches = false) => {
 
 describe('ThemeService', () => {
   let service: ThemeService;
+  const themeSignal = signal<'light' | 'dark' | 'system'>('system');
+
+  const mockSettingsService = {
+    theme: themeSignal,
+  };
 
   beforeEach(() => {
     mockMatchMedia(false);
-    localStorage.clear();
+    themeSignal.set('system');
     document.documentElement.classList.remove('dark');
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SettingsService, useValue: mockSettingsService },
+      ],
+    });
     service = TestBed.inject(ThemeService);
   });
 
-  it('should default to system preference when no stored value', () => {
+  it('should default to system preference', () => {
     expect(service.preference()).toBe('system');
   });
 
-  it('should apply dark class when set to dark', () => {
-    service.setPreference('dark');
+  it('should apply dark class when theme is dark', () => {
+    themeSignal.set('dark');
     TestBed.tick();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(service.preference()).toBe('dark');
   });
 
-  it('should remove dark class when set to light', () => {
+  it('should remove dark class when theme is light', () => {
     document.documentElement.classList.add('dark');
-    service.setPreference('light');
+    themeSignal.set('light');
     TestBed.tick();
     expect(document.documentElement.classList.contains('dark')).toBe(false);
-    expect(service.preference()).toBe('light');
   });
 
-  it('should persist preference to localStorage', () => {
-    service.setPreference('dark');
-    expect(localStorage.getItem('orbit-theme')).toBe('dark');
-  });
-
-  it('should cycle through system → light → dark → system', () => {
-    expect(service.preference()).toBe('system');
-    service.cycle();
-    expect(service.preference()).toBe('light');
-    service.cycle();
+  it('should reflect the settings service theme signal', () => {
+    themeSignal.set('dark');
     expect(service.preference()).toBe('dark');
-    service.cycle();
-    expect(service.preference()).toBe('system');
-  });
-
-  it('should load stored preference on creation', () => {
-    localStorage.setItem('orbit-theme', 'dark');
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    const freshService = TestBed.inject(ThemeService);
-    expect(freshService.preference()).toBe('dark');
+    themeSignal.set('light');
+    expect(service.preference()).toBe('light');
   });
 });

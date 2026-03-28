@@ -1,19 +1,18 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, effect, inject } from '@angular/core';
+import { SettingsService } from './settings.service';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
-const STORAGE_KEY = 'orbit-theme';
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  readonly preference = signal<ThemePreference>(this.loadPreference());
+  private readonly settingsService = inject(SettingsService);
+  private readonly mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-  private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  readonly preference = this.settingsService.theme;
 
   constructor() {
     effect(() => {
-      const pref = this.preference();
-      this.applyTheme(pref);
+      this.applyTheme(this.preference());
     });
 
     this.mediaQuery.addEventListener('change', () => {
@@ -21,27 +20,6 @@ export class ThemeService {
         this.applyTheme('system');
       }
     });
-  }
-
-  setPreference(pref: ThemePreference) {
-    this.preference.set(pref);
-    if (pref === 'system') {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
-      localStorage.setItem(STORAGE_KEY, pref);
-    }
-  }
-
-  cycle() {
-    const order: ThemePreference[] = ['system', 'light', 'dark'];
-    const current = order.indexOf(this.preference());
-    this.setPreference(order[(current + 1) % order.length]);
-  }
-
-  private loadPreference(): ThemePreference {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return 'system';
   }
 
   private applyTheme(pref: ThemePreference) {
