@@ -38,7 +38,7 @@ export class WorkspaceService {
   readonly awaitingReviewCount = this.bitbucket.awaitingReviewCount;
 
   readonly selectedItem = signal<WorkItem | null>(null);
-  readonly rhythmSelected = signal(false);
+  readonly reflectionSelected = signal(false);
 
   constructor() {
     this.bitbucket.loadAll();
@@ -52,13 +52,13 @@ export class WorkspaceService {
   }
 
   select(item: WorkItem): void {
-    this.rhythmSelected.set(false);
+    this.reflectionSelected.set(false);
     this.selectedItem.set(item);
   }
 
-  selectRhythm(): void {
+  selectReflection(): void {
     this.selectedItem.set(null);
-    this.rhythmSelected.set(true);
+    this.reflectionSelected.set(true);
   }
 
   promoteToTodo(idea: Idea): void {

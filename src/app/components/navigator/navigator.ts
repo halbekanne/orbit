@@ -94,7 +94,7 @@ export class NavigatorComponent {
   toggleIdeas(): void { this.ideasCollapsed.update(v => !v); }
   toggleIdeasWontDo(): void { this.ideasWontDoCollapsed.update(v => !v); }
 
-  readonly isRhythmSelected = computed(() => this.data.rhythmSelected());
+  readonly isReflectionSelected = computed(() => this.data.reflectionSelected());
 
   isSelected(item: WorkItem): boolean {
     return this.data.selectedItem()?.id === item.id;
@@ -104,8 +104,8 @@ export class NavigatorComponent {
     this.data.select(item);
   }
 
-  selectRhythm(): void {
-    this.data.selectRhythm();
+  selectReflection(): void {
+    this.data.selectReflection();
   }
 
   addTodo(title: string): void {

@@ -9,8 +9,8 @@
   <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
 
     <app-reflection-card
-      [selected]="isRhythmSelected()"
-      (select)="selectRhythm()"
+      [selected]="isReflectionSelected()"
+      (select)="selectReflection()"
     />
 
     @if (focusService.focusedItem(); as focusedItem) {

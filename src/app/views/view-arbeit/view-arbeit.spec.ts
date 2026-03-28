@@ -16,11 +16,11 @@ const mockWorkspaceService = {
   pullRequestsLoading: signal(false),
   pullRequestsError: signal(false),
   selectedItem: signal(null),
-  rhythmSelected: signal(false),
+  reflectionSelected: signal(false),
   lastAddedId: signal(null),
   awaitingReviewCount: signal(0),
   select: () => {},
-  selectRhythm: () => {},
+  selectReflection: () => {},
 };
 
 const mockTodoService = {

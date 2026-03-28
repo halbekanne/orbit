@@ -30,7 +30,7 @@ export class DailyReflectionService {
   readonly currentHour = signal(new Date().getHours());
   readonly cardAnimationTrigger = signal(0);
 
-  readonly rhythmPhase = computed<'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'>(() => {
+  readonly reflectionPhase = computed<'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'>(() => {
     const entry = this.todayEntry();
     if (!entry || entry.morningAnsweredAt === null) return 'morning-open';
     if (entry.eveningAnsweredAt !== null) return 'evening-filled';

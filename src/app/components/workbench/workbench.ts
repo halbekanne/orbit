@@ -16,6 +16,6 @@ import { ReflectionDetailComponent } from '../reflection-detail/reflection-detai
 export class WorkbenchComponent {
   protected readonly data = inject(WorkspaceService);
 
-  onRhythmSubmitted(): void {}
-  onRhythmSkipped(): void {}
+  onReflectionSubmitted(): void {}
+  onReflectionSkipped(): void {}
 }

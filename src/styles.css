@@ -221,7 +221,7 @@
   animation: check-draw 0.4s ease-out both;
 }
 
-/* ── Daily Rhythm animations ───────────────────────────────────── */
+/* ── Daily Reflection animations ──────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 @keyframes fadeUp {

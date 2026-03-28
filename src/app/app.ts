@@ -58,7 +58,7 @@ export class App {
       } else {
         this.reflectionService.currentHour.set(new Date().getHours());
       }
-      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.rhythmPhase()}`);
+      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.reflectionPhase()}`);
       this.appRef.tick();
     }
   }

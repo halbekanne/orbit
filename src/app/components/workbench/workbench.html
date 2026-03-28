@@ -1,9 +1,9 @@
 <main class="h-full flex flex-col" aria-label="Arbeitsbereich">
-  @if (data.rhythmSelected()) {
+  @if (data.reflectionSelected()) {
     <div class="flex-1 overflow-y-auto bg-[var(--color-bg-page)]">
       <app-reflection-detail
-        (submitted)="onRhythmSubmitted()"
-        (skipped)="onRhythmSkipped()"
+        (submitted)="onReflectionSubmitted()"
+        (skipped)="onReflectionSkipped()"
       />
     </div>
   } @else {

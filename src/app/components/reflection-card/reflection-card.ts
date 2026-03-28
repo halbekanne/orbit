@@ -176,11 +176,11 @@ export class ReflectionCardComponent {
   selected = input(false);
   select = output<void>();
 
-  private readonly rhythm = inject(DailyReflectionService);
+  private readonly reflection = inject(DailyReflectionService);
 
-  readonly phase = computed(() => this.rhythm.rhythmPhase());
-  readonly displayPhase = signal(this.rhythm.rhythmPhase());
-  readonly displayEntry = signal(this.rhythm.todayEntry());
+  readonly phase = computed(() => this.reflection.reflectionPhase());
+  readonly displayPhase = signal(this.reflection.reflectionPhase());
+  readonly displayEntry = signal(this.reflection.todayEntry());
   readonly weekday = computed(() => GERMAN_WEEKDAYS[new Date().getDay()]);
 
   readonly hovered = signal(false);
@@ -188,8 +188,8 @@ export class ReflectionCardComponent {
 
   constructor() {
     effect(() => {
-      const p = this.rhythm.rhythmPhase();
-      const e = this.rhythm.todayEntry();
+      const p = this.reflection.reflectionPhase();
+      const e = this.reflection.todayEntry();
       if (!untracked(() => this.animating())) {
         untracked(() => {
           this.displayPhase.set(p);
@@ -198,9 +198,9 @@ export class ReflectionCardComponent {
       }
     });
 
-    let lastTrigger = this.rhythm.cardAnimationTrigger();
+    let lastTrigger = this.reflection.cardAnimationTrigger();
     effect(() => {
-      const trigger = this.rhythm.cardAnimationTrigger();
+      const trigger = this.reflection.cardAnimationTrigger();
       if (trigger > lastTrigger) {
         lastTrigger = trigger;
         untracked(() => this.playSubmitAnimation());
@@ -300,8 +300,8 @@ export class ReflectionCardComponent {
     }, 50);
 
     setTimeout(() => {
-      this.displayPhase.set(this.rhythm.rhythmPhase());
-      this.displayEntry.set(this.rhythm.todayEntry());
+      this.displayPhase.set(this.reflection.reflectionPhase());
+      this.displayEntry.set(this.reflection.todayEntry());
     }, 350);
 
     setTimeout(() => {

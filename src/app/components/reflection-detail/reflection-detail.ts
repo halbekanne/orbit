@@ -346,17 +346,17 @@ export class ReflectionDetailComponent {
   submitted = output<void>();
   skipped = output<void>();
 
-  private readonly rhythm = inject(DailyReflectionService);
+  private readonly reflection = inject(DailyReflectionService);
   private readonly daySchedule = inject(DayScheduleService);
 
   readonly viewState = signal<'input' | 'calendar-setup' | 'animating' | 'readonly'>('input');
   readonly animPhase = signal<'form-exit' | 'circle' | 'check' | 'text' | 'hold' | 'fade-out'>('form-exit');
   readonly textValue = signal('');
   readonly question = signal('');
-  readonly questionId = 'rhythm-question-label';
+  readonly questionId = 'reflection-question-label';
 
-  readonly phase = computed(() => this.rhythm.rhythmPhase());
-  readonly entry = computed(() => this.rhythm.todayEntry());
+  readonly phase = computed(() => this.reflection.reflectionPhase());
+  readonly entry = computed(() => this.reflection.todayEntry());
 
   readonly isMorning = computed(() => {
     const p = this.phase();
@@ -388,9 +388,9 @@ export class ReflectionDetailComponent {
   readonly formattedDate = computed(() => formatGermanDate());
 
   constructor() {
-    this.syncViewState(this.rhythm.rhythmPhase());
+    this.syncViewState(this.reflection.reflectionPhase());
     effect(() => {
-      const phase = this.rhythm.rhythmPhase();
+      const phase = this.reflection.reflectionPhase();
       untracked(() => this.syncViewState(phase));
     });
   }
@@ -416,11 +416,11 @@ export class ReflectionDetailComponent {
 
     const q = this.question();
     if (this.isMorning()) {
-      this.rhythm.saveMorning(value, q);
+      this.reflection.saveMorning(value, q);
       this.submitted.emit();
       this.startPageTransition();
     } else {
-      this.rhythm.saveEvening(value, q);
+      this.reflection.saveEvening(value, q);
       this.submitted.emit();
       this.startAnimation();
     }
@@ -428,9 +428,9 @@ export class ReflectionDetailComponent {
 
   onSkip(): void {
     if (this.isMorning()) {
-      this.rhythm.skipMorning();
+      this.reflection.skipMorning();
     } else {
-      this.rhythm.skipEvening();
+      this.reflection.skipEvening();
     }
     this.skipped.emit();
   }
@@ -493,7 +493,7 @@ export class ReflectionDetailComponent {
     setTimeout(() => this.animPhase.set('check'), 550);
     setTimeout(() => this.animPhase.set('text'), 1200);
     setTimeout(() => this.animPhase.set('hold'), 1400);
-    setTimeout(() => this.rhythm.cardAnimationTrigger.update(v => v + 1), 1600);
+    setTimeout(() => this.reflection.cardAnimationTrigger.update(v => v + 1), 1600);
     setTimeout(() => this.animPhase.set('fade-out'), 2600);
     setTimeout(() => this.viewState.set('readonly'), 3050);
   }
