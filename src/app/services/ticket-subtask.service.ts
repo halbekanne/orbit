@@ -9,7 +9,7 @@ interface TicketLocalData {
 }
 
 @Injectable({ providedIn: 'root' })
-export class TicketLocalDataService {
+export class TicketSubtaskService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/api/tickets`;
 

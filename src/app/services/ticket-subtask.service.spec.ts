@@ -1,19 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
-import { TicketLocalDataService } from './ticket-local-data.service';
+import { TicketSubtaskService } from './ticket-subtask.service';
 
 function setup(http: Partial<{ get: unknown; post: unknown }>) {
   TestBed.configureTestingModule({
     providers: [
-      TicketLocalDataService,
+      TicketSubtaskService,
       { provide: HttpClient, useValue: http },
     ],
   });
-  return TestBed.inject(TicketLocalDataService);
+  return TestBed.inject(TicketSubtaskService);
 }
 
-describe('TicketLocalDataService', () => {
+describe('TicketSubtaskService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('starts with empty subtasks', () => {

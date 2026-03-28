@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
-import { TicketLocalDataService } from '../../services/ticket-local-data.service';
+import { TicketSubtaskService } from '../../services/ticket-subtask.service';
 
 @Component({
   selector: 'app-ticket-card',
@@ -93,9 +93,9 @@ export class TicketCardComponent {
   selected = input(false);
   select = output<JiraTicket>();
 
-  private readonly ticketLocalData = inject(TicketLocalDataService);
+  private readonly ticketSubtaskService = inject(TicketSubtaskService);
 
-  readonly ticketSubtasks = computed(() => this.ticketLocalData.getSubtasksForKey(this.ticket().key));
+  readonly ticketSubtasks = computed(() => this.ticketSubtaskService.getSubtasksForKey(this.ticket().key));
   readonly subtaskDone = computed(() => this.ticketSubtasks().filter(s => s.status === 'done').length);
   readonly subtaskTotal = computed(() => this.ticketSubtasks().length);
   readonly hasSubtasks = computed(() => this.subtaskTotal() > 0);

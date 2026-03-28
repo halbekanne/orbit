@@ -3,7 +3,7 @@ import { JiraTicket } from '../../models/work-item.model';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
-import { TicketLocalDataService } from '../../services/ticket-local-data.service';
+import { TicketSubtaskService } from '../../services/ticket-subtask.service';
 
 type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 
@@ -106,7 +106,7 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
       <div class="border-b border-[var(--color-border-subtle)]">
         <div class="max-w-2xl mx-auto px-6 py-5">
           <app-sub-task-list
-            [subtasks]="ticketLocalData.subtasks()"
+            [subtasks]="ticketSubtaskService.subtasks()"
             (subtasksChange)="onSubtasksChange($event)"
           />
         </div>
@@ -275,12 +275,12 @@ type CollapsibleSection = 'relations' | 'comments' | 'attachments';
 export class TicketDetailComponent {
   ticket = input.required<JiraTicket>();
 
-  protected readonly ticketLocalData = inject(TicketLocalDataService);
+  protected readonly ticketSubtaskService = inject(TicketSubtaskService);
 
   constructor() {
     effect(() => {
       const key = this.ticket().key;
-      this.ticketLocalData.loadForTicket(key);
+      this.ticketSubtaskService.loadForTicket(key);
     });
   }
 
@@ -296,7 +296,7 @@ export class TicketDetailComponent {
   });
 
   onSubtasksChange(subtasks: SubTask[]): void {
-    this.ticketLocalData.saveSubtasks(subtasks);
+    this.ticketSubtaskService.saveSubtasks(subtasks);
   }
 
   toggleSection(section: CollapsibleSection): void {
