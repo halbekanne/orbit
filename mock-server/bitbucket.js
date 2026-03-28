@@ -787,6 +787,28 @@ app.get(
   }
 );
 
+function parseDiffStats(diffText) {
+  let additions = 0;
+  let deletions = 0;
+  for (const line of diffText.split('\n')) {
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      additions++;
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      deletions++;
+    }
+  }
+  return { additions, deletions, total: additions + deletions };
+}
+
+app.get(
+  '/rest/api/latest/projects/:projectKey/repos/:repoSlug/pull-requests/:prId/diffstat',
+  (req, res) => {
+    const prId = parseInt(req.params.prId, 10);
+    const diff = DIFF_FIXTURES[prId] || GENERIC_DIFF;
+    res.json(parseDiffStats(diff));
+  }
+);
+
 const BUILD_STATUS_FIXTURES = {
   f6a1b2c3: { successful: 3, failed: 0, inProgress: 0, cancelled: 0, unknown: 0 },
   a1b2c3d4: { successful: 1, failed: 1, inProgress: 0, cancelled: 0, unknown: 0 },
