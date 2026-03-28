@@ -117,6 +117,7 @@ export interface PullRequest {
   myReviewStatus: PrStatus;
   isAuthoredByMe: boolean;
   buildStatus?: BuildStatusSummary;
+  diffstat?: { additions: number; deletions: number; total: number };
 }
 
 export interface Todo {

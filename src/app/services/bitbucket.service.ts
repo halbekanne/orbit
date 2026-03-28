@@ -238,6 +238,31 @@ export class BitbucketService {
           );
         }
 
+        const allPrs = [...reviewerPrs, ...dedupedAuthored];
+        if (allPrs.length > 0) {
+          enrichments.push(
+            forkJoin(
+              allPrs.map(pr =>
+                this.getDiffstat(
+                  pr.fromRef.repository.projectKey,
+                  pr.fromRef.repository.slug,
+                  pr.prNumber
+                )
+              )
+            ).pipe(
+              tap(results => {
+                const diffstatById = new Map(allPrs.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update(all =>
+                  all.map(pr => {
+                    const diffstat = diffstatById.get(pr.id);
+                    return diffstat ? { ...pr, diffstat } : pr;
+                  })
+                );
+              })
+            )
+          );
+        }
+
         return enrichments.length > 0 ? forkJoin(enrichments) : of(null);
       }),
       catchError(err => {
@@ -321,6 +346,14 @@ export class BitbucketService {
           )
       )
     );
+  }
+
+  getDiffstat(projectKey: string, repoSlug: string, prId: number): Observable<{ additions: number; deletions: number; total: number }> {
+    return this.http
+      .get<{ additions: number; deletions: number; total: number }>(
+        `${environment.proxyUrl}/bitbucket/diffstat/${projectKey}/${repoSlug}/${prId}`
+      )
+      .pipe(catchError(() => of(undefined as unknown as { additions: number; deletions: number; total: number })));
   }
 
   getPullRequestDiff(pr: Pick<PullRequest, 'prNumber' | 'toRef'>): Observable<string> {

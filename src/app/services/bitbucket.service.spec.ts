@@ -435,6 +435,12 @@ const makePrRawWithId = (
   return raw;
 };
 
+const flushDiffstats = (httpTesting: HttpTestingController) => {
+  httpTesting.match(req => req.url.includes('/bitbucket/diffstat/')).forEach(req =>
+    req.flush({ additions: 10, deletions: 5, total: 15 })
+  );
+};
+
 const flushLoadAll = (
   httpTesting: HttpTestingController,
   reviewerPrs: ReturnType<typeof makePrRaw>[],
@@ -506,6 +512,7 @@ describe('BitbucketService — pullRequests computed', () => {
 
     service.loadAll();
     flushLoadAll(httpTesting, [approvedPr, awaitingPr], []);
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     const prs = service.pullRequests();
@@ -541,6 +548,7 @@ describe('BitbucketService — pullRequests computed', () => {
 
     const buildReqs = httpTesting.match(req => req.url.includes('/commits/stats/'));
     buildReqs.forEach(req => req.flush({ successful: 0, failed: 0, inProgress: 0 }));
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     const prs = service.pullRequests();
@@ -576,6 +584,7 @@ describe('BitbucketService — awaitingReviewCount', () => {
 
     service.loadAll();
     flushLoadAll(httpTesting, [pr1, pr2, pr3], []);
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     expect(service.awaitingReviewCount()).toBe(2);
@@ -591,6 +600,7 @@ describe('BitbucketService — awaitingReviewCount', () => {
     httpTesting.match(req => req.url.includes('/commits/stats/')).forEach(req =>
       req.flush({ successful: 0, failed: 0, inProgress: 0 })
     );
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     expect(service.awaitingReviewCount()).toBe(1);
@@ -617,6 +627,7 @@ describe('BitbucketService — loadAll deduplication', () => {
 
     service.loadAll();
     flushLoadAll(httpTesting, [reviewerVersion], [authoredVersion]);
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     const prs = service.pullRequests();
@@ -652,6 +663,7 @@ describe('BitbucketService — loadAll enrichment (activity status)', () => {
       ],
       isLastPage: true,
     });
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     expect(service.pullRequests()[0].myReviewStatus).toBe('Needs Re-review');
@@ -669,6 +681,7 @@ describe('BitbucketService — loadAll enrichment (activity status)', () => {
       ],
       isLastPage: true,
     });
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     expect(service.pullRequests()[0].myReviewStatus).toBe('Changes Requested');
@@ -701,6 +714,7 @@ describe('BitbucketService — loadAll enrichment (build status)', () => {
       failed: 1,
       inProgress: 2,
     });
+    flushDiffstats(httpTesting);
     TestBed.tick();
 
     const pr = service.pullRequests()[0];
