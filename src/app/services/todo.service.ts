@@ -9,7 +9,7 @@ export class TodoService {
   private readonly http = inject(HttpClient);
   private readonly dailyReflection = inject(DailyReflectionService);
   private readonly baseUrl = `${environment.proxyUrl}/api/todos`;
-  private readonly today = new Date().toDateString();
+  private readonly today = signal(new Date().toDateString());
 
   readonly todos = signal<Todo[]>([]);
   readonly todosLoading = signal(true);
@@ -18,7 +18,7 @@ export class TodoService {
   private completedTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly openTodos = computed(() => {
-    const todayStr = this.today;
+    const todayStr = this.today();
     const isOpenItem = (t: Todo) => t.status === 'open';
     const isDoneToday = (t: Todo) =>
       t.status === 'done' && t.completedAt !== null && new Date(t.completedAt).toDateString() === todayStr;
@@ -39,7 +39,7 @@ export class TodoService {
   });
 
   readonly doneTodos = computed(() => {
-    const todayStr = this.today;
+    const todayStr = this.today();
     return this.todos().filter(
       t => t.status === 'done' && t.completedAt !== null && new Date(t.completedAt).toDateString() !== todayStr
     );
@@ -51,6 +51,17 @@ export class TodoService {
 
   constructor() {
     this.load();
+    this.scheduleMidnightUpdate();
+  }
+
+  private scheduleMidnightUpdate(): void {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const msUntilMidnight = midnight.getTime() - now.getTime();
+    setTimeout(() => {
+      this.today.set(new Date().toDateString());
+      setInterval(() => this.today.set(new Date().toDateString()), 24 * 60 * 60 * 1000);
+    }, msUntilMidnight);
   }
 
   load(): void {
