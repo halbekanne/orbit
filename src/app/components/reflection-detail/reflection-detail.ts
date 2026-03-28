@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { DailyReflectionService } from '../../services/daily-reflection.service';
 import { pickMorningQuestion, pickEveningQuestion } from '../../data/daily-questions';
 import { DayScheduleService } from '../../services/day-schedule.service';
+import { SettingsService } from '../../services/settings.service';
 import { DayAppointment } from '../../models/day-schedule.model';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
@@ -348,6 +349,7 @@ export class ReflectionDetailComponent {
 
   private readonly reflection = inject(DailyReflectionService);
   private readonly daySchedule = inject(DayScheduleService);
+  private readonly settingsService = inject(SettingsService);
 
   readonly viewState = signal<'input' | 'calendar-setup' | 'animating' | 'readonly'>('input');
   readonly animPhase = signal<'form-exit' | 'circle' | 'check' | 'text' | 'hold' | 'fade-out'>('form-exit');
@@ -418,7 +420,7 @@ export class ReflectionDetailComponent {
     if (this.isMorning()) {
       this.reflection.saveMorning(value, q);
       this.submitted.emit();
-      this.startPageTransition();
+      this.advanceAfterMorningSubmit();
     } else {
       this.reflection.saveEvening(value, q);
       this.submitted.emit();
@@ -477,12 +479,16 @@ export class ReflectionDetailComponent {
     this.startAnimation();
   }
 
-  private startPageTransition(): void {
-    this.pageTransitioning.set(true);
-    setTimeout(() => {
-      this.pageTransitioning.set(false);
-      this.viewState.set('calendar-setup');
-    }, 400);
+  private advanceAfterMorningSubmit(): void {
+    if (this.settingsService.dayCalendarEnabled()) {
+      this.pageTransitioning.set(true);
+      setTimeout(() => {
+        this.pageTransitioning.set(false);
+        this.viewState.set('calendar-setup');
+      }, 400);
+    } else {
+      this.startAnimation();
+    }
   }
 
   private startAnimation(): void {
