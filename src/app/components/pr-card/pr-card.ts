@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { PullRequest } from '../../models/work-item.model';
+import { businessDaysSince } from '../../utils/business-days';
 import { prStatusBadgeClass, prStatusLabel } from '../../utils/pr-status';
-
-const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
 @Component({
   selector: 'app-pr-card',
@@ -47,6 +46,39 @@ const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
             <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-default)] leading-none uppercase tracking-wide">Mein PR</span>
           </div>
         }
+
+        <div class="flex flex-wrap gap-1 mb-1.5 empty:hidden">
+          @if (showBuildFailed()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-danger-bg)] text-[var(--color-danger-text)]">
+              ✗ Build fehlgeschlagen
+            </span>
+          }
+          @if (showChangesRequested()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
+              Änderungen angefordert
+            </span>
+          }
+          @if (waitingDays() >= 2 && !showAlreadyReviewed()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
+              Review seit {{ waitingDays() }} Tagen
+            </span>
+          }
+          @if (showAlreadyReviewed()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
+              ✓ Bereits reviewed
+            </span>
+          }
+          @if (showApproved()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
+              ✓ Approved
+            </span>
+          }
+          @if (isSmallChange()) {
+            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
+              Kleine Änderung
+            </span>
+          }
+        </div>
 
         <p
           class="text-[13px] font-medium leading-snug line-clamp-2 mb-2 text-[var(--color-text-heading)]"
@@ -122,17 +154,21 @@ export class PrCardComponent {
   statusBadgeClass = computed(() => prStatusBadgeClass(this.pr()));
   statusLabel = computed(() => prStatusLabel(this.pr()));
 
-  readonly cardState = computed<'inactive' | 'normal' | 'attention'>(() => {
+  readonly cardState = computed<'inactive' | 'normal' | 'attention' | 'attention-danger'>(() => {
     const pr = this.pr();
 
     if (pr.state === 'MERGED' || pr.state === 'DECLINED') return 'inactive';
     if (!pr.isAuthoredByMe && pr.myReviewStatus === 'Approved by Others') return 'inactive';
 
     if (pr.isAuthoredByMe) {
+      if (pr.buildStatus && pr.buildStatus.failed > 0) return 'attention-danger';
       if (pr.myReviewStatus === 'Needs Re-review') return 'attention';
       if (pr.myReviewStatus === 'Changes Requested') return 'attention';
-      if (pr.buildStatus && pr.buildStatus.failed > 0) return 'attention';
-      if (Date.now() - pr.createdDate > TWO_DAYS_MS && pr.myReviewStatus === 'Awaiting Review') return 'attention';
+    }
+
+    if (!pr.isAuthoredByMe) {
+      const days = businessDaysSince(pr.createdDate);
+      if (days >= 2 && pr.myReviewStatus !== 'Approved by Others') return 'attention';
     }
 
     return 'normal';
@@ -153,6 +189,9 @@ export class PrCardComponent {
     } else if (state === 'attention') {
       classes = classes.replace('rounded-lg', 'rounded-r-lg rounded-l-none');
       classes += ' border-l-4 border-l-[var(--color-card-attention-bar)]';
+    } else if (state === 'attention-danger') {
+      classes = classes.replace('rounded-lg', 'rounded-r-lg rounded-l-none');
+      classes += ' border-l-4 border-l-[var(--color-card-attention-bar-danger)]';
     }
 
     return classes;
@@ -163,6 +202,34 @@ export class PrCardComponent {
     if (this.pr().isAuthoredByMe && status === 'Changes Requested') return 'text-amber-700';
     return 'text-[var(--color-text-secondary)]';
   });
+
+  readonly isSmallChange = computed(() => {
+    const ds = this.pr().diffstat;
+    return ds ? ds.total < 50 : false;
+  });
+
+  readonly waitingDays = computed(() => {
+    if (this.pr().isAuthoredByMe) return 0;
+    return businessDaysSince(this.pr().createdDate);
+  });
+
+  readonly showChangesRequested = computed(() =>
+    this.pr().isAuthoredByMe &&
+    (this.pr().myReviewStatus === 'Changes Requested' || this.pr().myReviewStatus === 'Needs Re-review')
+  );
+
+  readonly showBuildFailed = computed(() =>
+    this.pr().isAuthoredByMe && (this.pr().buildStatus?.failed ?? 0) > 0
+  );
+
+  readonly showAlreadyReviewed = computed(() =>
+    !this.pr().isAuthoredByMe && this.pr().myReviewStatus === 'Approved by Others'
+  );
+
+  readonly showApproved = computed(() =>
+    this.pr().isAuthoredByMe &&
+    (this.pr().myReviewStatus === 'Ready to Merge' || this.pr().myReviewStatus === 'Approved')
+  );
 
   buildIcon = computed((): { type: 'success' | 'failed' | 'running'; colorClass: string } | null => {
     const build = this.pr().buildStatus;
