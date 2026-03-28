@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
-import { ActionRailComponent } from '../action-rail/action-rail';
 import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-config-popup';
 import { DayScheduleService } from '../../services/day-schedule.service';
 import { PomodoroService } from '../../services/pomodoro.service';
@@ -12,7 +11,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent, PomodoroConfigPopupComponent],
+  imports: [DayTimelineComponent, AppointmentPopupComponent, PomodoroConfigPopupComponent],
   host: {
     '[class]': 'hostClass()',
     '(document:keydown.escape)': 'onEscape()',
@@ -43,7 +42,6 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           </svg>
         </button>
       </div>
-      <app-action-rail class="shrink-0 border-b border-[var(--color-border-subtle)]" />
       <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
         @if (pomodoro.state() === 'idle') {
           <button type="button"
