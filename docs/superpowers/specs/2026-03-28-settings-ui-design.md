@@ -42,7 +42,7 @@ Orbit bekommt eine eigene Settings-UI als dritte View, über die Nutzer alle Kon
       "userSlug": ""
     },
     "vertexAi": {
-      "proxyUrl": "",
+      "url": "",
       "customHeaders": [
         { "name": "", "value": "" }
       ]
@@ -114,8 +114,8 @@ Alles andere ist optional oder hat Defaults.
 
 **`cosi-routes.js` → `ai-routes.js`:**
 - Umbenennung der Datei und aller internen Referenzen
-- Liest Vertex AI Proxy-URL und Custom Headers aus Settings
-- URL-Aufbau: `settings.connections.vertexAi.proxyUrl` + `:generateContent` (der Code hängt die Methode an)
+- Liest Vertex AI URL und Custom Headers aus Settings
+- URL-Aufbau: `settings.connections.vertexAi.url` + `:generateContent` (der Code hängt die Methode an)
 - Custom Headers werden bei jedem Request an den Proxy als HTTP-Header mitgesendet
 
 **`cosi-mock.js` → `ai-mock.js`:**
@@ -160,7 +160,7 @@ Die gesamte App zeigt einen **Fullscreen Welcome-Screen** — kein Rail, kein Na
 
 **Text-Content (unterhalb der Illustration, zentriert, max-width 440px):**
 - **Titel:** "Willkommen bei Orbit" — `font-size: 30px`, `font-weight: 800`, "Orbit" mit violettem Gradient-Text (`#a78bfa` → `#c4b5fd` → `#a78bfa`). Fade-up Animation (0.8s, delay 0.3s).
-- **Subtitle:** "Deine persönliche Kommandozentrale für den Arbeitsalltag — gebaut für Fokus, Struktur und weniger Overwhelm." — `font-size: 15px`, `color: #a8a29e`, `line-height: 1.65`. Fade-up (delay 0.4s).
+- **Subtitle:** "Deine persönliche Kommandozentrale für den Arbeitsalltag — gebaut für Fokus, Struktur und Orientierung." — `font-size: 15px`, `color: #a8a29e`, `line-height: 1.65`. Fade-up (delay 0.4s).
 - **Feature-Chips** (drei Stück, horizontal zentriert, flex-wrap):
   - Pill-Form: `border-radius: 100px`, `padding: 8px 14px`, Glasmorph-Hintergrund (`rgba(28, 25, 23, 0.7)` + `backdrop-filter: blur(8px)`), `border: 1px solid #292524`
   - Jeder Chip hat ein SVG-Icon (14px) + Text (12.5px, `font-weight: 500`)
@@ -231,7 +231,7 @@ Sektions-Header: "Verbindungen" (fett, groß) + Subtitle "Zugangsdaten für exte
 
 **Vertex AI Proxy-Karte:**
 - Karten-Header: "Vertex AI Proxy" (fett) + "Optional"-Badge rechts (klein, stone-grau)
-- Feld: "Proxy-URL" — Text-Input, Placeholder: `https://proxy.example.com/v1/models/.../gemini-2.5-flash`
+- Feld: "URL" — Text-Input, Placeholder: `https://example.com/v1/models/.../gemini-2.5-flash`
 - Hilfetext: "Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch angehängt."
 - Dynamische Custom-Headers-Liste:
   - Jede Zeile: Text-Input "Name" + Text-Input "Wert" (Passwort-Input) + ×-Button zum Entfernen
@@ -254,7 +254,7 @@ Jedes Feature ist eine eigene Karte. Im Karten-Header steht der Feature-Name lin
 **KI-gestützte Reviews:**
 - Toggle-Switch: an/aus
 - Wenn aus: Gedimmt
-- Wenn an aber keine Vertex AI Proxy-URL konfiguriert: Hinweis "Benötigt Vertex AI Proxy-Konfiguration" (klein, amber/warning-farbig)
+- Wenn an aber keine Vertex AI URL konfiguriert: Hinweis "Benötigt Vertex AI Proxy-Konfiguration" (klein, amber/warning-farbig)
 
 **Tageskalender:**
 - Toggle-Switch: an/aus
@@ -317,7 +317,7 @@ Alle Referenzen auf "CoSi" werden aus dem gesamten Codebase entfernt und generis
 | `cosi-mock.js` | `ai-mock.js` |
 | `CosiReviewService` | `AiReviewService` |
 | `COSI_API_KEY` | entfällt (kommt aus Settings Custom Headers) |
-| `COSI_BASE_URL` | entfällt (kommt aus Settings `vertexAi.proxyUrl`) |
+| `COSI_BASE_URL` | entfällt (kommt aus Settings `vertexAi.url`) |
 | Alle Variablen/Typen mit `cosi` | `ai` oder `vertexAi` je nach Kontext |
 
 ---
@@ -351,7 +351,7 @@ Zentraler Angular Service für den gesamten Settings-State.
 - `PomodoroService` → liest Defaults aus `SettingsService.pomodoroDefaults()`. Laufender Timer-State bleibt in localStorage.
 - `BitbucketService` → liest URL/Key/UserSlug aus `SettingsService.bitbucketConfig()`. Der bisherige `GET /config`-Aufruf entfällt.
 - `JiraService` → liest URL/Key aus `SettingsService.jiraConfig()`.
-- `AiReviewService` (ehemals `CosiReviewService`) → liest Proxy-URL + Custom Headers aus `SettingsService.vertexAiConfig()`.
+- `AiReviewService` (ehemals `CosiReviewService`) → liest URL + Custom Headers aus `SettingsService.vertexAiConfig()`.
 
 ---
 
