@@ -22,8 +22,8 @@ function createReviewRoutes({ getSettings }) {
     };
 
     try {
-      const COSI_API_KEY = getSettings()?.connections?.ai?.apiKey;
-      if (COSI_API_KEY) {
+      const vertexAi = getSettings()?.connections?.vertexAi;
+      if (vertexAi?.url) {
         await runReview(diff, jiraTicket || null, emit);
       } else {
         await runMockReview(emit);
