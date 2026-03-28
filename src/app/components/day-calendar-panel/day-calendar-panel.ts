@@ -4,6 +4,7 @@ import { AppointmentPopupComponent } from '../appointment-popup/appointment-popu
 import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-config-popup';
 import { DayScheduleService } from '../../services/day-schedule.service';
 import { PomodoroService } from '../../services/pomodoro.service';
+import { SettingsService } from '../../services/settings.service';
 import { DayAppointment } from '../../models/day-schedule.model';
 
 const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
@@ -42,6 +43,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           </svg>
         </button>
       </div>
+      @if (settingsService.pomodoroEnabled()) {
       <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
         @if (pomodoro.state() === 'idle') {
           <button type="button"
@@ -69,6 +71,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           </button>
         }
       </div>
+      }
       <div class="flex-1 overflow-y-auto">
         <app-day-timeline
           [appointments]="service.appointments()"
@@ -90,7 +93,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
       />
     }
 
-    @if (showPomodoroConfig()) {
+    @if (showPomodoroConfig() && settingsService.pomodoroEnabled()) {
       <app-pomodoro-config-popup
         (started)="showPomodoroConfig.set(false)"
         (cancel)="showPomodoroConfig.set(false)"
@@ -123,6 +126,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 export class DayCalendarPanelComponent {
   readonly service = inject(DayScheduleService);
   readonly pomodoro = inject(PomodoroService);
+  readonly settingsService = inject(SettingsService);
 
   readonly collapsed = signal<boolean>(localStorage.getItem(STORAGE_KEY) === 'true');
   readonly showPomodoroConfig = signal(false);
