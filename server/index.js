@@ -1,32 +1,45 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createProxyRoutes } = require('./routes/proxy-routes');
 const { createReviewRoutes } = require('./routes/review-routes');
 const localDataRoutes = require('./routes/local-data-routes');
+const { createSettingsRoutes, SETTINGS_FILE } = require('./routes/settings-routes');
+const { readJsonObject } = require('./lib/json-store');
 
-const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG, COSI_API_KEY } = process.env;
+let settings = null;
 
-if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY || !BITBUCKET_USER_SLUG) {
-  console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY and BITBUCKET_USER_SLUG must be set in .env');
-  process.exit(1);
+async function loadSettings() {
+  settings = await readJsonObject(SETTINGS_FILE);
+  return settings;
 }
 
-if (!COSI_API_KEY) {
-  console.warn('[CoSi] Mock-Modus aktiv — kein API Key gesetzt');
+function getSettings() {
+  return settings;
 }
 
-const app = express();
-const PORT = 6201;
+(async () => {
+  await loadSettings();
 
-app.use(cors({ origin: 'http://localhost:6200' }));
-app.use(createReviewRoutes({ COSI_API_KEY }));
-app.use(express.json());
-app.use(createProxyRoutes({ JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG }));
-app.use(localDataRoutes);
+  const app = express();
+  const PORT = 6201;
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`  /jira/**      → ${JIRA_BASE_URL}`);
-  console.log(`  /bitbucket/** → ${BITBUCKET_BASE_URL}`);
-});
+  app.use(cors({ origin: 'http://localhost:6200' }));
+  app.use(createSettingsRoutes());
+  app.use(createReviewRoutes({ getSettings }));
+  app.use(express.json());
+  app.use(createProxyRoutes({ getSettings }));
+  app.use(localDataRoutes);
+
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    if (settings?.connections?.jira?.baseUrl) {
+      console.log(`  /jira/**      → ${settings.connections.jira.baseUrl}`);
+    }
+    if (settings?.connections?.bitbucket?.baseUrl) {
+      console.log(`  /bitbucket/** → ${settings.connections.bitbucket.baseUrl}`);
+    }
+    if (!settings) {
+      console.log('  No settings.json found — configure via UI');
+    }
+  });
+})();

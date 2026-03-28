@@ -5,32 +5,30 @@ function parseDiffStats(diffText) {
   let additions = 0;
   let deletions = 0;
   for (const line of diffText.split('\n')) {
-    if (line.startsWith('+') && !line.startsWith('+++')) {
-      additions++;
-    } else if (line.startsWith('-') && !line.startsWith('---')) {
-      deletions++;
-    }
+    if (line.startsWith('+') && !line.startsWith('+++')) additions++;
+    else if (line.startsWith('-') && !line.startsWith('---')) deletions++;
   }
   return { additions, deletions, total: additions + deletions };
 }
 
-function createProxyRoutes({ JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY, BITBUCKET_USER_SLUG }) {
+function createProxyRoutes({ getSettings }) {
   const router = Router();
 
-  router.get('/config', (_req, res) => {
-    res.json({ bitbucketUserSlug: BITBUCKET_USER_SLUG });
-  });
+  const requireSettings = (req, res, next) => {
+    const s = getSettings();
+    if (!s?.connections) return res.status(503).json({ error: 'Settings not configured' });
+    next();
+  };
 
-  router.get('/bitbucket/diffstat/:projectKey/:repoSlug/:prId', async (req, res) => {
+  router.get('/bitbucket/diffstat/:projectKey/:repoSlug/:prId', requireSettings, async (req, res) => {
+    const s = getSettings();
     const { projectKey, repoSlug, prId } = req.params;
-    const url = `${BITBUCKET_BASE_URL}/rest/api/latest/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}.diff`;
+    const url = `${s.connections.bitbucket.baseUrl}/rest/api/latest/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}.diff`;
     try {
       const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${BITBUCKET_API_KEY}` },
+        headers: { Authorization: `Bearer ${s.connections.bitbucket.apiKey}` },
       });
-      if (!response.ok) {
-        return res.status(response.status).json({ error: `Bitbucket responded with ${response.status}` });
-      }
+      if (!response.ok) return res.status(response.status).json({ error: `Bitbucket responded with ${response.status}` });
       const diffText = await response.text();
       res.json(parseDiffStats(diffText));
     } catch (err) {
@@ -38,33 +36,33 @@ function createProxyRoutes({ JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BI
     }
   });
 
-  router.use(
-    '/jira',
+  router.use('/jira', requireSettings, (req, res, next) => {
+    const s = getSettings();
     createProxyMiddleware({
-      target: JIRA_BASE_URL,
+      target: s.connections.jira.baseUrl,
       changeOrigin: true,
       pathRewrite: { '^/jira': '' },
       on: {
         proxyReq: (proxyReq) => {
-          proxyReq.setHeader('Authorization', `Bearer ${JIRA_API_KEY}`);
+          proxyReq.setHeader('Authorization', `Bearer ${s.connections.jira.apiKey}`);
         },
       },
-    }),
-  );
+    })(req, res, next);
+  });
 
-  router.use(
-    '/bitbucket',
+  router.use('/bitbucket', requireSettings, (req, res, next) => {
+    const s = getSettings();
     createProxyMiddleware({
-      target: BITBUCKET_BASE_URL,
+      target: s.connections.bitbucket.baseUrl,
       changeOrigin: true,
       pathRewrite: { '^/bitbucket': '' },
       on: {
         proxyReq: (proxyReq) => {
-          proxyReq.setHeader('Authorization', `Bearer ${BITBUCKET_API_KEY}`);
+          proxyReq.setHeader('Authorization', `Bearer ${s.connections.bitbucket.apiKey}`);
         },
       },
-    }),
-  );
+    })(req, res, next);
+  });
 
   return router;
 }

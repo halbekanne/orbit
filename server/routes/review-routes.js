@@ -2,7 +2,7 @@ const { Router, json } = require('express');
 const { runReview } = require('../cosi');
 const { runMockReview } = require('../cosi-mock');
 
-function createReviewRoutes({ COSI_API_KEY }) {
+function createReviewRoutes({ getSettings }) {
   const router = Router();
 
   router.post('/api/cosi/review', json({ limit: '2mb' }), async (req, res) => {
@@ -22,6 +22,7 @@ function createReviewRoutes({ COSI_API_KEY }) {
     };
 
     try {
+      const COSI_API_KEY = getSettings()?.connections?.ai?.apiKey;
       if (COSI_API_KEY) {
         await runReview(diff, jiraTicket || null, emit);
       } else {
