@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { DayRhythmService } from '../../services/day-rhythm.service';
+import { DailyReflectionService } from '../../services/daily-reflection.service';
 import { DayEntry } from '../../models/day-entry.model';
 
 @Component({
@@ -9,11 +9,11 @@ import { DayEntry } from '../../models/day-entry.model';
   templateUrl: './view-logbuch.html',
 })
 export class ViewLogbuchComponent {
-  protected readonly dayRhythm = inject(DayRhythmService);
+  protected readonly dailyReflection = inject(DailyReflectionService);
   private readonly todayISO = new Date().toISOString().split('T')[0];
 
   readonly entries = computed(() =>
-    this.dayRhythm.days().filter(d => this.hasMeaningfulContent(d))
+    this.dailyReflection.days().filter(d => this.hasMeaningfulContent(d))
   );
 
   isToday(date: string): boolean {

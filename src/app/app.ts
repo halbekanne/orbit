@@ -3,7 +3,7 @@ import { AppRailComponent } from './components/app-rail/app-rail';
 import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
 import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
 import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
-import { DayRhythmService } from './services/day-rhythm.service';
+import { DailyReflectionService } from './services/daily-reflection.service';
 import { ThemeService } from './services/theme.service';
 import { PomodoroProgressBarComponent } from './components/pomodoro-progress-bar/pomodoro-progress-bar';
 import { PomodoroOverlayComponent } from './components/pomodoro-overlay/pomodoro-overlay';
@@ -21,7 +21,7 @@ const STORAGE_KEY = 'orbit.activeView';
   },
 })
 export class App {
-  private readonly dayRhythm = inject(DayRhythmService);
+  private readonly reflectionService = inject(DailyReflectionService);
   private readonly appRef = inject(ApplicationRef);
   private theme = inject(ThemeService);
 
@@ -34,7 +34,7 @@ export class App {
       localStorage.setItem(STORAGE_KEY, this.activeView());
     });
     setInterval(() => {
-      if (!this.debugEvening) this.dayRhythm.currentHour.set(new Date().getHours());
+      if (!this.debugEvening) this.reflectionService.currentHour.set(new Date().getHours());
     }, 5 * 60 * 1000);
   }
 
@@ -50,15 +50,15 @@ export class App {
       e.preventDefault();
       this.debugEvening = !this.debugEvening;
       if (this.debugEvening) {
-        const entry = this.dayRhythm.todayEntry();
+        const entry = this.reflectionService.todayEntry();
         if (!entry || entry.morningAnsweredAt === null) {
-          this.dayRhythm.skipMorning();
+          this.reflectionService.skipMorning();
         }
-        this.dayRhythm.currentHour.set(16);
+        this.reflectionService.currentHour.set(16);
       } else {
-        this.dayRhythm.currentHour.set(new Date().getHours());
+        this.reflectionService.currentHour.set(new Date().getHours());
       }
-      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.dayRhythm.rhythmPhase()}`);
+      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.rhythmPhase()}`);
       this.appRef.tick();
     }
   }

@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ViewLogbuchComponent } from './view-logbuch';
-import { DayRhythmService } from '../../services/day-rhythm.service';
+import { DailyReflectionService } from '../../services/daily-reflection.service';
 import { DayEntry } from '../../models/day-entry.model';
 
 const mockHttpClient = {
@@ -80,7 +80,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should render day entries with morning focus', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithMorning]);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
@@ -90,7 +90,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should show evening question and reflection when present', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithEvening]);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
@@ -100,7 +100,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should render day cards as article elements', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithMorning, entryWithEvening]);
     fixture.detectChanges();
     const articles = fixture.nativeElement.querySelectorAll('article');
@@ -109,7 +109,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should filter out entries with no meaningful content', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithMorning, emptyEntry]);
     fixture.detectChanges();
     const articles = fixture.nativeElement.querySelectorAll('article');
@@ -118,7 +118,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should render completions-only entry as simple card', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithCompletions]);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
@@ -127,7 +127,7 @@ describe('ViewLogbuchComponent', () => {
 
   it('should not show empty state when entries exist', () => {
     const fixture = TestBed.createComponent(ViewLogbuchComponent);
-    const service = TestBed.inject(DayRhythmService);
+    const service = TestBed.inject(DailyReflectionService);
     service.days.set([entryWithMorning]);
     fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;

@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
-import { RhythmCardComponent } from './rhythm-card';
+import { ReflectionCardComponent } from './reflection-card';
 
-describe('RhythmCardComponent', () => {
-  let component: RhythmCardComponent;
-  let fixture: ComponentFixture<RhythmCardComponent>;
+describe('ReflectionCardComponent', () => {
+  let component: ReflectionCardComponent;
+  let fixture: ComponentFixture<ReflectionCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RhythmCardComponent],
+      imports: [ReflectionCardComponent],
       providers: [
         { provide: HttpClient, useValue: { get: () => of([]), post: () => of([]) } },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(RhythmCardComponent);
+    fixture = TestBed.createComponent(ReflectionCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -4,7 +4,7 @@ import { DayEntry, CompletedItem } from '../models/day-entry.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class DayRhythmService {
+export class DailyReflectionService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/api/logbuch`;
 

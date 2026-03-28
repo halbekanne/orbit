@@ -10,7 +10,7 @@ import { PrCardComponent } from '../pr-card/pr-card';
 import { TodoCardComponent } from '../todo-card/todo-card';
 import { IdeaCardComponent } from '../idea-card/idea-card';
 import { TodoInlineInputComponent } from '../todo-inline-input/todo-inline-input';
-import { RhythmCardComponent } from '../rhythm-card/rhythm-card';
+import { ReflectionCardComponent } from '../reflection-card/reflection-card';
 
 const STORAGE_KEY = 'orbit.navigator.collapsed';
 
@@ -27,7 +27,7 @@ interface CollapsedState {
 @Component({
   selector: 'app-navigator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TicketCardComponent, PrCardComponent, TodoCardComponent, IdeaCardComponent, TodoInlineInputComponent, RhythmCardComponent, CdkDrag, CdkDropList],
+  imports: [TicketCardComponent, PrCardComponent, TodoCardComponent, IdeaCardComponent, TodoInlineInputComponent, ReflectionCardComponent, CdkDrag, CdkDropList],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },
 })

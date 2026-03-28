@@ -2,12 +2,12 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Todo } from '../models/work-item.model';
 import { environment } from '../../environments/environment';
-import { DayRhythmService } from './day-rhythm.service';
+import { DailyReflectionService } from './daily-reflection.service';
 
 @Injectable({ providedIn: 'root' })
 export class TodoService {
   private readonly http = inject(HttpClient);
-  private readonly dayRhythm = inject(DayRhythmService);
+  private readonly dailyReflection = inject(DailyReflectionService);
   private readonly baseUrl = `${environment.proxyUrl}/api/todos`;
   private readonly today = new Date().toDateString();
 
@@ -89,7 +89,7 @@ export class TodoService {
       if (this.completedTimer !== null) clearTimeout(this.completedTimer);
       this.lastCompletedId.set(todo.id);
       this.completedTimer = setTimeout(() => this.lastCompletedId.set(null), 1500);
-      this.dayRhythm.recordCompletion({
+      this.dailyReflection.recordCompletion({
         type: 'todo',
         id: todo.id,
         title: todo.title,

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { DayRhythmService } from './day-rhythm.service';
+import { DailyReflectionService } from './daily-reflection.service';
 import { DayEntry } from '../models/day-entry.model';
 
 const todayISO = new Date().toISOString().split('T')[0];
@@ -21,14 +21,14 @@ const makeEntry = (overrides: Partial<DayEntry> = {}): DayEntry => ({
 function setup(http: Partial<{ get: unknown; post: unknown }>) {
   TestBed.configureTestingModule({
     providers: [
-      DayRhythmService,
+      DailyReflectionService,
       { provide: HttpClient, useValue: http },
     ],
   });
-  return TestBed.inject(DayRhythmService);
+  return TestBed.inject(DailyReflectionService);
 }
 
-describe('DayRhythmService', () => {
+describe('DailyReflectionService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('should create', () => {

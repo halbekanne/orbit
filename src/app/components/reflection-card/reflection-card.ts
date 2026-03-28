@@ -11,7 +11,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { DayRhythmService } from '../../services/day-rhythm.service';
+import { DailyReflectionService } from '../../services/daily-reflection.service';
 
 const GERMAN_WEEKDAYS = [
   'Sonntag', 'Montag', 'Dienstag', 'Mittwoch',
@@ -19,7 +19,7 @@ const GERMAN_WEEKDAYS = [
 ];
 
 @Component({
-  selector: 'app-rhythm-card',
+  selector: 'app-reflection-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   styles: `
@@ -172,11 +172,11 @@ const GERMAN_WEEKDAYS = [
     </button>
   `,
 })
-export class RhythmCardComponent {
+export class ReflectionCardComponent {
   selected = input(false);
   select = output<void>();
 
-  private readonly rhythm = inject(DayRhythmService);
+  private readonly rhythm = inject(DailyReflectionService);
 
   readonly phase = computed(() => this.rhythm.rhythmPhase());
   readonly displayPhase = signal(this.rhythm.rhythmPhase());

@@ -9,7 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DayRhythmService } from '../../services/day-rhythm.service';
+import { DailyReflectionService } from '../../services/daily-reflection.service';
 import { pickMorningQuestion, pickEveningQuestion } from '../../data/daily-questions';
 import { DayScheduleService } from '../../services/day-schedule.service';
 import { DayAppointment } from '../../models/day-schedule.model';
@@ -32,7 +32,7 @@ function formatGermanDate(): string {
 }
 
 @Component({
-  selector: 'app-rhythm-detail',
+  selector: 'app-reflection-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, DayTimelineComponent, AppointmentPopupComponent],
   host: {
@@ -342,11 +342,11 @@ function formatGermanDate(): string {
     }
   `,
 })
-export class RhythmDetailComponent {
+export class ReflectionDetailComponent {
   submitted = output<void>();
   skipped = output<void>();
 
-  private readonly rhythm = inject(DayRhythmService);
+  private readonly rhythm = inject(DailyReflectionService);
   private readonly daySchedule = inject(DayScheduleService);
 
   readonly viewState = signal<'input' | 'calendar-setup' | 'animating' | 'readonly'>('input');
