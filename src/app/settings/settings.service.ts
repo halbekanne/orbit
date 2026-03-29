@@ -18,6 +18,11 @@ export class SettingsService {
   readonly loaded = this._loaded.asReadonly();
 
   readonly jiraConfig = computed(() => this._settings().connections.jira);
+  readonly jenkinsConfig = computed(() => this._settings().connections.jenkins);
+  readonly jenkinsConfigured = computed(() => {
+    const j = this._settings().connections.jenkins;
+    return j.baseUrl.trim() !== '' && j.username.trim() !== '' && j.apiToken.trim() !== '' && j.jobs.length > 0;
+  });
   readonly bitbucketConfig = computed(() => this._settings().connections.bitbucket);
   readonly vertexAiConfig = computed(() => this._settings().connections.vertexAi);
   readonly pomodoroDefaults = computed(() => ({
