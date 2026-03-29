@@ -38,6 +38,9 @@ function getSettings() {
     if (settings?.connections?.bitbucket?.baseUrl) {
       console.log(`  /bitbucket/** → ${settings.connections.bitbucket.baseUrl}`);
     }
+    if (settings?.connections?.jenkins?.baseUrl) {
+      console.log(`  /jenkins/**   → ${settings.connections.jenkins.baseUrl}`);
+    }
     if (!settings) {
       console.log('  No settings.json found — configure via UI');
     }

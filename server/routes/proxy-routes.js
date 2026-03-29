@@ -64,6 +64,31 @@ function createProxyRoutes({ getSettings }) {
     })(req, res, next);
   });
 
+  router.use('/jenkins', requireSettings, (req, res, next) => {
+    const s = getSettings();
+    if (!s.connections.jenkins?.baseUrl) {
+      return res.status(503).json({ error: 'Jenkins not configured' });
+    }
+    const { username, apiToken } = s.connections.jenkins;
+    const basicAuth = Buffer.from(`${username}:${apiToken}`).toString('base64');
+    createProxyMiddleware({
+      target: s.connections.jenkins.baseUrl,
+      changeOrigin: true,
+      pathRewrite: { '^/jenkins': '' },
+      on: {
+        proxyReq: (proxyReq) => {
+          proxyReq.setHeader('Authorization', `Basic ${basicAuth}`);
+        },
+        proxyRes: (proxyRes, req, res) => {
+          const textSize = proxyRes.headers['x-text-size'];
+          const moreData = proxyRes.headers['x-more-data'];
+          if (textSize) res.setHeader('X-Text-Size', textSize);
+          if (moreData) res.setHeader('X-More-Data', moreData);
+        },
+      },
+    })(req, res, next);
+  });
+
   return router;
 }
 
