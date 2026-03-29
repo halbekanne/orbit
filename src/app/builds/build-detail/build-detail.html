@@ -36,14 +36,14 @@
     @if (detail.building) {
       <button
         type="button"
-        class="px-3 py-1.5 text-sm rounded-lg bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] hover:bg-[var(--color-danger-border)] transition-colors cursor-pointer font-medium"
+        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-100 cursor-pointer select-none whitespace-nowrap bg-[var(--color-danger-bg)] border-[var(--color-danger-border)] text-[var(--color-danger-text)] hover:opacity-85 hover:shadow-sm active:scale-[0.97]"
         (click)="onStop()">
         Abbrechen
       </button>
     } @else {
       <button
         type="button"
-        class="px-3 py-1.5 text-sm rounded-lg bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)] transition-colors cursor-pointer font-medium"
+        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-100 cursor-pointer select-none whitespace-nowrap bg-[var(--color-primary-solid)] border-[var(--color-primary-solid)] text-white hover:bg-[var(--color-primary-solid-hover)] hover:shadow-sm active:scale-[0.97]"
         (click)="showRestartDialog.set(true)">
         Neu starten
       </button>
@@ -52,7 +52,7 @@
       [href]="detail.url"
       target="_blank"
       rel="noopener"
-      class="text-sm text-[var(--color-info-text)] hover:text-[var(--color-info-text-hover)] transition-colors">
+      class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-100 cursor-pointer select-none whitespace-nowrap no-underline bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)] hover:shadow-sm active:scale-[0.97]">
       In Jenkins öffnen ↗
     </a>
   </div>
