@@ -30,6 +30,34 @@
   }
 }
 
+/* ── ANSI log colors (ansi_up use_classes mode) ──────────────────── */
+.ansi-black-fg { color: #3c3836; }
+.ansi-red-fg { color: #cc241d; }
+.ansi-green-fg { color: #98971a; }
+.ansi-yellow-fg { color: #d79921; }
+.ansi-blue-fg { color: #458588; }
+.ansi-magenta-fg { color: #b16286; }
+.ansi-cyan-fg { color: #689d6a; }
+.ansi-white-fg { color: #a89984; }
+.ansi-bright-black-fg { color: #928374; }
+.ansi-bright-red-fg { color: #fb4934; }
+.ansi-bright-green-fg { color: #b8bb26; }
+.ansi-bright-yellow-fg { color: #fabd2f; }
+.ansi-bright-blue-fg { color: #83a598; }
+.ansi-bright-magenta-fg { color: #d3869b; }
+.ansi-bright-cyan-fg { color: #8ec07c; }
+.ansi-bright-white-fg { color: #ebdbb2; }
+.ansi-bold { font-weight: bold; }
+
+:root.light .ansi-black-fg { color: #1d2021; }
+:root.light .ansi-red-fg { color: #9d0006; }
+:root.light .ansi-green-fg { color: #79740e; }
+:root.light .ansi-yellow-fg { color: #b57614; }
+:root.light .ansi-blue-fg { color: #076678; }
+:root.light .ansi-magenta-fg { color: #8f3f71; }
+:root.light .ansi-cyan-fg { color: #427b58; }
+:root.light .ansi-white-fg { color: #7c6f64; }
+
 /* ── diff2html fixes ──────────────────────────────────────────────── */
 .d2h-wrapper .d2h-diff-table tr {
   position: relative;
