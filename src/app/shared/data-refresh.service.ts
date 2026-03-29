@@ -107,6 +107,12 @@ export class DataRefreshService {
     this.fetchSource(source, () => {});
   }
 
+  refreshSources(names: string[]): void {
+    for (const name of names) {
+      this.refreshSource(name);
+    }
+  }
+
   private fetchSource(source: RegisteredSource, onDone: () => void): void {
     source.state.update((s) => ({ ...s, status: 'refreshing', retryAttempt: 0 }));
     source.subscription?.unsubscribe();

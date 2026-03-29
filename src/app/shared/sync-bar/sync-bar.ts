@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DataRefreshService } from '../data-refresh.service';
 
 @Component({
@@ -12,6 +12,8 @@ import { DataRefreshService } from '../data-refresh.service';
 export class SyncBarComponent {
   protected readonly refreshService = inject(DataRefreshService);
 
+  readonly sources = input<string[]>();
+
   protected readonly formattedTime = computed(() => {
     const time = this.refreshService.lastGlobalFetchTime();
     if (!time) return '';
@@ -19,7 +21,12 @@ export class SyncBarComponent {
   });
 
   protected onSync(): void {
-    this.refreshService.refreshAll(true);
+    const s = this.sources();
+    if (s && s.length > 0) {
+      this.refreshService.refreshSources(s);
+    } else {
+      this.refreshService.refreshAll(true);
+    }
     this.refreshService.resetPollingTimer();
   }
 }
