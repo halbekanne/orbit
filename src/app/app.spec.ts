@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { App } from './app';
-import { SettingsService } from './services/settings.service';
+import { SettingsService } from './settings/settings.service';
 
 const mockMatchMedia = () => {
   Object.defineProperty(window, 'matchMedia', {
@@ -41,9 +41,7 @@ describe('App', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [
-        { provide: SettingsService, useValue: mockSettingsService },
-      ],
+      providers: [{ provide: SettingsService, useValue: mockSettingsService }],
     }).compileComponents();
   });
 

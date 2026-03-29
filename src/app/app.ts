@@ -1,22 +1,38 @@
-import { ApplicationRef, ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { AppRailComponent } from './components/app-rail/app-rail';
-import { ViewArbeitComponent } from './views/view-arbeit/view-arbeit';
-import { ViewLogbuchComponent } from './views/view-logbuch/view-logbuch';
-import { ViewSettingsComponent } from './views/view-settings/view-settings';
-import { QuickCaptureComponent } from './components/quick-capture/quick-capture';
-import { WelcomeScreenComponent } from './components/welcome-screen/welcome-screen';
-import { DailyReflectionService } from './services/daily-reflection.service';
-import { ThemeService } from './services/theme.service';
-import { SettingsService } from './services/settings.service';
-import { PomodoroProgressBarComponent } from './components/pomodoro-progress-bar/pomodoro-progress-bar';
-import { PomodoroOverlayComponent } from './components/pomodoro-overlay/pomodoro-overlay';
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { AppRailComponent } from './shared/app-rail/app-rail';
+import { ViewArbeitComponent } from './shared/view-arbeit/view-arbeit';
+import { ViewLogbuchComponent } from './shared/view-logbuch/view-logbuch';
+import { ViewSettingsComponent } from './settings/view-settings/view-settings';
+import { QuickCaptureComponent } from './shared/quick-capture/quick-capture';
+import { WelcomeScreenComponent } from './settings/welcome-screen/welcome-screen';
+import { DailyReflectionService } from './reflection/daily-reflection.service';
+import { ThemeService } from './shared/theme.service';
+import { SettingsService } from './settings/settings.service';
+import { PomodoroProgressBarComponent } from './pomodoro/pomodoro-progress-bar/pomodoro-progress-bar';
+import { PomodoroOverlayComponent } from './pomodoro/pomodoro-overlay/pomodoro-overlay';
 
 const STORAGE_KEY = 'orbit.activeView';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppRailComponent, ViewArbeitComponent, ViewLogbuchComponent, ViewSettingsComponent, QuickCaptureComponent, WelcomeScreenComponent, PomodoroProgressBarComponent, PomodoroOverlayComponent],
+  imports: [
+    AppRailComponent,
+    ViewArbeitComponent,
+    ViewLogbuchComponent,
+    ViewSettingsComponent,
+    QuickCaptureComponent,
+    WelcomeScreenComponent,
+    PomodoroProgressBarComponent,
+    PomodoroOverlayComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: {
@@ -39,9 +55,12 @@ export class App {
     effect(() => {
       localStorage.setItem(STORAGE_KEY, this.activeView());
     });
-    setInterval(() => {
-      if (!this.debugEvening) this.reflectionService.currentHour.set(new Date().getHours());
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        if (!this.debugEvening) this.reflectionService.currentHour.set(new Date().getHours());
+      },
+      5 * 60 * 1000,
+    );
   }
 
   private debugEvening = false;
@@ -64,7 +83,9 @@ export class App {
       } else {
         this.reflectionService.currentHour.set(new Date().getHours());
       }
-      console.log(`[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.reflectionPhase()}`);
+      console.log(
+        `[Orbit Debug] Evening mode: ${this.debugEvening ? 'ON' : 'OFF'} | phase: ${this.reflectionService.reflectionPhase()}`,
+      );
       this.appRef.tick();
     }
   }
