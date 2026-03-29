@@ -208,8 +208,8 @@ describe('ReviewFindingsComponent', () => {
     expect(el.textContent).toContain('Barrierefreiheit');
     expect(el.textContent).toContain('WCAG 4.1.2 Name, Rolle, Wert');
 
-    const tealBadge = el.querySelector('.bg-teal-50');
-    expect(tealBadge).toBeTruthy();
+    const categoryBadge = el.querySelector('orbit-badge');
+    expect(categoryBadge).toBeTruthy();
   });
 
   it('sorts file groups by highest severity', () => {

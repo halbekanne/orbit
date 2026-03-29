@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from '../../models/review.model';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-review-pipeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JsonPipe],
+  imports: [JsonPipe, BadgeComponent],
   styles: [`:host { display: block; }`],
   template: `
     @let p = pipeline();
@@ -51,9 +52,9 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                 <div class="flex items-baseline gap-2 flex-wrap">
                   <span class="text-sm font-medium text-[var(--color-text-body)]">{{ agent.label }}</span>
                   <span class="text-xs" [class]="statusTextClass(agent.status)">{{ statusText(agent.status) }}</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ agent.temperature }}</span>
+                  <orbit-badge color="neutral" size="sm">T={{ agent.temperature }}</orbit-badge>
                   @if (agent.thinkingBudget != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">TB={{ agent.thinkingBudget }}</span>
+                    <orbit-badge color="neutral" size="sm">TB={{ agent.thinkingBudget }}</orbit-badge>
                   }
                   @if (agent.duration != null) {
                     <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(agent.duration!) }}</span>
@@ -109,10 +110,10 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                   <span class="text-sm font-medium text-[var(--color-text-body)]">Konsolidierer</span>
                   <span class="text-xs" [class]="statusTextClass(consolidatorDisplayStatus())">{{ statusText(consolidatorDisplayStatus()) }}</span>
                   @if (p.consolidator.temperature != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">T={{ p.consolidator.temperature }}</span>
+                    <orbit-badge color="neutral" size="sm">T={{ p.consolidator.temperature }}</orbit-badge>
                   }
                   @if (p.consolidator.thinkingBudget != null) {
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">TB={{ p.consolidator.thinkingBudget }}</span>
+                    <orbit-badge color="neutral" size="sm">TB={{ p.consolidator.thinkingBudget }}</orbit-badge>
                   }
                   @if (p.consolidator.duration != null) {
                     <span class="font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(p.consolidator.duration!) }}</span>
@@ -129,10 +130,7 @@ import { AgentStep, ConsolidatorDecision, ConsolidatorStep, PipelineState } from
                   <div class="mt-2 space-y-1.5">
                     @for (decision of p.consolidator.decisions; track decision.finding) {
                       <div class="flex items-start gap-2 text-xs">
-                        <span
-                          class="shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-medium"
-                          [class]="decisionBadgeClass(decision.action)"
-                        >{{ decisionLabel(decision.action) }}</span>
+                        <orbit-badge [color]="decisionColor(decision.action)" size="sm">{{ decisionLabel(decision.action) }}</orbit-badge>
                         <span class="text-[var(--color-text-body)]">{{ decision.finding }}</span>
                         <span class="text-[var(--color-text-muted)] italic">{{ decision.reason }}</span>
                       </div>
@@ -217,12 +215,12 @@ export class ReviewPipelineComponent {
     }
   }
 
-  decisionBadgeClass(action: ConsolidatorDecision['action']): string {
+  decisionColor(action: ConsolidatorDecision['action']): BadgeColor {
     switch (action) {
-      case 'kept': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'removed': return 'bg-red-50 text-red-700 border-red-200';
-      case 'merged': return 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]';
-      case 'severity-changed': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'kept': return 'success';
+      case 'removed': return 'danger';
+      case 'merged': return 'primary';
+      case 'severity-changed': return 'signal';
     }
   }
 

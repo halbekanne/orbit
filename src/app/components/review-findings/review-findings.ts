@@ -4,6 +4,7 @@ import { ReviewPipelineComponent } from '../review-pipeline/review-pipeline';
 import { InlineCodePipe } from '../../pipes/inline-code.pipe';
 import { AiReviewService } from '../../services/ai-review.service';
 import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 interface FileGroup {
   file: string;
@@ -17,7 +18,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
 @Component({
   selector: 'app-review-findings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent],
+  imports: [ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent, BadgeComponent],
   styles: [`:host { display: block; }`],
   template: `
     @let review = reviewState();
@@ -36,18 +37,18 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
           </span>
           <span class="ml-auto font-mono text-xs text-[var(--color-text-muted)]">{{ formatElapsed(elapsedSeconds()) }}</span>
         } @else if (review.status === 'error') {
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 font-medium">Fehlgeschlagen</span>
+          <orbit-badge color="danger">Fehlgeschlagen</orbit-badge>
         } @else if (review.status === 'result') {
           @if (severityCounts(); as counts) {
             <span class="flex items-center gap-1.5 ml-1">
               @if (counts.critical > 0) {
-                <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">{{ counts.critical }} Kritisch</span>
+                <orbit-badge class="pop-in" color="danger">{{ counts.critical }} Kritisch</orbit-badge>
               }
               @if (counts.important > 0) {
-                <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium" style="animation-delay: 0.08s">{{ counts.important }} Wichtig</span>
+                <orbit-badge class="pop-in" color="signal" style="animation-delay: 0.08s">{{ counts.important }} Wichtig</orbit-badge>
               }
               @if (counts.minor > 0) {
-                <span class="pop-in text-[11px] px-2 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)] font-medium" style="animation-delay: 0.16s">{{ counts.minor }} Gering</span>
+                <orbit-badge class="pop-in" color="neutral" style="animation-delay: 0.16s">{{ counts.minor }} Gering</orbit-badge>
               }
             </span>
           }
@@ -233,10 +234,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                           @for (finding of group.findings; track $index) {
                             <div class="pl-3 py-2" [class]="findingStripeClass(finding.severity)">
                               <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
-                                <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
+                                <orbit-badge [color]="severityColor(finding.severity)" size="sm">{{ severityLabel(finding.severity) }}</orbit-badge>
+                                <orbit-badge color="neutral" size="sm">{{ categoryLabel(finding.category) }}</orbit-badge>
                                 @if (finding.wcagCriterion) {
-                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]">WCAG {{ finding.wcagCriterion }}</span>
+                                  <orbit-badge color="neutral" size="sm"><span class="font-mono">WCAG {{ finding.wcagCriterion }}</span></orbit-badge>
                                 }
                                 <span class="font-mono text-xs text-[var(--color-text-muted)] ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
@@ -302,10 +303,10 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                           @for (finding of group.findings; track $index) {
                             <div class="pl-3 py-2" [class]="findingStripeClass(finding.severity)">
                               <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-[11px] px-1.5 py-0.5 rounded border font-medium" [class]="severityBadgeClass(finding.severity)">{{ severityLabel(finding.severity) }}</span>
-                                <span [class]="categoryBadgeClass(finding.category)">{{ categoryLabel(finding.category) }}</span>
+                                <orbit-badge [color]="severityColor(finding.severity)" size="sm">{{ severityLabel(finding.severity) }}</orbit-badge>
+                                <orbit-badge color="neutral" size="sm">{{ categoryLabel(finding.category) }}</orbit-badge>
                                 @if (finding.wcagCriterion) {
-                                  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]">WCAG {{ finding.wcagCriterion }}</span>
+                                  <orbit-badge color="neutral" size="sm"><span class="font-mono">WCAG {{ finding.wcagCriterion }}</span></orbit-badge>
                                 }
                                 <span class="font-mono text-xs text-[var(--color-text-muted)] ml-auto pr-2">Zeile {{ finding.line }}</span>
                               </div>
@@ -473,9 +474,9 @@ export class ReviewFindingsComponent {
 
   severityDotClass(severity: string): string {
     switch (severity) {
-      case 'critical': return 'bg-red-500';
-      case 'important': return 'bg-amber-500';
-      default: return 'bg-stone-400';
+      case 'critical': return 'bg-[var(--color-danger-solid)]';
+      case 'important': return 'bg-[var(--color-signal-bar)]';
+      default: return 'bg-[var(--color-badge-neutral-dot)]';
     }
   }
 
@@ -487,11 +488,11 @@ export class ReviewFindingsComponent {
     }
   }
 
-  severityBadgeClass(severity: string): string {
+  severityColor(severity: string): BadgeColor {
     switch (severity) {
-      case 'critical': return 'bg-red-50 text-red-700 border-red-200';
-      case 'important': return 'bg-amber-50 text-amber-700 border-amber-200';
-      default: return 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]';
+      case 'critical': return 'danger';
+      case 'important': return 'signal';
+      default: return 'neutral';
     }
   }
 
@@ -503,18 +504,13 @@ export class ReviewFindingsComponent {
     }
   }
 
-  private readonly categoryConfig: Record<string, { label: string; classes: string }> = {
-    'ak-abgleich': { label: 'AK-Abgleich', classes: 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]' },
-    'code-quality': { label: 'Code-Qualität', classes: 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]' },
-    'accessibility': { label: 'Barrierefreiheit', classes: 'bg-teal-50 text-teal-700 border-teal-200' },
+  private readonly categoryLabels: Record<string, string> = {
+    'ak-abgleich': 'AK-Abgleich',
+    'code-quality': 'Code-Qualität',
+    'accessibility': 'Barrierefreiheit',
   };
 
   categoryLabel(category: string): string {
-    return this.categoryConfig[category]?.label ?? category;
-  }
-
-  categoryBadgeClass(category: string): string {
-    const dynamic = this.categoryConfig[category]?.classes ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]';
-    return `text-[11px] px-1.5 py-0.5 rounded border font-medium ${dynamic}`;
+    return this.categoryLabels[category] ?? category;
   }
 }
