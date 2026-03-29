@@ -3,6 +3,7 @@ import { ReviewFinding, ReviewState } from '../../models/review.model';
 import { ReviewPipelineComponent } from '../review-pipeline/review-pipeline';
 import { InlineCodePipe } from '../../pipes/inline-code.pipe';
 import { AiReviewService } from '../../services/ai-review.service';
+import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
 
 interface FileGroup {
   file: string;
@@ -16,29 +17,16 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
 @Component({
   selector: 'app-review-findings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReviewPipelineComponent, InlineCodePipe],
+  imports: [ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent],
   styles: [`:host { display: block; }`],
   template: `
     @let review = reviewState();
-    <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
-      <!-- Card header -->
-      <button
-        type="button"
-        class="w-full flex items-center gap-2.5 px-5 py-4 cursor-pointer hover:bg-[var(--color-bg-surface)] transition-colors duration-100"
-        [attr.aria-expanded]="sectionExpanded()"
-        (click)="sectionExpanded.set(!sectionExpanded())"
-      >
-        <svg
-          class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
-          [class.rotate-90]="sectionExpanded()"
-          viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
-        ><path d="M4 2l4 4-4 4" /></svg>
-        <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-          <path d="M19.5 7.125L16.862 4.487" />
-        </svg>
-        <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Review</span>
-
+    <app-collapsible-section label="KI-Review" [expanded]="true" [noPadding]="true">
+      <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+        <path d="M19.5 7.125L16.862 4.487" />
+      </svg>
+      <ng-container sectionMeta>
         @if (review === 'idle') {
           <span class="text-xs text-[var(--color-text-muted)]">Noch nicht gestartet</span>
         } @else if (review.status === 'running') {
@@ -67,11 +55,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
             <span class="ml-auto font-mono text-xs text-[var(--color-text-muted)]">{{ formatDuration(review.pipeline.totalDuration!) }}</span>
           }
         }
-      </button>
-
-      <!-- Card body -->
-      @if (sectionExpanded()) {
-        <div class="border-t border-[var(--color-border-subtle)]">
+      </ng-container>
           @if (review !== 'idle' && review.status === 'running') {
             <!-- Running state -->
             <div class="px-5 py-4">
@@ -366,16 +350,13 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               >Review starten</button>
             </div>
           }
-        </div>
-      }
-    </div>
+    </app-collapsible-section>
   `,
 })
 export class ReviewFindingsComponent {
   readonly aiReview = inject(AiReviewService);
   reviewState = input.required<ReviewState>();
 
-  readonly sectionExpanded = signal(true);
   readonly elapsedSeconds = signal(0);
   expandedFiles = signal<Set<string>>(new Set());
 

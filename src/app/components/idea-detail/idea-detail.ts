@@ -6,13 +6,24 @@ import { SubTaskListComponent } from '../sub-task-list/sub-task-list';
 import { SubTask } from '../../models/sub-task.model';
 import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
 import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
+import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
 
 @Component({
   selector: 'app-idea-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent],
+  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent],
+  styles: [`
+    @keyframes ideaFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    :host {
+      display: block;
+      animation: ideaFadeIn 0.15s ease-out;
+    }
+  `],
   template: `
-    <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
+    <article [attr.aria-label]="'Idee: ' + idea().title">
 
       <app-compact-header-bar
         [visible]="showCompactBar()"
@@ -23,84 +34,95 @@ import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar
         [prefix]="'💡'"
       />
 
-      <header class="px-6 lg:px-8 pt-6 lg:pt-8 pb-5 border-b border-[var(--color-border-subtle)]">
-        <div class="flex items-start gap-2 mb-2">
-          <span class="text-lg" aria-hidden="true">💡</span>
-          <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-            [class]="idea().status === 'wont-do' ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]' : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'">
-            {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
-          </span>
-        </div>
+      <header class="bg-[var(--color-bg-card)] border-b border-[var(--color-border-subtle)]">
+        <div class="max-w-2xl mx-auto relative">
+          <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="statusStripeClass()" aria-hidden="true"></div>
 
-        @if (editingTitle()) {
-          <input
-            type="text"
-            class="text-xl font-semibold text-[var(--color-text-heading)] leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
-            [value]="draftTitle()"
-            (input)="draftTitle.set($any($event.target).value)"
-            (blur)="saveTitle()"
-            (keydown)="onTitleKeydown($event)"
-            aria-label="Titel bearbeiten"
-          />
-        } @else {
-          <h1
-            class="text-xl font-semibold text-[var(--color-text-heading)] leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
-            [class]="idea().status === 'wont-do' ? 'line-through text-[var(--color-text-muted)]' : ''"
-            (click)="startEditTitle()"
-            tabindex="0"
-            (keydown.enter)="startEditTitle()"
-            aria-label="Titel anklicken zum Bearbeiten"
-          >{{ idea().title }}</h1>
-        }
+          <div class="px-6 pt-5 pb-4 pl-7">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <span class="text-lg" aria-hidden="true">💡</span>
+              <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border"
+                [class]="statusBadgeClass()">
+                <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
+                {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
+              </span>
+            </div>
+
+            @if (editingTitle()) {
+              <input
+                type="text"
+                class="text-lg font-semibold text-[var(--color-text-heading)] leading-snug w-full bg-transparent border-b-2 border-[var(--color-primary-solid)] focus:outline-none"
+                [value]="draftTitle()"
+                (input)="draftTitle.set($any($event.target).value)"
+                (blur)="saveTitle()"
+                (keydown)="onTitleKeydown($event)"
+                aria-label="Titel bearbeiten"
+              />
+            } @else {
+              <h1
+                class="text-lg font-semibold text-[var(--color-text-heading)] leading-snug cursor-pointer hover:text-[var(--color-primary-text)] transition-colors"
+                [class]="idea().status === 'wont-do' ? 'line-through text-[var(--color-text-muted)]' : ''"
+                (click)="startEditTitle()"
+                tabindex="0"
+                (keydown.enter)="startEditTitle()"
+                aria-label="Titel anklicken zum Bearbeiten"
+              >{{ idea().title }}</h1>
+            }
+
+            <p class="text-xs text-[var(--color-text-muted)] mt-2">
+              erstellt {{ formatDate(idea().createdAt) }}
+            </p>
+          </div>
+
+          <app-detail-action-bar [item]="idea()" />
+        </div>
       </header>
 
       <div #headerSentinel></div>
-      <app-detail-action-bar [item]="idea()" />
 
-      <div class="px-6 lg:px-8 py-5 border-b border-[var(--color-border-subtle)]">
-        <dl>
-          <div>
-            <dt class="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide mb-1">Erstellt am</dt>
-            <dd class="text-sm text-[var(--color-text-body)]">{{ formatDate(idea().createdAt) }}</dd>
-          </div>
-        </dl>
-      </div>
+      <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
+        <app-collapsible-section label="Notizen" [expanded]="true">
+          <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          @if (editingDescription()) {
+            <textarea
+              class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
+              [value]="draftDescription()"
+              (input)="draftDescription.set($any($event.target).value)"
+              (blur)="saveDescription()"
+              (keydown)="onDescriptionKeydown($event)"
+              aria-label="Notizen bearbeiten"
+            ></textarea>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
+          } @else {
+            <div
+              class="text-sm text-[var(--color-text-body)] leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-[var(--color-bg-surface)] rounded-md p-1 -m-1 transition-colors"
+              (click)="startEditDescription()"
+              tabindex="0"
+              (keydown.enter)="startEditDescription()"
+              [attr.aria-label]="idea().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
+            >
+              @if (idea().description) {
+                {{ idea().description }}
+              } @else {
+                <span class="text-[var(--color-text-muted)] italic">Notizen hinzufügen…</span>
+              }
+            </div>
+          }
+        </app-collapsible-section>
 
-      <div class="flex-1 px-6 lg:px-8 py-5 overflow-y-auto">
-        <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Notizen</h2>
-
-        @if (editingDescription()) {
-          <textarea
-            class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
-            [value]="draftDescription()"
-            (input)="draftDescription.set($any($event.target).value)"
-            (blur)="saveDescription()"
-            (keydown)="onDescriptionKeydown($event)"
-            aria-label="Notizen bearbeiten"
-          ></textarea>
-          <p class="text-xs text-[var(--color-text-muted)] mt-1">Ctrl+Enter zum Speichern · Escape zum Abbrechen</p>
-        } @else {
-          <div
-            class="text-sm text-[var(--color-text-body)] leading-relaxed whitespace-pre-line cursor-pointer min-h-[60px] hover:bg-[var(--color-bg-surface)] rounded-md p-1 -m-1 transition-colors"
-            (click)="startEditDescription()"
-            tabindex="0"
-            (keydown.enter)="startEditDescription()"
-            [attr.aria-label]="idea().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
-          >
-            @if (idea().description) {
-              {{ idea().description }}
-            } @else {
-              <span class="text-[var(--color-text-muted)] italic">Notizen hinzufügen…</span>
-            }
-          </div>
-        }
-
-        <div class="py-5 border-t border-[var(--color-border-subtle)]">
+        <app-collapsible-section label="Teilaufgaben" [expanded]="true">
+          <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <ng-container sectionMeta>
+            <span class="text-xs text-[var(--color-text-muted)]">{{ subtaskCounter(idea().subtasks ?? []) }}</span>
+          </ng-container>
           <app-sub-task-list
             [subtasks]="idea().subtasks ?? []"
+            [showHeader]="false"
             (subtasksChange)="onSubtasksChange($event)"
           />
-        </div>
+        </app-collapsible-section>
+
+        <div class="h-4" aria-hidden="true"></div>
       </div>
     </article>
   `,
@@ -129,8 +151,12 @@ export class IdeaDetailComponent {
 
   readonly statusBadgeClass = computed(() =>
     this.idea().status === 'wont-do'
-      ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]'
-      : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]'
+      ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]'
+      : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]'
+  );
+
+  readonly statusDotClass = computed(() =>
+    this.idea().status === 'wont-do' ? 'bg-stone-400' : 'bg-amber-500'
   );
 
   constructor() {
@@ -192,6 +218,11 @@ export class IdeaDetailComponent {
     const updated = { ...this.idea(), subtasks };
     this.ideaService.update(updated);
     this.workData.selectedItem.set(updated);
+  }
+
+  subtaskCounter(subtasks: SubTask[]): string {
+    const done = subtasks.filter(s => s.status === 'done').length;
+    return `${done}/${subtasks.length}`;
   }
 
   formatDate(iso: string): string {

@@ -1,5 +1,5 @@
 <!-- Left column — Section Navigation -->
-<nav class="sticky top-0 shrink-0 w-56 h-full py-8 pl-8 pr-4 overflow-y-auto">
+<nav class="sticky top-0 shrink-0 w-56 h-full py-8 pl-8 pr-4 overflow-y-auto border-r border-[var(--color-border-subtle)]">
   <h2 class="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-6">Einstellungen</h2>
 
   @for (section of sections; track section.id) {
@@ -332,7 +332,7 @@
   </div>
 
   <!-- Sticky Footer -->
-  <div class="shrink-0 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-8 py-4">
+  <div class="shrink-0 border-t border-[var(--color-border-subtle)] px-8 py-4">
     <div class="max-w-2xl flex items-center justify-end gap-3">
       @if (isDirty()) {
         <button

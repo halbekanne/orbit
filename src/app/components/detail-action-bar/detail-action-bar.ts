@@ -20,7 +20,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
   selector: 'app-detail-action-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block border-b border-[var(--color-border-subtle)]',
+    class: 'block border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-card)]',
     role: 'toolbar',
     '[attr.aria-label]': '"Aktionen"',
   },
@@ -34,7 +34,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
         <button type="button" [class]="focusClass(it)" (click)="toggleFocus(it)">
           {{ focusService.isFocused(it.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
         </button>
-        <div class="${DIVIDER}" aria-hidden="true"></div>
+<!--        <div class="${DIVIDER}" aria-hidden="true"></div>-->
         <a [href]="ticket.url" target="_blank" rel="noopener noreferrer" class="${LINK}">
           In Jira öffnen ↗
         </a>
@@ -47,7 +47,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
           {{ focusService.isFocused(it.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
         </button>
         @if (settingsService.aiReviewsEnabled()) {
-          <div class="${DIVIDER}" aria-hidden="true"></div>
+<!--          <div class="${DIVIDER}" aria-hidden="true"></div>-->
           <button type="button"
             [class]="review === 'idle' ? '${PRIMARY}' : '${NEUTRAL}'"
             [disabled]="(review !== 'idle' && review.status === 'running') || !aiReview.canReview()"
@@ -76,7 +76,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
             <button type="button" class="${SUCCESS}" (click)="completeTodo(todo)">
               Erledigt
             </button>
-            <div class="${DIVIDER}" aria-hidden="true"></div>
+<!--            <div class="${DIVIDER}" aria-hidden="true"></div>-->
             <button type="button"
               [class]="todo.urgent ? '${WARNING}' : '${NEUTRAL}'"
               [attr.aria-pressed]="todo.urgent"
@@ -116,7 +116,7 @@ const DIVIDER = 'w-px h-[18px] bg-[var(--color-border-default)] self-center';
             <button type="button" class="${SUCCESS}" (click)="data.promoteToTodo(idea)">
               Zur Aufgabe machen
             </button>
-            <div class="${DIVIDER}" aria-hidden="true"></div>
+<!--            <div class="${DIVIDER}" aria-hidden="true"></div>-->
             <button type="button" class="${DANGER}" (click)="wontFollowIdea(idea)">
               Nicht verfolgen
             </button>

@@ -1,6 +1,6 @@
 <main class="h-full flex flex-col" aria-label="Arbeitsbereich">
   @if (data.reflectionSelected()) {
-    <div class="flex-1 overflow-y-auto bg-[var(--color-bg-page)]">
+    <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable] bg-[var(--color-bg-page)]">
       <app-reflection-detail
         (submitted)="onReflectionSubmitted()"
         (skipped)="onReflectionSkipped()"
@@ -22,25 +22,25 @@
     }
 
     @if (item?.type === 'ticket') {
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <app-ticket-detail [ticket]="$any(item)" />
       </div>
     }
 
     @if (item?.type === 'pr') {
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <app-pr-detail [pr]="$any(item)" />
       </div>
     }
 
     @if (item?.type === 'todo') {
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <app-todo-detail [todo]="$any(item)" />
       </div>
     }
 
     @if (item?.type === 'idea') {
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <app-idea-detail [idea]="$any(item)" />
       </div>
     }

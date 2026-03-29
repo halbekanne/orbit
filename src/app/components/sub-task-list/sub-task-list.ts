@@ -24,19 +24,21 @@ import { spawnConfetti, playChime } from '../../utils/celebration';
   `],
   template: `
     <section aria-label="Aufgaben">
-      <div class="flex items-center gap-2 mb-3">
-        <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Aufgaben</h2>
-        <span
-          data-testid="subtask-counter"
-          class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold border transition-colors duration-150"
-          [class]="counterClasses()"
-        >
-          @if (allDone() && totalCount() > 0) {
-            ✓
-          }
-          {{ doneCount() }}/{{ totalCount() }}
-        </span>
-      </div>
+      @if (showHeader()) {
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Aufgaben</h2>
+          <span
+            data-testid="subtask-counter"
+            class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold border transition-colors duration-150"
+            [class]="counterClasses()"
+          >
+            @if (allDone() && totalCount() > 0) {
+              ✓
+            }
+            {{ doneCount() }}/{{ totalCount() }}
+          </span>
+        </div>
+      }
 
       <div
         cdkDropList
@@ -123,6 +125,7 @@ import { spawnConfetti, playChime } from '../../utils/celebration';
 })
 export class SubTaskListComponent {
   subtasks = input<SubTask[]>([]);
+  showHeader = input(true);
   subtasksChange = output<SubTask[]>();
 
   newTitle = signal('');

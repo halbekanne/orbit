@@ -101,16 +101,11 @@ describe('DetailActionBarComponent', () => {
     fixture.detectChanges();
   }
 
-  function hasDivider(): boolean {
-    return el.querySelector('[aria-hidden="true"]') !== null;
-  }
-
   describe('Ticket', () => {
-    it('shows Focus and In Jira öffnen with divider', () => {
+    it('shows Focus and In Jira öffnen', () => {
       setup(makeTicket());
       expect(buttonLabels()).toContain('Fokus setzen');
       expect(linkLabels().some(l => l.includes('In Jira öffnen'))).toBe(true);
-      expect(hasDivider()).toBe(true);
     });
 
     it('links to the ticket URL', () => {
@@ -122,12 +117,11 @@ describe('DetailActionBarComponent', () => {
   });
 
   describe('PR', () => {
-    it('shows Focus, KI-Review starten, and In Bitbucket öffnen with divider', () => {
+    it('shows Focus, KI-Review starten, and In Bitbucket öffnen', () => {
       setup(makePr());
       expect(buttonLabels()).toContain('Fokus setzen');
       expect(buttonLabels().some(l => l.includes('KI-Review starten'))).toBe(true);
       expect(linkLabels().some(l => l.includes('In Bitbucket öffnen'))).toBe(true);
-      expect(hasDivider()).toBe(true);
     });
 
     it('shows "Review läuft..." and disables button during review', () => {
@@ -172,7 +166,7 @@ describe('DetailActionBarComponent', () => {
   });
 
   describe('Todo (open)', () => {
-    it('shows Focus, Erledigt, divider, Dringend, Zur Idee machen, Nicht erledigen', () => {
+    it('shows Focus, Erledigt, Dringend, Zur Idee machen, Nicht erledigen', () => {
       setup(makeTodo({ status: 'open' }));
       const labels = buttonLabels();
       expect(labels).toContain('Fokus setzen');
@@ -180,7 +174,6 @@ describe('DetailActionBarComponent', () => {
       expect(labels).toContain('Dringend');
       expect(labels).toContain('Zur Idee machen');
       expect(labels).toContain('Nicht erledigen');
-      expect(hasDivider()).toBe(true);
     });
 
     it('calls todoService.update with done status on Erledigt click', () => {
@@ -248,13 +241,12 @@ describe('DetailActionBarComponent', () => {
   });
 
   describe('Idea (active)', () => {
-    it('shows Focus, Zur Aufgabe machen, divider, Nicht verfolgen', () => {
+    it('shows Focus, Zur Aufgabe machen, Nicht verfolgen', () => {
       setup(makeIdea({ status: 'active' }));
       const labels = buttonLabels();
       expect(labels).toContain('Fokus setzen');
       expect(labels).toContain('Zur Aufgabe machen');
       expect(labels).toContain('Nicht verfolgen');
-      expect(hasDivider()).toBe(true);
     });
 
     it('calls promoteToTodo on Zur Aufgabe machen click', () => {

@@ -11,6 +11,7 @@ import { JiraPrCardComponent } from '../jira-pr-card/jira-pr-card';
 import { ReviewFindingsComponent } from '../review-findings/review-findings';
 import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
 import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
+import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
 import { AiReviewService } from '../../services/ai-review.service';
 import { SettingsService } from '../../services/settings.service';
 import { extractJiraKey } from '../../utils/pr-jira-key';
@@ -37,7 +38,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent, CompactHeaderBarComponent, DetailActionBarComponent],
+  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent],
   styles: [`
     @keyframes prFadeIn {
       from { opacity: 0; }
@@ -183,56 +184,35 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               </div>
             }
           </div>
+
+          <app-detail-action-bar [item]="pr()" />
         </div>
+
       </header>
 
       <div #headerSentinel></div>
-      <app-detail-action-bar [item]="pr()" />
+
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
-        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
-          <button
-            type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
-            (click)="jiraExpanded.set(!jiraExpanded())"
-            [attr.aria-expanded]="jiraExpanded()"
-          >
-            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="jiraExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Jira-Ticket</span>
+        <app-collapsible-section label="Jira-Ticket">
+          <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
+          <ng-container sectionMeta>
             @if (resolvedJiraTicket(); as ticket) {
               <span class="font-mono text-xs text-[var(--color-primary-text)] font-semibold">{{ ticket.key }}</span>
               <span class="text-xs text-[var(--color-text-muted)]">— {{ ticket.status }}</span>
             }
-          </button>
-          @if (jiraExpanded()) {
-            <div class="border-t border-[var(--color-border-subtle)] px-6 py-4">
-              <app-jira-pr-card [ticket]="jiraTicket()" />
-            </div>
-          }
-        </div>
+          </ng-container>
+          <app-jira-pr-card [ticket]="jiraTicket()" />
+        </app-collapsible-section>
 
-        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
-          <button
-            type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
-            (click)="descExpanded.set(!descExpanded())"
-            [attr.aria-expanded]="descExpanded()"
-          >
-            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="descExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Beschreibung</span>
-          </button>
-          @if (descExpanded()) {
-            <div class="border-t border-[var(--color-border-subtle)] px-6 pb-5 pt-4">
-              @if (pr().description) {
-                <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
-              } @else {
-                <p class="text-sm text-[var(--color-text-muted)] italic">Keine Beschreibung vorhanden.</p>
-              }
-            </div>
+        <app-collapsible-section label="Beschreibung" [expanded]="true">
+          <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          @if (pr().description) {
+            <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
+          } @else {
+            <p class="text-sm text-[var(--color-text-muted)] italic">Keine Beschreibung vorhanden.</p>
           }
-        </div>
+        </app-collapsible-section>
 
         @if (settingsService.aiReviewsEnabled()) {
           <app-review-findings [reviewState]="aiReview.reviewState()" />
@@ -245,34 +225,23 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           </div>
         }
 
-        <div class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] shadow-sm overflow-hidden">
-          <button
-            type="button"
-            class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-[var(--color-bg-surface)] transition-colors"
-            (click)="diffExpanded.set(!diffExpanded())"
-            [attr.aria-expanded]="diffExpanded()"
-          >
-            <svg class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="diffExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-            <svg class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Änderungen</span>
+        <app-collapsible-section label="Änderungen">
+          <svg sectionIcon class="w-4 h-4 text-[var(--color-text-muted)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
+          <ng-container sectionMeta>
             @if (diffFileCount() > 0) {
               <span class="text-xs text-[var(--color-text-muted)]">{{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}</span>
             }
-          </button>
-          @if (diffExpanded()) {
-            <div class="border-t border-[var(--color-border-subtle)] px-6 py-4">
-              @if (diffData() === 'loading') {
-                <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen laden...</p>
-              } @else if (diffData() === 'error') {
-                <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen konnten nicht geladen werden.</p>
-              } @else if (diffFileCount() === 0) {
-                <p class="text-sm text-[var(--color-text-muted)] italic">Keine Änderungen vorhanden.</p>
-              } @else {
-                <div #diffContainer class="overflow-x-auto rounded border border-[var(--color-border-subtle)]"></div>
-              }
-            </div>
+          </ng-container>
+          @if (diffData() === 'loading') {
+            <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen laden...</p>
+          } @else if (diffData() === 'error') {
+            <p class="text-sm text-[var(--color-text-muted)] italic">Änderungen konnten nicht geladen werden.</p>
+          } @else if (diffFileCount() === 0) {
+            <p class="text-sm text-[var(--color-text-muted)] italic">Keine Änderungen vorhanden.</p>
+          } @else {
+            <div #diffContainer class="overflow-x-auto rounded border border-[var(--color-border-subtle)]"></div>
           }
-        </div>
+        </app-collapsible-section>
 
         <div class="h-4" aria-hidden="true"></div>
       </div>
@@ -360,9 +329,6 @@ export class PrDetailComponent {
     { initialValue: 'loading' as const },
   );
 
-  readonly jiraExpanded = signal(false);
-  readonly descExpanded = signal(true);
-  readonly diffExpanded = signal(false);
 
   readonly resolvedJiraTicket = computed(() => {
     const t = this.jiraTicket();
@@ -406,7 +372,6 @@ export class PrDetailComponent {
   private renderEffect = effect(() => {
     const container = this.diffContainer();
     if (!container) return;
-    if (!this.diffExpanded()) return;
     const data = this.diffData();
     if (data === 'loading' || data === 'error') return;
     setTimeout(() => {

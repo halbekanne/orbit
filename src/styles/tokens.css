@@ -1,6 +1,6 @@
 @layer base {
 :root {
-  --color-bg-page: var(--color-stone-100);
+  --color-bg-page: var(--color-stone-50);
   --color-bg-surface: var(--color-stone-200);
   --color-bg-card: #ffffff;
   --color-bg-elevated: #ffffff;
@@ -9,7 +9,7 @@
 
   --color-text-heading: var(--color-stone-800);
   --color-text-body: var(--color-stone-600);
-  --color-text-muted: var(--color-stone-400);
+  --color-text-muted: var(--color-stone-500);
 
   --color-rail-bg: var(--color-stone-900);
   --color-rail-icon: var(--color-stone-500);
