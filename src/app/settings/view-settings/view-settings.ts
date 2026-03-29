@@ -28,14 +28,20 @@ export class ViewSettingsComponent {
   readonly isDirty = computed(() => JSON.stringify(this.draft()) !== this.savedSnapshot());
   readonly canSave = computed(() => {
     const d = this.draft();
-    return (
-      this.isDirty() &&
-      d.connections.jira.baseUrl.trim() !== '' &&
-      d.connections.jira.apiKey.trim() !== '' &&
-      d.connections.bitbucket.baseUrl.trim() !== '' &&
-      d.connections.bitbucket.apiKey.trim() !== '' &&
-      d.connections.bitbucket.userSlug.trim() !== ''
-    );
+    if (!this.isDirty()) return false;
+
+    const jiraOk = d.connections.jira.baseUrl.trim() !== '' && d.connections.jira.apiKey.trim() !== '';
+    const bbOk = d.connections.bitbucket.baseUrl.trim() !== '' && d.connections.bitbucket.apiKey.trim() !== '' && d.connections.bitbucket.userSlug.trim() !== '';
+    if (!jiraOk || !bbOk) return false;
+
+    const j = d.connections.jenkins;
+    if (j.baseUrl.trim() !== '') {
+      if (j.username.trim() === '' || j.apiToken.trim() === '') return false;
+      if (j.jobs.length === 0) return false;
+      if (j.jobs.some(job => job.displayName.trim() === '' || job.jobPath.trim() === '')) return false;
+    }
+
+    return true;
   });
 
   readonly saveState = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -43,6 +49,7 @@ export class ViewSettingsComponent {
 
   readonly showJiraToken = signal(false);
   readonly showBitbucketToken = signal(false);
+  readonly showJenkinsToken = signal(false);
 
   readonly sections = [
     {
@@ -51,6 +58,7 @@ export class ViewSettingsComponent {
       children: [
         { id: 'jira', label: 'Jira' },
         { id: 'bitbucket', label: 'Bitbucket' },
+        { id: 'jenkins', label: 'Jenkins' },
         { id: 'vertex-ai', label: 'Vertex AI Proxy' },
       ],
     },
@@ -83,6 +91,14 @@ export class ViewSettingsComponent {
     const clone = structuredClone(this.draft());
     mutator(clone);
     this.draft.set(clone);
+  }
+
+  addJenkinsJob(): void {
+    this.updateDraft(d => d.connections.jenkins.jobs.push({ displayName: '', jobPath: '' }));
+  }
+
+  removeJenkinsJob(index: number): void {
+    this.updateDraft(d => d.connections.jenkins.jobs.splice(index, 1));
   }
 
   addCustomHeader(): void {

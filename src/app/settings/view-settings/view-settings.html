@@ -127,6 +127,85 @@
           </div>
         </div>
 
+        <!-- Jenkins -->
+        <div data-section="jenkins" id="section-jenkins" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-[var(--color-text-heading)]">Jenkins</h4>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Server-URL</label>
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              placeholder="https://jenkins.example.com"
+              [value]="draft().connections.jenkins.baseUrl"
+              (input)="updateDraft(d => d.connections.jenkins.baseUrl = $any($event.target).value)">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Benutzername</label>
+            <input
+              type="text"
+              class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+              [value]="draft().connections.jenkins.username"
+              (input)="updateDraft(d => d.connections.jenkins.username = $any($event.target).value)">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-1.5">API-Token</label>
+            <div class="relative">
+              <input
+                [type]="showJenkinsToken() ? 'text' : 'password'"
+                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
+                [value]="draft().connections.jenkins.apiToken"
+                (input)="updateDraft(d => d.connections.jenkins.apiToken = $any($event.target).value)">
+              <button
+                type="button"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
+                (click)="showJenkinsToken.set(!showJenkinsToken())">
+                {{ showJenkinsToken() ? 'Verbergen' : 'Anzeigen' }}
+              </button>
+            </div>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Erstelle einen Token in deinen Jenkins-Benutzereinstellungen unter Konfigurieren → API Token</p>
+          </div>
+
+          <div class="border-t border-[var(--color-border-subtle)] pt-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-2">Multibranch-Jobs</label>
+
+            @for (job of draft().connections.jenkins.jobs; track $index) {
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  placeholder="Anzeigename"
+                  [value]="job.displayName"
+                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].displayName = $any($event.target).value)">
+                <input
+                  type="text"
+                  class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm font-mono placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+                  placeholder="job/my-project"
+                  [value]="job.jobPath"
+                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].jobPath = $any($event.target).value)">
+                <button
+                  type="button"
+                  class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
+                  (click)="removeJenkinsJob($index)">
+                  &times;
+                </button>
+              </div>
+            }
+
+            <button
+              type="button"
+              class="text-sm text-[var(--color-primary-text)] hover:underline cursor-pointer"
+              (click)="addJenkinsJob()">
+              + Job hinzufügen
+            </button>
+          </div>
+        </div>
+
         <!-- Vertex AI Proxy -->
         <div data-section="vertex-ai" id="section-vertex-ai" class="bg-[var(--color-bg-card)] rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
