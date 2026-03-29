@@ -4,10 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "concurrently \"ng serve --port 6200\" \"node server/index.js\"",
-    "start:mock": "concurrently \"ng serve --port 6200\" \"node server/index.js\" \"node mock-server/jira.js\" \"node mock-server/bitbucket.js\"",
+    "start:mock": "concurrently \"ng serve --port 6200\" \"node server/index.js\" \"node mock-server/jira.js\" \"node mock-server/bitbucket.js\" \"node mock-server/jenkins.js\"",
     "server": "node server/index.js",
     "mock:jira": "node mock-server/jira.js",
     "mock:bitbucket": "node mock-server/bitbucket.js",
+    "mock:jenkins": "node mock-server/jenkins.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
