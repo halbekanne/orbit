@@ -3,7 +3,8 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, concat, map, of, skip, switchMap } from 'rxjs';
 import { PullRequest } from '../../models/work-item.model';
-import { prStripeClass, prStatusBadgeClass, prStatusDotClass, prStatusLabel } from '../../utils/pr-status';
+import { prStripeClass, prStatusLabel, prStatusColor, reviewerStatusColor } from '../../utils/pr-status';
+import { BadgeComponent } from '../badge/badge';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { BitbucketService } from '../../services/bitbucket.service';
 import { JiraService } from '../../services/jira.service';
@@ -38,7 +39,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 @Component({
   selector: 'app-pr-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent],
+  imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent, BadgeComponent],
   styles: [`
     @keyframes prFadeIn {
       from { opacity: 0; }
@@ -56,25 +57,25 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         [visible]="showCompactBar()"
         [title]="pr().title"
         [statusLabel]="statusLabel()"
-        [statusClass]="statusBadgeClass()"
+        [statusColor]="statusColor()"
         [stripeColor]="stripeClass()"
         [prefix]="pr().fromRef.repository.slug"
       />
 
       @if (pr().myReviewStatus === 'Ready to Merge') {
-        <div class="bg-emerald-50 border-b border-emerald-200" role="status">
+        <div class="bg-[var(--color-success-bg)] border-b border-[var(--color-success-border)]" role="status">
           <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-            <span class="text-sm font-medium text-emerald-700">Alle Reviewer haben zugestimmt — bereit zum Mergen.</span>
+            <svg class="w-4 h-4 text-[var(--color-success-text)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="text-sm font-medium text-[var(--color-success-text)]">Alle Reviewer haben zugestimmt — bereit zum Mergen.</span>
           </div>
         </div>
       }
 
       @if (pr().isDraft) {
-        <div class="bg-amber-50 border-b border-amber-200" role="status">
+        <div class="bg-[var(--color-signal-bg)] border-b border-[var(--color-signal-border)]" role="status">
           <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-            <svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span class="text-sm font-medium text-amber-700">Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span>
+            <svg class="w-4 h-4 text-[var(--color-signal-text)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span class="text-sm font-medium text-[var(--color-signal-text)]">Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span>
           </div>
         </div>
       }
@@ -87,18 +88,12 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
             <div class="flex items-center gap-2 mb-2 flex-wrap">
               <span class="font-mono text-xs font-semibold text-[var(--color-text-muted)] tracking-wide">{{ pr().fromRef.repository.slug }}</span>
               <span class="text-[var(--color-text-muted)]" aria-hidden="true">&middot;</span>
-              <span
-                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border"
-                [class]="statusBadgeClass()"
-              >
-                <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
-                {{ statusLabel() }}
-              </span>
+              <orbit-badge [color]="statusColor()" [status]="true">{{ statusLabel() }}</orbit-badge>
               @if (pr().isAuthoredByMe) {
-                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)] uppercase tracking-wide">Dein PR</span>
+                <orbit-badge color="neutral" [uppercase]="true" size="sm">Dein PR</orbit-badge>
               }
               @if (pr().isDraft) {
-                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">Entwurf</span>
+                <orbit-badge color="signal" [uppercase]="true" size="sm">Entwurf</orbit-badge>
               }
             </div>
 
@@ -115,21 +110,14 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                   <span class="text-sm text-[var(--color-text-muted)] font-medium shrink-0">Reviewer:</span>
                   @for (reviewer of pr().reviewers; track reviewer.user.id) {
-                    <span
-                      class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border"
-                      [class]="reviewer.status === 'APPROVED'
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : reviewer.status === 'NEEDS_WORK'
-                          ? 'bg-amber-50 text-amber-800 border-amber-300'
-                          : 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]'"
-                    >
+                    <orbit-badge [color]="reviewerColor(reviewer.status)" size="sm">
                       @if (reviewer.status === 'APPROVED') {
                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
                       } @else if (reviewer.status === 'NEEDS_WORK') {
                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                       }
                       {{ reviewer.user.displayName }}
-                    </span>
+                    </orbit-badge>
                   }
                 </div>
               }
@@ -165,18 +153,18 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 }
                 @if (pr().openTaskCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                    <span class="text-sm text-amber-700 font-medium">{{ pr().openTaskCount }} offene{{ pr().openTaskCount === 1 ? 'r Task' : ' Tasks' }}</span>
+                    <svg class="w-3.5 h-3.5 text-[var(--color-signal-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span class="text-sm text-[var(--color-signal-text)] font-medium">{{ pr().openTaskCount }} offene{{ pr().openTaskCount === 1 ? 'r Task' : ' Tasks' }}</span>
                   </div>
                 }
                 @if (buildLabel(); as build) {
                   <div class="flex items-center gap-1.5">
                     @if (build.type === 'failed') {
-                      <svg class="w-3.5 h-3.5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                      <svg class="w-3.5 h-3.5 text-[var(--color-danger-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     } @else if (build.type === 'running') {
                       <svg class="w-3.5 h-3.5 text-[var(--color-primary-solid)] animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
                     } @else {
-                      <svg class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                      <svg class="w-3.5 h-3.5 text-[var(--color-success-text)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
                     }
                     <span class="text-sm font-medium" [class]="build.colorClass">{{ build.text }}</span>
                   </div>
@@ -335,7 +323,6 @@ export class PrDetailComponent {
     return (t !== 'loading' && t !== 'error' && t !== 'no-ticket') ? t : null;
   });
 
-  readonly statusDotClass = computed(() => prStatusDotClass(this.pr()));
 
   readonly diffData = toSignal(
     toObservable(this.pr).pipe(
@@ -402,16 +389,20 @@ export class PrDetailComponent {
   });
 
   stripeClass = computed(() => prStripeClass(this.pr()));
-  statusBadgeClass = computed(() => prStatusBadgeClass(this.pr()));
   statusLabel = computed(() => prStatusLabel(this.pr()));
+  statusColor = computed(() => prStatusColor(this.pr()));
+
+  reviewerColor(status: string) {
+    return reviewerStatusColor(status);
+  }
 
   buildLabel = computed((): { type: 'success' | 'failed' | 'running'; text: string; colorClass: string } | null => {
     if (!this.pr().isAuthoredByMe) return null;
     const build = this.pr().buildStatus;
     if (!build) return null;
-    if (build.failed > 0) return { type: 'failed', text: 'Build fehlgeschlagen', colorClass: 'text-red-600' };
+    if (build.failed > 0) return { type: 'failed', text: 'Build fehlgeschlagen', colorClass: 'text-[var(--color-danger-text)]' };
     if (build.inProgress > 0) return { type: 'running', text: 'Build läuft', colorClass: 'text-[var(--color-primary-text)]' };
-    if (build.successful > 0) return { type: 'success', text: 'Build erfolgreich', colorClass: 'text-emerald-600' };
+    if (build.successful > 0) return { type: 'success', text: 'Build erfolgreich', colorClass: 'text-[var(--color-success-text)]' };
     return null;
   });
 }

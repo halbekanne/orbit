@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { JiraMarkupPipe } from '../../pipes/jira-markup.pipe';
 import { JiraTicket } from '../../models/work-item.model';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-jira-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe],
+  imports: [JiraMarkupPipe, BadgeComponent],
   template: `
     <section aria-label="Jira-Ticket">
       @if (ticket() === 'loading') {
@@ -36,10 +37,7 @@ import { JiraTicket } from '../../models/work-item.model';
 
           <div class="px-3 py-2.5 bg-[var(--color-primary-bg)] border-b border-[var(--color-primary-border)]">
             <div class="flex items-center gap-1.5 flex-wrap mb-2">
-              <span
-                class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
-                [class]="issueTypeBadgeClass()"
-              >
+              <orbit-badge color="neutral" size="sm">
                 @switch (issueTypeKey()) {
                   @case ('bug') {
                     <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
@@ -55,17 +53,11 @@ import { JiraTicket } from '../../models/work-item.model';
                   }
                 }
                 {{ ticketData()!.issueType }}
-              </span>
+              </orbit-badge>
 
               <span class="font-mono text-[11px] font-bold text-[var(--color-primary-text)] tracking-wide">{{ ticketData()!.key }}</span>
 
-              <span
-                class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
-                [class]="statusBadgeClass()"
-              >
-                <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
-                {{ ticketData()!.status }}
-              </span>
+              <orbit-badge [color]="statusColor()" [status]="true" size="sm">{{ ticketData()!.status }}</orbit-badge>
 
               <a
                 [href]="ticketData()!.url"
@@ -131,33 +123,14 @@ export class JiraPrCardComponent {
       .slice(0, 2) ?? '',
   );
 
-  issueTypeBadgeClass = computed(() => {
-    const k = this.issueTypeKey();
-    if (k === 'bug')   return 'bg-red-50 text-red-600 border-red-200';
-    if (k === 'story') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (k === 'epic')  return 'bg-violet-50 text-violet-700 border-violet-200';
-    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border-[var(--color-type-badge-border)]';
-  });
-
-  statusBadgeClass = computed(() => {
+  statusColor = computed((): BadgeColor => {
     const status = this.ticketData()?.status;
-    const map: Record<string, string> = {
-      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
-      'In Review':   'bg-amber-50 text-amber-700 border-amber-200',
-      'Done':        'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'To Do':       'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]',
+    const map: Record<string, BadgeColor> = {
+      'In Progress': 'primary',
+      'In Review': 'signal',
+      'Done': 'success',
+      'To Do': 'neutral',
     };
-    return (status && map[status]) ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]';
-  });
-
-  statusDotClass = computed(() => {
-    const status = this.ticketData()?.status;
-    const map: Record<string, string> = {
-      'In Progress': 'bg-[var(--color-primary-solid)]',
-      'In Review':   'bg-amber-400',
-      'Done':        'bg-emerald-500',
-      'To Do':       'bg-stone-400',
-    };
-    return (status && map[status]) ?? 'bg-stone-400';
+    return (status && map[status]) ?? 'neutral';
   });
 }

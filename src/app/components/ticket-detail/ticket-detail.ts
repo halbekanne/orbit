@@ -7,11 +7,12 @@ import { TicketSubtaskService } from '../../services/ticket-subtask.service';
 import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
 import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-ticket-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe, SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent],
+  imports: [JiraMarkupPipe, SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent, BadgeComponent],
   styles: [`
     @keyframes ticketFadeIn {
       from { opacity: 0; }
@@ -29,7 +30,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
         [visible]="showCompactBar()"
         [title]="ticket().summary"
         [statusLabel]="ticket().status"
-        [statusClass]="statusBadgeClass()"
+        [statusColor]="statusColor()"
         [stripeColor]="statusStripeClass()"
         [prefix]="ticket().key"
       />
@@ -41,10 +42,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
           <div class="px-6 pt-5 pb-4 pl-7">
             <div class="flex items-center justify-between gap-3 mb-3">
               <div class="flex items-center gap-2 min-w-0">
-                <span
-                  class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium shrink-0"
-                  [class]="issueTypeBadgeClass()"
-                >
+                <orbit-badge color="neutral">
                   @switch (issueTypeKey()) {
                     @case ('bug') {
                       <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
@@ -60,7 +58,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
                     }
                   }
                   {{ ticket().issueType }}
-                </span>
+                </orbit-badge>
 
                 <span class="text-[var(--color-text-muted)]" aria-hidden="true">·</span>
                 <span class="font-mono text-sm font-bold text-[var(--color-primary-text)] tracking-wide shrink-0">{{ ticket().key }}</span>
@@ -70,17 +68,9 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
             <h1 class="text-lg font-semibold text-[var(--color-text-heading)] leading-snug mb-3">{{ ticket().summary }}</h1>
 
             <div class="flex items-center gap-2 flex-wrap mb-2.5">
-              <span
-                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border"
-                [class]="statusBadgeClass()"
-              >
-                <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
-                {{ ticket().status }}
-              </span>
+              <orbit-badge [color]="statusColor()" [status]="true">{{ ticket().status }}</orbit-badge>
               @for (label of ticket().labels; track label) {
-                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                  {{ label }}
-                </span>
+                <orbit-badge color="neutral">{{ label }}</orbit-badge>
               }
             </div>
 
@@ -134,7 +124,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
             </ng-container>
             <div class="flex items-center gap-2 flex-wrap">
               @for (comp of ticket().components; track comp) {
-                <span class="text-xs text-[var(--color-text-body)] bg-[var(--color-bg-surface)] rounded px-2 py-0.5 border border-[var(--color-border-subtle)]">{{ comp }}</span>
+                <orbit-badge color="neutral">{{ comp }}</orbit-badge>
               }
             </div>
           </app-collapsible-section>
@@ -258,6 +248,13 @@ export class TicketDetailComponent {
     return 'task';
   });
 
+  readonly statusColor = computed((): BadgeColor => {
+    const status = this.ticket().status?.toLowerCase();
+    if (status === 'done' || status === 'erledigt' || status === 'closed') return 'success';
+    if (status === 'in progress' || status === 'in arbeit' || status === 'in review' || status === 'im review') return 'primary';
+    return 'neutral';
+  });
+
   onSubtasksChange(subtasks: SubTask[]): void {
     this.ticketSubtaskService.saveSubtasks(subtasks);
   }
@@ -281,31 +278,4 @@ export class TicketDetailComponent {
     return map[this.ticket().status] ?? 'bg-stone-300';
   }
 
-  statusBadgeClass(): string {
-    const map: Record<string, string> = {
-      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
-      'In Review': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
-      'Done': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'To Do': 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]',
-    };
-    return map[this.ticket().status] ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-body)] border-[var(--color-border-subtle)]';
-  }
-
-  statusDotClass(): string {
-    const map: Record<string, string> = {
-      'In Progress': 'bg-violet-400',
-      'In Review': 'bg-violet-400',
-      'Done': 'bg-emerald-500',
-      'To Do': 'bg-stone-400',
-    };
-    return map[this.ticket().status] ?? 'bg-stone-400';
-  }
-
-  issueTypeBadgeClass(): string {
-    const k = this.issueTypeKey();
-    if (k === 'bug') return 'bg-red-50 text-red-600 border border-red-200';
-    if (k === 'story') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-    if (k === 'epic') return 'bg-violet-50 text-violet-700 border border-violet-200';
-    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border border-[var(--color-type-badge-border)]';
-  }
 }

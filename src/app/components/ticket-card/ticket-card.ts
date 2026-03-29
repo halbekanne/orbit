@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { JiraTicket } from '../../models/work-item.model';
 import { TicketSubtaskService } from '../../services/ticket-subtask.service';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-ticket-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BadgeComponent],
   template: `
     <button
       type="button"
@@ -16,10 +18,7 @@ import { TicketSubtaskService } from '../../services/ticket-subtask.service';
       <div class="pl-4 pr-3 pt-2.5 pb-2.5">
         <div class="flex items-start justify-between gap-2 mb-1.5">
           <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
-            <span
-              class="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-semibold shrink-0 leading-none"
-              [class]="issueTypeBadgeClass()"
-            >
+            <orbit-badge color="neutral" size="sm">
               @switch (issueTypeKey()) {
                 @case ('bug') {
                   <svg class="w-2.5 h-2.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
@@ -35,7 +34,7 @@ import { TicketSubtaskService } from '../../services/ticket-subtask.service';
                 }
               }
               {{ ticket().issueType }}
-            </span>
+            </orbit-badge>
 
             <span
               class="font-mono text-[11px] font-bold tracking-wide shrink-0"
@@ -61,13 +60,7 @@ import { TicketSubtaskService } from '../../services/ticket-subtask.service';
         >{{ ticket().summary }}</p>
 
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span
-            class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
-            [class]="statusBadgeClass()"
-          >
-            <span class="w-1 h-1 rounded-full shrink-0" [class]="statusDotClass()" aria-hidden="true"></span>
-            {{ ticket().status }}
-          </span>
+          <orbit-badge [color]="statusColor()" [status]="true" size="sm">{{ ticket().status }}</orbit-badge>
 
           @if (ticket().labels.length) {
             <span class="text-[10px] font-medium text-amber-600 truncate max-w-[100px]">{{ ticket().labels[0] }}</span>
@@ -150,27 +143,13 @@ export class TicketCardComponent {
     return 'task';
   });
 
-  statusBadgeClass(): string {
-    const map: Record<string, string> = {
-      'In Progress': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
-      'In Review': 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]',
-      'Done': 'bg-[var(--color-success-bg)] text-[var(--color-success-text)] border-[var(--color-success-border)]',
-      'To Do': 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-default)]',
+  readonly statusColor = computed((): BadgeColor => {
+    const map: Record<string, BadgeColor> = {
+      'In Progress': 'primary',
+      'In Review': 'primary',
+      'Done': 'success',
+      'To Do': 'neutral',
     };
-    return map[this.ticket().status] ?? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-default)]';
-  }
-
-  statusDotClass(): string {
-    const map: Record<string, string> = {
-      'In Progress': 'bg-[var(--color-primary-solid)]',
-      'In Review': 'bg-[var(--color-primary-solid)]',
-      'Done': 'bg-[var(--color-success-solid)]',
-      'To Do': 'bg-[var(--color-text-muted)]',
-    };
-    return map[this.ticket().status] ?? 'bg-[var(--color-text-muted)]';
-  }
-
-  issueTypeBadgeClass(): string {
-    return 'bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border border-[var(--color-type-badge-border)]';
-  }
+    return map[this.ticket().status] ?? 'neutral';
+  });
 }

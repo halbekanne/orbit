@@ -7,11 +7,12 @@ import { SubTask } from '../../models/sub-task.model';
 import { CompactHeaderBarComponent } from '../compact-header-bar/compact-header-bar';
 import { DetailActionBarComponent } from '../detail-action-bar/detail-action-bar';
 import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-section';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-idea-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent],
+  imports: [SubTaskListComponent, CompactHeaderBarComponent, DetailActionBarComponent, CollapsibleSectionComponent, BadgeComponent],
   styles: [`
     @keyframes ideaFadeIn {
       from { opacity: 0; }
@@ -29,7 +30,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
         [visible]="showCompactBar()"
         [title]="idea().title"
         [statusLabel]="statusLabelText()"
-        [statusClass]="statusBadgeClass()"
+        [statusColor]="statusColor()"
         [stripeColor]="statusStripeClass()"
         [prefix]="'💡'"
       />
@@ -41,11 +42,7 @@ import { CollapsibleSectionComponent } from '../collapsible-section/collapsible-
           <div class="px-6 pt-5 pb-4 pl-7">
             <div class="flex items-center gap-2 mb-2 flex-wrap">
               <span class="text-lg" aria-hidden="true">💡</span>
-              <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border"
-                [class]="statusBadgeClass()">
-                <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
-                {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
-              </span>
+              <orbit-badge [color]="statusColor()" [status]="true">{{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}</orbit-badge>
             </div>
 
             @if (editingTitle()) {
@@ -149,14 +146,8 @@ export class IdeaDetailComponent {
     this.idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv'
   );
 
-  readonly statusBadgeClass = computed(() =>
-    this.idea().status === 'wont-do'
-      ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]'
-      : 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]'
-  );
-
-  readonly statusDotClass = computed(() =>
-    this.idea().status === 'wont-do' ? 'bg-stone-400' : 'bg-amber-500'
+  readonly statusColor = computed((): BadgeColor =>
+    this.idea().status === 'wont-do' ? 'neutral' : 'primary'
   );
 
   constructor() {

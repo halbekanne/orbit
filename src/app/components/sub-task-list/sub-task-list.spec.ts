@@ -91,14 +91,14 @@ describe('SubTaskListComponent', () => {
     expect(host.lastEmitted.length).toBe(1);
   });
 
-  it('shows emerald badge when all subtasks are done', () => {
+  it('shows success badge when all subtasks are done', () => {
     host.subtasks.set([
       { id: 'st-1', title: 'A', status: 'done', completedAt: '2026-01-01' },
       { id: 'st-2', title: 'B', status: 'done', completedAt: '2026-01-01' },
     ]);
     fixture.detectChanges();
     const badge = fixture.nativeElement.querySelector('[data-testid="subtask-counter"]');
-    expect(badge?.className).toContain('emerald');
+    expect(badge?.className).toContain('color-success');
   });
 
   it('shows primary badge when partially done', () => {

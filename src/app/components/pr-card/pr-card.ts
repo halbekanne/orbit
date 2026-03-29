@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { PullRequest } from '../../models/work-item.model';
 import { businessDaysSince } from '../../utils/business-days';
-import { prStatusBadgeClass, prStatusLabel } from '../../utils/pr-status';
+import { prStatusLabel, prStatusColor } from '../../utils/pr-status';
+import { BadgeComponent } from '../badge/badge';
 
 @Component({
   selector: 'app-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BadgeComponent],
   template: `
     <button
       type="button"
@@ -34,49 +36,31 @@ import { prStatusBadgeClass, prStatusLabel } from '../../utils/pr-status';
 
         @if (pr().isDraft) {
           <div class="mb-1.5">
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 leading-none uppercase tracking-wide">
+            <orbit-badge color="signal" [uppercase]="true" size="sm">
               <svg class="w-2.5 h-2.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               Entwurf
-            </span>
-          </div>
-        }
-
-        @if (pr().isAuthoredByMe && !pr().isDraft) {
-          <div class="mb-1.5">
-            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-default)] leading-none uppercase tracking-wide">Mein PR</span>
+            </orbit-badge>
           </div>
         }
 
         <div class="flex flex-wrap gap-1 mb-1.5 empty:hidden">
           @if (showBuildFailed()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-danger-bg)] text-[var(--color-danger-text)]">
-              ✗ Build fehlgeschlagen
-            </span>
+            <orbit-badge color="danger" size="sm">✗ Build fehlgeschlagen</orbit-badge>
           }
           @if (showChangesRequested()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
-              Änderungen angefordert
-            </span>
+            <orbit-badge color="signal" size="sm">Änderungen angefordert</orbit-badge>
           }
           @if (waitingDays() >= 2 && !showAlreadyReviewed()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
-              Review seit {{ waitingDays() }} Tagen
-            </span>
+            <orbit-badge color="signal" size="sm">Review seit {{ waitingDays() }} Tagen</orbit-badge>
           }
           @if (showAlreadyReviewed()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
-              ✓ Bereits reviewed
-            </span>
+            <orbit-badge color="success" size="sm">✓ Bereits reviewed</orbit-badge>
           }
           @if (showApproved()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
-              ✓ Approved
-            </span>
+            <orbit-badge color="success" size="sm">✓ Approved</orbit-badge>
           }
           @if (isSmallChange()) {
-            <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
-              Kleine Änderung
-            </span>
+            <orbit-badge color="success" size="sm">Kleine Änderung</orbit-badge>
           }
         </div>
 
@@ -121,10 +105,7 @@ import { prStatusBadgeClass, prStatusLabel } from '../../utils/pr-status';
           }
 
           <div class="flex items-center gap-1.5 shrink-0">
-            <span
-              class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold border leading-none"
-              [class]="statusBadgeClass()"
-            >{{ statusLabel() }}</span>
+            <orbit-badge [color]="statusColor()" [status]="true" size="sm">{{ statusLabel() }}</orbit-badge>
             @if (pr().commentCount > 0 && !pr().isAuthoredByMe) {
               <span class="flex items-center gap-0.5 text-[11px] text-[var(--color-text-muted)]" [attr.aria-label]="pr().commentCount + ' Kommentare'">
                 <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -151,8 +132,8 @@ export class PrCardComponent {
       .slice(0, 2)
   );
 
-  statusBadgeClass = computed(() => prStatusBadgeClass(this.pr()));
   statusLabel = computed(() => prStatusLabel(this.pr()));
+  statusColor = computed(() => prStatusColor(this.pr()));
 
   readonly cardState = computed<'inactive' | 'normal' | 'attention' | 'attention-danger'>(() => {
     const pr = this.pr();

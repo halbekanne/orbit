@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input, output, signal } f
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { SubTask, createSubTask } from '../../models/sub-task.model';
 import { spawnConfetti, playChime } from '../../utils/celebration';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-sub-task-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkDropList, CdkDrag, CdkDragHandle],
+  imports: [CdkDropList, CdkDrag, CdkDragHandle, BadgeComponent],
   styles: [`
     @keyframes celebrateBounce {
       0% { transform: scale(1); }
@@ -27,16 +28,12 @@ import { spawnConfetti, playChime } from '../../utils/celebration';
       @if (showHeader()) {
         <div class="flex items-center gap-2 mb-3">
           <h2 class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Aufgaben</h2>
-          <span
-            data-testid="subtask-counter"
-            class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold border transition-colors duration-150"
-            [class]="counterClasses()"
-          >
+          <orbit-badge data-testid="subtask-counter" [color]="counterColor()" size="sm">
             @if (allDone() && totalCount() > 0) {
               ✓
             }
             {{ doneCount() }}/{{ totalCount() }}
-          </span>
+          </orbit-badge>
         </div>
       }
 
@@ -138,10 +135,10 @@ export class SubTaskListComponent {
   totalCount = computed(() => this.subtasks().length);
   allDone = computed(() => this.totalCount() > 0 && this.doneCount() === this.totalCount());
 
-  counterClasses = computed(() => {
-    if (this.allDone()) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (this.doneCount() > 0) return 'bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]';
-    return 'bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]';
+  counterColor = computed((): BadgeColor => {
+    if (this.allDone()) return 'success';
+    if (this.doneCount() > 0) return 'primary';
+    return 'neutral';
   });
 
   onAddKeydown(e: KeyboardEvent): void {
