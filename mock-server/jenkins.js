@@ -16,14 +16,14 @@ const BRANCHES = {
   'frontend-app': [
     { name: 'main', color: 'blue' },
     { name: 'develop', color: 'blue' },
-    { name: 'feature%2FORBIT-189-dashboard', color: 'red' },
-    { name: 'feature%2FORBIT-234-user-auth', color: 'blue' },
-    { name: 'bugfix%2FORBIT-301-login-fix', color: 'blue_anime' },
+    { name: 'feature/ORBIT-189-dashboard', color: 'red' },
+    { name: 'feature/ORBIT-234-user-auth', color: 'blue' },
+    { name: 'bugfix/ORBIT-301-login-fix', color: 'blue_anime' },
   ],
   'backend-api': [
     { name: 'main', color: 'blue' },
     { name: 'develop', color: 'blue' },
-    { name: 'feature%2FORBIT-210-api-cache', color: 'red' },
+    { name: 'feature/ORBIT-210-api-cache', color: 'red' },
   ],
 };
 
@@ -40,13 +40,13 @@ const BUILDS = {
     'develop': [
       { number: 312, result: 'SUCCESS', timestamp: now - 3 * hour, duration: 198000, building: false },
     ],
-    'feature%2FORBIT-189-dashboard': [
+    'feature/ORBIT-189-dashboard': [
       { number: 45, result: 'FAILURE', timestamp: now - 1 * hour, duration: 178000, building: false },
     ],
-    'feature%2FORBIT-234-user-auth': [
+    'feature/ORBIT-234-user-auth': [
       { number: 47, result: 'SUCCESS', timestamp: now - 30 * minute, duration: 210000, building: false },
     ],
-    'bugfix%2FORBIT-301-login-fix': [
+    'bugfix/ORBIT-301-login-fix': [
       { number: 48, result: null, timestamp: now - 4 * minute, duration: 0, building: true },
     ],
   },
@@ -57,7 +57,7 @@ const BUILDS = {
     'develop': [
       { number: 156, result: 'SUCCESS', timestamp: now - 5 * hour, duration: 280000, building: false },
     ],
-    'feature%2FORBIT-210-api-cache': [
+    'feature/ORBIT-210-api-cache': [
       { number: 23, result: 'FAILURE', timestamp: now - 45 * minute, duration: 95000, building: false },
     ],
   },
@@ -216,9 +216,9 @@ app.get('/job/:jobName/api/json', (req, res) => {
   const branches = getBranch(req.params.jobName);
   res.json({
     jobs: branches.map(b => ({
-      name: b.name,
+      name: encodeURIComponent(b.name),
       color: b.color,
-      url: `http://localhost:${PORT}/job/${req.params.jobName}/job/${b.name}/`,
+      url: `http://localhost:${PORT}/job/${req.params.jobName}/job/${encodeURIComponent(b.name)}/`,
     })),
   });
 });
