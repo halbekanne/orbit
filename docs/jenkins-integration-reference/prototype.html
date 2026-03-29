@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['SF Mono', 'Monaco', 'Consolas', 'monospace'] },
+      colors: {
+        page:    { DEFAULT: 'var(--c-bg-page)' },
+        content: { DEFAULT: 'var(--c-bg-content)' },
+        surface: { DEFAULT: 'var(--c-bg-surface)' },
+        card:    { DEFAULT: 'var(--c-bg-card)' },
+        bdr:     { DEFAULT: 'var(--c-border-default)', subtle: 'var(--c-border-subtle)' },
+        txt:     { heading: 'var(--c-text-heading)', body: 'var(--c-text-body)', muted: 'var(--c-text-muted)' },
+        rail:    { bg: 'var(--c-rail-bg)', icon: 'var(--c-rail-icon)', active: 'var(--c-rail-active)' },
+        pri:     { bg: 'var(--c-pri-bg)', border: 'var(--c-pri-border)', solid: 'var(--c-pri-solid)', text: 'var(--c-pri-text)' },
+        ok:      { bg: 'var(--c-ok-bg)', border: 'var(--c-ok-border)', solid: 'var(--c-ok-solid)', text: 'var(--c-ok-text)' },
+        err:     { bg: 'var(--c-err-bg)', border: 'var(--c-err-border)', solid: 'var(--c-err-solid)', text: 'var(--c-err-text)' },
+        sig:     { bg: 'var(--c-sig-bg)', border: 'var(--c-sig-border)', solid: 'var(--c-sig-solid)', text: 'var(--c-sig-text)' },
+        info:    { text: 'var(--c-info-text)' },
+        sel:     { bg: 'var(--c-sel-bg)', ring: 'var(--c-sel-ring)' },
+        run:     { bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.3)', solid: '#3b82f6', text: '#60a5fa' },
+      }
+    }
+  }
+}
+</script>
+<title>Orbit — Builds View Prototyp</title>
+<style>
+:root {
+  --c-bg-page:#fafaf9; --c-bg-content:#fff; --c-bg-surface:#f5f5f4; --c-bg-card:#fff;
+  --c-border-default:#d6d3d1; --c-border-subtle:#e7e5e4;
+  --c-text-heading:#292524; --c-text-body:#57534e; --c-text-muted:#78716c;
+  --c-rail-bg:#1c1917; --c-rail-icon:#78716c; --c-rail-active:#fff;
+  --c-pri-bg:#f5f3ff; --c-pri-border:#ddd6fe; --c-pri-solid:#8b5cf6; --c-pri-text:#6d28d9;
+  --c-ok-bg:#ecfdf5; --c-ok-border:#a7f3d0; --c-ok-solid:#10b981; --c-ok-text:#047857;
+  --c-err-bg:#fef2f2; --c-err-border:#fecaca; --c-err-solid:#ef4444; --c-err-text:#b91c1c;
+  --c-sig-bg:#fffbeb; --c-sig-border:#fde68a; --c-sig-solid:#f59e0b; --c-sig-text:#b45309;
+  --c-info-text:#2563eb;
+  --c-sel-bg:#f5f3ff; --c-sel-ring:#ddd6fe;
+  --c-modal-overlay:rgba(0,0,0,0.3);
+}
+.dark {
+  --c-bg-page:#0c0a09; --c-bg-content:#292524; --c-bg-surface:#1c1917; --c-bg-card:#292524;
+  --c-border-default:#57534e; --c-border-subtle:#44403c;
+  --c-text-heading:#f5f5f4; --c-text-body:#d6d3d1; --c-text-muted:#a8a29e;
+  --c-rail-bg:#0c0a09; --c-rail-icon:#57534e; --c-rail-active:#fff;
+  --c-pri-bg:rgba(139,92,246,0.12); --c-pri-border:rgba(167,139,250,0.3); --c-pri-solid:#a78bfa; --c-pri-text:#c4b5fd;
+  --c-ok-bg:rgba(52,211,153,0.1); --c-ok-border:rgba(52,211,153,0.3); --c-ok-solid:#34d399; --c-ok-text:#34d399;
+  --c-err-bg:rgba(248,113,113,0.05); --c-err-border:rgba(239,68,68,0.3); --c-err-solid:#ef4444; --c-err-text:#ef4444;
+  --c-sig-bg:rgba(251,191,36,0.1); --c-sig-border:rgba(251,191,36,0.3); --c-sig-solid:#f59e0b; --c-sig-text:#f59e0b;
+  --c-info-text:#60a5fa;
+  --c-sel-bg:rgba(139,92,246,0.08); --c-sel-ring:rgba(139,92,246,0.3);
+  --c-modal-overlay:rgba(0,0,0,0.6);
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.pulse-dot { animation: pulse 1.5s infinite; }
+.tab-content { display:none; }
+.tab-content.active { display:flex; flex-direction:column; flex:1; }
+</style>
+</head>
+<body class="h-screen flex overflow-hidden bg-page text-txt-body font-sans antialiased">
+
+<!-- Theme Toggle -->
+<button onclick="toggleTheme()" class="fixed top-2.5 right-3.5 z-50 bg-card border border-bdr-subtle rounded-lg px-2.5 py-1.5 text-[10px] text-txt-muted hover:text-txt-heading flex items-center gap-1.5 cursor-pointer">
+  <span id="themeIcon">&#9790;</span>
+  <span id="themeLabel">Dark</span>
+</button>
+
+<!-- ====== RAIL ====== -->
+<nav class="w-16 shrink-0 bg-rail-bg flex flex-col items-center">
+  <div class="w-full h-12 flex items-center justify-center border-b border-white/[0.06]">
+    <div class="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-[0_0_12px_rgba(139,92,246,0.25)]">
+      <div class="w-3 h-3 rounded-full border-2 border-white"></div>
+    </div>
+  </div>
+  <div class="flex flex-col items-center gap-1 mt-2">
+    <button class="w-[52px] h-12 rounded-lg flex flex-col items-center justify-center gap-0.5 text-rail-icon hover:text-stone-300 hover:bg-white/[0.04] transition-colors duration-100">
+      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+      <span class="text-[10px] font-medium leading-tight">Arbeit</span>
+    </button>
+    <button class="w-[52px] h-12 rounded-lg flex flex-col items-center justify-center gap-0.5 text-rail-icon hover:text-stone-300 hover:bg-white/[0.04] transition-colors duration-100">
+      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h12M4 10h12M4 15h8"/></svg>
+      <span class="text-[10px] font-medium leading-tight">Logbuch</span>
+    </button>
+    <button class="w-[52px] h-12 rounded-lg flex flex-col items-center justify-center gap-0.5 bg-violet-500 text-white transition-colors duration-100">
+      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l4 4 10-10"/><path d="M3 6h3M3 14h3"/></svg>
+      <span class="text-[10px] font-medium leading-tight">Builds</span>
+    </button>
+  </div>
+  <div class="flex-1"></div>
+  <button class="w-10 h-10 mb-3 rounded-lg flex items-center justify-center text-rail-icon hover:text-stone-300 hover:bg-white/[0.04] transition-colors duration-100">
+    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="3"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3M3.5 3.5l2.1 2.1M14.4 14.4l2.1 2.1M16.5 3.5l-2.1 2.1M5.6 14.4l-2.1 2.1"/></svg>
+  </button>
+</nav>
+
+<!-- ====== SIDEBAR ====== -->
+<aside class="w-[360px] shrink-0 bg-page border-r border-bdr-subtle flex flex-col overflow-hidden">
+  <div class="px-4 py-3 border-b border-bdr-subtle">
+    <div class="text-sm font-semibold text-txt-heading tracking-wide">Builds</div>
+  </div>
+  <div class="px-3 pt-2">
+    <input type="text" placeholder="&#128269; Branch suchen..." class="w-full bg-card border border-bdr-subtle rounded-md px-2.5 py-1.5 text-[11px] text-txt-heading placeholder:text-txt-muted outline-none focus:border-pri-solid">
+  </div>
+  <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable] px-3 py-4 space-y-6">
+
+    <!-- Repo: frontend-app -->
+    <div class="flex flex-col space-y-1.5">
+      <div class="flex justify-between items-center px-1 mb-1">
+        <span class="text-[10px] font-semibold text-txt-muted uppercase tracking-wider">frontend-app</span>
+        <span class="text-[10px] text-txt-muted">4 Branches</span>
+      </div>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-sel-bg ring-1 ring-sel-ring shadow-sm pl-4 pr-3 pt-2.5 pb-2.5 rounded-r-lg rounded-l-none border-l-4 border-l-err-solid" data-branch="failed" onclick="selectBranch('failed',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">feature/ORBIT-189-dashboard</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-err-bg text-err-text border-err-border"><span class="w-1.5 h-1.5 rounded-full bg-err-solid"></span>Fehler</span>
+          <span class="text-[10px] text-txt-muted">#45</span>
+          <span class="text-[10px] text-txt-muted">vor 1 Std.</span>
+          <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #12</span>
+        </div>
+      </button>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-card ring-1 ring-bdr-subtle hover:ring-bdr pl-4 pr-3 pt-2.5 pb-2.5 transition-all duration-150" data-branch="running" onclick="selectBranch('running',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">bugfix/ORBIT-301-login-fix</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-run-bg text-run-text border-run-border"><span class="w-1.5 h-1.5 rounded-full bg-run-solid"></span>Läuft</span>
+          <span class="text-[10px] text-txt-muted">#48</span>
+          <span class="text-[10px] text-txt-muted">seit 4 Min.</span>
+          <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #15</span>
+        </div>
+      </button>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-card ring-1 ring-bdr-subtle hover:ring-bdr pl-4 pr-3 pt-2.5 pb-2.5 transition-all duration-150" data-branch="success" onclick="selectBranch('success',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">feature/ORBIT-234-user-auth</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-ok-bg text-ok-text border-ok-border"><span class="w-1.5 h-1.5 rounded-full bg-ok-solid"></span>Erfolg</span>
+          <span class="text-[10px] text-txt-muted">#47</span>
+          <span class="text-[10px] text-txt-muted">vor 12 Min.</span>
+          <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #14</span>
+        </div>
+      </button>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-card ring-1 ring-bdr-subtle hover:ring-bdr pl-4 pr-3 pt-2.5 pb-2.5 transition-all duration-150" data-branch="success-develop" onclick="selectBranch('success',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">develop</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-ok-bg text-ok-text border-ok-border"><span class="w-1.5 h-1.5 rounded-full bg-ok-solid"></span>Erfolg</span>
+          <span class="text-[10px] text-txt-muted">#312</span>
+          <span class="text-[10px] text-txt-muted">vor 3 Std.</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Repo: backend-api -->
+    <div class="flex flex-col space-y-1.5">
+      <div class="flex justify-between items-center px-1 mb-1">
+        <span class="text-[10px] font-semibold text-txt-muted uppercase tracking-wider">backend-api</span>
+        <span class="text-[10px] text-txt-muted">2 Branches</span>
+      </div>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-card ring-1 ring-bdr-subtle hover:ring-bdr pl-4 pr-3 pt-2.5 pb-2.5 transition-all duration-150" data-branch="backend-success" onclick="selectBranch('success',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">feature/API-42-rate-limiting</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-ok-bg text-ok-text border-ok-border"><span class="w-1.5 h-1.5 rounded-full bg-ok-solid"></span>Erfolg</span>
+          <span class="text-[10px] text-txt-muted">#88</span>
+          <span class="text-[10px] text-txt-muted">vor 45 Min.</span>
+          <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #7</span>
+        </div>
+      </button>
+
+      <button class="branch-card group relative w-full text-left rounded-lg overflow-hidden bg-card ring-1 ring-bdr-subtle hover:ring-bdr pl-4 pr-3 pt-2.5 pb-2.5 transition-all duration-150" data-branch="backend-main" onclick="selectBranch('success',this)">
+        <div class="font-mono text-[11px] font-bold tracking-wide text-txt-heading truncate">main</div>
+        <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-ok-bg text-ok-text border-ok-border"><span class="w-1.5 h-1.5 rounded-full bg-ok-solid"></span>Erfolg</span>
+          <span class="text-[10px] text-txt-muted">#201</span>
+          <span class="text-[10px] text-txt-muted">vor 1 Tag</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="text-center text-[10px] text-txt-muted cursor-pointer hover:text-txt-body">2 weitere Branches ohne aktuelle Aktivität</div>
+  </div>
+</aside>
+
+<!-- ====== DETAIL: FAILED BUILD ====== -->
+<main class="detail flex-1 flex flex-col overflow-hidden bg-page" id="detail-failed">
+  <!-- Header -->
+  <div class="px-6 pt-5 pb-4 border-b border-bdr-subtle">
+    <div class="flex items-center gap-2 mb-1.5">
+      <span class="font-mono text-[11px] font-semibold text-txt-muted tracking-wide">frontend-app</span>
+      <span class="text-bdr">·</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-err-bg text-err-text border-err-border"><span class="w-1.5 h-1.5 rounded-full bg-err-solid"></span>Fehlgeschlagen</span>
+      <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #12</span>
+    </div>
+    <h1 class="text-[15px] font-bold font-mono text-txt-heading tracking-wide">feature/ORBIT-189-dashboard</h1>
+    <div class="flex items-center gap-2 mt-2 flex-wrap text-[11px] text-txt-muted">
+      <span>Build #45</span><span class="text-bdr">·</span>
+      <span>14:20 Uhr</span><span class="text-bdr">·</span>
+      <span>Dauer: 4:12</span><span class="text-bdr">·</span>
+      <span>Ausgelöst durch Push</span>
+    </div>
+  </div>
+  <!-- Action Bar -->
+  <div class="flex items-center gap-2 px-6 py-2.5 border-b border-bdr-subtle bg-page">
+    <button class="inline-flex items-center gap-1 text-[10px] font-medium px-3 py-1.5 rounded-md bg-pri-solid text-white hover:opacity-90 transition-opacity" onclick="showModal()">&#8635; Neu starten</button>
+    <button class="inline-flex items-center gap-1 text-[10px] font-medium px-3 py-1.5 rounded-md bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading hover:border-bdr transition-colors">&#8599; Jenkins öffnen</button>
+  </div>
+  <!-- Tabs -->
+  <div class="flex border-b border-bdr-subtle px-6">
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-pri-solid text-pri-text font-semibold" onclick="switchTab('failed','overview')">Übersicht</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading" onclick="switchTab('failed','log')">Log</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading flex items-center gap-1" onclick="switchTab('failed','artifacts')">Artefakte <span class="bg-surface px-1.5 rounded-full text-[9px] font-normal text-txt-muted">7</span></button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-content active flex-1 overflow-y-auto [scrollbar-gutter:stable]" id="failed-overview">
+    <div class="max-w-2xl mx-auto w-full px-6 py-5 flex flex-col gap-3">
+
+      <!-- Beschreibung -->
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Beschreibung</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4">
+          <div class="text-xs leading-7 text-txt-body break-all">
+            Deployment auf Testumgebung:<br>
+            <a href="#" target="_blank" class="text-info-text underline hover:opacity-80">https://test-dashboard.dev.example.com</a><br>
+            <a href="#" target="_blank" class="text-info-text underline hover:opacity-80">https://storybook-dashboard.dev.example.com</a><br>
+            <a href="#" target="_blank" class="text-info-text underline hover:opacity-80">https://api-docs-dashboard.dev.example.com</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- KI-Analyse -->
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">KI-Analyse</span>
+          <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[8px] font-semibold border bg-pri-bg text-pri-text border-pri-border">Beta</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4">
+          <div class="text-[11px] leading-7 text-txt-body">
+            <div class="mb-2.5"><div class="font-semibold text-txt-heading mb-1">Ursache</div>Der Deploy-Server <code class="font-mono bg-surface px-1 py-0.5 rounded text-[10px]">test-server-03.internal:8443</code> ist nicht erreichbar. Alle 3 Verbindungsversuche sind mit <code class="font-mono bg-surface px-1 py-0.5 rounded text-[10px]">Connection refused</code> fehlgeschlagen.</div>
+            <div class="mb-2.5"><div class="font-semibold text-txt-heading mb-1">Einschätzung</div>Vermutlich ein Infrastruktur-Problem — der Zielserver ist entweder nicht gestartet oder der Port 8443 wird blockiert. Der Build-Code selbst ist wahrscheinlich nicht die Ursache.</div>
+            <div><div class="font-semibold text-txt-heading mb-1">Nächste Schritte</div><ul class="pl-4 list-disc text-txt-muted"><li>Prüfen ob <code class="font-mono bg-surface px-1 py-0.5 rounded text-[10px]">test-server-03</code> erreichbar ist</li><li>Build neu starten — wenn der Server wieder läuft, sollte der Deploy erfolgreich sein</li></ul></div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-bdr-subtle flex justify-between items-center text-[9px] text-txt-muted">
+            <span>Analysiert: Deploy-Stage Log (34 Zeilen) + error.message</span>
+            <button class="px-2 py-0.5 rounded bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading text-[9px]">&#8635; Neu analysieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline -->
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Pipeline</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4 flex flex-col gap-2.5">
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Checkout</span><span class="text-[10px] text-txt-muted">0:08</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Build</span><span class="text-[10px] text-txt-muted">1:34</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1"><div class="flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Test</span><span class="text-[10px] text-txt-muted">1:52</span></div><div class="text-[10px] text-txt-muted mt-0.5">142 Tests bestanden</div></div></div>
+          <div class="flex gap-3.5 items-start"><div class="w-[22px] h-[22px] rounded-full bg-err-bg border-2 border-err-solid flex items-center justify-center text-[10px] text-err-text shrink-0 mt-0.5">&#10007;</div><div class="flex-1"><div class="flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-err-text">Deploy</span><span class="text-[10px] text-txt-muted">0:38</span></div><div class="bg-err-bg border border-err-border rounded-md p-2.5 mt-1.5 font-mono text-[10px] leading-7"><div class="text-txt-muted">[14:24:08] WARN: Connection attempt 1 timed out</div><div class="text-txt-muted">[14:24:15] WARN: Connection attempt 2 timed out</div><div class="flex"><div class="w-[3px] bg-err-solid rounded-sm shrink-0 mr-1.5"></div><div class="text-txt-body">[14:24:23] ERROR: Connection refused: test-server-03:8443</div></div><div class="flex"><div class="w-[3px] bg-err-solid rounded-sm shrink-0 mr-1.5"></div><div class="text-txt-body">[14:24:23] ERROR: Deploy failed after 3 retries</div></div></div></div></div>
+          <div class="flex gap-3.5 items-center opacity-40"><div class="w-[22px] h-[22px] rounded-full bg-surface border-2 border-bdr flex items-center justify-center text-[10px] text-txt-muted shrink-0">&#8211;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-txt-muted">Notify</span><span class="text-[10px] text-txt-muted">Übersprungen</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="tab-content" id="failed-log" style="flex:1;overflow:hidden;">
+    <div class="flex items-center gap-2 px-4 py-2.5 border-b border-bdr-subtle shrink-0">
+      <input type="text" placeholder="&#128269; Im Log suchen..." class="bg-card border border-bdr-subtle rounded-md px-2.5 py-1.5 text-[10px] text-txt-heading placeholder:text-txt-muted w-44 outline-none focus:border-pri-solid">
+      <div class="flex-1"></div>
+      <button class="text-[9px] font-medium px-2.5 py-1 rounded-md bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading">&#8599; Vollständig in Jenkins</button>
+    </div>
+    <div class="flex-1 overflow-y-auto bg-page font-mono text-[10px] leading-7">
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">1</span>Started by user admin</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">2</span><span class="font-semibold">[Pipeline] Start of Pipeline</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">3</span><span class="font-semibold">[Pipeline] stage</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">4</span><span class="font-semibold">[Pipeline] { (Checkout)</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">5</span>[14:20:08] Cloning repository...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">6</span>[14:20:09] > <span class="text-cyan-400">git rev-parse --is-inside-work-tree</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">7</span>[14:20:09] > <span class="text-cyan-400">git fetch --tags --force --progress</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">8</span>[14:20:12] Checking out Revision abc1234</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">9</span><span class="font-semibold">[Pipeline] }</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">10</span><span class="font-semibold">[Pipeline] stage</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">11</span><span class="font-semibold">[Pipeline] { (Build)</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">12</span>[14:20:13] <span class="font-semibold text-cyan-400"> NX </span>  Running target build for project frontend-app</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">13</span>[14:20:18] Compiling TypeScript files...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">14</span>[14:20:42] <span class="text-ok-text">Successfully compiled 847 files.</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">15</span>[14:21:03] Bundling application...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">16</span>[14:21:38] <span class="text-ok-text">Build complete (1m 25s)</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">17</span>[14:21:42] Generating source maps...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">18</span>[14:21:47] <span class="text-ok-text">Done in 1m 34s</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">19</span><span class="font-semibold">[Pipeline] }</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">20</span><span class="font-semibold">[Pipeline] stage</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">21</span><span class="font-semibold">[Pipeline] { (Test)</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">22</span>[14:21:48] <span class="font-semibold text-cyan-400"> NX </span>  Running target test for project frontend-app</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">23</span>[14:21:52] <span class="font-semibold">PASS</span> <span class="text-ok-text">src/app/auth/auth.service.spec.ts</span> (28 tests)</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">24</span>[14:22:01] <span class="font-semibold">PASS</span> <span class="text-ok-text">src/app/dashboard/dashboard.spec.ts</span> (34 tests)</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">25</span>[14:22:15] <span class="font-semibold">PASS</span> <span class="text-ok-text">src/app/shared/utils.spec.ts</span> (19 tests)</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">26</span>[14:22:28] ...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">27</span>[14:23:40] <span class="text-ok-text font-semibold">Tests: 142 passed, 142 total</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">28</span>[14:23:40] <span class="text-ok-text">Done in 1m 52s</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">29</span><span class="font-semibold">[Pipeline] }</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">30</span><span class="font-semibold">[Pipeline] stage</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">31</span><span class="font-semibold">[Pipeline] { (Deploy)</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">32</span>[14:23:45] Starting deployment to test environment...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">33</span>[14:23:46] Checking target server availability...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">34</span>[14:23:47] Target: <span class="text-cyan-400">test-server-03.internal:8443</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">35</span>[14:23:48] Uploading artifacts (3 files, 24.1 MB)...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">36</span>[14:23:52] Upload complete.</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">37</span>[14:24:01] Attempting connection (1/3)...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">38</span><span class="text-sig-text">[14:24:08] WARN: Connection attempt 1 timed out after 7s</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">39</span>[14:24:08] Attempting connection (2/3)...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">40</span><span class="text-sig-text">[14:24:15] WARN: Connection attempt 2 timed out after 7s</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">41</span>[14:24:15] Attempting connection (3/3)...</div>
+      <div class="log-line relative py-px pr-4 pl-[45px] border-l-[3px] border-err-solid"><span class="absolute left-[19px] text-[9px] text-bdr select-none">42</span><span class="text-err-text font-semibold">[14:24:23] ERROR: Connection refused: test-server-03.internal:8443</span></div>
+      <div class="log-line relative py-px pr-4 pl-[45px] border-l-[3px] border-err-solid"><span class="absolute left-[19px] text-[9px] text-bdr select-none">43</span><span class="text-err-text">[14:24:23] ERROR: java.net.ConnectException: Connection refused</span></div>
+      <div class="log-line relative py-px pr-4 pl-[45px] border-l-[3px] border-err-solid"><span class="absolute left-[19px] text-[9px] text-bdr select-none">44</span><span class="text-err-text font-semibold">[14:24:23] ERROR: Deploy failed after 3 retries</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">45</span>[14:24:23] Cleaning up temporary files...</div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">46</span><span class="font-semibold">[Pipeline] }</span></div>
+      <div class="log-line relative py-px pl-12 pr-4"><span class="absolute left-4 text-[9px] text-bdr select-none">47</span><span class="font-semibold">[Pipeline] End of Pipeline</span></div>
+      <div class="log-line relative py-px pr-4 pl-[45px] border-l-[3px] border-err-solid"><span class="absolute left-[19px] text-[9px] text-bdr select-none">48</span><span class="text-err-text font-semibold">ERROR: script returned exit code 1</span></div>
+      <div class="log-line relative py-px pr-4 pl-[45px] border-l-[3px] border-err-solid"><span class="absolute left-[19px] text-[9px] text-bdr select-none">49</span><span class="text-err-text">Finished: FAILURE</span></div>
+    </div>
+  </div>
+
+  <!-- ARTIFACTS TAB -->
+  <div class="tab-content flex-1 overflow-y-auto [scrollbar-gutter:stable]" id="failed-artifacts">
+    <div class="max-w-2xl mx-auto w-full px-6 py-5">
+      <!-- screenshots/ -->
+      <div class="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-surface mb-0.5" onclick="toggleArtifactFolder(this)">
+        <svg class="w-2.5 h-2.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+        <span class="text-sm">&#128193;</span>
+        <span class="text-[11px] font-semibold text-txt-heading flex-1">screenshots/</span>
+        <span class="text-[10px] text-txt-muted">4 Dateien</span>
+        <button class="text-[9px] font-medium px-2 py-0.5 rounded bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading" onclick="event.stopPropagation()">&#8681; ZIP</button>
+      </div>
+      <div class="ml-7 artifact-children">
+        <div class="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-surface mb-0.5" onclick="toggleArtifactFolder(this)">
+          <svg class="w-2.5 h-2.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-sm">&#128193;</span>
+          <span class="text-[11px] font-semibold text-txt-heading flex-1">diff/</span>
+          <span class="text-[10px] text-txt-muted">2 Dateien</span>
+        </div>
+        <div class="ml-7 artifact-children">
+          <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128247;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">dashboard-header.png</span><span class="text-[9px] text-txt-muted shrink-0">89 KB</span></div>
+          <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128247;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">login-form.png</span><span class="text-[9px] text-txt-muted shrink-0">124 KB</span></div>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-surface mb-0.5" onclick="toggleArtifactFolder(this)">
+          <svg class="w-2.5 h-2.5 text-txt-muted shrink-0 transition-transform duration-150" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-sm">&#128193;</span>
+          <span class="text-[11px] font-semibold text-txt-heading flex-1">baseline/</span>
+          <span class="text-[10px] text-txt-muted">2 Dateien</span>
+        </div>
+        <div class="ml-7 artifact-children hidden">
+          <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128247;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">dashboard-header.png</span><span class="text-[9px] text-txt-muted shrink-0">87 KB</span></div>
+          <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128247;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">login-form.png</span><span class="text-[9px] text-txt-muted shrink-0">121 KB</span></div>
+        </div>
+      </div>
+      <!-- test-results/ -->
+      <div class="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-surface mb-0.5 mt-1" onclick="toggleArtifactFolder(this)">
+        <svg class="w-2.5 h-2.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+        <span class="text-sm">&#128193;</span>
+        <span class="text-[11px] font-semibold text-txt-heading flex-1">test-results/</span>
+        <span class="text-[10px] text-txt-muted">3 Dateien</span>
+        <button class="text-[9px] font-medium px-2 py-0.5 rounded bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading" onclick="event.stopPropagation()">&#8681; ZIP</button>
+      </div>
+      <div class="ml-7 artifact-children">
+        <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128196;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">e2e-test-report.html</span><span class="text-[9px] text-txt-muted shrink-0">2.4 MB</span></div>
+        <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128196;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">junit-results.xml</span><span class="text-[9px] text-txt-muted shrink-0">148 KB</span></div>
+        <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128196;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">coverage-report.html</span><span class="text-[9px] text-txt-muted shrink-0">1.1 MB</span></div>
+      </div>
+      <!-- dist/ collapsed -->
+      <div class="flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-surface mb-0.5 mt-1" onclick="toggleArtifactFolder(this)">
+        <svg class="w-2.5 h-2.5 text-txt-muted shrink-0 transition-transform duration-150" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+        <span class="text-sm">&#128193;</span>
+        <span class="text-[11px] font-semibold text-txt-heading flex-1">dist/</span>
+        <span class="text-[10px] text-txt-muted">1 Datei — 18.7 MB</span>
+        <button class="text-[9px] font-medium px-2 py-0.5 rounded bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading" onclick="event.stopPropagation()">&#8681; ZIP</button>
+      </div>
+      <div class="ml-7 artifact-children hidden">
+        <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 cursor-pointer hover:bg-surface"><span class="text-sm">&#128230;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">app-bundle.tar.gz</span><span class="text-[9px] text-txt-muted shrink-0">18.7 MB</span></div>
+      </div>
+      <!-- Root file -->
+      <div class="flex items-center gap-2 py-1 px-2 bg-card rounded-md mb-0.5 mt-1 cursor-pointer hover:bg-surface"><span class="text-sm">&#128196;</span><span class="text-[11px] font-mono text-info-text flex-1 truncate">build-info.json</span><span class="text-[9px] text-txt-muted shrink-0">2 KB</span></div>
+      <div class="text-[9px] text-txt-muted pt-3">7 Dateien in 4 Ordnern — 22.6 MB gesamt</div>
+    </div>
+  </div>
+</main>
+
+<!-- ====== DETAIL: SUCCESS BUILD ====== -->
+<main class="detail flex-1 flex flex-col overflow-hidden bg-page" id="detail-success" style="display:none;">
+  <div class="px-6 pt-5 pb-4 border-b border-bdr-subtle">
+    <div class="flex items-center gap-2 mb-1.5">
+      <span class="font-mono text-[11px] font-semibold text-txt-muted tracking-wide">frontend-app</span>
+      <span class="text-bdr">·</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-ok-bg text-ok-text border-ok-border"><span class="w-1.5 h-1.5 rounded-full bg-ok-solid"></span>Erfolgreich</span>
+      <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #14</span>
+    </div>
+    <h1 class="text-[15px] font-bold font-mono text-txt-heading tracking-wide">feature/ORBIT-234-user-auth</h1>
+    <div class="flex items-center gap-2 mt-2 flex-wrap text-[11px] text-txt-muted">
+      <span>Build #47</span><span class="text-bdr">·</span>
+      <span>13:45 Uhr</span><span class="text-bdr">·</span>
+      <span>Dauer: 3:28</span><span class="text-bdr">·</span>
+      <span>Ausgelöst durch Push</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 px-6 py-2.5 border-b border-bdr-subtle bg-page">
+    <button class="text-[10px] font-medium px-3 py-1.5 rounded-md bg-pri-solid text-white hover:opacity-90" onclick="showModal()">&#8635; Neu starten</button>
+    <button class="text-[10px] font-medium px-3 py-1.5 rounded-md bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading">&#8599; Jenkins öffnen</button>
+  </div>
+  <div class="flex border-b border-bdr-subtle px-6">
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-pri-solid text-pri-text font-semibold" onclick="switchTab('success','overview')">Übersicht</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading" onclick="switchTab('success','log')">Log</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading flex items-center gap-1" onclick="switchTab('success','artifacts')">Artefakte <span class="bg-surface px-1.5 rounded-full text-[9px] text-txt-muted">5</span></button>
+  </div>
+  <div class="tab-content active flex-1 overflow-y-auto [scrollbar-gutter:stable]" id="success-overview">
+    <div class="max-w-2xl mx-auto w-full px-6 py-5 flex flex-col gap-3">
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Beschreibung</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4">
+          <div class="text-xs leading-7 text-txt-body break-all">
+            Deployment auf Testumgebung:<br>
+            <a href="#" target="_blank" class="text-info-text underline hover:opacity-80">https://test-auth.dev.example.com</a><br>
+            <a href="#" target="_blank" class="text-info-text underline hover:opacity-80">https://storybook-auth.dev.example.com</a>
+          </div>
+        </div>
+      </div>
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Pipeline</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4 flex flex-col gap-2.5">
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Checkout</span><span class="text-[10px] text-txt-muted">0:05</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Build</span><span class="text-[10px] text-txt-muted">1:22</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Test</span><span class="text-[10px] text-txt-muted">1:38</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Deploy</span><span class="text-[10px] text-txt-muted">0:23</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-content flex-1 overflow-y-auto" id="success-log"><div class="p-10 text-center text-txt-muted">Log-Ansicht für erfolgreichen Build</div></div>
+  <div class="tab-content flex-1 overflow-y-auto" id="success-artifacts"><div class="p-10 text-center text-txt-muted">Artefakte-Ansicht für erfolgreichen Build</div></div>
+</main>
+
+<!-- ====== DETAIL: RUNNING BUILD ====== -->
+<main class="detail flex-1 flex flex-col overflow-hidden bg-page" id="detail-running" style="display:none;">
+  <div class="px-6 pt-5 pb-4 border-b border-bdr-subtle">
+    <div class="flex items-center gap-2 mb-1.5">
+      <span class="font-mono text-[11px] font-semibold text-txt-muted tracking-wide">frontend-app</span>
+      <span class="text-bdr">·</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold border bg-run-bg text-run-text border-run-border"><span class="w-1.5 h-1.5 rounded-full bg-run-solid"></span>Läuft</span>
+      <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-pri-bg text-pri-text border-pri-border">PR #15</span>
+    </div>
+    <h1 class="text-[15px] font-bold font-mono text-txt-heading tracking-wide">bugfix/ORBIT-301-login-fix</h1>
+    <div class="flex items-center gap-2 mt-2 flex-wrap text-[11px] text-txt-muted">
+      <span>Build #48</span><span class="text-bdr">·</span>
+      <span class="text-run-text">läuft seit 4:12</span><span class="text-bdr">·</span>
+      <span>Ausgelöst durch Push</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2 px-6 py-2.5 border-b border-bdr-subtle bg-page">
+    <button class="text-[10px] font-medium px-3 py-1.5 rounded-md bg-err-bg text-err-text border border-err-border hover:opacity-90">&#9632; Abbrechen</button>
+    <button class="text-[10px] font-medium px-3 py-1.5 rounded-md bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading">&#8599; Jenkins öffnen</button>
+  </div>
+  <div class="flex border-b border-bdr-subtle px-6">
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-pri-solid text-pri-text font-semibold" onclick="switchTab('running','overview')">Übersicht</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading" onclick="switchTab('running','log')">Log</button>
+    <button class="tab px-3.5 py-2.5 text-[11px] border-b-2 border-transparent text-txt-muted hover:text-txt-heading" onclick="switchTab('running','artifacts')">Artefakte</button>
+  </div>
+  <div class="tab-content active flex-1 overflow-y-auto [scrollbar-gutter:stable]" id="running-overview">
+    <div class="max-w-2xl mx-auto w-full px-6 py-5 flex flex-col gap-3">
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Beschreibung</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4">
+          <div class="text-[10px] text-txt-muted italic">Noch keine Beschreibung — Build läuft noch</div>
+        </div>
+      </div>
+      <div class="bg-card rounded-xl border border-bdr-subtle shadow-sm overflow-hidden">
+        <button class="w-full text-left px-6 py-3.5 flex items-center gap-3 hover:bg-surface transition-colors" onclick="toggleSection(this)">
+          <svg class="w-3.5 h-3.5 text-txt-muted shrink-0 transition-transform duration-150 rotate-90" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
+          <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">Pipeline</span>
+        </button>
+        <div class="border-t border-bdr-subtle px-6 py-4 flex flex-col gap-2.5">
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Checkout</span><span class="text-[10px] text-txt-muted">0:06</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-ok-bg border-2 border-ok-solid flex items-center justify-center text-[10px] text-ok-text shrink-0">&#10003;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-ok-text">Build</span><span class="text-[10px] text-txt-muted">1:18</span></div></div>
+          <div class="flex gap-3.5 items-center"><div class="w-[22px] h-[22px] rounded-full bg-run-bg border-2 border-run-solid flex items-center justify-center shrink-0"><div class="w-2 h-2 rounded-full bg-run-solid pulse-dot"></div></div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-run-text">Test</span><span class="text-[10px] text-run-text">seit 2:48</span></div></div>
+          <div class="flex gap-3.5 items-center opacity-35"><div class="w-[22px] h-[22px] rounded-full bg-surface border-2 border-bdr flex items-center justify-center text-[10px] text-txt-muted shrink-0">&#8211;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-txt-muted">Deploy</span><span class="text-[10px] text-txt-muted">Ausstehend</span></div></div>
+          <div class="flex gap-3.5 items-center opacity-35"><div class="w-[22px] h-[22px] rounded-full bg-surface border-2 border-bdr flex items-center justify-center text-[10px] text-txt-muted shrink-0">&#8211;</div><div class="flex-1 flex justify-between items-center min-h-[22px]"><span class="text-xs font-semibold text-txt-muted">Notify</span><span class="text-[10px] text-txt-muted">Ausstehend</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-content flex-1 overflow-y-auto" id="running-log"><div class="p-10 text-center text-txt-muted">Log wird live aktualisiert...</div></div>
+  <div class="tab-content flex-1 overflow-y-auto" id="running-artifacts"><div class="p-10 text-center text-txt-muted">Artefakte werden nach Build-Abschluss verfügbar</div></div>
+</main>
+
+<!-- ====== RESTART MODAL ====== -->
+<div class="fixed inset-0 bg-[var(--c-modal-overlay)] flex items-start justify-center pt-20 z-[200] hidden" id="modal" onclick="hideModal(event)">
+  <div class="w-[460px] bg-card rounded-xl border border-bdr-subtle overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center px-5 py-4 border-b border-bdr-subtle">
+      <div>
+        <div class="text-sm font-bold text-txt-heading">Build neu starten</div>
+        <div class="text-[10px] text-txt-muted font-mono mt-0.5">feature/ORBIT-189-dashboard</div>
+      </div>
+      <button class="w-6 h-6 rounded-md bg-surface flex items-center justify-center text-txt-muted text-sm hover:text-txt-heading" onclick="hideModal()">&#10005;</button>
+    </div>
+    <div class="px-5 py-4 flex flex-col gap-3.5">
+      <div class="flex justify-between items-center">
+        <div><div class="text-[11px] font-semibold text-txt-heading">UPDATE_SCREENSHOTS</div><div class="text-[10px] text-txt-muted mt-0.5">Screenshot-Baselines aktualisieren statt vergleichen</div></div>
+        <div class="toggle w-9 h-5 rounded-full cursor-pointer bg-surface border border-bdr relative transition-colors" onclick="toggleToggle(this)"><div class="toggle-knob absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-txt-muted transition-all"></div></div>
+      </div>
+      <div>
+        <div class="text-[11px] font-semibold text-txt-heading">DEPLOY_TARGET</div>
+        <div class="text-[10px] text-txt-muted mt-0.5">Zielumgebung für das Deployment</div>
+        <select class="mt-1.5 w-full bg-page border border-bdr-subtle rounded-md px-2.5 py-1.5 text-[11px] text-txt-heading outline-none appearance-none focus:border-pri-solid" style="background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2378716c'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 10px center;">
+          <option>test-environment</option><option>staging</option><option>preview</option>
+        </select>
+      </div>
+      <div>
+        <div class="text-[11px] font-semibold text-txt-heading">BRANCH_OVERRIDE</div>
+        <div class="text-[10px] text-txt-muted mt-0.5">Branch-Name überschreiben (leer = aktueller Branch)</div>
+        <input class="mt-1.5 w-full bg-page border border-bdr-subtle rounded-md px-2.5 py-1.5 text-[11px] text-txt-heading placeholder:text-txt-muted outline-none focus:border-pri-solid" type="text" placeholder="Leer (Standard)">
+      </div>
+      <div class="flex justify-between items-center">
+        <div><div class="text-[11px] font-semibold text-txt-heading">SKIP_E2E</div><div class="text-[10px] text-txt-muted mt-0.5">E2E-Tests überspringen</div></div>
+        <div class="toggle w-9 h-5 rounded-full cursor-pointer bg-surface border border-bdr relative transition-colors" onclick="toggleToggle(this)"><div class="toggle-knob absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-txt-muted transition-all"></div></div>
+      </div>
+      <div>
+        <div class="text-[11px] font-semibold text-txt-heading">CUSTOM_ARGS</div>
+        <div class="text-[10px] text-txt-muted mt-0.5">Zusätzliche Build-Argumente (eine pro Zeile)</div>
+        <textarea class="mt-1.5 w-full bg-page border border-bdr-subtle rounded-md px-2.5 py-1.5 text-[11px] text-txt-heading font-mono placeholder:text-txt-muted outline-none focus:border-pri-solid min-h-[48px] resize-y" placeholder="Keine zusätzlichen Argumente"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-between items-center px-5 py-3 border-t border-bdr-subtle">
+      <span class="text-[9px] text-txt-muted">Parameter aus Jenkins-Job-Konfiguration</span>
+      <div class="flex gap-2">
+        <button class="text-[11px] font-medium px-3.5 py-1.5 rounded-md bg-surface text-txt-muted border border-bdr-subtle hover:text-txt-heading" onclick="hideModal()">Abbrechen</button>
+        <button class="text-[11px] font-medium px-3.5 py-1.5 rounded-md bg-pri-solid text-white hover:opacity-90" onclick="hideModal()">Starten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  var h = document.documentElement, i = document.getElementById('themeIcon'), l = document.getElementById('themeLabel');
+  if (h.classList.contains('dark')) { h.classList.remove('dark'); i.textContent = '\u2600'; l.textContent = 'Light'; }
+  else { h.classList.add('dark'); i.textContent = '\u263E'; l.textContent = 'Dark'; }
+}
+function selectBranch(state, el) {
+  document.querySelectorAll('.branch-card').forEach(function(c) {
+    c.classList.remove('bg-sel-bg','ring-sel-ring','shadow-sm');
+    if (!c.classList.contains('border-l-err-solid')) { c.classList.add('bg-card','ring-bdr-subtle'); }
+  });
+  el.classList.remove('bg-card','ring-bdr-subtle');
+  el.classList.add('bg-sel-bg','ring-sel-ring','shadow-sm');
+  document.querySelectorAll('.detail').forEach(function(d) { d.style.display = 'none'; });
+  var detail = document.getElementById('detail-' + state);
+  if (detail) detail.style.display = 'flex';
+}
+function switchTab(view, tab) {
+  var detail = document.getElementById('detail-' + view);
+  detail.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('border-pri-solid','text-pri-text','font-semibold'); t.classList.add('border-transparent','text-txt-muted'); });
+  event.currentTarget.classList.remove('border-transparent','text-txt-muted'); event.currentTarget.classList.add('border-pri-solid','text-pri-text','font-semibold');
+  detail.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+  var target = document.getElementById(view + '-' + tab);
+  if (target) target.classList.add('active');
+}
+function toggleSection(btn) {
+  var chevron = btn.querySelector('svg');
+  var body = btn.nextElementSibling;
+  if (chevron.classList.contains('rotate-90')) { chevron.classList.remove('rotate-90'); body.style.display = 'none'; }
+  else { chevron.classList.add('rotate-90'); body.style.display = ''; }
+}
+function toggleArtifactFolder(el) {
+  var chevron = el.querySelector('svg');
+  var children = el.nextElementSibling;
+  if (!children || !children.classList.contains('artifact-children')) return;
+  if (chevron.classList.contains('rotate-90')) { chevron.classList.remove('rotate-90'); children.classList.add('hidden'); }
+  else { chevron.classList.add('rotate-90'); children.classList.remove('hidden'); }
+}
+function showModal() { document.getElementById('modal').classList.remove('hidden'); }
+function hideModal(e) { if (!e || e.target === document.getElementById('modal')) document.getElementById('modal').classList.add('hidden'); }
+function toggleToggle(el) {
+  var knob = el.querySelector('.toggle-knob');
+  if (el.classList.contains('bg-pri-solid')) {
+    el.classList.remove('bg-pri-solid','border-transparent'); el.classList.add('bg-surface','border-bdr');
+    knob.style.left = '2px'; knob.classList.remove('bg-white'); knob.classList.add('bg-txt-muted');
+  } else {
+    el.classList.remove('bg-surface','border-bdr'); el.classList.add('bg-pri-solid','border-transparent');
+    knob.style.left = '18px'; knob.classList.remove('bg-txt-muted'); knob.classList.add('bg-white');
+  }
+}
+</script>
+</body>
+</html>
