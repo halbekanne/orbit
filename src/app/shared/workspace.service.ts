@@ -1,13 +1,11 @@
 import { effect, inject, Injectable, signal, untracked } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { Idea, JiraTicket, PullRequest, Todo, WorkItem } from './work-item.model';
 import { JiraService } from '../jira/jira.service';
 import { BitbucketService } from '../bitbucket/bitbucket.service';
 import { TodoService } from '../todos/todo.service';
 import { IdeaService } from '../ideas/idea.service';
 import { TicketSubtaskService } from '../jira/ticket-subtask.service';
+import { DataRefreshService } from './data-refresh.service';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
@@ -16,21 +14,11 @@ export class WorkspaceService {
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
   private readonly ticketSubtasks = inject(TicketSubtaskService);
+  private readonly refreshService = inject(DataRefreshService);
 
-  readonly ticketsLoading = signal(true);
-  readonly ticketsError = signal(false);
-
-  private readonly tickets$ = this.jira.getAssignedActiveTickets().pipe(
-    tap(() => this.ticketsLoading.set(false)),
-    catchError((err) => {
-      console.error('Failed to load Jira tickets:', err);
-      this.ticketsError.set(true);
-      this.ticketsLoading.set(false);
-      return of([] as JiraTicket[]);
-    }),
-  );
-
-  readonly tickets = toSignal(this.tickets$, { initialValue: [] as JiraTicket[] });
+  readonly tickets = this.jira.tickets;
+  readonly ticketsLoading = this.jira.loading;
+  readonly ticketsError = this.jira.error;
 
   readonly pullRequests = this.bitbucket.pullRequests;
   readonly reviewPullRequests = this.bitbucket.reviewPullRequests;
@@ -43,7 +31,11 @@ export class WorkspaceService {
   readonly reflectionSelected = signal(false);
 
   constructor() {
-    this.bitbucket.loadAll();
+    this.refreshService.register('jira', () => this.jira.loadTickets());
+    this.refreshService.register('bitbucket', () => this.bitbucket.loadAll());
+    this.refreshService.refreshAll(true);
+    this.refreshService.startPolling();
+    this.refreshService.startVisibilityListener();
 
     effect(() => {
       const keys = this.tickets().map((t) => t.key);
