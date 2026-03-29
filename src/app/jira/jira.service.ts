@@ -1,7 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import {
   JiraTicket,
   JiraTicketAttachment,
@@ -119,6 +119,34 @@ export class JiraService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/jira/rest/api/2`;
   private readonly userDisplayNameCache = new Map<string, string>();
+  private hasLoadedOnce = false;
+  readonly loading = signal(true);
+  readonly error = signal(false);
+  private readonly _tickets = signal<JiraTicket[]>([]);
+  readonly tickets = this._tickets.asReadonly();
+
+  loadTickets(): Observable<unknown> {
+    if (!this.hasLoadedOnce) {
+      this.loading.set(true);
+    }
+    this.error.set(false);
+
+    return this.getAssignedActiveTickets().pipe(
+      tap((tickets) => {
+        this._tickets.set(tickets);
+        this.loading.set(false);
+        this.hasLoadedOnce = true;
+      }),
+      catchError((err) => {
+        console.error('Failed to load Jira tickets:', err);
+        this.error.set(true);
+        if (!this.hasLoadedOnce) {
+          this.loading.set(false);
+        }
+        return throwError(() => err);
+      }),
+    );
+  }
 
   private resolveUserMentions(texts: string[]): Observable<void> {
     const allSlugs = new Set<string>();
