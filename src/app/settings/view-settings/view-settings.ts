@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../settings.service';
-import { OrbitSettings } from '../settings.model';
+import { createDefaultSettings, OrbitSettings } from '../settings.model';
 
 @Component({
   selector: 'app-view-settings',
@@ -81,8 +81,10 @@ export class ViewSettingsComponent {
 
   constructor() {
     effect(() => {
-      const settings = this.settingsService.settings();
-      this.draft.set(structuredClone(settings));
+      const settings = structuredClone(this.settingsService.settings());
+      const defaults = createDefaultSettings();
+      settings.connections = { ...defaults.connections, ...settings.connections };
+      this.draft.set(settings);
       this.savedSnapshot.set(JSON.stringify(settings));
     });
   }
