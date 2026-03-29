@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { BadgeComponent, BadgeColor } from '../badge/badge';
 
 @Component({
   selector: 'app-compact-header-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BadgeComponent],
   host: {
     class: 'sticky top-0 z-20',
     style: 'display:block;height:0;overflow:visible;pointer-events:none',
@@ -20,7 +22,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         <span class="font-mono text-[10px] text-[var(--color-text-muted)] shrink-0">{{ prefix() }}</span>
       }
       <span class="text-xs font-semibold text-[var(--color-text-heading)] truncate min-w-0 flex-1">{{ title() }}</span>
-      <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0" [class]="statusClass()">{{ statusLabel() }}</span>
+      <orbit-badge [color]="statusColor()" size="sm">{{ statusLabel() }}</orbit-badge>
     </div>
   `,
 })
@@ -28,7 +30,7 @@ export class CompactHeaderBarComponent {
   readonly visible = input.required<boolean>();
   readonly title = input.required<string>();
   readonly statusLabel = input.required<string>();
-  readonly statusClass = input.required<string>();
+  readonly statusColor = input.required<BadgeColor>();
   readonly stripeColor = input.required<string>();
   readonly prefix = input<string>('');
 }
