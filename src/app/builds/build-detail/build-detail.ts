@@ -6,11 +6,12 @@ import { BuildLogService } from '../build-log.service';
 import { BranchBuild, JenkinsBuildDetail, JenkinsRun, JenkinsStage, JenkinsStageLog } from '../jenkins.model';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 import { RestartDialogComponent } from '../restart-dialog/restart-dialog';
+import { BadgeComponent } from '../../shared/badge/badge';
 
 @Component({
   selector: 'app-build-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CollapsibleSectionComponent, RestartDialogComponent],
+  imports: [CollapsibleSectionComponent, RestartDialogComponent, BadgeComponent],
   templateUrl: './build-detail.html',
   host: { class: 'flex flex-col h-full overflow-hidden' },
 })

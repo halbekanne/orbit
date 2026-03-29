@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 import { JenkinsService } from '../jenkins.service';
 import { BranchBuild } from '../jenkins.model';
 import { SyncBarComponent } from '../../shared/sync-bar/sync-bar';
-import { BadgeComponent } from '../../shared/badge/badge';
+import { BadgeComponent, BadgeColor } from '../../shared/badge/badge';
 
 @Component({
   selector: 'app-builds-sidebar',
@@ -23,9 +23,9 @@ export class BuildsSidebarComponent {
     return this.selectedBranch() === `${branch.jobDisplayName}/${branch.branchName}`;
   }
 
-  protected getStatusColor(color: string): 'success' | 'danger' | 'info' {
+  protected getStatusColor(color: string): BadgeColor {
     if (color.startsWith('red')) return 'danger';
-    if (color.endsWith('_anime')) return 'info';
+    if (color.endsWith('_anime')) return 'primary';
     return 'success';
   }
 

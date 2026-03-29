@@ -39,35 +39,14 @@
                     {{ decodeBranch(branch.branchName) }}
                   </div>
                   <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    @switch (getStatusColor(branch.branchColor)) {
-                      @case ('danger') {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                      @case ('info') {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                      @default {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                    }
+                    <orbit-badge [color]="getStatusColor(branch.branchColor)" [status]="true" size="sm">{{ getStatusLabel(branch.branchColor) }}</orbit-badge>
                     @if (branch.lastBuild) {
                       <span class="text-[10px] text-[var(--color-text-muted)]">
                         #{{ branch.lastBuild.number }} · {{ timeAgo(branch.lastBuild.timestamp) }}
                       </span>
                     }
                     @if (branch.prNumber) {
-                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]">
-                        PR #{{ branch.prNumber }}
-                      </span>
+                      <orbit-badge color="primary" size="sm">PR #{{ branch.prNumber }}</orbit-badge>
                     }
                   </div>
                 </button>

@@ -12,30 +12,15 @@
       <span class="font-mono">#{{ detail.number }}</span>
       <span>·</span>
       @if (detail.building) {
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-info-bg)] text-[var(--color-info-text)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
-          Läuft
-        </span>
+        <orbit-badge color="primary" [status]="true" size="sm">Läuft</orbit-badge>
       } @else if (detail.result === 'SUCCESS') {
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
-          Erfolg
-        </span>
+        <orbit-badge color="success" [status]="true" size="sm">Erfolg</orbit-badge>
       } @else if (detail.result === 'FAILURE') {
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-danger-bg)] text-[var(--color-danger-text)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
-          Fehlgeschlagen
-        </span>
+        <orbit-badge color="danger" [status]="true" size="sm">Fehlgeschlagen</orbit-badge>
       } @else if (detail.result === 'UNSTABLE') {
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-bar)]"></span>
-          Instabil
-        </span>
+        <orbit-badge color="signal" [status]="true" size="sm">Instabil</orbit-badge>
       } @else if (detail.result === 'ABORTED') {
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-badge-neutral-bg)] text-[var(--color-badge-neutral-text)]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-badge-neutral-dot)]"></span>
-          Abgebrochen
-        </span>
+        <orbit-badge color="neutral" [status]="true" size="sm">Abgebrochen</orbit-badge>
       }
       <span>·</span>
       <span>{{ timeAgo(detail.timestamp) }}</span>
