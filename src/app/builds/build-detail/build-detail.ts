@@ -55,7 +55,8 @@ export class BuildDetailComponent implements OnDestroy {
   protected stageLog(stageId: string): SafeHtml | null {
     const log = this.stageLogs().get(stageId);
     if (!log) return null;
-    const html = this.ansi.ansi_to_html(log.text);
+    const stripped = log.text.replace(/<[^>]+>/g, '');
+    const html = this.ansi.ansi_to_html(stripped);
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
