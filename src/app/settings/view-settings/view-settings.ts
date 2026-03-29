@@ -35,7 +35,7 @@ export class ViewSettingsComponent {
     if (!jiraOk || !bbOk) return false;
 
     const j = d.connections.jenkins;
-    if (j.baseUrl.trim() !== '') {
+    if (j?.baseUrl?.trim()) {
       if (j.username.trim() === '' || j.apiToken.trim() === '') return false;
       if (j.jobs.length === 0) return false;
       if (j.jobs.some(job => job.displayName.trim() === '' || job.jobPath.trim() === '')) return false;

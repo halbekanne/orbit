@@ -54,6 +54,10 @@ export class SettingsService {
 
   async save(settings: OrbitSettings): Promise<void> {
     const result = await firstValueFrom(this.http.put<OrbitSettings>(this.baseUrl, settings));
+    const defaults = createDefaultSettings();
+    result.connections = { ...defaults.connections, ...result.connections };
+    result.features = { ...defaults.features, ...result.features };
+    result.appearance = { ...defaults.appearance, ...result.appearance };
     this._settings.set(result);
     this._isConfigured.set(true);
   }
