@@ -1,0 +1,83 @@
+<nav class="flex flex-col h-full" aria-label="Builds-Navigator">
+  <div class="px-4 py-3 border-b border-[var(--color-border-subtle)]">
+    <div class="flex items-center justify-between">
+      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Builds</span>
+      <span class="text-xs text-[var(--color-text-muted)]">Deine CI/CD Pipelines</span>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable] px-3 py-4 space-y-6">
+    @if (jenkins.loading()) {
+      <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Branches werden geladen…</p>
+    } @else if (jenkins.error()) {
+      <div class="px-1 py-2" role="alert">
+        <p class="text-xs text-[var(--color-danger-solid)]">Branches konnten nicht geladen werden.</p>
+      </div>
+    } @else {
+      @for (entry of jobEntries(); track entry[0]) {
+        <section>
+          <div class="flex items-center gap-2 mb-2 px-1">
+            <span class="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">{{ entry[0] }}</span>
+            <orbit-badge color="primary" [counter]="true">{{ entry[1].length }}</orbit-badge>
+          </div>
+          <ul class="space-y-1.5" role="list">
+            @for (branch of entry[1]; track branch.branchName) {
+              <li>
+                <button
+                  type="button"
+                  class="w-full text-left rounded-lg p-3 transition-colors cursor-pointer border"
+                  [class.border-[var(--color-primary-border)]]="isSelected(branch)"
+                  [class.bg-[var(--color-bg-surface)]]="isSelected(branch)"
+                  [class.border-transparent]="!isSelected(branch)"
+                  [class.bg-[var(--color-bg-card)]]="!isSelected(branch)"
+                  [class.hover:bg-[var(--color-bg-surface)]]="!isSelected(branch)"
+                  [class.border-l-[var(--color-danger-solid)]]="branch.branchColor.startsWith('red')"
+                  [class.border-l-4]="branch.branchColor.startsWith('red')"
+                  (click)="branchSelect.emit(branch)"
+                >
+                  <div class="text-xs font-semibold font-mono text-[var(--color-text-heading)] truncate">
+                    {{ decodeBranch(branch.branchName) }}
+                  </div>
+                  <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    @switch (getStatusColor(branch.branchColor)) {
+                      @case ('danger') {
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
+                          {{ getStatusLabel(branch.branchColor) }}
+                        </span>
+                      }
+                      @case ('info') {
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
+                          {{ getStatusLabel(branch.branchColor) }}
+                        </span>
+                      }
+                      @default {
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
+                          {{ getStatusLabel(branch.branchColor) }}
+                        </span>
+                      }
+                    }
+                    @if (branch.lastBuild) {
+                      <span class="text-[10px] text-[var(--color-text-muted)]">
+                        #{{ branch.lastBuild.number }} · {{ timeAgo(branch.lastBuild.timestamp) }}
+                      </span>
+                    }
+                    @if (branch.prNumber) {
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]">
+                        PR #{{ branch.prNumber }}
+                      </span>
+                    }
+                  </div>
+                </button>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+  </div>
+
+  <app-sync-bar [sources]="['jenkins']" />
+</nav>
