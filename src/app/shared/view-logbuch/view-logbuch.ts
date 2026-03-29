@@ -5,7 +5,7 @@ import { DayEntry } from '../../reflection/day-entry.model';
 @Component({
   selector: 'app-view-logbuch',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'flex flex-col h-full' },
+  host: { class: 'flex flex-col flex-1 h-full overflow-hidden bg-[var(--color-bg-page)]' },
   templateUrl: './view-logbuch.html',
 })
 export class ViewLogbuchComponent {

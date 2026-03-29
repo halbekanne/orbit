@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { WorkspaceService } from '../workspace.service';
+import { RouterSyncService } from '../router-sync.service';
 import { NavigatorComponent } from './navigator';
 
 const mockWorkspaceService = {
@@ -24,12 +25,23 @@ const mockWorkspaceService = {
   toggleTodo: () => {},
 };
 
+const mockRouterSyncService = {
+  navigateToItem: () => {},
+  navigateToReflection: () => {},
+  clearSelection: () => {},
+  navigateToView: () => {},
+  activeView: signal('arbeit'),
+};
+
 describe('NavigatorComponent – collapse logic', () => {
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [NavigatorComponent],
-      providers: [{ provide: WorkspaceService, useValue: mockWorkspaceService }],
+      providers: [
+        { provide: WorkspaceService, useValue: mockWorkspaceService },
+        { provide: RouterSyncService, useValue: mockRouterSyncService },
+      ],
     }).compileComponents();
   });
 

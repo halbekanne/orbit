@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { App } from './app';
 import { SettingsService } from './settings/settings.service';
@@ -41,7 +42,10 @@ describe('App', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [{ provide: SettingsService, useValue: mockSettingsService }],
+      providers: [
+        provideRouter([]),
+        { provide: SettingsService, useValue: mockSettingsService },
+      ],
     }).compileComponents();
   });
 
@@ -52,7 +56,7 @@ describe('App', () => {
 
   it('should default to arbeit view', () => {
     const fixture = TestBed.createComponent(App);
-    expect(fixture.componentInstance.activeView()).toBe('arbeit');
+    expect(fixture.componentInstance.routerSync.activeView()).toBe('arbeit');
   });
 
   it('should render the app rail', () => {
@@ -60,18 +64,5 @@ describe('App', () => {
     fixture.detectChanges();
     const rail = fixture.nativeElement.querySelector('app-rail');
     expect(rail).toBeTruthy();
-  });
-
-  it('should persist active view to localStorage', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.componentInstance.activeView.set('logbuch');
-    TestBed.tick();
-    expect(localStorage.getItem('orbit.activeView')).toBe('logbuch');
-  });
-
-  it('should restore active view from localStorage', () => {
-    localStorage.setItem('orbit.activeView', 'logbuch');
-    const fixture = TestBed.createComponent(App);
-    expect(fixture.componentInstance.activeView()).toBe('logbuch');
   });
 });

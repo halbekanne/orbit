@@ -18,10 +18,36 @@ Angular SPA (:6200) → Express BFF (:6201) → Jira / Bitbucket APIs
 Mock servers (:6202, :6203) simulate Jira and Bitbucket for local dev.
 ```
 
-- **Frontend:** Angular 21, zoneless, signal-based, no router (signal-driven view switching)
+- **Frontend:** Angular 21, zoneless, signal-based, Angular Router for URL routing with signal-driven state sync
 - **Backend (`server/`):** Express app with three roles — API proxy (auth injection), local data CRUD, CoSi review SSE endpoint. Routes are split into `server/routes/`.
 - **Mock servers (`mock-server/`):** Standalone Express apps returning realistic German-language test data
 - **State:** External data (tickets, PRs) is read-only from APIs. Local data that is important and should be stored safely (e.g. todos, ideas, logbook, schedule, subtasks) is persisted as JSON in `~/.orbit/`. Information that is only interesting temporarily (e.g. Pomodoro end time, information on expanded sections) use localStorage.
+
+## Frontend Folder Structure
+
+`src/app/` is organized by **business domain**, not by technical type. Each domain folder is flat — no `components/`/`services/` subfolders within it.
+
+```
+src/app/
+├── jira/           # Jira ticket integration
+├── bitbucket/      # Bitbucket PR integration
+├── todos/          # Personal task management
+├── ideas/          # Idea capture
+├── reflection/     # Daily reflection / logbook
+├── pomodoro/       # Pomodoro timer
+├── review/         # AI code review (CoSi)
+├── calendar/       # Day calendar & appointments
+├── settings/       # App configuration & welcome screen
+├── .../            # Other/new features/bisness domains get their own folder here
+├── shared/         # Cross-cutting: layout, shared UI, app-wide services & models
+└── app.ts ...
+```
+
+**Placement rule:** if a file belongs to one domain, it goes in that domain's folder. If it is used by multiple domains or is app-wide (layout, orchestration, shared UI components), it goes in `shared/`.
+
+Each domain folder contains its components (in subfolders), services, models, pipes, and utils side by side — everything for a feature lives together. Components get their own subfolder (e.g. `todos/todo-card/todo-card.ts`), while services, models, and utils sit directly in the domain folder (e.g. `todos/todo.service.ts`).
+
+When creating new files, follow this structure. Do not create top-level `components/`, `services/`, `models/`, `pipes/`, or `utils/` folders.
 
 ## Design for ADHD users
 

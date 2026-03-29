@@ -9,7 +9,7 @@ import { SettingsService } from '../../settings/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NavigatorComponent, WorkbenchComponent, DayCalendarPanelComponent],
   templateUrl: './view-arbeit.html',
-  host: { class: 'flex h-full overflow-hidden' },
+  host: { class: 'flex flex-1 h-full overflow-hidden' },
 })
 export class ViewArbeitComponent {
   readonly settingsService = inject(SettingsService);

@@ -11,6 +11,7 @@ import { WorkspaceService } from '../workspace.service';
 import { TodoService } from '../../todos/todo.service';
 import { IdeaService } from '../../ideas/idea.service';
 import { FocusService } from '../focus.service';
+import { RouterSyncService } from '../router-sync.service';
 import { Idea, Todo, WorkItem } from '../work-item.model';
 import { TicketCardComponent } from '../../jira/ticket-card/ticket-card';
 import { PrCardComponent } from '../../bitbucket/pr-card/pr-card';
@@ -54,6 +55,7 @@ export class NavigatorComponent {
   protected readonly todoService = inject(TodoService);
   protected readonly ideaService = inject(IdeaService);
   protected readonly focusService = inject(FocusService);
+  private readonly routerSync = inject(RouterSyncService);
 
   readonly filteredTickets = computed(() =>
     this.data.tickets().filter((t) => !this.focusService.isFocused(t.id)),
@@ -147,11 +149,11 @@ export class NavigatorComponent {
   }
 
   selectItem(item: WorkItem): void {
-    this.data.select(item);
+    this.routerSync.navigateToItem(item);
   }
 
   selectReflection(): void {
-    this.data.selectReflection();
+    this.routerSync.navigateToReflection();
   }
 
   addTodo(title: string): void {

@@ -2,7 +2,7 @@ import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { Idea, JiraTicket, Todo, WorkItem } from './work-item.model';
+import { Idea, JiraTicket, PullRequest, Todo, WorkItem } from './work-item.model';
 import { JiraService } from '../jira/jira.service';
 import { BitbucketService } from '../bitbucket/bitbucket.service';
 import { TodoService } from '../todos/todo.service';
@@ -73,5 +73,22 @@ export class WorkspaceService {
     this.todoService.remove(todo.id);
     const idea = this.ideaService.add(todo.title, todo.description);
     this.selectedItem.set(idea);
+  }
+
+  findTicketByKey(key: string): JiraTicket | undefined {
+    return this.tickets().find((t) => t.key === key);
+  }
+
+  findPrByRoute(project: string, repo: string, prNumber: number): PullRequest | undefined {
+    const id = `${project}/${repo}/${prNumber}`;
+    return this.pullRequests().find((p) => p.id === id);
+  }
+
+  findTodoById(id: string): Todo | undefined {
+    return this.todoService.todos().find((t) => t.id === id);
+  }
+
+  findIdeaById(id: string): Idea | undefined {
+    return this.ideaService.ideas().find((i) => i.id === id);
   }
 }

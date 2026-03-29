@@ -16,8 +16,7 @@ import { OrbitSettings } from '../settings.model';
   imports: [FormsModule],
   templateUrl: './view-settings.html',
   host: {
-    class: 'flex h-full overflow-hidden',
-    '[attr.data-settings-dirty]': 'isDirty()',
+    class: 'flex flex-1 h-full overflow-hidden bg-[var(--color-bg-page)]',
   },
 })
 export class ViewSettingsComponent {
@@ -138,5 +137,35 @@ export class ViewSettingsComponent {
 
   discard(): void {
     this.draft.set(structuredClone(this.settingsService.settings()));
+  }
+
+  readonly showNavigationDialog = signal(false);
+  private navigationResolve: ((value: boolean) => void) | null = null;
+
+  confirmNavigation(): Promise<boolean> {
+    this.showNavigationDialog.set(true);
+    return new Promise<boolean>((resolve) => {
+      this.navigationResolve = resolve;
+    });
+  }
+
+  onNavigationCancel(): void {
+    this.showNavigationDialog.set(false);
+    this.navigationResolve?.(false);
+    this.navigationResolve = null;
+  }
+
+  onNavigationDiscard(): void {
+    this.showNavigationDialog.set(false);
+    this.discard();
+    this.navigationResolve?.(true);
+    this.navigationResolve = null;
+  }
+
+  async onNavigationSave(): Promise<void> {
+    this.showNavigationDialog.set(false);
+    await this.save();
+    this.navigationResolve?.(true);
+    this.navigationResolve = null;
   }
 }
