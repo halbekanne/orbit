@@ -35,9 +35,10 @@ describe('AppRailComponent', () => {
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
     const navButtons = fixture.nativeElement.querySelectorAll('nav button');
-    expect(navButtons.length).toBe(2);
+    expect(navButtons.length).toBe(3);
     expect(navButtons[0].textContent).toContain('Arbeit');
-    expect(navButtons[1].textContent).toContain('Logbuch');
+    expect(navButtons[1].textContent).toContain('Builds');
+    expect(navButtons[2].textContent).toContain('Logbuch');
   });
 
   it('should mark the active view with aria-current', () => {
@@ -47,6 +48,7 @@ describe('AppRailComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll('button');
     expect(buttons[0].getAttribute('aria-current')).toBe('page');
     expect(buttons[1].getAttribute('aria-current')).toBeNull();
+    expect(buttons[2].getAttribute('aria-current')).toBeNull();
   });
 
   it('should emit viewChange on click', () => {
@@ -56,7 +58,7 @@ describe('AppRailComponent', () => {
     const spy = vi.fn();
     fixture.componentInstance.viewChange.subscribe(spy);
     const buttons = fixture.nativeElement.querySelectorAll('button');
-    buttons[1].click();
+    buttons[2].click();
     expect(spy).toHaveBeenCalledWith('logbuch');
   });
 
