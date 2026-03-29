@@ -7,6 +7,7 @@ interface OrbitView {
 
 const VIEWS: OrbitView[] = [
   { id: 'arbeit', label: 'Arbeit' },
+  { id: 'builds', label: 'Builds' },
   { id: 'logbuch', label: 'Logbuch' },
 ];
 
@@ -59,6 +60,22 @@ const VIEWS: OrbitView[] = [
                 <path
                   d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"
                 />
+              </svg>
+            }
+            @case ('builds') {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
               </svg>
             }
             @case ('logbuch') {

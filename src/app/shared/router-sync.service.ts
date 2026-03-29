@@ -30,8 +30,9 @@ export class RouterSyncService {
     { initialValue: this.router.url },
   );
 
-  readonly activeView = computed<'arbeit' | 'logbuch' | 'einstellungen'>(() => {
+  readonly activeView = computed<'arbeit' | 'builds' | 'logbuch' | 'einstellungen'>(() => {
     const u = this.url();
+    if (u.startsWith('/builds')) return 'builds';
     if (u.startsWith('/logbuch')) return 'logbuch';
     if (u.startsWith('/einstellungen')) return 'einstellungen';
     return 'arbeit';
