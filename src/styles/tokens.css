@@ -1,134 +1,132 @@
 @layer base {
-:root {
-  --color-bg-page: var(--color-stone-50);
-  --color-bg-surface: var(--color-stone-200);
-  --color-bg-card: #ffffff;
-  --color-bg-elevated: #ffffff;
-  --color-border-default: var(--color-stone-300);
-  --color-border-subtle: var(--color-stone-200);
+  :root {
+    --color-bg-page: var(--color-stone-50);
+    --color-bg-content: var(--color-white);
+    --color-bg-surface: var(--color-stone-100);
+    --color-bg-card: var(--color-bg-content);
+    --color-bg-elevated: var(--color-bg-content);
+    --color-border-default: var(--color-stone-300);
+    --color-border-subtle: var(--color-stone-200);
 
-  --color-text-heading: var(--color-stone-800);
-  --color-text-body: var(--color-stone-600);
-  --color-text-muted: var(--color-stone-500);
+    --color-text-heading: var(--color-stone-800);
+    --color-text-body: var(--color-stone-600);
+    --color-text-muted: var(--color-stone-500);
 
-  --color-rail-bg: var(--color-stone-900);
-  --color-rail-icon: var(--color-stone-500);
-  --color-rail-icon-active: #ffffff;
-  --color-rail-accent: var(--color-violet-500);
+    --color-rail-bg: var(--color-stone-900);
+    --color-rail-icon: var(--color-stone-500);
+    --color-rail-icon-active: #ffffff;
+    --color-rail-accent: var(--color-violet-500);
 
-  --color-primary-bg: var(--color-violet-50);
-  --color-primary-bg-hover: var(--color-violet-100);
-  --color-primary-border: var(--color-violet-200);
-  --color-primary-solid: var(--color-violet-500);
-  --color-primary-solid-hover: var(--color-violet-600);
-  --color-primary-text: var(--color-violet-700);
-  --color-primary-on-solid: #ffffff;
+    --color-primary-bg: var(--color-violet-50);
+    --color-primary-bg-hover: var(--color-violet-100);
+    --color-primary-border: var(--color-violet-200);
+    --color-primary-solid: var(--color-violet-500);
+    --color-primary-solid-hover: var(--color-violet-600);
+    --color-primary-text: var(--color-violet-700);
+    --color-primary-on-solid: #ffffff;
 
-  --color-success-bg: var(--color-emerald-50);
-  --color-success-border: var(--color-emerald-200);
-  --color-success-solid: var(--color-emerald-500);
-  --color-success-text: var(--color-emerald-700);
+    --color-success-bg: var(--color-emerald-50);
+    --color-success-border: var(--color-emerald-200);
+    --color-success-solid: var(--color-emerald-500);
+    --color-success-text: var(--color-emerald-700);
 
-  --color-danger-bg: var(--color-red-50);
-  --color-danger-border: var(--color-red-200);
-  --color-danger-solid: var(--color-red-500);
-  --color-danger-text: var(--color-red-700);
+    --color-danger-bg: var(--color-red-50);
+    --color-danger-border: var(--color-red-200);
+    --color-danger-solid: var(--color-red-500);
+    --color-danger-text: var(--color-red-700);
 
-  --color-signal-bar: var(--color-amber-500);
-  --color-signal-bg: var(--color-amber-50);
-  --color-signal-border: var(--color-amber-200);
-  --color-signal-text: var(--color-amber-700);
+    --color-signal-bar: var(--color-amber-500);
+    --color-signal-bg: var(--color-amber-50);
+    --color-signal-border: var(--color-amber-200);
+    --color-signal-text: var(--color-amber-700);
 
-  --color-info-text: var(--color-blue-600);
-  --color-info-text-hover: var(--color-blue-700);
+    --color-info-text: var(--color-blue-600);
+    --color-info-text-hover: var(--color-blue-700);
 
-  --color-card-selected-bg: var(--color-primary-bg);
-  --color-card-selected-ring: var(--color-primary-border);
-  --color-card-selected-bg-hover: var(--color-primary-bg-hover);
+    --color-card-selected-bg: var(--color-primary-bg);
+    --color-card-selected-ring: var(--color-primary-border);
+    --color-card-selected-bg-hover: var(--color-primary-bg-hover);
 
-  --color-primary-bg-opaque: var(--color-violet-50);
-  --color-primary-bg-opaque-hover: var(--color-violet-100);
+    --color-primary-bg-opaque: var(--color-violet-50);
+    --color-primary-bg-opaque-hover: var(--color-violet-100);
 
-  --card-inactive-opacity: 0.55;
-  --color-card-attention-bar: var(--color-signal-bar);
-  --color-card-attention-bar-danger: theme(colors.red.500);
+    --card-inactive-opacity: 0.55;
+    --color-card-attention-bar: var(--color-signal-bar);
+    --color-card-attention-bar-danger: theme(colors.red.500);
 
-  --color-pr-approved-bg: var(--color-success-bg);
-  --color-pr-approved-text: var(--color-success-text);
-  --color-pr-approved-border: var(--color-success-border);
-  --color-pr-in-review-bg: var(--color-primary-bg);
-  --color-pr-in-review-text: var(--color-primary-text);
-  --color-pr-in-review-border: var(--color-primary-border);
-  --color-pr-changes-bg: var(--color-danger-bg);
-  --color-pr-changes-text: var(--color-danger-text);
-  --color-pr-changes-border: var(--color-danger-border);
+    --color-build-ok: var(--color-success-solid);
+    --color-build-fail: var(--color-danger-solid);
 
-  --color-build-ok: var(--color-success-solid);
-  --color-build-fail: var(--color-danger-solid);
+    --color-pomodoro-accent: var(--color-primary-solid);
+    --color-pomodoro-bg: var(--color-primary-bg);
 
-  --color-pomodoro-accent: var(--color-primary-solid);
-  --color-pomodoro-bg: var(--color-primary-bg);
+    --color-badge-neutral-bg: var(--color-bg-surface);
+    --color-badge-neutral-text: var(--color-text-body);
+    --color-badge-neutral-border: var(--color-border-default);
+    --color-badge-neutral-dot: var(--color-text-muted);
 
-  --color-type-badge-bg: var(--color-bg-surface);
-  --color-type-badge-text: var(--color-text-body);
-  --color-type-badge-border: var(--color-border-default);
+    --color-focus-ring: var(--color-primary-solid);
 
-  --color-focus-ring: var(--color-primary-solid);
+    --color-timeline-now: var(--color-danger-solid);
+    --color-timeline-grid: var(--color-border-subtle);
+  }
 
-  --color-timeline-now: var(--color-danger-solid);
-  --color-timeline-grid: var(--color-border-subtle);
-}
+  .dark {
+    color-scheme: dark;
+    --color-bg-page: var(--color-stone-950);
+    --color-bg-content: var(--color-stone-800);
+    --color-bg-surface: var(--color-stone-900);
+    --color-bg-card: var(--color-bg-content);
+    --color-bg-elevated: var(--color-bg-content);
+    --color-border-default: var(--color-stone-600);
+    --color-border-subtle: var(--color-stone-700);
 
-.dark {
-  color-scheme: dark;
-  --color-bg-page: var(--color-stone-950);
-  --color-bg-surface: var(--color-stone-900);
-  --color-bg-card: var(--color-stone-800);
-  --color-bg-elevated: var(--color-stone-800);
-  --color-border-default: var(--color-stone-600);
-  --color-border-subtle: var(--color-stone-700);
+    --color-text-heading: var(--color-stone-100);
+    --color-text-body: var(--color-stone-300);
+    --color-text-muted: var(--color-stone-400);
 
-  --color-text-heading: var(--color-stone-100);
-  --color-text-body: var(--color-stone-300);
-  --color-text-muted: var(--color-stone-500);
-
-  --color-rail-bg: var(--color-stone-950);
-  --color-rail-icon: var(--color-stone-600);
-  --color-rail-accent: var(--color-violet-400);
+    --color-rail-bg: var(--color-stone-950);
+    --color-rail-icon: var(--color-stone-600);
+    --color-rail-accent: var(--color-violet-400);
 
   --color-primary-bg: color-mix(in srgb, var(--color-violet-500) 12%, transparent);
   --color-primary-bg-hover: color-mix(in srgb, var(--color-violet-500) 20%, transparent);
-  --color-primary-border: color-mix(in srgb, var(--color-violet-500) 25%, transparent);
+  --color-primary-border: color-mix(in srgb, var(--color-violet-400) 30%, transparent);
   --color-primary-solid: var(--color-violet-400);
   --color-primary-solid-hover: var(--color-violet-300);
   --color-primary-text: var(--color-violet-300);
 
-  --color-success-bg: color-mix(in srgb, var(--color-emerald-400) 10%, transparent);
-  --color-success-border: color-mix(in srgb, var(--color-emerald-400) 20%, transparent);
-  --color-success-solid: var(--color-emerald-400);
-  --color-success-text: var(--color-emerald-400);
+    --color-success-bg: color-mix(in srgb, var(--color-emerald-400) 10%, transparent);
+    --color-success-border: color-mix(in srgb, var(--color-emerald-400) 30%, transparent);
+    --color-success-solid: var(--color-emerald-400);
+    --color-success-text: var(--color-emerald-400);
 
-  --color-danger-bg: color-mix(in srgb, var(--color-red-400) 10%, transparent);
-  --color-danger-border: color-mix(in srgb, var(--color-red-400) 20%, transparent);
-  --color-danger-solid: var(--color-red-400);
-  --color-danger-text: var(--color-red-400);
+    --color-danger-bg: color-mix(in srgb, var(--color-red-400) 5%, transparent);
+    --color-danger-border: color-mix(in srgb, var(--color-red-500) 30%, transparent);
+    --color-danger-solid: var(--color-red-500);
+    --color-danger-text: var(--color-red-500);
 
-  --color-signal-bar: var(--color-amber-500);
-  --color-signal-bg: color-mix(in srgb, var(--color-amber-400) 10%, transparent);
-  --color-signal-border: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
-  --color-signal-text: var(--color-amber-500);
+    --color-signal-bar: var(--color-amber-500);
+    --color-signal-bg: color-mix(in srgb, var(--color-amber-400) 10%, transparent);
+    --color-signal-border: color-mix(in srgb, var(--color-amber-400) 30%, transparent);
+    --color-signal-text: var(--color-amber-500);
 
-  --color-info-text: var(--color-blue-400);
-  --color-info-text-hover: var(--color-blue-300);
+    --color-info-text: var(--color-blue-400);
+    --color-info-text-hover: var(--color-blue-300);
 
-  --color-card-selected-bg: color-mix(in srgb, var(--color-violet-500) 8%, var(--color-stone-800));
-  --color-card-selected-ring: color-mix(in srgb, var(--color-violet-500) 30%, var(--color-stone-600));
-  --color-card-selected-bg-hover: color-mix(in srgb, var(--color-violet-500) 12%, var(--color-stone-800));
+    --color-card-selected-bg: color-mix(in srgb, var(--color-violet-500) 8%, var(--color-stone-800));
+    --color-card-selected-ring: color-mix(in srgb, var(--color-violet-500) 30%, var(--color-stone-600));
+    --color-card-selected-bg-hover: color-mix(in srgb, var(--color-violet-500) 12%, var(--color-stone-800));
 
-  --color-primary-bg-opaque: var(--color-violet-950);
-  --color-primary-bg-opaque-hover: var(--color-violet-900);
+    --color-primary-bg-opaque: var(--color-violet-950);
+    --color-primary-bg-opaque-hover: var(--color-violet-900);
 
-  --card-inactive-opacity: 0.62;
-  --color-card-attention-bar-danger: theme(colors.red.500);
-}
+    --card-inactive-opacity: 0.62;
+    --color-card-attention-bar-danger: theme(colors.red.500);
+
+    --color-badge-neutral-bg: var(--color-bg-surface);
+    --color-badge-neutral-text: var(--color-text-body);
+    --color-badge-neutral-border: var(--color-border-default);
+    --color-badge-neutral-dot: var(--color-text-muted);
+  }
 }
