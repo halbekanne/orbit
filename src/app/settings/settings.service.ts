@@ -18,9 +18,10 @@ export class SettingsService {
   readonly loaded = this._loaded.asReadonly();
 
   readonly jiraConfig = computed(() => this._settings().connections.jira);
-  readonly jenkinsConfig = computed(() => this._settings().connections.jenkins);
+  readonly jenkinsConfig = computed(() => this._settings().connections.jenkins ?? { baseUrl: '', username: '', apiToken: '', jobs: [] });
   readonly jenkinsConfigured = computed(() => {
     const j = this._settings().connections.jenkins;
+    if (!j) return false;
     return j.baseUrl.trim() !== '' && j.username.trim() !== '' && j.apiToken.trim() !== '' && j.jobs.length > 0;
   });
   readonly bitbucketConfig = computed(() => this._settings().connections.bitbucket);
@@ -42,6 +43,10 @@ export class SettingsService {
 
     if (status.configured) {
       const settings = await firstValueFrom(this.http.get<OrbitSettings>(this.baseUrl));
+      const defaults = createDefaultSettings();
+      settings.connections = { ...defaults.connections, ...settings.connections };
+      settings.features = { ...defaults.features, ...settings.features };
+      settings.appearance = { ...defaults.appearance, ...settings.appearance };
       this._settings.set(settings);
     }
     this._loaded.set(true);
