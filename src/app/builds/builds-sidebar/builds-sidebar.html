@@ -25,14 +25,14 @@
               <li>
                 <button
                   type="button"
-                  class="w-full text-left rounded-lg p-3 transition-colors cursor-pointer border"
-                  [class.border-[var(--color-primary-border)]]="isSelected(branch)"
+                  class="w-full text-left rounded-lg p-3 transition-colors cursor-pointer ring-1"
+                  [class.ring-[var(--color-primary-border)]]="isSelected(branch)"
                   [class.bg-[var(--color-bg-surface)]]="isSelected(branch)"
-                  [class.border-transparent]="!isSelected(branch)"
+                  [class.ring-[var(--color-border-subtle)]]="!isSelected(branch)"
                   [class.bg-[var(--color-bg-card)]]="!isSelected(branch)"
-                  [class.hover:bg-[var(--color-bg-surface)]]="!isSelected(branch)"
-                  [class.border-l-[var(--color-danger-solid)]]="branch.branchColor.startsWith('red')"
+                  [class.hover:ring-[var(--color-border-default)]]="!isSelected(branch)"
                   [class.border-l-4]="branch.branchColor.startsWith('red')"
+                  [class.border-l-[var(--color-card-attention-bar)]]="branch.branchColor.startsWith('red')"
                   (click)="branchSelect.emit(branch)"
                 >
                   <div class="text-xs font-semibold font-mono text-[var(--color-text-heading)] truncate">
