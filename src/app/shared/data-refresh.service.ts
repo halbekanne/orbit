@@ -26,6 +26,8 @@ interface RegisteredSource {
 export class DataRefreshService {
   private readonly sources = new Map<string, RegisteredSource>();
   private refreshInProgress = false;
+  private pollingTimer: ReturnType<typeof setInterval> | null = null;
+  private visibilityHandler: (() => void) | null = null;
 
   readonly isRefreshing = computed(() =>
     [...this.sources.values()].some((s) => {
@@ -146,7 +148,48 @@ export class DataRefreshService {
     source.subscription = null;
   }
 
+  startPolling(): void {
+    this.stopPolling();
+    this.pollingTimer = setInterval(() => this.refreshAll(), REFRESH_INTERVAL_MS);
+  }
+
+  resetPollingTimer(): void {
+    if (this.pollingTimer) {
+      this.stopPolling();
+      this.startPolling();
+    }
+  }
+
+  private stopPolling(): void {
+    if (this.pollingTimer) {
+      clearInterval(this.pollingTimer);
+      this.pollingTimer = null;
+    }
+  }
+
+  onVisibilityRegained(): void {
+    this.refreshAll();
+  }
+
+  startVisibilityListener(): void {
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible') {
+        this.onVisibilityRegained();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private stopVisibilityListener(): void {
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
+    }
+  }
+
   destroy(): void {
+    this.stopPolling();
+    this.stopVisibilityListener();
     for (const source of this.sources.values()) {
       this.clearRetry(source);
     }
