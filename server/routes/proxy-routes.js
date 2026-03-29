@@ -71,10 +71,10 @@ function createProxyRoutes({ getSettings }) {
     }
     const { username, apiToken } = s.connections.jenkins;
     const basicAuth = Buffer.from(`${username}:${apiToken}`).toString('base64');
+    req.url = req.originalUrl.replace(/^\/jenkins/, '');
     createProxyMiddleware({
       target: s.connections.jenkins.baseUrl,
       changeOrigin: true,
-      pathRewrite: { '^/jenkins': '' },
       on: {
         proxyReq: (proxyReq) => {
           proxyReq.setHeader('Authorization', `Basic ${basicAuth}`);
