@@ -529,7 +529,7 @@ describe('BitbucketService — loadAll loading state', () => {
     expect(service.loading()).toBe(true);
     expect(service.error()).toBe(false);
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [], []);
     TestBed.tick();
 
@@ -538,7 +538,7 @@ describe('BitbucketService — loadAll loading state', () => {
   });
 
   it('sets error=true on failure', () => {
-    service.loadAll();
+    service.loadAll().subscribe({ error: () => {} });
     const dashboardReqs = httpTesting.match((req) => req.url.includes('dashboard/pull-requests'));
     dashboardReqs[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
 
@@ -569,7 +569,7 @@ describe('BitbucketService — pullRequests computed', () => {
     const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
     const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
 
     httpTesting
@@ -607,7 +607,7 @@ describe('BitbucketService — reviewPullRequests', () => {
     const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
     const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
 
     httpTesting
@@ -649,7 +649,7 @@ describe('BitbucketService — reviewPullRequests', () => {
     });
     approvedByOthersPr.createdDate = twoDaysAgo;
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [recentPr, approvedByOthersPr, oldPr], []);
     flushDiffstats(httpTesting);
     TestBed.tick();
@@ -681,7 +681,7 @@ describe('BitbucketService — myPullRequests', () => {
     const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
     const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
 
     httpTesting
@@ -711,7 +711,7 @@ describe('BitbucketService — myPullRequests', () => {
     const changesRequestedPr = makePrRawWithId(3, 'NEEDS_WORK');
     const buildFailPr = makePrRawWithId(4, 'UNAPPROVED', { latestCommit: 'fail-commit' });
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [], [inReviewPr, readyToMergePr, changesRequestedPr, buildFailPr]);
 
     httpTesting
@@ -754,7 +754,7 @@ describe('BitbucketService — awaitingReviewCount', () => {
     const pr2 = makePrRawWithId(2, 'UNAPPROVED');
     const pr3 = makePrRawWithId(3, 'APPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [pr1, pr2, pr3], []);
     flushDiffstats(httpTesting);
     TestBed.tick();
@@ -766,7 +766,7 @@ describe('BitbucketService — awaitingReviewCount', () => {
     const reviewerPr = makePrRawWithId(1, 'UNAPPROVED');
     const authoredPr = makePrRawWithId(2, 'UNAPPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [reviewerPr], [authoredPr]);
 
     httpTesting
@@ -801,7 +801,7 @@ describe('BitbucketService — loadAll deduplication', () => {
     const reviewerVersion = makePrRawWithId(412, 'UNAPPROVED');
     const authoredVersion = makePrRawWithId(412, 'UNAPPROVED');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [reviewerVersion], [authoredVersion]);
     flushDiffstats(httpTesting);
     TestBed.tick();
@@ -833,7 +833,7 @@ describe('BitbucketService — loadAll enrichment (activity status)', () => {
   it('enriches Changes Requested reviewer PRs to Needs Re-review when activity indicates it', () => {
     const needsWorkPr = makePrRawWithId(10, 'NEEDS_WORK');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [needsWorkPr], []);
 
     httpTesting
@@ -854,7 +854,7 @@ describe('BitbucketService — loadAll enrichment (activity status)', () => {
   it('keeps Changes Requested when activity confirms it', () => {
     const needsWorkPr = makePrRawWithId(10, 'NEEDS_WORK');
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [needsWorkPr], []);
 
     httpTesting
@@ -891,7 +891,7 @@ describe('BitbucketService — loadAll enrichment (build status)', () => {
   it('enriches authored PRs with build status', () => {
     const authoredPr = makePrRawWithId(20, 'UNAPPROVED', { latestCommit: 'commit-abc' });
 
-    service.loadAll();
+    service.loadAll().subscribe();
     flushLoadAll(httpTesting, [], [authoredPr]);
     TestBed.tick();
 

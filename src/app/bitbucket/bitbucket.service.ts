@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable, of } from 'rxjs';
+import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { SettingsService } from '../settings/settings.service';
 import {
@@ -149,6 +149,8 @@ export class BitbucketService {
   private readonly baseUrl = `${environment.proxyUrl}/bitbucket/rest/api/latest`;
   private readonly buildStatusUrl = `${environment.proxyUrl}/bitbucket/rest/build-status/latest`;
 
+  private hasLoadedOnce = false;
+
   readonly loading = signal(true);
   readonly error = signal(false);
   private readonly _rawPullRequests = signal<PullRequest[]>([]);
@@ -193,105 +195,111 @@ export class BitbucketService {
       ).length,
   );
 
-  loadAll(): void {
-    forkJoin([
+  loadAll(): Observable<unknown> {
+    if (!this.hasLoadedOnce) {
+      this.loading.set(true);
+    }
+    this.error.set(false);
+
+    return forkJoin([
       this.getReviewerPullRequests(),
       this.getAuthoredPullRequests().pipe(catchError(() => of([] as PullRequest[]))),
-    ])
-      .pipe(
-        tap(([reviewerPrs, authoredPrs]) => {
-          this.loading.set(false);
-          const reviewerIds = new Set(reviewerPrs.map((pr) => pr.id));
-          const dedupedAuthored = authoredPrs.filter((pr) => !reviewerIds.has(pr.id));
-          this._rawPullRequests.set([...reviewerPrs, ...dedupedAuthored]);
-        }),
-        switchMap(([reviewerPrs, authoredPrs]) => {
-          const enrichments: Observable<unknown>[] = [];
+    ]).pipe(
+      tap(([reviewerPrs, authoredPrs]) => {
+        this.loading.set(false);
+        this.hasLoadedOnce = true;
+        const reviewerIds = new Set(reviewerPrs.map((pr) => pr.id));
+        const dedupedAuthored = authoredPrs.filter((pr) => !reviewerIds.has(pr.id));
+        this._rawPullRequests.set([...reviewerPrs, ...dedupedAuthored]);
+      }),
+      switchMap(([reviewerPrs, authoredPrs]) => {
+        const enrichments: Observable<unknown>[] = [];
 
-          const needsWorkPrs = reviewerPrs.filter(
-            (pr) => pr.myReviewStatus === 'Changes Requested',
+        const needsWorkPrs = reviewerPrs.filter(
+          (pr) => pr.myReviewStatus === 'Changes Requested',
+        );
+        if (needsWorkPrs.length > 0) {
+          enrichments.push(
+            forkJoin(
+              needsWorkPrs.map((pr) =>
+                this.getReviewerPrActivityStatus(pr).pipe(
+                  catchError(() => of('Changes Requested' as const)),
+                ),
+              ),
+            ).pipe(
+              tap((results) => {
+                const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update((all) =>
+                  all.map((pr) => {
+                    const enriched = statusById.get(pr.id);
+                    return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+                  }),
+                );
+              }),
+            ),
           );
-          if (needsWorkPrs.length > 0) {
-            enrichments.push(
-              forkJoin(
-                needsWorkPrs.map((pr) =>
-                  this.getReviewerPrActivityStatus(pr).pipe(
-                    catchError(() => of('Changes Requested' as const)),
-                  ),
-                ),
-              ).pipe(
-                tap((results) => {
-                  const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
-                  this._rawPullRequests.update((all) =>
-                    all.map((pr) => {
-                      const enriched = statusById.get(pr.id);
-                      return enriched ? { ...pr, myReviewStatus: enriched } : pr;
-                    }),
-                  );
-                }),
-              ),
-            );
-          }
+        }
 
-          const reviewerIds = new Set(reviewerPrs.map((pr) => pr.id));
-          const dedupedAuthored = authoredPrs.filter((pr) => !reviewerIds.has(pr.id));
-          if (dedupedAuthored.length > 0) {
-            enrichments.push(
-              forkJoin(
-                dedupedAuthored.map((pr) =>
-                  this.getBuildStatusStats(pr.fromRef.latestCommit).pipe(
-                    catchError(() => of({ successful: 0, failed: 0, inProgress: 0 })),
-                  ),
+        const reviewerIds = new Set(reviewerPrs.map((pr) => pr.id));
+        const dedupedAuthored = authoredPrs.filter((pr) => !reviewerIds.has(pr.id));
+        if (dedupedAuthored.length > 0) {
+          enrichments.push(
+            forkJoin(
+              dedupedAuthored.map((pr) =>
+                this.getBuildStatusStats(pr.fromRef.latestCommit).pipe(
+                  catchError(() => of({ successful: 0, failed: 0, inProgress: 0 })),
                 ),
-              ).pipe(
-                tap((results) => {
-                  const buildById = new Map(dedupedAuthored.map((pr, i) => [pr.id, results[i]]));
-                  this._rawPullRequests.update((all) =>
-                    all.map((pr) => {
-                      const build = buildById.get(pr.id);
-                      return build ? { ...pr, buildStatus: build } : pr;
-                    }),
-                  );
-                }),
               ),
-            );
-          }
+            ).pipe(
+              tap((results) => {
+                const buildById = new Map(dedupedAuthored.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update((all) =>
+                  all.map((pr) => {
+                    const build = buildById.get(pr.id);
+                    return build ? { ...pr, buildStatus: build } : pr;
+                  }),
+                );
+              }),
+            ),
+          );
+        }
 
-          const allPrs = [...reviewerPrs, ...dedupedAuthored];
-          if (allPrs.length > 0) {
-            enrichments.push(
-              forkJoin(
-                allPrs.map((pr) =>
-                  this.getDiffstat(
-                    pr.fromRef.repository.projectKey,
-                    pr.fromRef.repository.slug,
-                    pr.prNumber,
-                  ),
+        const allPrs = [...reviewerPrs, ...dedupedAuthored];
+        if (allPrs.length > 0) {
+          enrichments.push(
+            forkJoin(
+              allPrs.map((pr) =>
+                this.getDiffstat(
+                  pr.fromRef.repository.projectKey,
+                  pr.fromRef.repository.slug,
+                  pr.prNumber,
                 ),
-              ).pipe(
-                tap((results) => {
-                  const diffstatById = new Map(allPrs.map((pr, i) => [pr.id, results[i]]));
-                  this._rawPullRequests.update((all) =>
-                    all.map((pr) => {
-                      const diffstat = diffstatById.get(pr.id);
-                      return diffstat ? { ...pr, diffstat } : pr;
-                    }),
-                  );
-                }),
               ),
-            );
-          }
+            ).pipe(
+              tap((results) => {
+                const diffstatById = new Map(allPrs.map((pr, i) => [pr.id, results[i]]));
+                this._rawPullRequests.update((all) =>
+                  all.map((pr) => {
+                    const diffstat = diffstatById.get(pr.id);
+                    return diffstat ? { ...pr, diffstat } : pr;
+                  }),
+                );
+              }),
+            ),
+          );
+        }
 
-          return enrichments.length > 0 ? forkJoin(enrichments) : of(null);
-        }),
-        catchError((err) => {
-          console.error('Failed to load Bitbucket pull requests:', err);
-          this.error.set(true);
+        return enrichments.length > 0 ? forkJoin(enrichments) : of(null);
+      }),
+      catchError((err) => {
+        console.error('Failed to load Bitbucket pull requests:', err);
+        this.error.set(true);
+        if (!this.hasLoadedOnce) {
           this.loading.set(false);
-          return of(null);
-        }),
-      )
-      .subscribe();
+        }
+        return throwError(() => err);
+      }),
+    );
   }
 
   getReviewerPullRequests(): Observable<PullRequest[]> {
