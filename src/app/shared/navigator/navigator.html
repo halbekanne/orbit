@@ -80,7 +80,16 @@
         @if (data.ticketsLoading()) {
           <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Tickets werden geladen…</p>
         } @else if (data.ticketsError()) {
-          <p class="px-1 py-2 text-xs text-[var(--color-danger-solid)]" role="alert">Tickets konnten nicht geladen werden.</p>
+          <div class="px-1 py-2" role="alert">
+            <p class="text-xs text-[var(--color-danger-solid)]">Tickets konnten nicht geladen werden.</p>
+            <button
+              type="button"
+              class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+              (click)="retrySource('jira')"
+            >
+              Erneut versuchen
+            </button>
+          </div>
         } @else {
           <ul class="space-y-1.5" role="list">
             @for (ticket of filteredTickets(); track ticket.id) {
@@ -131,7 +140,16 @@
         @if (data.pullRequestsLoading()) {
           <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Pull Requests werden geladen…</p>
         } @else if (data.pullRequestsError()) {
-          <p class="px-1 py-2 text-xs text-[var(--color-danger-solid)]" role="alert">Pull Requests konnten nicht geladen werden.</p>
+          <div class="px-1 py-2" role="alert">
+            <p class="text-xs text-[var(--color-danger-solid)]">Pull Requests konnten nicht geladen werden.</p>
+            <button
+              type="button"
+              class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+              (click)="retrySource('bitbucket')"
+            >
+              Erneut versuchen
+            </button>
+          </div>
         } @else {
           @if (filteredReviewPrs().length > 0) {
             <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide">
@@ -302,4 +320,6 @@
     </section>
 
   </div>
+
+  <app-sync-bar />
 </nav>

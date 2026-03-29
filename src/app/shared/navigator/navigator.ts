@@ -20,6 +20,8 @@ import { IdeaCardComponent } from '../../ideas/idea-card/idea-card';
 import { TodoInlineInputComponent } from '../../todos/todo-inline-input/todo-inline-input';
 import { ReflectionCardComponent } from '../../reflection/reflection-card/reflection-card';
 import { BadgeComponent } from '../badge/badge';
+import { SyncBarComponent } from '../sync-bar/sync-bar';
+import { DataRefreshService } from '../data-refresh.service';
 
 const STORAGE_KEY = 'orbit.navigator.collapsed';
 
@@ -46,11 +48,13 @@ interface CollapsedState {
     CdkDrag,
     CdkDropList,
     BadgeComponent,
+    SyncBarComponent,
   ],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },
 })
 export class NavigatorComponent {
+  protected readonly refreshService = inject(DataRefreshService);
   protected readonly data = inject(WorkspaceService);
   protected readonly todoService = inject(TodoService);
   protected readonly ideaService = inject(IdeaService);
@@ -173,6 +177,10 @@ export class NavigatorComponent {
         this.todoService.reorder(fromReal, toReal);
       }
     }
+  }
+
+  retrySource(name: string): void {
+    this.refreshService.refreshSource(name);
   }
 
   onIdeaDrop(event: CdkDragDrop<Idea[]>): void {

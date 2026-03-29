@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { WorkspaceService } from '../workspace.service';
 import { RouterSyncService } from '../router-sync.service';
+import { DataRefreshService } from '../data-refresh.service';
 import { NavigatorComponent } from './navigator';
 
 const mockWorkspaceService = {
@@ -41,6 +42,7 @@ describe('NavigatorComponent – collapse logic', () => {
       providers: [
         { provide: WorkspaceService, useValue: mockWorkspaceService },
         { provide: RouterSyncService, useValue: mockRouterSyncService },
+        { provide: DataRefreshService, useValue: { refreshSource: () => {}, globalStatus: signal('idle'), retryInfo: signal(null), lastGlobalFetchTime: signal(null), isRefreshing: signal(false), refreshAll: () => {}, resetPollingTimer: () => {} } },
       ],
     }).compileComponents();
   });
