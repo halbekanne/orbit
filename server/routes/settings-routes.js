@@ -18,10 +18,20 @@ function getNestedValue(obj, path) {
 
 function isConfigured(settings) {
   if (!settings) return false;
-  return REQUIRED_FIELDS.every(f => {
+  const coreConfigured = REQUIRED_FIELDS.every(f => {
     const val = getNestedValue(settings, f);
     return typeof val === 'string' && val.trim().length > 0;
   });
+  if (!coreConfigured) return false;
+
+  const jenkins = settings.connections?.jenkins;
+  if (jenkins?.baseUrl?.trim()) {
+    if (!jenkins.username?.trim() || !jenkins.apiToken?.trim()) return false;
+    if (!Array.isArray(jenkins.jobs) || jenkins.jobs.length === 0) return false;
+    if (jenkins.jobs.some(j => !j.displayName?.trim() || !j.jobPath?.trim())) return false;
+  }
+
+  return true;
 }
 
 function createSettingsRoutes({ onSettingsSaved } = {}) {
