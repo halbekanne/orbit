@@ -101,6 +101,8 @@ export class DataRefreshService {
   refreshSource(name: string): void {
     const source = this.sources.get(name);
     if (!source) return;
+    const status = source.state().status;
+    if (status === 'refreshing') return;
     this.clearRetry(source);
     this.fetchSource(source, () => {});
   }

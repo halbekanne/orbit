@@ -1,5 +1,5 @@
 <div class="flex items-center justify-between">
-  <span class="text-[10px] text-[var(--color-text-muted)] truncate">
+  <span class="text-xs text-[var(--color-text-muted)] truncate">
     @switch (refreshService.globalStatus()) {
       @case ('refreshing') {
         Aktualisiere…
@@ -24,7 +24,7 @@
 
   <button
     type="button"
-    class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-card)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+    class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-card)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
     (click)="onSync()"
   >
     <svg

@@ -1,4 +1,4 @@
-import { effect, inject, Injectable, signal, untracked } from '@angular/core';
+import { DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { Idea, JiraTicket, PullRequest, Todo, WorkItem } from './work-item.model';
 import { JiraService } from '../jira/jira.service';
 import { BitbucketService } from '../bitbucket/bitbucket.service';
@@ -36,6 +36,8 @@ export class WorkspaceService {
     this.refreshService.refreshAll(true);
     this.refreshService.startPolling();
     this.refreshService.startVisibilityListener();
+
+    inject(DestroyRef).onDestroy(() => this.refreshService.destroy());
 
     effect(() => {
       const keys = this.tickets().map((t) => t.key);
