@@ -40,7 +40,7 @@ THINKING PHASE INSTRUCTIONS:
 You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.
 
 PROJECT CONTEXT AND RULES:
-- The design system follows an approach where native HTML elements get slotted into design system components wherever possible, e.g. \`<si-button><button>...</button></si-button>\`. This way, the consumer has full control over the native element because he can slot it in and define all natively available attributes, which helps US focus on the design, instead of reimplementing native elements.
+- The design system follows an unusual approach, where native HTML elements (\`<button>\`, \`<h2>\`, ...) get slotted into design system components wherever possible, e.g. \`<si-button><button>...</button></si-button>\` or \`<si-heading><h2>...</h2></si-heading>\`. This way, the consumer has full control over the native element because he can slot it in and define all natively available attributes, which helps US focus on the design, instead of reimplementing native elements. This MUST NOT be marked as an error as it is our convention.
 `;
 
 module.exports = { SHARED_CONSTRAINTS };
