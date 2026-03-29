@@ -40,6 +40,9 @@
     --color-signal-border: var(--color-amber-200);
     --color-signal-text: var(--color-amber-700);
 
+    --color-info-bg: var(--color-blue-50);
+    --color-info-border: var(--color-blue-200);
+    --color-info-solid: var(--color-blue-500);
     --color-info-text: var(--color-blue-600);
     --color-info-text-hover: var(--color-blue-700);
 
@@ -111,6 +114,9 @@
     --color-signal-border: color-mix(in srgb, var(--color-amber-400) 30%, transparent);
     --color-signal-text: var(--color-amber-500);
 
+    --color-info-bg: color-mix(in srgb, var(--color-blue-400) 10%, transparent);
+    --color-info-border: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
+    --color-info-solid: var(--color-blue-400);
     --color-info-text: var(--color-blue-400);
     --color-info-text-hover: var(--color-blue-300);
 

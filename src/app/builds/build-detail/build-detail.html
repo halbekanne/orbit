@@ -1,0 +1,185 @@
+@if (loadingDetail()) {
+  <div class="flex-1 flex items-center justify-center">
+    <p class="text-sm text-[var(--color-text-muted)]">Build wird geladen…</p>
+  </div>
+} @else if (buildDetail(); as detail) {
+  <!-- Header -->
+  <div class="px-6 pt-5 pb-3">
+    <h2 class="text-lg font-bold font-mono text-[var(--color-text-heading)]">{{ decodeBranch(branch().branchName) }}</h2>
+    <div class="flex items-center gap-2 mt-1 text-sm text-[var(--color-text-muted)] flex-wrap">
+      <span>{{ branch().jobDisplayName }}</span>
+      <span>·</span>
+      <span class="font-mono">#{{ detail.number }}</span>
+      <span>·</span>
+      @if (detail.building) {
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-info-bg)] text-[var(--color-info-text)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
+          Läuft
+        </span>
+      } @else if (detail.result === 'SUCCESS') {
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-success-bg)] text-[var(--color-success-text)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
+          Erfolg
+        </span>
+      } @else if (detail.result === 'FAILURE') {
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-danger-bg)] text-[var(--color-danger-text)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
+          Fehlgeschlagen
+        </span>
+      } @else if (detail.result === 'UNSTABLE') {
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-signal-bg)] text-[var(--color-signal-text)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-signal-bar)]"></span>
+          Instabil
+        </span>
+      } @else if (detail.result === 'ABORTED') {
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-badge-neutral-bg)] text-[var(--color-badge-neutral-text)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-badge-neutral-dot)]"></span>
+          Abgebrochen
+        </span>
+      }
+      <span>·</span>
+      <span>{{ timeAgo(detail.timestamp) }}</span>
+      @if (!detail.building) {
+        <span>·</span>
+        <span>{{ formatDuration(detail.duration) }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="px-6 pb-3 flex items-center gap-3 border-b border-[var(--color-border-subtle)]">
+    @if (detail.building) {
+      <button
+        type="button"
+        class="px-3 py-1.5 text-sm rounded-lg bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] hover:bg-[var(--color-danger-border)] transition-colors cursor-pointer font-medium"
+        (click)="onStop()">
+        Abbrechen
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="px-3 py-1.5 text-sm rounded-lg bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)] transition-colors cursor-pointer font-medium"
+        (click)="showRestartDialog.set(true)">
+        Neu starten
+      </button>
+    }
+    <a
+      [href]="detail.url"
+      target="_blank"
+      rel="noopener"
+      class="text-sm text-[var(--color-info-text)] hover:text-[var(--color-info-text-hover)] transition-colors">
+      In Jenkins öffnen ↗
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <div class="px-6 flex gap-6 border-b border-[var(--color-border-subtle)]">
+    <button
+      type="button"
+      class="py-2.5 text-sm font-medium cursor-pointer transition-colors relative"
+      [class]="activeTab() === 'overview' ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-body)]'"
+      (click)="switchTab('overview')">
+      Übersicht
+      @if (activeTab() === 'overview') {
+        <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-primary-solid)] rounded-full"></span>
+      }
+    </button>
+    <button
+      type="button"
+      class="py-2.5 text-sm font-medium cursor-pointer transition-colors relative"
+      [class]="activeTab() === 'log' ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-body)]'"
+      (click)="switchTab('log')">
+      Log
+      @if (activeTab() === 'log') {
+        <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-primary-solid)] rounded-full"></span>
+      }
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="flex-1 overflow-y-auto">
+    @if (activeTab() === 'overview') {
+      <div class="max-w-2xl mx-auto py-5 px-6 space-y-4">
+        @if (sanitizedDescription()) {
+          <app-collapsible-section label="Beschreibung" [expanded]="true">
+            <div class="prose prose-sm text-[var(--color-text-body)]" [innerHTML]="sanitizedDescription()"></div>
+          </app-collapsible-section>
+        }
+
+        @if (stages(); as run) {
+          <app-collapsible-section label="Pipeline" [expanded]="true" [noPadding]="true">
+            <div class="divide-y divide-[var(--color-border-subtle)]">
+              @for (stage of run.stages; track stage.id) {
+                <div>
+                  <div class="flex items-center gap-3 px-6 py-3">
+                    @switch (stage.status) {
+                      @case ('SUCCESS') {
+                        <span class="w-5 h-5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center justify-center text-xs shrink-0">✓</span>
+                      }
+                      @case ('FAILED') {
+                        <span class="w-5 h-5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center justify-center text-xs shrink-0">✗</span>
+                      }
+                      @case ('IN_PROGRESS') {
+                        <span class="w-5 h-5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center justify-center text-xs shrink-0">
+                          <span class="w-2 h-2 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
+                        </span>
+                      }
+                      @default {
+                        <span class="w-5 h-5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] flex items-center justify-center text-xs shrink-0 opacity-50">○</span>
+                      }
+                    }
+                    <span
+                      class="text-sm flex-1"
+                      [class]="stage.status === 'NOT_EXECUTED' ? 'text-[var(--color-text-muted)] opacity-50' : 'text-[var(--color-text-heading)]'">
+                      {{ stage.name }}
+                    </span>
+                    @if (stage.status === 'SUCCESS' || stage.status === 'FAILED') {
+                      <span class="text-xs text-[var(--color-text-muted)]">{{ formatDuration(stage.durationMillis) }}</span>
+                    }
+                    @if (stage.status === 'IN_PROGRESS') {
+                      <span class="text-xs text-[var(--color-info-text)]">{{ stageSince(stage) }}</span>
+                    }
+                  </div>
+                  @if (stage.status === 'FAILED' && stageLog(stage.id)) {
+                    <div class="mx-6 mb-3 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-danger-border)] overflow-hidden">
+                      <pre class="p-3 text-xs font-mono text-[var(--color-text-body)] overflow-x-auto whitespace-pre-wrap" [innerHTML]="stageLog(stage.id)"></pre>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </app-collapsible-section>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'log') {
+      <div class="py-5 px-6">
+        <div class="flex justify-end mb-3">
+          <a
+            [href]="buildDetail()!.url + 'console'"
+            target="_blank"
+            rel="noopener"
+            class="text-sm text-[var(--color-info-text)] hover:text-[var(--color-info-text-hover)] transition-colors">
+            In Jenkins öffnen ↗
+          </a>
+        </div>
+        @if (logService.logText()) {
+          <div class="font-mono text-xs leading-5 text-[var(--color-text-body)] bg-[var(--color-bg-page)] rounded-lg border border-[var(--color-border-subtle)] p-4 overflow-x-auto" [innerHTML]="renderedLog()"></div>
+        } @else {
+          <p class="text-sm text-[var(--color-text-muted)]">Log wird geladen…</p>
+        }
+        @if (logService.isStreaming()) {
+          <div class="mt-2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
+            <span class="text-xs text-[var(--color-text-muted)]">Live-Stream aktiv</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showRestartDialog()) {
+    <app-restart-dialog [branch]="branch()" (close)="showRestartDialog.set(false)" />
+  }
+}
