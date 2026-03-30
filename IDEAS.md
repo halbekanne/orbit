@@ -4,21 +4,17 @@
 
 ---
 
+Auch unter: https://orbit.fider.io/
+
 ## Hoher Wert / Geringer Aufwand (Quick Wins)
 
 - **Direkte Erstellung von Ideen** — Analog zu Aufgaben bereits gebaut, Pattern kopieren; senkt Hürde für Ideenerfassung (ADHS-kritisch).
-- **Auto-Aktualisierung (Polling + Sync-Button)** — Polling-Intervall + manueller Refresh-Button ist technisch simpel; verhindert veraltete Daten ohne mentalen Aufwand ans Aktualisieren zu denken (ADHS-relevant). Intervall später im Settings Panel einstellbar.
 
 ---
 
 ## Hoher Wert / Mittlerer Aufwand
 
-- **UI angleichen der Detail-Views** — Konsistenz reduziert kognitive Last massiv; PR-View als Vorlage existiert bereits, aber alle Views anfassen braucht Zeit.
-- **Pomodoro-Timer** — Kernfeature für ADHS-Fokus, direkt am Nutzungszweck von Orbit; Timer-Logik + UI-Integration braucht Konzeption.
 - **Wartend-Zustand mit Wiedervorlage** — Verhindert, dass Aufgaben im Kopf mitgeschleppt werden (ADHS-Entlastung); braucht Datenhaltung + Reminder-Logik.
-- **Optionen/Settings Panel** — Grundinfrastruktur für viele andere Features (API-Keys, Toggles, Templates); mittel weil UI + Persistenz.
-- **Tages-Terminplan (Zeitstrahl mit Drag & Drop)** — Tagesstruktur ist für ADHS-Gehirne extrem wichtig gegen Zeitblindheit; Drag-to-create braucht solide Interaktionslogik, Persistenz und seitliche Layout-Integration.
-- **URL-Routing (Deep Links)** — URL-Änderung bei Selektion von Tickets, PRs, Tasks, Logbuch etc. ermöglicht Browser-Navigation (Zurück/Vorwärts), Bookmarks und teilbare Links; alle Views und Selektionszustände müssen auf Routen/Parameter gemappt werden.
 
 ---
 
@@ -32,9 +28,6 @@
 
 ## Mittlerer Wert / Geringer Aufwand
 
-- **Jenkins Build Neuanstoß** — Ein Button + ein API-Call; spart Kontextwechsel, aber Anwendungsfall kommt nicht täglich.
-- **Action Buttons unter Header (statt Action Rail)** — UI-Umstrukturierung mit bestehendem Code; verbessert Layout spürbar.
-- **Kein Sticky Header / dynamisch verschmälern** — CSS-Anpassung; gibt wertvollen Platz in der Detail-View zurück.
 - **Feedback (Mailto-Link)** — Trivial umzusetzen; wichtig für Testphase, aber kein Kernfeature.
 - **Notizen-Text-Bug (Escape ≠ Abbrechen)** — Falscher Hilfetext, schneller Fix; verhindert Verwirrung.
 - **Quick Capture Speichern-Button** — Kleines UI-Element; hilft Nutzern die Enter nicht intuitiv finden.
@@ -50,7 +43,6 @@
 - **Rückgängig-Machen Notizenfeld** — Gutes Safety-Net; Undo-State-Management ist nicht trivial.
 - **Willkommens-Tour** — Wichtig für Onboarding neuer Nutzer; aber aktuell wenige User, lohnt sich erst später.
 - **Notizenfeld größer** — Einfache Änderung, aber Wert begrenzt da Editor-Komfort nur ein kleiner Teil der UX ist.
-- **Dark Mode** — Orbit ist ganztägig offen, hilft bei Augenbelastung; aber aktuelles Warm-Stone-Design ist bereits augenschonend. Alle Komponenten brauchen durchgängige `dark:`-Varianten.
 
 ---
 
