@@ -31,7 +31,7 @@ Ignore issues that a static analysis (e.g. by the IDE, TypeScript strict mode, c
 
 1. Logic errors that compile but behave incorrectly — race conditions, off-by-one, wrong conditions, unhandled edge cases
 2. Readability and maintainability — convoluted logic, deep nesting, unclear intent, functions doing too much
-3. Best practices for filetype / technology used — e.g. for Lit/Webcomponents/TS this would include lifecycle errors, missing cleanup logic (event listeners, subscriptions), inefficient rendering, incorrect reactive property usage
+3. Best practices for filetype / technology used — e.g. for Lit/Webcomponents/TS this would include lifecycle errors, missing cleanup logic (event listeners, subscriptions), inefficient rendering, incorrect reactive property usage; for Java/Spring this would include resource leaks (unclosed streams, connections), missing @Transactional boundaries, thread-safety issues in shared beans, incorrect scope annotations, missing validation on controller inputs
 4. Clean code structure — single responsibility, sensible naming, DRY (no premature abstraction)
 
 SCOPE: Do NOT check Akzeptanzkriterien, design tokens, or accessibility. Focus only on code quality.
