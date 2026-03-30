@@ -85,7 +85,7 @@ import { BadgeComponent } from '../../shared/badge/badge';
           }
           @if (waitingDays() >= 2 && !showAlreadyReviewed()) {
             <orbit-badge color="signal" size="sm"
-              >Review seit {{ waitingDays() }} Tagen</orbit-badge
+              >Wartet seit {{ waitingDays() }} Tagen</orbit-badge
             >
           }
           @if (showAlreadyReviewed()) {
