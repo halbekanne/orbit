@@ -24,8 +24,10 @@ function createAiRoutes({ getSettings }) {
     try {
       const s = getSettings();
       const vertexAi = s?.connections?.vertexAi;
+      const enabledAgents = s?.features?.aiReviews?.enabledAgents ?? ['code-quality', 'ak-abgleich'];
+      const projectRules = s?.features?.aiReviews?.projectRules ?? '';
       if (vertexAi?.url) {
-        await runReview(diff, jiraTicket || null, emit, { vertexAi });
+        await runReview(diff, jiraTicket || null, emit, { vertexAi, enabledAgents, projectRules });
       } else {
         await runMockReview(emit);
       }

@@ -1,4 +1,4 @@
-const { SHARED_CONSTRAINTS } = require('./agents/agent-definition');
+const { buildSharedConstraints } = require('./agents/agent-definition');
 const { AGENT_REGISTRY } = require('./agents');
 
 async function callAi(userPrompt, systemInstruction, generationConfig = {}, { vertexAi } = {}) {
@@ -138,8 +138,8 @@ const CONSOLIDATOR_SCHEMA = {
   propertyOrdering: ["findings", "decisions", "summary"],
 };
 
-const SYSTEM_PROMPTS = {
-  consolidator: `${SHARED_CONSTRAINTS}
+function buildConsolidatorSystemPrompt(projectRules) {
+  return `${buildSharedConstraints(projectRules)}
 
 TASK: You receive findings from multiple specialist review agents. Produce the final review report.
 
@@ -188,8 +188,8 @@ OUTPUT RULES:
 - Write a concise German summary, e.g. "3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering".
 - For every input finding, add a decision entry explaining what you did with it.
 
-If no findings survive filtering, return an empty findings array with decisions and summary "Keine Auffälligkeiten".`,
-};
+If no findings survive filtering, return an empty findings array with decisions and summary "Keine Auffälligkeiten".`;
+}
 
 function buildConsolidatorPrompt(agentResults, diff) {
   return `<pr_diff>\n${diff}\n</pr_diff>\n\n<agent_findings>\n${JSON.stringify(agentResults)}\n</agent_findings>\n\nFollow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.`;
@@ -215,15 +215,16 @@ function describeConsolidation(agentResults, consolidated) {
   return `${inputCount} Findings geprüft, ${removed} gefiltert, ${outputCount} übernommen`;
 }
 
-async function runReview(diff, jiraTicket, emit, { vertexAi } = {}) {
+async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, projectRules } = {}) {
   const warnings = [];
   const processedDiff = preprocessDiff(diff);
 
-  const applicableAgents = AGENT_REGISTRY.filter(
+  const enabledFromSettings = AGENT_REGISTRY.filter(a => enabledAgents.includes(a.id));
+  const applicableAgents = enabledFromSettings.filter(
     a => !a.isApplicable || a.isApplicable(jiraTicket)
   );
 
-  const skipped = AGENT_REGISTRY.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+  const skipped = enabledFromSettings.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
   for (const agent of skipped) {
     if (agent.skipMessage) {
       emit('warning', { message: agent.skipMessage });
@@ -242,7 +243,7 @@ async function runReview(diff, jiraTicket, emit, { vertexAi } = {}) {
       const start = Date.now();
       return callAi(
         agent.buildUserPrompt(processedDiff, jiraTicket),
-        agent.systemPrompt,
+        agent.buildSystemPrompt(projectRules),
         {
           temperature: agent.temperature,
           maxOutputTokens: 65536,
@@ -281,7 +282,7 @@ async function runReview(diff, jiraTicket, emit, { vertexAi } = {}) {
 
   const { result: consolidated, thoughts: consolidatorThoughts } = await callAi(
     buildConsolidatorPrompt(agentResults, processedDiff),
-    SYSTEM_PROMPTS.consolidator,
+    buildConsolidatorSystemPrompt(projectRules),
     {
       temperature: 0.2,
       maxOutputTokens: 65536,
