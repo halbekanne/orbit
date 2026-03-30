@@ -142,7 +142,7 @@ Für jeden Agent aus `AGENT_REGISTRY` eine Checkbox mit Label und Beschreibung. 
 readonly agentDescriptions: Record<string, { label: string; description: string }> = {
   'code-quality': {
     label: 'Code-Qualität',
-    description: 'Prüft Logikfehler, Lesbarkeit, Wartbarkeit und fehlende Cleanup-Logik. Empfohlen für alle Projekte.',
+    description: 'Prüft auf Bugs, Logikfehler, Lesbarkeit und Wartbarkeit. Empfohlen für alle Projekte.',
   },
   'ak-abgleich': {
     label: 'AK-Abgleich',
@@ -162,7 +162,7 @@ readonly agentDescriptions: Record<string, { label: string; description: string 
   <input type="checkbox" ...>
   <div>
     <span class="font-medium">Code-Qualität</span>
-    <p class="text-xs text-muted">Prüft Logikfehler, Lesbarkeit, ...</p>
+    <p class="text-xs text-muted">Prüft auf Bugs, Logikfehler, Lesbarkeit ...</p>
   </div>
 </label>
 ```
