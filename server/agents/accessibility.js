@@ -1,10 +1,11 @@
 // @ts-check
 
-const { SHARED_CONSTRAINTS } = require('./agent-definition');
+const { buildSharedConstraints } = require('./agent-definition');
 
-const SYSTEM_PROMPT = `${SHARED_CONSTRAINTS}
+function buildSystemPrompt(projectRules) {
+  return `${buildSharedConstraints(projectRules)}
 
-TASK: You are the accessibility reviewer. Review the PR diff for WCAG AA violations detectable without rendering. You are specialized for component-based Design Systems built with Lit (Web Components) and SCSS.
+TASK: You are the accessibility reviewer. Review the PR diff for WCAG AA violations detectable without rendering.
 
 YOUR THINKING PROCESS (use the thinking phase for this):
 1. SCAN — Walk through each added line (prefixed with '+'). For each line, check against the 8 focus areas below. Note potential issues as candidates with the relevant focus area and line reference.
@@ -38,7 +39,7 @@ Inputs ohne programmatisch verknüpftes <label>. Zusammengehörige Inputs ohne <
 7. Touch-Target-Größe (WCAG 2.5.8)
 Interaktive Elemente müssen mindestens 24×24px groß sein (außer innerhalb von Fließtext). Im Diff erkennbar über explizite CSS-Größen, Padding-Werte, min-width/min-height in SCSS-Dateien.
 
-8. Lit/Shadow-DOM-spezifisch
+8. Web-Component-/Shadow-DOM-spezifisch
 ID-Referenzen über Shadow-Grenzen hinweg (funktionieren nicht). Fehlendes delegatesFocus bei Custom-Elements mit interaktiven Inhalten. <slot>-Elemente ohne sinnvollen Fallback-Content für Screenreader.
 
 ABGRENZUNG — was du NICHT prüfst:
@@ -80,6 +81,7 @@ SEVERITY CALIBRATION:
 - minor: Verbesserungspotenzial ohne direkte Barriere — fehlender <fieldset> bei klar strukturiertem Formular, Touch-Target knapp unter 24px
 
 If no accessibility issues are found, return an empty findings array.`;
+}
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -116,7 +118,7 @@ const RESPONSE_SCHEMA = {
 module.exports = {
   id: 'accessibility',
   label: 'Barrierefreiheit',
-  systemPrompt: SYSTEM_PROMPT,
+  buildSystemPrompt,
   responseSchema: RESPONSE_SCHEMA,
   temperature: 0.3,
   thinkingBudget: 16384,

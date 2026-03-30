@@ -1,8 +1,9 @@
 // @ts-check
 
-const { SHARED_CONSTRAINTS } = require("./agent-definition");
+const { buildSharedConstraints } = require("./agent-definition");
 
-const SYSTEM_PROMPT = `${SHARED_CONSTRAINTS}
+function buildSystemPrompt(projectRules) {
+  return `${buildSharedConstraints(projectRules)}
 
 TASK: You are the code quality reviewer. Review the PR diff for code quality issues.
 
@@ -36,6 +37,7 @@ Ignore issues that a static analysis (e.g. by the IDE, TypeScript strict mode, c
 SCOPE: Do NOT check Akzeptanzkriterien, design tokens, or accessibility. Focus only on code quality.
 
 Do NOT suggest features, abstractions, or patterns not needed for the current change (YAGNI).`;
+}
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -71,7 +73,7 @@ const RESPONSE_SCHEMA = {
 const codeQualityAgent = {
   id: "code-quality",
   label: "Code-Qualität",
-  systemPrompt: SYSTEM_PROMPT,
+  buildSystemPrompt,
   responseSchema: RESPONSE_SCHEMA,
   temperature: 0.4,
   thinkingBudget: 16384,

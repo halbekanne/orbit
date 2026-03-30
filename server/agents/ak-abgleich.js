@@ -1,8 +1,9 @@
 // @ts-check
 
-const { SHARED_CONSTRAINTS } = require('./agent-definition');
+const { buildSharedConstraints } = require('./agent-definition');
 
-const SYSTEM_PROMPT = `${SHARED_CONSTRAINTS}
+function buildSystemPrompt(projectRules) {
+  return `${buildSharedConstraints(projectRules)}
 
 TASK: You are the Akzeptanzkriterien (AK) reviewer. Compare the PR diff against the Jira ticket's Akzeptanzkriterien.
 
@@ -29,6 +30,7 @@ EXAMPLE (for calibration — do not copy):
 If the Jira ticket description contains no identifiable Akzeptanzkriterien (e.g., it is empty, purely technical notes, or just a title), return an empty findings array.
 
 SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. Only check AK coverage.`;
+}
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
@@ -64,7 +66,7 @@ const RESPONSE_SCHEMA = {
 module.exports = {
   id: 'ak-abgleich',
   label: 'AK-Abgleich',
-  systemPrompt: SYSTEM_PROMPT,
+  buildSystemPrompt,
   responseSchema: RESPONSE_SCHEMA,
   temperature: 0.2,
   thinkingBudget: 16384,
