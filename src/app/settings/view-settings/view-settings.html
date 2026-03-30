@@ -326,6 +326,34 @@
               Benötigt Vertex AI Proxy-Konfiguration
             </p>
           }
+
+          <div [class.pointer-events-none]="!draft().features.aiReviews.enabled" class="mt-4">
+            <label class="block text-sm text-[var(--color-text-body)] mb-3">Review-Agenten</label>
+
+            @for (entry of agentDescriptions | keyvalue; track entry.key) {
+              <label class="flex items-start gap-3 cursor-pointer mb-3">
+                <input type="checkbox" class="mt-0.5 accent-violet-500"
+                  [checked]="draft().features.aiReviews.enabledAgents.includes(entry.key)"
+                  (change)="toggleAgent(entry.key, $any($event.target).checked)">
+                <div>
+                  <span class="text-sm font-medium text-[var(--color-text-heading)]">{{ entry.value.label }}</span>
+                  <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ entry.value.description }}</p>
+                </div>
+              </label>
+            }
+
+            <div class="mt-4">
+              <label class="block text-sm text-[var(--color-text-body)] mb-1">Projektregeln</label>
+              <p class="text-xs text-[var(--color-text-muted)] mb-2">Diese Anweisungen werden allen aktiven Review-Agenten mitgegeben. Beschreibe hier euren Tech-Stack, Coding-Konventionen und worauf beim Review besonders geachtet werden soll.</p>
+              <textarea
+                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 resize-none"
+                style="height: 120px"
+                placeholder="z.B. Java 21 mit Spring Boot 3. Wir nutzen Hexagonale Architektur mit Ports & Adapters. REST-APIs folgen unseren OpenAPI-Specs. Tests mit JUnit 5 und Mockito."
+                [value]="draft().features.aiReviews.projectRules"
+                (input)="updateDraft(d => d.features.aiReviews.projectRules = $any($event.target).value)">
+              </textarea>
+            </div>
+          </div>
         </div>
 
         <!-- Tageskalender -->

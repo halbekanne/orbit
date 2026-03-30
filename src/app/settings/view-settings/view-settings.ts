@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { KeyValuePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../settings.service';
 import { createDefaultSettings, OrbitSettings } from '../settings.model';
@@ -13,7 +14,7 @@ import { createDefaultSettings, OrbitSettings } from '../settings.model';
 @Component({
   selector: 'app-view-settings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  imports: [FormsModule, KeyValuePipe],
   templateUrl: './view-settings.html',
   host: {
     class: 'flex flex-1 h-full overflow-hidden bg-[var(--color-bg-page)]',
@@ -74,6 +75,21 @@ export class ViewSettingsComponent {
     { id: 'darstellung', label: 'Darstellung', children: [] },
   ];
 
+  readonly agentDescriptions: Record<string, { label: string; description: string }> = {
+    'code-quality': {
+      label: 'Code-Qualität',
+      description: 'Prüft auf Bugs, Logikfehler, Lesbarkeit und Wartbarkeit. Empfohlen für alle Projekte.',
+    },
+    'ak-abgleich': {
+      label: 'AK-Abgleich',
+      description: 'Vergleicht den Code mit den Akzeptanzkriterien aus dem verknüpften Jira-Ticket. Empfohlen wenn Jira genutzt wird.',
+    },
+    'accessibility': {
+      label: 'Barrierefreiheit',
+      description: 'Prüft WCAG AA Konformität für HTML und UI-Komponenten. Empfohlen für Frontend-Projekte.',
+    },
+  };
+
   readonly needsVertexWarning = computed(() => {
     const d = this.draft();
     return d.features.aiReviews.enabled && d.connections.vertexAi.url.trim() === '';
@@ -109,6 +125,18 @@ export class ViewSettingsComponent {
 
   removeCustomHeader(index: number): void {
     this.updateDraft((d) => d.connections.vertexAi.customHeaders.splice(index, 1));
+  }
+
+  toggleAgent(agentId: string, enabled: boolean): void {
+    this.updateDraft(d => {
+      const agents = d.features.aiReviews.enabledAgents;
+      if (enabled && !agents.includes(agentId)) {
+        agents.push(agentId);
+      } else if (!enabled) {
+        const idx = agents.indexOf(agentId);
+        if (idx !== -1) agents.splice(idx, 1);
+      }
+    });
   }
 
   setTheme(theme: 'light' | 'dark' | 'system'): void {
