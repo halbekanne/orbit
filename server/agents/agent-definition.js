@@ -4,7 +4,7 @@
  * @typedef {Object} AgentDefinition
  * @property {string} id
  * @property {string} label
- * @property {string} systemPrompt
+ * @property {(projectRules?: string) => string} buildSystemPrompt
  * @property {Object} responseSchema
  * @property {number} temperature
  * @property {number} thinkingBudget
@@ -22,7 +22,8 @@
  * @property {string} description
  */
 
-const SHARED_CONSTRAINTS = `You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS.
+function buildSharedConstraints(projectRules) {
+  let constraints = `You are reviewing a pull request.
 
 Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
 
@@ -37,10 +38,13 @@ RULES:
 - You will also receive project context and rules that will give you more context and help you with assessing code deviations from the "norm" (e.g. a deviation from best practices might be deliberate).
 
 THINKING PHASE INSTRUCTIONS:
-You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.
+You have a dedicated thinking phase before generating the JSON. You MUST use this phase to perform a step-by-step analysis. Do NOT use the thinking phase to draft JSON syntax. Use it to reason about the code, cross-reference requirements, and verify your claims. Only after completing your analysis should you write the JSON output.`;
 
-PROJECT CONTEXT AND RULES:
-- The design system follows an unusual approach, where native HTML elements (\`<button>\`, \`<h2>\`, ...) get slotted into design system components wherever possible, e.g. \`<si-button><button>...</button></si-button>\` or \`<si-heading><h2>...</h2></si-heading>\`. This way, the consumer has full control over the native element because he can slot it in and define all natively available attributes, which helps US focus on the design, instead of reimplementing native elements. This MUST NOT be marked as an error as it is our convention.
-`;
+  if (projectRules?.trim()) {
+    constraints += `\n\nPROJECT CONTEXT AND RULES (provided by user):\n${projectRules}`;
+  }
 
-module.exports = { SHARED_CONSTRAINTS };
+  return constraints;
+}
+
+module.exports = { buildSharedConstraints };
