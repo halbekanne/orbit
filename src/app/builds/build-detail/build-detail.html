@@ -126,8 +126,8 @@
                     }
                   </div>
                   @if (stage.status === 'FAILED' && stageLog(stage.id)) {
-                    <div class="mx-6 mb-3 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-danger-border)] overflow-hidden">
-                      <pre class="p-3 text-xs font-mono text-[var(--color-text-body)] overflow-x-auto whitespace-pre-wrap" [innerHTML]="stageLog(stage.id)"></pre>
+                    <div class="mx-6 mb-3 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-danger-border)] border-l-4 border-l-[var(--color-danger-solid)] overflow-hidden">
+                      <div class="p-3 text-xs font-mono text-[var(--color-text-body)] overflow-x-auto" [innerHTML]="stageLog(stage.id)"></div>
                     </div>
                   }
                 </div>

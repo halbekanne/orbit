@@ -137,84 +137,84 @@ const STAGE_FLOW_NODES = {
 const STAGE_LOGS = {
   '31_45': {
     nodeId: '31', nodeStatus: 'FAILED', length: 842, hasMore: false,
-    text: '<span class="pipeline-node-31">\u001b[31mFAIL\u001b[0m src/app/login.spec.ts\n  \u001b[31m● Login component › should validate email\u001b[0m\n    Expected: true\n    Received: false\n\n    at Object.<anonymous> (src/app/login.spec.ts:42:18)\n</span>',
+    text: '<span class="pipeline-node-31">09:08:41 [2026-03-30T07:08:41.003Z] [336/338] [chromium] \u001b[31m› libs/storybook-host/docs/components/table-footer/table-footer.e2e.ts:3:5 › TableFooter Default Test ---\u001b[0m\n09:08:41 [2026-03-30T07:08:41.120Z] [337/338] [chromium] \u001b[31m› libs/storybook-host/docs/components/login/login.e2e.ts:12:5 › Login › should validate email\u001b[0m\n09:08:42 [2026-03-30T07:08:42.450Z]\n09:08:42 [2026-03-30T07:08:42.451Z]   \u001b[31m1) Login › should validate email\u001b[0m\n09:08:42 [2026-03-30T07:08:42.452Z]     Expected: true\n09:08:42 [2026-03-30T07:08:42.453Z]     Received: false\n09:08:42 [2026-03-30T07:08:42.454Z]\n09:08:42 [2026-03-30T07:08:42.455Z]     at Object.<anonymous> (libs/storybook-host/docs/components/login/login.e2e.ts:42:18)\n09:08:43 [2026-03-30T07:08:43.100Z]\n09:08:43 [2026-03-30T07:08:43.101Z]   \u001b[31m338 passed, 2 failed\u001b[0m\n</span>',
   },
   '31_23': {
     nodeId: '31', nodeStatus: 'FAILED', length: 520, hasMore: false,
-    text: '<span class="pipeline-node-31">\u001b[31m[ERROR]\u001b[0m Tests run: 15, Failures: 2, Errors: 0\n\u001b[31mFailed tests:\u001b[0m\n  CacheServiceTest.testEviction\n  CacheServiceTest.testConcurrentAccess\n</span>',
+    text: '<span class="pipeline-node-31">14:22:10 [2026-03-30T12:22:10.200Z] \u001b[31m[ERROR]\u001b[0m Tests run: 15, Failures: 2, Errors: 0\n14:22:10 [2026-03-30T12:22:10.300Z] \u001b[31mFailed tests:\u001b[0m\n14:22:10 [2026-03-30T12:22:10.400Z]   CacheServiceTest.testEviction\n14:22:10 [2026-03-30T12:22:10.500Z]   CacheServiceTest.testConcurrentAccess\n</span>',
   },
 };
 
-const CONSOLE_LOG = `\u001b[36m[Pipeline]\u001b[0m Start of Pipeline
-\u001b[36m[Pipeline]\u001b[0m node
-Running on Jenkins in /var/jenkins_home/workspace/frontend-app/main
-\u001b[36m[Pipeline]\u001b[0m {
-\u001b[36m[Pipeline]\u001b[0m stage
-\u001b[36m[Pipeline]\u001b[0m { (Checkout)
-\u001b[32m[Checkout]\u001b[0m Cloning repository https://bitbucket.example.com/scm/VF/frontend-app.git
-\u001b[32m[Checkout]\u001b[0m > git fetch --tags --progress
-\u001b[32m[Checkout]\u001b[0m Checking out Revision abc123def456
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m stage
-\u001b[36m[Pipeline]\u001b[0m { (Build)
-\u001b[1m> npm ci\u001b[0m
-added 1523 packages in 45s
-\u001b[1m> npm run build\u001b[0m
-\u001b[32m✓ Built successfully in 38.2s\u001b[0m
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m stage
-\u001b[36m[Pipeline]\u001b[0m { (Test)
-\u001b[1m> npm test\u001b[0m
-\u001b[32m PASS \u001b[0m src/app/app.spec.ts
-\u001b[32m PASS \u001b[0m src/app/shared/utils.spec.ts
-\u001b[32m PASS \u001b[0m src/app/dashboard/dashboard.spec.ts
-\u001b[32m PASS \u001b[0m src/app/auth/auth.service.spec.ts
-
-Test Suites: \u001b[32m4 passed\u001b[0m, 4 total
-Tests:       \u001b[32m23 passed\u001b[0m, 23 total
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m stage
-\u001b[36m[Pipeline]\u001b[0m { (Deploy)
-Deploying to staging.example.com...
-\u001b[32mDeployment successful\u001b[0m
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m End of Pipeline
-\u001b[32mFinished: SUCCESS\u001b[0m
+const CONSOLE_LOG = `[2026-03-30T07:05:00.100Z] \u001b[36m[Pipeline]\u001b[0m Start of Pipeline
+[2026-03-30T07:05:00.200Z] \u001b[36m[Pipeline]\u001b[0m node
+[2026-03-30T07:05:00.300Z] Running on Jenkins in /var/jenkins_home/workspace/frontend-app/main
+[2026-03-30T07:05:00.400Z] \u001b[36m[Pipeline]\u001b[0m {
+[2026-03-30T07:05:00.500Z] \u001b[36m[Pipeline]\u001b[0m stage
+[2026-03-30T07:05:00.600Z] \u001b[36m[Pipeline]\u001b[0m { (Checkout)
+[2026-03-30T07:05:01.100Z] \u001b[32m[Checkout]\u001b[0m Cloning repository https://bitbucket.example.com/scm/VF/frontend-app.git
+[2026-03-30T07:05:02.200Z] \u001b[32m[Checkout]\u001b[0m > git fetch --tags --progress
+[2026-03-30T07:05:03.300Z] \u001b[32m[Checkout]\u001b[0m Checking out Revision abc123def456
+[2026-03-30T07:05:03.400Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:05:03.500Z] \u001b[36m[Pipeline]\u001b[0m stage
+[2026-03-30T07:05:03.600Z] \u001b[36m[Pipeline]\u001b[0m { (Build)
+[2026-03-30T07:05:03.700Z] \u001b[1m> npm ci\u001b[0m
+[2026-03-30T07:05:48.800Z] added 1523 packages in 45s
+[2026-03-30T07:05:48.900Z] \u001b[1m> npm run build\u001b[0m
+[2026-03-30T07:06:27.100Z] \u001b[32m✓ Built successfully in 38.2s\u001b[0m
+[2026-03-30T07:06:27.200Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:06:27.300Z] \u001b[36m[Pipeline]\u001b[0m stage
+[2026-03-30T07:06:27.400Z] \u001b[36m[Pipeline]\u001b[0m { (Test)
+[2026-03-30T07:06:27.500Z] \u001b[1m> npm test\u001b[0m
+[2026-03-30T07:07:12.100Z] \u001b[32m PASS \u001b[0m src/app/app.spec.ts
+[2026-03-30T07:07:25.200Z] \u001b[32m PASS \u001b[0m src/app/shared/utils.spec.ts
+[2026-03-30T07:07:38.300Z] \u001b[32m PASS \u001b[0m src/app/dashboard/dashboard.spec.ts
+[2026-03-30T07:07:52.400Z] \u001b[32m PASS \u001b[0m src/app/auth/auth.service.spec.ts
+[2026-03-30T07:07:52.500Z]
+[2026-03-30T07:07:52.600Z] Test Suites: \u001b[32m4 passed\u001b[0m, 4 total
+[2026-03-30T07:07:52.700Z] Tests:       \u001b[32m23 passed\u001b[0m, 23 total
+[2026-03-30T07:07:52.800Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:07:52.900Z] \u001b[36m[Pipeline]\u001b[0m stage
+[2026-03-30T07:07:53.000Z] \u001b[36m[Pipeline]\u001b[0m { (Deploy)
+[2026-03-30T07:07:53.100Z] Deploying to staging.example.com...
+[2026-03-30T07:08:21.200Z] \u001b[32mDeployment successful\u001b[0m
+[2026-03-30T07:08:21.300Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:08:21.400Z] \u001b[36m[Pipeline]\u001b[0m End of Pipeline
+[2026-03-30T07:08:21.500Z] \u001b[32mFinished: SUCCESS\u001b[0m
 `;
 
-const CONSOLE_LOG_FAILED = `\u001b[36m[Pipeline]\u001b[0m Start of Pipeline
-\u001b[36m[Pipeline]\u001b[0m node
-\u001b[36m[Pipeline]\u001b[0m { (Checkout)
-\u001b[32m[Checkout]\u001b[0m Cloning repository...
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m { (Build)
-\u001b[1m> npm ci\u001b[0m
-added 1523 packages in 42s
-\u001b[1m> npm run build\u001b[0m
-\u001b[32m✓ Built successfully\u001b[0m
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[36m[Pipeline]\u001b[0m { (Test)
-\u001b[1m> npm test\u001b[0m
-\u001b[32m PASS \u001b[0m src/app/app.spec.ts
-\u001b[32m PASS \u001b[0m src/app/shared/utils.spec.ts
-\u001b[31m FAIL \u001b[0m src/app/login.spec.ts
-  \u001b[31m● Login component › should validate email\u001b[0m
-
-    expect(received).toBe(expected)
-
-    Expected: true
-    Received: false
-
-      40 |   it('should validate email', () => {
-      41 |     const result = component.validateEmail('invalid');
-    \u001b[31m> 42 |     expect(result).toBe(true);\u001b[0m
-      43 |   });
-
-\u001b[31mTest Suites: 1 failed\u001b[0m, 2 passed, 3 total
-\u001b[31mTests:       1 failed\u001b[0m, 22 passed, 23 total
-\u001b[31mERROR: npm test returned exit code 1\u001b[0m
-\u001b[36m[Pipeline]\u001b[0m }
-\u001b[31mFinished: FAILURE\u001b[0m
+const CONSOLE_LOG_FAILED = `[2026-03-30T07:05:00.100Z] \u001b[36m[Pipeline]\u001b[0m Start of Pipeline
+[2026-03-30T07:05:00.200Z] \u001b[36m[Pipeline]\u001b[0m node
+[2026-03-30T07:05:00.300Z] \u001b[36m[Pipeline]\u001b[0m { (Checkout)
+[2026-03-30T07:05:01.100Z] \u001b[32m[Checkout]\u001b[0m Cloning repository...
+[2026-03-30T07:05:03.400Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:05:03.500Z] \u001b[36m[Pipeline]\u001b[0m { (Build)
+[2026-03-30T07:05:03.600Z] \u001b[1m> npm ci\u001b[0m
+[2026-03-30T07:05:45.700Z] added 1523 packages in 42s
+[2026-03-30T07:05:45.800Z] \u001b[1m> npm run build\u001b[0m
+[2026-03-30T07:06:24.900Z] \u001b[32m✓ Built successfully\u001b[0m
+[2026-03-30T07:06:25.000Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:06:25.100Z] \u001b[36m[Pipeline]\u001b[0m { (Test)
+[2026-03-30T07:06:25.200Z] \u001b[1m> npm test\u001b[0m
+[2026-03-30T07:07:10.300Z] \u001b[32m PASS \u001b[0m src/app/app.spec.ts
+[2026-03-30T07:07:23.400Z] \u001b[32m PASS \u001b[0m src/app/shared/utils.spec.ts
+[2026-03-30T07:07:36.500Z] \u001b[31m FAIL \u001b[0m src/app/login.spec.ts
+[2026-03-30T07:07:36.600Z]   \u001b[31m● Login component › should validate email\u001b[0m
+[2026-03-30T07:07:36.700Z]
+[2026-03-30T07:07:36.800Z]     expect(received).toBe(expected)
+[2026-03-30T07:07:36.900Z]
+[2026-03-30T07:07:37.000Z]     Expected: true
+[2026-03-30T07:07:37.100Z]     Received: false
+[2026-03-30T07:07:37.200Z]
+[2026-03-30T07:07:37.300Z]       40 |   it('should validate email', () => {
+[2026-03-30T07:07:37.400Z]       41 |     const result = component.validateEmail('invalid');
+[2026-03-30T07:07:37.500Z]     \u001b[31m> 42 |     expect(result).toBe(true);\u001b[0m
+[2026-03-30T07:07:37.600Z]       43 |   });
+[2026-03-30T07:07:37.700Z]
+[2026-03-30T07:07:37.800Z] \u001b[31mTest Suites: 1 failed\u001b[0m, 2 passed, 3 total
+[2026-03-30T07:07:37.900Z] \u001b[31mTests:       1 failed\u001b[0m, 22 passed, 23 total
+[2026-03-30T07:07:38.000Z] \u001b[31mERROR: npm test returned exit code 1\u001b[0m
+[2026-03-30T07:07:38.100Z] \u001b[36m[Pipeline]\u001b[0m }
+[2026-03-30T07:07:38.200Z] \u001b[31mFinished: FAILURE\u001b[0m
 `;
 
 const PARAMETER_DEFINITIONS = [

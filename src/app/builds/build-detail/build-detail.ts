@@ -56,7 +56,15 @@ export class BuildDetailComponent implements OnDestroy {
     const log = this.stageLogs().get(stageId);
     if (!log) return null;
     const stripped = log.text.replace(/<[^>]+>/g, '');
-    const html = this.ansi.ansi_to_html(stripped);
+    const converted = this.ansi.ansi_to_html(stripped);
+    const lines = converted.split('\n');
+    const html = lines.map(line => {
+      const { time, message } = this.parseTimestamp(line);
+      const timeHtml = time
+        ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
+        : `<span class="w-16 shrink-0"></span>`;
+      return `<div class="flex">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
+    }).join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
@@ -65,12 +73,15 @@ export class BuildDetailComponent implements OnDestroy {
     if (!raw) return this.sanitizer.bypassSecurityTrustHtml('');
     const lines = raw.split('\n');
     const errorPattern = /ERROR|Exception|FAILED/;
-    const html = lines.map((line, i) => {
-      const num = i + 1;
+    const html = lines.map(line => {
       const escaped = this.ansi.ansi_to_html(line);
+      const { time, message } = this.parseTimestamp(escaped);
       const isError = errorPattern.test(line);
-      const borderClass = isError ? 'border-l-2 border-l-[var(--color-danger-solid)]' : '';
-      return `<div class="flex ${borderClass}"><span class="select-none text-right pr-4 text-[var(--color-text-muted)] opacity-50 w-12 shrink-0">${num}</span><span class="flex-1 whitespace-pre-wrap break-all">${escaped}</span></div>`;
+      const borderClass = isError ? 'border-l-4 border-l-[var(--color-danger-solid)]' : '';
+      const timeHtml = time
+        ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
+        : `<span class="w-16 shrink-0"></span>`;
+      return `<div class="flex ${borderClass}">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
     }).join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   });
@@ -128,6 +139,13 @@ export class BuildDetailComponent implements OnDestroy {
 
   protected decodeBranch(name: string): string {
     return decodeURIComponent(name);
+  }
+
+  private parseTimestamp(line: string): { time: string | null; message: string } {
+    const match = line.match(/^(?:(\d{2}:\d{2}:\d{2})\s+)?\[\d{4}-\d{2}-\d{2}T(\d{2}:\d{2}:\d{2})\.\d+Z\]\s*/);
+    if (!match) return { time: null, message: line };
+    const time = match[1] ?? match[2];
+    return { time, message: line.slice(match[0].length) };
   }
 
   private loadDetail(b: BranchBuild): void {
