@@ -120,9 +120,9 @@ export class JenkinsService {
     });
   }
 
-  loadBuildDetail(jobPath: string, branch: string): Observable<{ detail: JenkinsBuildDetail; stages: JenkinsRun }> {
+  loadBuildDetail(jobPath: string, branch: string, buildNumber: number): Observable<{ detail: JenkinsBuildDetail; stages: JenkinsRun }> {
     const detailParams = new HttpParams().set('tree', 'description,result,duration,timestamp,building,estimatedDuration,number,url,actions[parameters[name,value]]');
-    return this.http.get<JenkinsBuildDetail>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params: detailParams }).pipe(
+    return this.http.get<JenkinsBuildDetail>(`${this.base}/${jobPath}/job/${branch}/${buildNumber}/api/json`, { params: detailParams }).pipe(
       switchMap(detail => {
         return this.http.get<JenkinsRun>(`${this.base}/${jobPath}/job/${branch}/${detail.number}/wfapi/describe`).pipe(
           map(stages => ({ detail, stages })),

@@ -139,7 +139,7 @@ export class BuildDetailComponent implements OnDestroy {
     this.activeTab.set('overview');
     this.logService.clear();
 
-    this.jenkins.loadBuildDetail(b.jobPath, b.branchName).subscribe({
+    this.jenkins.loadBuildDetail(b.jobPath, b.branchName, b.lastBuild!.number).subscribe({
       next: ({ detail, stages }) => {
         this.buildDetail.set(detail);
         this.stages.set(stages);
@@ -176,7 +176,7 @@ export class BuildDetailComponent implements OnDestroy {
 
   private startPolling(b: BranchBuild): void {
     this.pollingTimer = setInterval(() => {
-      this.jenkins.loadBuildDetail(b.jobPath, b.branchName).subscribe({
+      this.jenkins.loadBuildDetail(b.jobPath, b.branchName, b.lastBuild!.number).subscribe({
         next: ({ detail, stages }) => {
           this.buildDetail.set(detail);
           this.stages.set(stages);
