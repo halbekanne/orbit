@@ -104,7 +104,11 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, { vertexAi: TEST_VERTEX_AI });
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+      projectRules: '',
+    });
 
     const types = events.map(e => e.type);
     assert.deepEqual(types, [
@@ -199,7 +203,11 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', null, emit, { vertexAi: TEST_VERTEX_AI });
+    await runReview('diff content', null, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+      projectRules: '',
+    });
 
     const types = events.map(e => e.type);
     assert.deepEqual(types, [
@@ -254,7 +262,11 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'desc' }, emit, { vertexAi: TEST_VERTEX_AI });
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'desc' }, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+      projectRules: '',
+    });
 
     const types = events.map(e => e.type);
     assert.ok(types.includes('agent:start'));
@@ -293,7 +305,11 @@ describe('runReview', () => {
     const events = [];
     const emit = (type, data) => events.push({ type, data });
 
-    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, { vertexAi: TEST_VERTEX_AI });
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+      projectRules: '',
+    });
 
     const types = events.map(e => e.type);
     assert.ok(!types.includes('consolidator:start'));
@@ -301,5 +317,64 @@ describe('runReview', () => {
     assert.ok(types.includes('done'));
 
     assert.equal(callCount, 3);
+  });
+
+  it('only runs agents listed in enabledAgents', async () => {
+    const codeQualityResult = { findings: [] };
+
+    let callCount = 0;
+    mock.method(global, 'fetch', () => {
+      callCount++;
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(codeQualityResult) }] } }],
+        }),
+      });
+    });
+
+    const { runReview } = freshRequire();
+    const events = [];
+    const emit = (type, data) => events.push({ type, data });
+
+    await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['code-quality'],
+      projectRules: '',
+    });
+
+    const agentStarts = events.filter(e => e.type === 'agent:start');
+    assert.equal(agentStarts.length, 1);
+    assert.equal(agentStarts[0].data.agent, 'code-quality');
+
+    assert.ok(!events.some(e => e.type === 'warning'));
+
+    assert.equal(callCount, 1);
+  });
+
+  it('passes projectRules through buildSystemPrompt to system instruction', async () => {
+    const mockResponse = {
+      candidates: [{ content: { parts: [{ text: '{"findings": []}' }] } }],
+    };
+
+    const fetchMock = mock.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(mockResponse),
+    }));
+    mock.method(global, 'fetch', fetchMock);
+
+    const { runReview } = freshRequire();
+    const events = [];
+    const emit = (type, data) => events.push({ type, data });
+
+    await runReview('diff content', null, emit, {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['code-quality'],
+      projectRules: 'Java 21 mit Spring Boot 3',
+    });
+
+    assert.equal(fetchMock.mock.calls.length, 1);
+    const body = JSON.parse(fetchMock.mock.calls[0].arguments[1].body);
+    assert.ok(body.systemInstruction.parts[0].text.includes('Java 21 mit Spring Boot 3'));
   });
 });
