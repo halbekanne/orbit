@@ -332,7 +332,7 @@
 
             @for (entry of agentDescriptions | keyvalue; track entry.key) {
               <label class="flex items-start gap-3 cursor-pointer mb-3">
-                <input type="checkbox" class="mt-0.5 accent-violet-500"
+                <input type="checkbox" class="mt-1.5 accent-violet-500"
                   [checked]="draft().features.aiReviews.enabledAgents.includes(entry.key)"
                   (change)="toggleAgent(entry.key, $any($event.target).checked)">
                 <div>
