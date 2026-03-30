@@ -28,6 +28,8 @@ export interface OrbitSettings {
     };
     aiReviews: {
       enabled: boolean;
+      enabledAgents: string[];
+      projectRules: string;
     };
     dayCalendar: {
       enabled: boolean;
@@ -53,7 +55,7 @@ export function createDefaultSettings(): OrbitSettings {
     },
     features: {
       pomodoro: { enabled: true, focusMinutes: 25, breakMinutes: 5 },
-      aiReviews: { enabled: false },
+      aiReviews: { enabled: false, enabledAgents: ['code-quality', 'ak-abgleich'], projectRules: '' },
       dayCalendar: { enabled: true },
     },
     appearance: { theme: 'system' },
