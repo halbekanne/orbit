@@ -46,6 +46,7 @@ export class SettingsService {
       const defaults = createDefaultSettings();
       settings.connections = { ...defaults.connections, ...settings.connections };
       settings.features = { ...defaults.features, ...settings.features };
+      settings.features.aiReviews = { ...defaults.features.aiReviews, ...settings.features.aiReviews };
       settings.appearance = { ...defaults.appearance, ...settings.appearance };
       this._settings.set(settings);
     }
@@ -57,6 +58,7 @@ export class SettingsService {
     const defaults = createDefaultSettings();
     result.connections = { ...defaults.connections, ...result.connections };
     result.features = { ...defaults.features, ...result.features };
+    result.features.aiReviews = { ...defaults.features.aiReviews, ...result.features.aiReviews };
     result.appearance = { ...defaults.appearance, ...result.appearance };
     this._settings.set(result);
     this._isConfigured.set(true);
