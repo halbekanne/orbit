@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SettingsService } from '../settings/settings.service';
 import { BuildAnalysisRequest, BuildAnalysisResult, BuildAnalysisState } from './jenkins.model';
@@ -10,6 +11,7 @@ export class BuildAnalysisService {
   private readonly settings = inject(SettingsService);
   private readonly baseUrl = `${environment.proxyUrl}/api/ai/build-analysis`;
   private readonly cache = new Map<string, BuildAnalysisResult>();
+  private activeRequest: Subscription | null = null;
 
   readonly state = signal<BuildAnalysisState>({ status: 'idle' });
 
@@ -31,16 +33,19 @@ export class BuildAnalysisService {
       return;
     }
 
+    this.activeRequest?.unsubscribe();
     this.state.set({ status: 'loading' });
 
-    this.http.post<BuildAnalysisResult>(this.baseUrl, req).subscribe({
+    this.activeRequest = this.http.post<BuildAnalysisResult>(this.baseUrl, req).subscribe({
       next: result => {
         this.cache.set(key, result);
         this.state.set({ status: 'result', data: result });
+        this.activeRequest = null;
       },
       error: err => {
         const message = err.error?.error ?? 'Analyse fehlgeschlagen';
         this.state.set({ status: 'error', message });
+        this.activeRequest = null;
       },
     });
   }
@@ -52,6 +57,8 @@ export class BuildAnalysisService {
   }
 
   reset(): void {
+    this.activeRequest?.unsubscribe();
+    this.activeRequest = null;
     this.state.set({ status: 'idle' });
   }
 }

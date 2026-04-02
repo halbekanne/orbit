@@ -87,7 +87,7 @@ async function fetchRepoMapping(jobPath, { getSettings }) {
   const auth = Buffer.from(`${username}:${apiToken}`).toString('base64');
 
   try {
-    const response = await fetch(`${baseUrl}/job/${encodeURIComponent(jobPath)}/config.xml`, {
+    const response = await fetch(`${baseUrl}/${jobPath}/config.xml`, {
       headers: { Authorization: `Basic ${auth}` },
       signal: AbortSignal.timeout(10_000),
     });
@@ -109,7 +109,7 @@ async function fetchJenkinsfile(mapping, branch, { getSettings }) {
   if (!bitbucket?.baseUrl) return null;
 
   const encodedPath = encodeURIComponent(mapping.scriptPath);
-  const url = `${bitbucket.baseUrl}/rest/api/latest/projects/${mapping.project}/repos/${mapping.repo}/browse/${encodedPath}?at=refs/heads/${branch}`;
+  const url = `${bitbucket.baseUrl}/rest/api/latest/projects/${mapping.project}/repos/${mapping.repo}/browse/${encodedPath}?at=refs/heads/${encodeURIComponent(branch)}`;
 
   try {
     const response = await fetch(url, {
