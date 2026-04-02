@@ -133,3 +133,35 @@ export interface BranchBuild {
   lastBuild: JenkinsBuild | null;
   prNumber: number | null;
 }
+
+export interface BuildAnalysisRequest {
+  jobPath: string;
+  branch: string;
+  buildNumber: number;
+  failedStage: {
+    name: string;
+    nodeId: string;
+    status: string;
+    durationMillis: number;
+  };
+  stageLog: string;
+}
+
+export interface BuildAnalysisEvidence {
+  source: 'stage-log' | 'jenkinsfile';
+  snippet: string;
+}
+
+export interface BuildAnalysisResult {
+  cause: string;
+  solution: string;
+  evidence: BuildAnalysisEvidence;
+  jenkinsfileAvailable: boolean;
+}
+
+export type BuildAnalysisState =
+  | { status: 'idle' }
+  | { status: 'not-configured' }
+  | { status: 'loading' }
+  | { status: 'result'; data: BuildAnalysisResult }
+  | { status: 'error'; message: string };
