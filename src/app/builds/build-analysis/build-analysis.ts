@@ -8,6 +8,7 @@ import { BadgeComponent } from '../../shared/badge/badge';
   selector: 'app-build-analysis',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BadgeComponent],
+  host: { class: 'block' },
   template: `
     @switch (analysisService.state().status) {
       @case ('not-configured') {

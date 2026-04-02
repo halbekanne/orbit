@@ -127,6 +127,12 @@ async function fetchJenkinsfile(mapping, branch, { getSettings }) {
   }
 }
 
+function stripControlChars(text) {
+  return text
+    .replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+}
+
 async function runBuildAnalysis({ jobPath, branch, failedStage, stageLog }, { getSettings }) {
   const s = getSettings();
   const vertexAi = s?.connections?.vertexAi;
@@ -137,8 +143,9 @@ async function runBuildAnalysis({ jobPath, branch, failedStage, stageLog }, { ge
     jenkinsfile = await fetchJenkinsfile(mapping, branch, { getSettings });
   }
 
+  const cleanLog = stripControlChars(stageLog);
   const systemPrompt = buildSystemPrompt(!!jenkinsfile);
-  const userPrompt = buildUserPrompt(jenkinsfile, failedStage.name, stageLog);
+  const userPrompt = buildUserPrompt(jenkinsfile, failedStage.name, cleanLog);
 
   const { result } = await callAi(userPrompt, systemPrompt, {
     temperature: 0.2,
