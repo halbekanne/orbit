@@ -814,6 +814,45 @@ const BUILD_STATUS_FIXTURES = {
   a1b2c3d4: { successful: 1, failed: 1, inProgress: 0, cancelled: 0, unknown: 0 },
 };
 
+app.get('/rest/api/latest/projects/:project/repos/:repo/browse/:path(*)', (req, res) => {
+  const mockJenkinsfile = `pipeline {
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Install') {
+      steps {
+        sh 'npm ci'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'npm run build'
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'npm run test -- --ci --coverage'
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh './scripts/deploy.sh'
+      }
+    }
+  }
+}`;
+  res.json({
+    lines: mockJenkinsfile.split('\n').map((text, i) => ({ text, line: i + 1 })),
+    start: 0,
+    size: mockJenkinsfile.split('\n').length,
+    isLastPage: true,
+  });
+});
+
 app.get('/rest/build-status/latest/commits/stats/:commitId', (req, res) => {
   const stats = BUILD_STATUS_FIXTURES[req.params.commitId] ?? {
     successful: 0,

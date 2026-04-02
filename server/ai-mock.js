@@ -384,4 +384,40 @@ async function runMockReview(emit) {
   await scenario.run(emit);
 }
 
-module.exports = { runMockReview, setSkipDelays };
+const BUILD_ANALYSIS_SCENARIOS = [
+  {
+    cause: 'npm-Dependency @angular/core@19.2.0 nicht auflösbar — Version existiert nicht in der Registry.',
+    solution: 'Korrigiere die Version in package.json auf 19.1.4 und generiere package-lock.json neu mit npm install.',
+    evidence: {
+      source: 'stage-log',
+      snippet: '[10:23:15] npm ERR! ERESOLVE could not resolve\nnpm ERR! Found: @angular/core@19.2.0\nnpm ERR! No matching version found for @angular/core@19.2.0',
+    },
+    jenkinsfileAvailable: true,
+  },
+  {
+    cause: 'Unit-Test LoginComponent fehlgeschlagen — erwarteter Redirect zu /dashboard, tatsächlich /home.',
+    solution: 'Passe den erwarteten Redirect-Pfad im Test login.component.spec.ts auf /home an, oder korrigiere die Route in app.routes.ts.',
+    evidence: {
+      source: 'stage-log',
+      snippet: 'FAILED LoginComponent > should redirect after login\n  Expected: "/dashboard"\n  Received: "/home"',
+    },
+    jenkinsfileAvailable: true,
+  },
+  {
+    cause: 'Deploy-Server test-server-03.internal:8443 nicht erreichbar — Connection refused nach 3 Versuchen.',
+    solution: 'Prüfe ob test-server-03 läuft und Port 8443 offen ist. Starte den Build danach neu.',
+    evidence: {
+      source: 'stage-log',
+      snippet: '[14:24:23] ERROR: Connection refused: test-server-03.internal:8443\n[14:24:23] ERROR: Deploy failed after 3 retries',
+    },
+    jenkinsfileAvailable: false,
+  },
+];
+
+async function runMockBuildAnalysis() {
+  await delay(1500, 2500);
+  const scenario = BUILD_ANALYSIS_SCENARIOS[Math.floor(Math.random() * BUILD_ANALYSIS_SCENARIOS.length)];
+  return { ...scenario };
+}
+
+module.exports = { runMockReview, setSkipDelays, runMockBuildAnalysis };

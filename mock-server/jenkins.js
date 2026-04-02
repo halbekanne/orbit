@@ -261,6 +261,34 @@ function parseRequest(rawUrl) {
   };
 }
 
+const CONFIG_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
+  <sources class="jenkins.branch.MultiBranchProject$BranchSourceList">
+    <data>
+      <jenkins.branch.BranchSource>
+        <source class="jenkins.plugins.git.GitSCMSource">
+          <remote>ssh://git@localhost:7999/proj/my-repo.git</remote>
+          <traits>
+            <jenkins.plugins.git.traits.GitBrowserSCMSourceTrait>
+              <browser class="hudson.plugins.git.browser.BitbucketServer">
+                <url>http://localhost:6203/projects/PROJ/repos/my-repo/</url>
+              </browser>
+            </jenkins.plugins.git.traits.GitBrowserSCMSourceTrait>
+          </traits>
+        </source>
+      </jenkins.branch.BranchSource>
+    </data>
+  </sources>
+  <factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+    <scriptPath>Jenkinsfile</scriptPath>
+  </factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>`;
+
+app.get('/job/:jobName/config.xml', (_req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.send(CONFIG_XML);
+});
+
 app.use((req, res, next) => {
   if (!req.path.startsWith('/job/')) return next();
 
