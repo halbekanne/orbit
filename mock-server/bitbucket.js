@@ -814,7 +814,7 @@ const BUILD_STATUS_FIXTURES = {
   a1b2c3d4: { successful: 1, failed: 1, inProgress: 0, cancelled: 0, unknown: 0 },
 };
 
-app.get('/rest/api/latest/projects/:project/repos/:repo/browse/:path(*)', (req, res) => {
+app.get('/rest/api/latest/projects/:project/repos/:repo/browse/*path', (req, res) => {
   const mockJenkinsfile = `pipeline {
   agent any
   stages {
