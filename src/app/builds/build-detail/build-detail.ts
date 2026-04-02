@@ -3,15 +3,17 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AnsiUp } from 'ansi_up';
 import { JenkinsService } from '../jenkins.service';
 import { BuildLogService } from '../build-log.service';
-import { BranchBuild, JenkinsBuildDetail, JenkinsRun, JenkinsStage, JenkinsStageLog } from '../jenkins.model';
+import { BranchBuild, BuildAnalysisRequest, JenkinsBuildDetail, JenkinsRun, JenkinsStage, JenkinsStageLog } from '../jenkins.model';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 import { RestartDialogComponent } from '../restart-dialog/restart-dialog';
+import { BuildAnalysisService } from '../build-analysis.service';
+import { BuildAnalysisComponent } from '../build-analysis/build-analysis';
 import { BadgeComponent } from '../../shared/badge/badge';
 
 @Component({
   selector: 'app-build-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CollapsibleSectionComponent, RestartDialogComponent, BadgeComponent],
+  imports: [CollapsibleSectionComponent, RestartDialogComponent, BadgeComponent, BuildAnalysisComponent],
   templateUrl: './build-detail.html',
   host: { class: 'flex flex-col h-full overflow-hidden' },
 })
@@ -20,6 +22,7 @@ export class BuildDetailComponent implements OnDestroy {
   protected readonly logService = inject(BuildLogService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly ansi = new AnsiUp();
+  protected readonly analysisService = inject(BuildAnalysisService);
   private pollingTimer: ReturnType<typeof setInterval> | null = null;
   private logLoaded = false;
 
@@ -31,6 +34,7 @@ export class BuildDetailComponent implements OnDestroy {
   readonly stageLogs = signal<Map<string, JenkinsStageLog>>(new Map());
   readonly loadingDetail = signal(false);
   readonly showRestartDialog = signal(false);
+  readonly analysisRequest = signal<BuildAnalysisRequest | null>(null);
 
   constructor() {
     this.ansi.use_classes = true;
@@ -156,6 +160,8 @@ export class BuildDetailComponent implements OnDestroy {
     this.stageLogs.set(new Map());
     this.activeTab.set('overview');
     this.logService.clear();
+    this.analysisService.reset();
+    this.analysisRequest.set(null);
 
     this.jenkins.loadBuildDetail(b.jobPath, b.branchName, b.lastBuild!.number).subscribe({
       next: ({ detail, stages }) => {
@@ -185,6 +191,23 @@ export class BuildDetailComponent implements OnDestroy {
                 next.set(stage.id, log);
                 return next;
               });
+              if (!this.analysisRequest()) {
+                const stripped = log.text.replace(/<[^>]+>/g, '');
+                const req: BuildAnalysisRequest = {
+                  jobPath: b.jobPath,
+                  branch: b.branchName,
+                  buildNumber: detail.number,
+                  failedStage: {
+                    name: stage.name,
+                    nodeId: failedNode.id,
+                    status: stage.status,
+                    durationMillis: stage.durationMillis,
+                  },
+                  stageLog: stripped,
+                };
+                this.analysisRequest.set(req);
+                this.analysisService.analyze(req);
+              }
             },
           });
         },

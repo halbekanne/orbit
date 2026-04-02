@@ -91,6 +91,10 @@
           </app-collapsible-section>
         }
 
+        @if (analysisRequest(); as req) {
+          <app-build-analysis [request]="req" />
+        }
+
         @if (stages(); as run) {
           <app-collapsible-section label="Pipeline" [expanded]="true" [noPadding]="true">
             <div class="divide-y divide-[var(--color-border-subtle)]">
