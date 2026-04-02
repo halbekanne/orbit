@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { createProxyRoutes } = require('./routes/proxy-routes');
 const { createAiRoutes } = require('./routes/ai-routes');
+const { createBuildAnalysisRoutes } = require('./routes/build-analysis-routes');
 const localDataRoutes = require('./routes/local-data-routes');
 const { createSettingsRoutes, SETTINGS_FILE } = require('./routes/settings-routes');
 const { readJsonObject } = require('./lib/json-store');
@@ -26,6 +27,7 @@ function getSettings() {
   app.use(cors({ origin: 'http://localhost:6200' }));
   app.use(createSettingsRoutes({ onSettingsSaved: loadSettings }));
   app.use(createAiRoutes({ getSettings }));
+  app.use(createBuildAnalysisRoutes({ getSettings }));
   app.use(express.json());
   app.use(createProxyRoutes({ getSettings }));
   app.use(localDataRoutes);
