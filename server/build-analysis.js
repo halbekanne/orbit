@@ -87,18 +87,25 @@ async function fetchRepoMapping(jobPath, { getSettings }) {
   const auth = Buffer.from(`${username}:${apiToken}`).toString('base64');
 
   try {
-    const response = await fetch(`${baseUrl}/${jobPath}/config.xml`, {
+    const url = `${baseUrl}/${jobPath}/config.xml`;
+    console.log('[Build Analysis] Fetching config.xml:', url);
+    const response = await fetch(url, {
       headers: { Authorization: `Basic ${auth}` },
       signal: AbortSignal.timeout(10_000),
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.log('[Build Analysis] config.xml response:', response.status);
+      return null;
+    }
     const xml = await response.text();
     const mapping = parseRepoMapping(xml);
+    console.log('[Build Analysis] Repo mapping:', mapping);
     if (mapping) {
       repoMappingCache.set(jobPath, mapping);
     }
     return mapping;
-  } catch {
+  } catch (err) {
+    console.error('[Build Analysis] config.xml error:', err.message);
     return null;
   }
 }
