@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@angular/core';
+import { LucideMaximize2, LucideClock, LucideShield, LucideArrowRight } from '@lucide/angular';
 
 @Component({
   selector: 'app-welcome-screen',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideMaximize2, LucideClock, LucideShield, LucideArrowRight],
   host: {
     style: 'position:fixed;inset:0;z-index:50;display:block',
   },
@@ -275,21 +277,7 @@ import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@
             onmouseenter="this.style.borderColor='#44403c';this.style.transform='translateY(-1px)'"
             onmouseleave="this.style.borderColor='#292524';this.style.transform='translateY(0)'"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#a78bfa"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="15 3 21 3 21 9" />
-              <polyline points="9 21 3 21 3 15" />
-              <line x1="21" y1="3" x2="14" y2="10" />
-              <line x1="3" y1="21" x2="10" y2="14" />
-            </svg>
+            <svg lucideMaximize2 [size]="14" color="#a78bfa"></svg>
             <span style="font-size: 12.5px; font-weight: 500; color: #d6d3d1"
               >Alles an einem Ort</span
             >
@@ -302,19 +290,7 @@ import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@
             onmouseenter="this.style.borderColor='#44403c';this.style.transform='translateY(-1px)'"
             onmouseleave="this.style.borderColor='#292524';this.style.transform='translateY(0)'"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#f59e0b"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
+            <svg lucideClock [size]="14" color="#f59e0b"></svg>
             <span style="font-size: 12.5px; font-weight: 500; color: #d6d3d1"
               >Gebaut für Fokus</span
             >
@@ -327,18 +303,7 @@ import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@
             onmouseenter="this.style.borderColor='#44403c';this.style.transform='translateY(-1px)'"
             onmouseleave="this.style.borderColor='#292524';this.style.transform='translateY(0)'"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#34d399"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
+            <svg lucideShield [size]="14" color="#34d399"></svg>
             <span style="font-size: 12.5px; font-weight: 500; color: #d6d3d1"
               >Deine Daten, lokal</span
             >
@@ -360,19 +325,7 @@ import { ChangeDetectionStrategy, Component, output, ViewEncapsulation } from '@
         >
           <span class="flex items-center gap-2">
             Einstellungen festlegen
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
+            <svg lucideArrowRight [size]="16" [strokeWidth]="2.5"></svg>
           </span>
         </button>
 

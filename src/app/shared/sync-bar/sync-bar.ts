@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DataRefreshService } from '../data-refresh.service';
+import { LucideRefreshCw } from '@lucide/angular';
 
 @Component({
   selector: 'app-sync-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideRefreshCw],
   templateUrl: './sync-bar.html',
   host: {
     class: 'block px-4 py-2 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-page)]',

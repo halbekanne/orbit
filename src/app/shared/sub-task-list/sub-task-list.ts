@@ -3,11 +3,12 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/d
 import { createSubTask, SubTask } from '../../todos/sub-task.model';
 import { playChime, spawnConfetti } from '../celebration';
 import { BadgeColor, BadgeComponent } from '../badge/badge';
+import { LucideCheck, LucideX } from '@lucide/angular';
 
 @Component({
   selector: 'app-sub-task-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkDropList, CdkDrag, CdkDragHandle, BadgeComponent],
+  imports: [CdkDropList, CdkDrag, CdkDragHandle, BadgeComponent, LucideCheck, LucideX],
   styles: [
     `
       @keyframes celebrateBounce {
@@ -93,20 +94,7 @@ import { BadgeColor, BadgeComponent } from '../badge/badge';
               role="checkbox"
             >
               @if (subtask.status === 'done') {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>
+                <svg lucideCheck [size]="10" [strokeWidth]="3" color="white"></svg>
               }
             </button>
 
@@ -143,19 +131,7 @@ import { BadgeColor, BadgeComponent } from '../badge/badge';
               (click)="deleteSubtask(i)"
               [attr.aria-label]="'Aufgabe löschen: ' + subtask.title"
             >
-              <svg
-                class="w-3.5 h-3.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
+              <svg lucideX [size]="14"></svg>
             </button>
           </div>
         }

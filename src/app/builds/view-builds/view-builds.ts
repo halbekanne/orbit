@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal, unt
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
+import { LucideActivity } from '@lucide/angular';
 import { BuildsSidebarComponent } from '../builds-sidebar/builds-sidebar';
 import { BuildDetailComponent } from '../build-detail/build-detail';
 import { JenkinsService } from '../jenkins.service';
@@ -12,7 +13,7 @@ import { BranchBuild } from '../jenkins.model';
 @Component({
   selector: 'app-view-builds',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BuildsSidebarComponent, BuildDetailComponent],
+  imports: [LucideActivity, BuildsSidebarComponent, BuildDetailComponent],
   templateUrl: './view-builds.html',
   host: { class: 'flex flex-1 h-full overflow-hidden' },
 })

@@ -20,6 +20,17 @@ import { CompactHeaderBarComponent } from '../../shared/compact-header-bar/compa
 import { DetailActionBarComponent } from '../../shared/detail-action-bar/detail-action-bar';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
+import {
+  LucideBug,
+  LucideBookmark,
+  LucideZap,
+  LucideSquareCheck,
+  LucideFile,
+  LucideGrid2x2,
+  LucideLink,
+  LucideMessageSquare,
+  LucidePaperclip,
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -31,6 +42,15 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
     DetailActionBarComponent,
     CollapsibleSectionComponent,
     BadgeComponent,
+    LucideBug,
+    LucideBookmark,
+    LucideZap,
+    LucideSquareCheck,
+    LucideFile,
+    LucideGrid2x2,
+    LucideLink,
+    LucideMessageSquare,
+    LucidePaperclip,
   ],
   styles: [
     `
@@ -73,73 +93,16 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                 <orbit-badge color="neutral">
                   @switch (issueTypeKey()) {
                     @case ('bug') {
-                      <svg
-                        class="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="m8 2 1.88 1.88" />
-                        <path d="M14.12 3.88 16 2" />
-                        <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" />
-                        <path
-                          d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"
-                        />
-                        <path d="M12 20v-9" />
-                        <path d="M6.53 9C4.6 8.8 3 7.1 3 5" />
-                        <path d="M6 13H2" />
-                        <path d="M3 21c0-2.1 1.7-3.9 3.8-4" />
-                        <path d="M20.97 5c0 2.1-1.6 3.8-3.5 4" />
-                        <path d="M22 13h-4" />
-                        <path d="M17.2 17c2.1.1 3.8 1.9 3.8 4" />
-                      </svg>
+                      <svg lucideBug [size]="12"></svg>
                     }
                     @case ('story') {
-                      <svg
-                        class="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                      </svg>
+                      <svg lucideBookmark [size]="12"></svg>
                     }
                     @case ('epic') {
-                      <svg
-                        class="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                      </svg>
+                      <svg lucideZap [size]="12"></svg>
                     }
                     @default {
-                      <svg
-                        class="w-3 h-3"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M9 11l3 3L22 4" />
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                      </svg>
+                      <svg lucideSquareCheck [size]="12"></svg>
                     }
                   }
                   {{ ticket().issueType }}
@@ -182,21 +145,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Beschreibung" [expanded]="true">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <path d="M14 2v6h6" />
-            <path d="M16 13H8" />
-            <path d="M16 17H8" />
-            <path d="M10 9H8" />
-          </svg>
+          <svg lucideFile sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
           @if (ticket().description) {
             <div class="jira-markup" [innerHTML]="ticket().description | jiraMarkup"></div>
           } @else {
@@ -207,18 +156,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
         </app-collapsible-section>
 
         <app-collapsible-section label="Teilaufgaben" [expanded]="true">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-          </svg>
+          <svg lucideSquareCheck sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
           <ng-container sectionMeta>
             <span class="text-xs text-[var(--color-text-muted)]">{{
               subtaskCounter(ticketSubtaskService.subtasks())
@@ -233,37 +171,14 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
         @if (ticket().epicLink) {
           <app-collapsible-section label="Epic">
-            <svg
-              sectionIcon
-              class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
+            <svg lucideZap sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
             <span class="font-mono text-xs font-bold text-violet-600">{{ ticket().epicLink }}</span>
           </app-collapsible-section>
         }
 
         @if (ticket().components.length) {
           <app-collapsible-section label="Komponenten">
-            <svg
-              sectionIcon
-              class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <rect x="3" y="3" width="7" height="7" rx="1" />
-              <rect x="14" y="3" width="7" height="7" rx="1" />
-              <rect x="3" y="14" width="7" height="7" rx="1" />
-              <rect x="14" y="14" width="7" height="7" rx="1" />
-            </svg>
+            <svg lucideGrid2x2 sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().components.length
@@ -279,18 +194,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
         @if (ticket().relations.length) {
           <app-collapsible-section label="Verknüpfungen" [expanded]="true">
-            <svg
-              sectionIcon
-              class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-            </svg>
+            <svg lucideLink sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().relations.length
@@ -328,17 +232,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
         @if (ticket().comments.length) {
           <app-collapsible-section label="Kommentare" [expanded]="true">
-            <svg
-              sectionIcon
-              class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <svg lucideMessageSquare sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().comments.length
@@ -364,19 +258,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
         @if (ticket().attachments.length) {
           <app-collapsible-section label="Anhänge" [expanded]="true">
-            <svg
-              sectionIcon
-              class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path
-                d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
-              />
-            </svg>
+            <svg lucidePaperclip sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().attachments.length
@@ -405,21 +287,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                     <div
                       class="aspect-video bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border-subtle)] group-hover:border-[var(--color-primary-border)] transition-colors duration-150 flex items-center justify-center"
                     >
-                      <svg
-                        class="w-5 h-5 text-[var(--color-text-muted)]"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
-                        />
-                        <polyline points="14 2 14 8 20 8" />
-                      </svg>
+                      <svg lucideFile [size]="20" [strokeWidth]="1.5" class="text-[var(--color-text-muted)]"></svg>
                     </div>
                   }
                   <p

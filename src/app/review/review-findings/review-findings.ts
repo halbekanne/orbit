@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { ReviewFinding, ReviewState } from '../review.model';
+import { LucidePencil, LucideCheck, LucideChevronRight, LucideRefreshCw } from '@lucide/angular';
 import { ReviewPipelineComponent } from '../review-pipeline/review-pipeline';
 import { InlineCodePipe } from '../../shared/inline-code.pipe';
 import { AiReviewService } from '../ai-review.service';
@@ -27,7 +28,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
 @Component({
   selector: 'app-review-findings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent, BadgeComponent],
+  imports: [LucidePencil, LucideCheck, LucideChevronRight, LucideRefreshCw, ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent, BadgeComponent],
   styles: [
     `
       :host {
@@ -38,20 +39,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
   template: `
     @let review = reviewState();
     <app-collapsible-section label="KI-Review" [expanded]="true" [noPadding]="true">
-      <svg
-        sectionIcon
-        class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        aria-hidden="true"
-      >
-        <path
-          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
-        />
-        <path d="M19.5 7.125L16.862 4.487" />
-      </svg>
+      <svg lucidePencil sectionIcon [size]="16" [strokeWidth]="1.5" class="text-[var(--color-text-muted)] shrink-0"></svg>
       <ng-container sectionMeta>
         @if (review === 'idle') {
           <span class="text-xs text-[var(--color-text-muted)]">Noch nicht gestartet</span>
@@ -112,15 +100,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <svg
-                      class="w-2.5 h-2.5 text-white check-animated"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path d="M2.5 6l2.5 2.5 4.5-4.5" />
-                    </svg>
+                    <svg lucideCheck [size]="10" [strokeWidth]="2.5" class="text-white check-animated"></svg>
                   </span>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-baseline gap-2 flex-wrap slide-in">
@@ -192,15 +172,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <svg
-                      class="w-2.5 h-2.5 text-white check-animated"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path d="M2.5 6l2.5 2.5 4.5-4.5" />
-                    </svg>
+                    <svg lucideCheck [size]="10" [strokeWidth]="2.5" class="text-white check-animated"></svg>
                   </span>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-baseline gap-2 flex-wrap slide-in">
@@ -258,19 +230,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
           <div class="relative w-24 h-24 mb-6 opacity-40">
             <div class="absolute inset-0 rounded-full border-2 border-dashed border-red-300"></div>
             <div class="absolute inset-3 rounded-full border-2 border-dashed border-red-300"></div>
-            <svg
-              class="absolute inset-0 m-auto w-8 h-8 text-red-300"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
-              />
-              <path d="M19.5 7.125L16.862 4.487" />
-            </svg>
+            <svg lucidePencil [size]="32" [strokeWidth]="1.5" class="absolute inset-0 m-auto text-red-300"></svg>
           </div>
           <p class="text-sm font-medium text-[var(--color-text-heading)] mb-1">
             Review konnte nicht durchgeführt werden
@@ -284,18 +244,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
             class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary-solid)] text-white text-sm font-medium hover:bg-[var(--color-primary-solid-hover)] transition-colors duration-100 cursor-pointer"
             (click)="aiReview.triggerReview()"
           >
-            <svg
-              class="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
+            <svg lucideRefreshCw [size]="16"></svg>
             Nochmal versuchen
           </button>
           <details class="mt-6 w-full max-w-md">
@@ -357,17 +306,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     [attr.aria-expanded]="isExpanded(group.file)"
                     (click)="toggleGroup(group.file)"
                   >
-                    <svg
-                      class="w-3 h-3 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
-                      [class.rotate-90]="isExpanded(group.file)"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      aria-hidden="true"
-                    >
-                      <path d="M4 2l4 4-4 4" />
-                    </svg>
+                    <svg lucideChevronRight [size]="12" class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="isExpanded(group.file)"></svg>
                     <span
                       class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1"
                       >{{ group.file }}</span
@@ -466,17 +405,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     [attr.aria-expanded]="isExpanded(group.file)"
                     (click)="toggleGroup(group.file)"
                   >
-                    <svg
-                      class="w-3 h-3 text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
-                      [class.rotate-90]="isExpanded(group.file)"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      aria-hidden="true"
-                    >
-                      <path d="M4 2l4 4-4 4" />
-                    </svg>
+                    <svg lucideChevronRight [size]="12" class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="isExpanded(group.file)"></svg>
                     <span
                       class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1"
                       >{{ group.file }}</span
@@ -559,19 +488,7 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               class="absolute inset-3 rounded-full border-2 border-dashed border-[var(--color-border-subtle)] orbit-breathe"
               style="animation-delay: -1.5s"
             ></div>
-            <svg
-              class="absolute inset-0 m-auto w-8 h-8 text-[var(--color-text-muted)]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
-              />
-              <path d="M19.5 7.125L16.862 4.487" />
-            </svg>
+            <svg lucidePencil [size]="32" [strokeWidth]="1.5" class="absolute inset-0 m-auto text-[var(--color-text-muted)]"></svg>
           </div>
           <p class="text-sm text-[var(--color-text-muted)] text-center max-w-xs mb-5">
             Lass die KI den Code analysieren. Prüft Code-Qualität und Abgleich mit den

@@ -2,11 +2,18 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { JiraMarkupPipe } from '../jira-markup.pipe';
 import { JiraTicket } from '../../shared/work-item.model';
 import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
+import {
+  LucideBug,
+  LucideBookmark,
+  LucideZap,
+  LucideSquareCheck,
+  LucideExternalLink,
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-jira-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe, BadgeComponent],
+  imports: [JiraMarkupPipe, BadgeComponent, LucideBug, LucideBookmark, LucideZap, LucideSquareCheck, LucideExternalLink],
   template: `
     <section aria-label="Jira-Ticket">
       @if (ticket() === 'loading') {
@@ -37,73 +44,16 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
               <orbit-badge color="neutral" size="sm">
                 @switch (issueTypeKey()) {
                   @case ('bug') {
-                    <svg
-                      class="w-2.5 h-2.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="m8 2 1.88 1.88" />
-                      <path d="M14.12 3.88 16 2" />
-                      <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" />
-                      <path
-                        d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"
-                      />
-                      <path d="M12 20v-9" />
-                      <path d="M6.53 9C4.6 8.8 3 7.1 3 5" />
-                      <path d="M6 13H2" />
-                      <path d="M3 21c0-2.1 1.7-3.9 3.8-4" />
-                      <path d="M20.97 5c0 2.1-1.6 3.8-3.5 4" />
-                      <path d="M22 13h-4" />
-                      <path d="M17.2 17c2.1.1 3.8 1.9 3.8 4" />
-                    </svg>
+                    <svg lucideBug [size]="10"></svg>
                   }
                   @case ('story') {
-                    <svg
-                      class="w-2.5 h-2.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                    </svg>
+                    <svg lucideBookmark [size]="10"></svg>
                   }
                   @case ('epic') {
-                    <svg
-                      class="w-2.5 h-2.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
+                    <svg lucideZap [size]="10"></svg>
                   }
                   @default {
-                    <svg
-                      class="w-2.5 h-2.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M9 11l3 3L22 4" />
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
+                    <svg lucideSquareCheck [size]="10"></svg>
                   }
                 }
                 {{ ticketData()!.issueType }}
@@ -126,20 +76,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                 [attr.aria-label]="'Öffne ' + ticketData()!.key + ' in Jira'"
               >
                 In Jira öffnen
-                <svg
-                  class="w-2.5 h-2.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M15 3h6v6" />
-                  <path d="M10 14 21 3" />
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                </svg>
+                <svg lucideExternalLink [size]="10" [strokeWidth]="2.5"></svg>
               </a>
             </div>
 

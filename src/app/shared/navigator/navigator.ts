@@ -22,6 +22,7 @@ import { ReflectionCardComponent } from '../../reflection/reflection-card/reflec
 import { BadgeComponent } from '../badge/badge';
 import { SyncBarComponent } from '../sync-bar/sync-bar';
 import { DataRefreshService } from '../data-refresh.service';
+import { LucideChevronDown } from '@lucide/angular';
 
 const STORAGE_KEY = 'orbit.navigator.collapsed';
 
@@ -49,6 +50,7 @@ interface CollapsedState {
     CdkDropList,
     BadgeComponent,
     SyncBarComponent,
+    LucideChevronDown,
   ],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },

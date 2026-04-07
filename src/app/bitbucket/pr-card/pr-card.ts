@@ -3,11 +3,20 @@ import { PullRequest } from '../../shared/work-item.model';
 import { businessDaysSince } from '../../shared/business-days';
 import { prStatusColor, prStatusLabel } from '../pr-status';
 import { BadgeComponent } from '../../shared/badge/badge';
+import {
+  LucideExternalLink,
+  LucideCircleAlert,
+  LucideSquareCheck,
+  LucideCheck,
+  LucideX,
+  LucideLoaderCircle,
+  LucideMessageSquare,
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent],
+  imports: [BadgeComponent, LucideExternalLink, LucideCircleAlert, LucideSquareCheck, LucideCheck, LucideX, LucideLoaderCircle, LucideMessageSquare],
   template: `
     <button
       type="button"
@@ -37,40 +46,14 @@ import { BadgeComponent } from '../../shared/badge/badge';
             aria-label="Öffne PR in Bitbucket"
             (click)="$event.stopPropagation()"
           >
-            <svg
-              class="w-3 h-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M15 3h6v6" />
-              <path d="M10 14 21 3" />
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            </svg>
+            <svg lucideExternalLink [size]="12" [strokeWidth]="2.5"></svg>
           </a>
         </div>
 
         @if (pr().isDraft) {
           <div class="mb-1.5">
             <orbit-badge color="signal" [uppercase]="true" size="sm">
-              <svg
-                class="w-2.5 h-2.5 shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
+              <svg lucideCircleAlert class="shrink-0" [size]="10" [strokeWidth]="2.5"></svg>
               Entwurf
             </orbit-badge>
           </div>
@@ -113,19 +96,7 @@ import { BadgeComponent } from '../../shared/badge/badge';
                   class="flex items-center gap-1 text-[11px] font-medium"
                   [class]="taskColorClass()"
                 >
-                  <svg
-                    class="w-3 h-3"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M9 11l3 3L22 4" />
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                  </svg>
+                  <svg lucideSquareCheck [size]="12"></svg>
                   {{ pr().openTaskCount }} {{ pr().openTaskCount === 1 ? 'Task' : 'Tasks' }}
                 </span>
               }
@@ -135,45 +106,11 @@ import { BadgeComponent } from '../../shared/badge/badge';
                   [class]="icon.colorClass"
                 >
                   @if (icon.type === 'success') {
-                    <svg
-                      class="w-3 h-3"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
+                    <svg lucideCheck [size]="12" [strokeWidth]="2.5"></svg>
                   } @else if (icon.type === 'failed') {
-                    <svg
-                      class="w-3 h-3"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M18 6 6 18" />
-                      <path d="m6 6 12 12" />
-                    </svg>
+                    <svg lucideX [size]="12" [strokeWidth]="2.5"></svg>
                   } @else if (icon.type === 'running') {
-                    <svg
-                      class="w-3 h-3 animate-spin"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                    </svg>
+                    <svg lucideLoaderCircle class="animate-spin" [size]="12" [strokeWidth]="2.5"></svg>
                   }
                   Build
                 </span>
@@ -211,18 +148,7 @@ import { BadgeComponent } from '../../shared/badge/badge';
                 class="flex items-center gap-0.5 text-[11px] text-[var(--color-text-muted)]"
                 [attr.aria-label]="pr().commentCount + ' Kommentare'"
               >
-                <svg
-                  class="w-3 h-3"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
+                <svg lucideMessageSquare [size]="12"></svg>
                 {{ pr().commentCount }}
               </span>
             }

@@ -11,6 +11,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { LucideSun, LucideMoon, LucideCheck } from '@lucide/angular';
 import { DailyReflectionService } from '../daily-reflection.service';
 
 const GERMAN_WEEKDAYS = [
@@ -26,6 +27,7 @@ const GERMAN_WEEKDAYS = [
 @Component({
   selector: 'app-reflection-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideSun, LucideMoon, LucideCheck],
   host: { class: 'block' },
   styles: `
     @keyframes gentlePulse {
@@ -88,26 +90,7 @@ const GERMAN_WEEKDAYS = [
               <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <svg
-                class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2" />
-                <path d="M12 20v2" />
-                <path d="m4.93 4.93 1.41 1.41" />
-                <path d="m17.66 17.66 1.41 1.41" />
-                <path d="M2 12h2" />
-                <path d="M20 12h2" />
-                <path d="m6.34 17.66-1.41 1.41" />
-                <path d="m19.07 4.93-1.41 1.41" />
-              </svg>
+              <svg lucideSun [size]="16" class="text-[var(--color-primary-solid)] shrink-0"></svg>
               <span class="text-sm text-[var(--color-primary-text)] font-medium"
                 >Fokus setzen &rarr;</span
               >
@@ -122,26 +105,7 @@ const GERMAN_WEEKDAYS = [
               <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
-              <svg
-                class="w-4 h-4 text-[var(--color-primary-solid)] shrink-0 mt-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2" />
-                <path d="M12 20v2" />
-                <path d="m4.93 4.93 1.41 1.41" />
-                <path d="m17.66 17.66 1.41 1.41" />
-                <path d="M2 12h2" />
-                <path d="M20 12h2" />
-                <path d="m6.34 17.66-1.41 1.41" />
-                <path d="m19.07 4.93-1.41 1.41" />
-              </svg>
+              <svg lucideSun [size]="16" class="text-[var(--color-primary-solid)] shrink-0 mt-0.5"></svg>
               <div class="min-w-0">
                 @if (displayEntry()?.morningQuestion) {
                   <p class="font-serif italic text-xs text-[var(--color-text-muted)] mb-0.5">
@@ -166,18 +130,7 @@ const GERMAN_WEEKDAYS = [
               <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <svg
-                class="w-4 h-4 text-amber-500 shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
+              <svg lucideMoon [size]="16" class="text-amber-500 shrink-0"></svg>
               <span class="text-sm text-amber-700 font-medium">Tag reflektieren &rarr;</span>
             </div>
           }
@@ -189,18 +142,7 @@ const GERMAN_WEEKDAYS = [
               <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
-              <svg
-                class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
+              <svg lucideCheck [size]="16" class="text-emerald-500 shrink-0 mt-0.5"></svg>
               <div class="min-w-0">
                 @if (displayEntry()?.eveningQuestion) {
                   <p class="font-serif italic text-xs text-[var(--color-text-muted)] mb-0.5">

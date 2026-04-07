@@ -9,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LucideSun, LucideMoon, LucideCheck, LucideCalendar } from '@lucide/angular';
 import { DailyReflectionService } from '../daily-reflection.service';
 import { pickEveningQuestion, pickMorningQuestion } from '../daily-questions';
 import { DayScheduleService } from '../../calendar/day-schedule.service';
@@ -50,7 +51,7 @@ function formatGermanDate(): string {
 @Component({
   selector: 'app-reflection-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, DayTimelineComponent, AppointmentPopupComponent],
+  imports: [FormsModule, LucideSun, LucideMoon, LucideCheck, LucideCalendar, DayTimelineComponent, AppointmentPopupComponent],
   host: {
     class: 'block h-full',
     '(keydown.escape)': 'onEscape()',
@@ -171,39 +172,9 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[460px]">
             <header class="mb-8 text-center">
               @if (isMorning()) {
-                <svg
-                  class="w-9 h-9 text-[var(--color-primary-solid)] mx-auto mb-3"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2" />
-                  <path d="M12 20v2" />
-                  <path d="m4.93 4.93 1.41 1.41" />
-                  <path d="m17.66 17.66 1.41 1.41" />
-                  <path d="M2 12h2" />
-                  <path d="M20 12h2" />
-                  <path d="m6.34 17.66-1.41 1.41" />
-                  <path d="m19.07 4.93-1.41 1.41" />
-                </svg>
+                <svg lucideSun [size]="36" class="text-[var(--color-primary-solid)] mx-auto mb-3"></svg>
               } @else {
-                <svg
-                  class="w-9 h-9 text-amber-500 mx-auto mb-3"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                </svg>
+                <svg lucideMoon [size]="36" class="text-amber-500 mx-auto mb-3"></svg>
               }
               <h1 class="text-xl font-semibold text-[var(--color-text-heading)]">
                 {{ isMorning() ? 'Tagesfokus' : 'Tagesreflektion' }}
@@ -234,18 +205,7 @@ function formatGermanDate(): string {
                   <ul class="space-y-2" role="list">
                     @for (item of completedItems(); track item.id) {
                       <li class="flex items-center gap-2 text-sm text-[var(--color-text-body)]">
-                        <svg
-                          class="w-4 h-4 text-emerald-500 shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
+                        <svg lucideCheck [size]="16" class="text-emerald-500 shrink-0"></svg>
                         {{ item.title }}
                       </li>
                     }
@@ -315,21 +275,7 @@ function formatGermanDate(): string {
       @case ('calendar-setup') {
         <div class="h-full flex flex-col items-center pt-6 px-6 anim-page-in">
           <header class="mb-4 text-center shrink-0">
-            <svg
-              class="w-9 h-9 text-[var(--color-primary-solid)] mx-auto mb-3"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+            <svg lucideCalendar [size]="36" class="text-[var(--color-primary-solid)] mx-auto mb-3"></svg>
             <h1 class="text-xl font-semibold text-[var(--color-text-heading)]">
               Tagesplan erstellen
             </h1>
@@ -428,40 +374,10 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[520px]">
             <header class="mb-10 text-center">
               @if (readonlyMorning()) {
-                <svg
-                  class="w-11 h-11 text-[var(--color-primary-solid)] mx-auto mb-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2" />
-                  <path d="M12 20v2" />
-                  <path d="m4.93 4.93 1.41 1.41" />
-                  <path d="m17.66 17.66 1.41 1.41" />
-                  <path d="M2 12h2" />
-                  <path d="M20 12h2" />
-                  <path d="m6.34 17.66-1.41 1.41" />
-                  <path d="m19.07 4.93-1.41 1.41" />
-                </svg>
+                <svg lucideSun [size]="44" [strokeWidth]="1.5" class="text-[var(--color-primary-solid)] mx-auto mb-4"></svg>
                 <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">Tagesfokus</h1>
               } @else {
-                <svg
-                  class="w-11 h-11 text-amber-500 mx-auto mb-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                </svg>
+                <svg lucideMoon [size]="44" [strokeWidth]="1.5" class="text-amber-500 mx-auto mb-4"></svg>
                 <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">
                   Tagesreflektion
                 </h1>
@@ -527,18 +443,7 @@ function formatGermanDate(): string {
                   <ul class="space-y-2.5" role="list">
                     @for (item of completedItems(); track item.id) {
                       <li class="flex items-center gap-2.5 text-sm text-[var(--color-text-body)]">
-                        <svg
-                          class="w-4 h-4 text-emerald-500 shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
+                        <svg lucideCheck [size]="16" class="text-emerald-500 shrink-0"></svg>
                         {{ item.title }}
                       </li>
                     }

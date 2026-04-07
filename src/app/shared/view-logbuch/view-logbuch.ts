@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DailyReflectionService } from '../../reflection/daily-reflection.service';
 import { DayEntry } from '../../reflection/day-entry.model';
+import { LucideBookOpen, LucideCheck } from '@lucide/angular';
 
 @Component({
   selector: 'app-view-logbuch',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideBookOpen, LucideCheck],
   host: { class: 'flex flex-col flex-1 h-full overflow-hidden bg-[var(--color-bg-page)]' },
   templateUrl: './view-logbuch.html',
 })

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { LucideChevronLeft, LucideChevronRight, LucidePlay, LucideSquare } from '@lucide/angular';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
 import { PomodoroConfigPopupComponent } from '../../pomodoro/pomodoro-config-popup/pomodoro-config-popup';
@@ -12,7 +13,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayTimelineComponent, AppointmentPopupComponent, PomodoroConfigPopupComponent],
+  imports: [LucideChevronLeft, LucideChevronRight, LucidePlay, LucideSquare, DayTimelineComponent, AppointmentPopupComponent, PomodoroConfigPopupComponent],
   host: {
     '[class]': 'hostClass()',
     '(document:keydown.escape)': 'onEscape()',
@@ -25,18 +26,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
         data-testid="collapse-toggle"
         aria-label="Tagesplan einblenden"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-4 h-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
+        <svg lucideChevronLeft [size]="16"></svg>
       </button>
     } @else {
       <div
@@ -51,18 +41,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           data-testid="collapse-toggle"
           aria-label="Tagesplan ausblenden"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
+          <svg lucideChevronRight [size]="16"></svg>
         </button>
       </div>
       @if (settingsService.pomodoroEnabled()) {
@@ -73,20 +52,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
               class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
               (click)="showPomodoroConfig.set(true)"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <polygon points="6 3 20 12 6 21 6 3" />
-              </svg>
+              <svg lucidePlay [size]="12" [strokeWidth]="2.5"></svg>
               Pomodoro starten
             </button>
           } @else if (pomodoro.state() === 'running') {
@@ -113,20 +79,7 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
               class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-600 hover:bg-red-50"
               (click)="showCancelConfirm.set(true)"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="6" y="6" width="12" height="12" rx="2" />
-              </svg>
+              <svg lucideSquare [size]="12" [strokeWidth]="2.5"></svg>
               Pomodoro abbrechen
             </button>
           }

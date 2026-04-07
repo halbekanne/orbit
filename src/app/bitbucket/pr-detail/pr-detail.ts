@@ -28,6 +28,19 @@ import { CollapsibleSectionComponent } from '../../shared/collapsible-section/co
 import { AiReviewService } from '../../review/ai-review.service';
 import { SettingsService } from '../../settings/settings.service';
 import { extractJiraKey } from '../pr-jira-key';
+import {
+  LucideCheck,
+  LucideCircleAlert,
+  LucideX,
+  LucideArrowRight,
+  LucideMessageSquare,
+  LucideSquareCheck,
+  LucideLoaderCircle,
+  LucideSparkles,
+  LucideNotepadText,
+  LucideFileText,
+  LucideFile,
+} from '@lucide/angular';
 import * as Diff2Html from 'diff2html';
 import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
 import { ColorSchemeType } from 'diff2html/lib/types';
@@ -60,6 +73,17 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
     DetailActionBarComponent,
     CollapsibleSectionComponent,
     BadgeComponent,
+    LucideCheck,
+    LucideCircleAlert,
+    LucideX,
+    LucideArrowRight,
+    LucideMessageSquare,
+    LucideSquareCheck,
+    LucideLoaderCircle,
+    LucideSparkles,
+    LucideNotepadText,
+    LucideFileText,
+    LucideFile,
   ],
   styles: [
     `
@@ -94,18 +118,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           role="status"
         >
           <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-            <svg
-              class="w-4 h-4 text-[var(--color-success-text)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
+            <svg lucideCheck class="text-[var(--color-success-text)] shrink-0" [size]="16"></svg>
             <span class="text-sm font-medium text-[var(--color-success-text)]"
               >Alle Reviewer haben zugestimmt — bereit zum Mergen.</span
             >
@@ -119,20 +132,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           role="status"
         >
           <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-            <svg
-              class="w-4 h-4 text-[var(--color-signal-text)] shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
+            <svg lucideCircleAlert class="text-[var(--color-signal-text)] shrink-0" [size]="16"></svg>
             <span class="text-sm font-medium text-[var(--color-signal-text)]"
               >Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span
             >
@@ -185,32 +185,9 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                   @for (reviewer of pr().reviewers; track reviewer.user.id) {
                     <orbit-badge [color]="reviewerColor(reviewer.status)" size="sm">
                       @if (reviewer.status === 'APPROVED') {
-                        <svg
-                          class="w-3 h-3"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
+                        <svg lucideCheck [size]="12" [strokeWidth]="2.5"></svg>
                       } @else if (reviewer.status === 'NEEDS_WORK') {
-                        <svg
-                          class="w-3 h-3"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          aria-hidden="true"
-                        >
-                          <path d="M18 6 6 18" />
-                          <path d="m6 6 12 12" />
-                        </svg>
+                        <svg lucideX [size]="12" [strokeWidth]="2.5"></svg>
                       }
                       {{ reviewer.user.displayName }}
                     </orbit-badge>
@@ -245,16 +222,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 class="font-mono text-[13px] text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all"
                 >{{ pr().fromRef.displayId }}</code
               >
-              <svg
-                class="w-3.5 h-3.5 text-[var(--color-text-muted)] shrink-0"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14m-4-4 4 4-4 4" />
-              </svg>
+              <svg lucideArrowRight class="text-[var(--color-text-muted)] shrink-0" [size]="14"></svg>
               @if (isNonDefaultTarget()) {
                 <code
                   class="font-mono text-[13px] text-amber-700 font-semibold bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all"
@@ -272,16 +240,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               <div class="flex items-center gap-4 mt-2.5">
                 @if (pr().commentCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg
-                      class="w-3.5 h-3.5 text-[var(--color-text-muted)]"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      aria-hidden="true"
-                    >
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
+                    <svg lucideMessageSquare class="text-[var(--color-text-muted)]" [size]="14"></svg>
                     <span class="text-sm text-[var(--color-text-muted)]"
                       >{{ pr().commentCount }} Kommentar{{
                         pr().commentCount === 1 ? '' : 'e'
@@ -291,17 +250,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 }
                 @if (pr().openTaskCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg
-                      class="w-3.5 h-3.5 text-[var(--color-signal-text)]"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      aria-hidden="true"
-                    >
-                      <path d="M9 11l3 3L22 4" />
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                    </svg>
+                    <svg lucideSquareCheck class="text-[var(--color-signal-text)]" [size]="14"></svg>
                     <span class="text-sm text-[var(--color-signal-text)] font-medium"
                       >{{ pr().openTaskCount }} offene{{
                         pr().openTaskCount === 1 ? 'r Task' : ' Tasks'
@@ -312,43 +261,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 @if (buildLabel(); as build) {
                   <div class="flex items-center gap-1.5">
                     @if (build.type === 'failed') {
-                      <svg
-                        class="w-3.5 h-3.5 text-[var(--color-danger-text)]"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
-                      </svg>
+                      <svg lucideX class="text-[var(--color-danger-text)]" [size]="14"></svg>
                     } @else if (build.type === 'running') {
-                      <svg
-                        class="w-3.5 h-3.5 text-[var(--color-primary-solid)] animate-spin"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        aria-hidden="true"
-                      >
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                      </svg>
+                      <svg lucideLoaderCircle class="text-[var(--color-primary-solid)] animate-spin" [size]="14"></svg>
                     } @else {
-                      <svg
-                        class="w-3.5 h-3.5 text-[var(--color-success-text)]"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
+                      <svg lucideCheck class="text-[var(--color-success-text)]" [size]="14"></svg>
                     }
                     <span class="text-sm font-medium" [class]="build.colorClass">{{
                       build.text
@@ -367,18 +284,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Jira-Ticket">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-            <path d="M7 7h10M7 12h10M7 17h6" />
-          </svg>
+          <svg lucideNotepadText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           <ng-container sectionMeta>
             @if (resolvedJiraTicket(); as ticket) {
               <span class="font-mono text-xs text-[var(--color-primary-text)] font-semibold">{{
@@ -391,21 +297,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </app-collapsible-section>
 
         <app-collapsible-section label="Beschreibung" [expanded]="true">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <path d="M14 2v6h6" />
-            <path d="M16 13H8" />
-            <path d="M16 17H8" />
-            <path d="M10 9H8" />
-          </svg>
+          <svg lucideFileText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           @if (pr().description) {
             <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
           } @else {
@@ -421,19 +313,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           <div
             class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] px-6 py-4 flex items-center gap-3"
           >
-            <svg
-              class="w-5 h-5 shrink-0 text-[var(--color-text-muted)]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
-              />
-            </svg>
+            <svg lucideSparkles class="shrink-0 text-[var(--color-text-muted)]" [size]="20" [strokeWidth]="1.5"></svg>
             <p class="text-sm text-[var(--color-text-muted)]">
               KI-gestützte Reviews können in den Einstellungen aktiviert werden.
             </p>
@@ -441,18 +321,7 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         }
 
         <app-collapsible-section label="Änderungen">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
-            <path d="M15 3v4a2 2 0 0 0 2 2h4" />
-          </svg>
+          <svg lucideFile sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           <ng-container sectionMeta>
             @if (diffFileCount() > 0) {
               <span class="text-xs text-[var(--color-text-muted)]"

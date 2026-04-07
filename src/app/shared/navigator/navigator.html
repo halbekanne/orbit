@@ -59,21 +59,7 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--color-text-muted)]">Jira</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12" height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
-            [class.-rotate-90]="ticketsCollapsed()"
-            aria-hidden="true"
-          >
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
+          <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ticketsCollapsed()"></svg>
         </div>
       </button>
       <div id="navigator-tickets-content" [hidden]="ticketsCollapsed()">
@@ -119,21 +105,7 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--color-text-muted)]">Bitbucket</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12" height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
-            [class.-rotate-90]="prsCollapsed()"
-            aria-hidden="true"
-          >
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
+          <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="prsCollapsed()"></svg>
         </div>
       </button>
       <div id="navigator-prs-content" [hidden]="prsCollapsed()">
@@ -194,7 +166,7 @@
             <orbit-badge color="primary" [counter]="true" [attr.aria-label]="todoService.pendingCount() + ' offene Aufgaben'">{{ todoService.pendingCount() }}</orbit-badge>
           }
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="todosCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="todosCollapsed()"></svg>
       </button>
       <div id="navigator-todos-content" [hidden]="todosCollapsed()">
         <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
@@ -226,7 +198,7 @@
               [attr.aria-expanded]="!todosDoneCollapsed()"
               aria-controls="navigator-todos-done-content"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="todosDoneCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="todosDoneCollapsed()"></svg>
               Erledigt ({{ todoService.doneTodos().length }})
             </button>
             <ul id="navigator-todos-done-content" [hidden]="todosDoneCollapsed()" class="space-y-1.5 mt-1" role="list">
@@ -248,7 +220,7 @@
               [attr.aria-expanded]="!todosWontDoCollapsed()"
               aria-controls="navigator-todos-wontdo-content"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="todosWontDoCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="todosWontDoCollapsed()"></svg>
               Nicht verfolgt ({{ todoService.wontDoTodos().length }})
             </button>
             <ul id="navigator-todos-wontdo-content" [hidden]="todosWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">
@@ -278,7 +250,7 @@
             <orbit-badge color="primary" [counter]="true" [attr.aria-label]="ideaService.activeIdeas().length + ' aktive Ideen'">{{ ideaService.activeIdeas().length }}</orbit-badge>
           }
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ideasCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ideasCollapsed()"></svg>
       </button>
       <div id="navigator-ideas-content" [hidden]="ideasCollapsed()">
         <ul
@@ -304,7 +276,7 @@
               [attr.aria-expanded]="!ideasWontDoCollapsed()"
               aria-controls="navigator-ideas-wontdo-content"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="ideasWontDoCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="ideasWontDoCollapsed()"></svg>
               Nicht verfolgt ({{ ideaService.wontDoIdeas().length }})
             </button>
             <ul id="navigator-ideas-wontdo-content" [hidden]="ideasWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">

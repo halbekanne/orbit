@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
+import { LucideChevronDown, LucideChevronRight } from '@lucide/angular';
 import { ConsolidatorDecision, PipelineState } from '../review.model';
 import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
 @Component({
   selector: 'app-review-pipeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JsonPipe, BadgeComponent],
+  imports: [JsonPipe, LucideChevronDown, LucideChevronRight, BadgeComponent],
   styles: [
     `
       :host {
@@ -36,17 +37,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
               formatDuration(p.totalDuration!)
             }}</span>
           }
-          <svg
-            class="w-3 h-3 text-[var(--color-text-muted)] ml-auto transition-transform duration-150"
-            [class.rotate-180]="sectionOpen()"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M2 4l4 4 4-4" />
-          </svg>
+          <svg lucideChevronDown [size]="12" class="text-[var(--color-text-muted)] ml-auto transition-transform duration-150" [class.rotate-180]="sectionOpen()"></svg>
         </button>
 
         @if (sectionOpen()) {
@@ -95,16 +86,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                         class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                         (click)="toggleAgentDetails(agent.agent)"
                       >
-                        <svg
-                          class="w-3 h-3 transition-transform duration-150"
-                          [class.rotate-90]="isAgentDetailsOpen(agent.agent)"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path d="M4 2l4 4-4 4" />
-                        </svg>
+                        <svg lucideChevronRight [size]="12" class="transition-transform duration-150" [class.rotate-90]="isAgentDetailsOpen(agent.agent)"></svg>
                         Details anzeigen
                       </button>
                       @if (isAgentDetailsOpen(agent.agent)) {
@@ -210,16 +192,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                         class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                         (click)="consolidatorDetailsOpen.set(!consolidatorDetailsOpen())"
                       >
-                        <svg
-                          class="w-3 h-3 transition-transform duration-150"
-                          [class.rotate-90]="consolidatorDetailsOpen()"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path d="M4 2l4 4-4 4" />
-                        </svg>
+                        <svg lucideChevronRight [size]="12" class="transition-transform duration-150" [class.rotate-90]="consolidatorDetailsOpen()"></svg>
                         Details anzeigen
                       </button>
                       @if (consolidatorDetailsOpen()) {

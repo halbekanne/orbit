@@ -13,11 +13,12 @@ import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Todo } from '../../shared/work-item.model';
 import { TodoService } from '../todo.service';
 import { playChime, spawnConfetti } from '../../shared/celebration';
+import { LucideCheck } from '@lucide/angular';
 
 @Component({
   selector: 'app-todo-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkDragHandle],
+  imports: [CdkDragHandle, LucideCheck],
   styles: [
     `
       @keyframes celebrateBounce {
@@ -83,20 +84,7 @@ import { playChime, spawnConfetti } from '../../shared/celebration';
             role="checkbox"
           >
             @if (todo().status === 'done') {
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                stroke-width="3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M20 6 9 17l-5-5" />
-              </svg>
+              <svg lucideCheck [size]="10" color="white" [strokeWidth]="3"></svg>
             }
           </button>
         </div>

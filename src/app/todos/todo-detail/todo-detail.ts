@@ -20,6 +20,7 @@ import { CompactHeaderBarComponent } from '../../shared/compact-header-bar/compa
 import { DetailActionBarComponent } from '../../shared/detail-action-bar/detail-action-bar';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
+import { LucideFileText, LucideSquareCheck } from '@lucide/angular';
 
 @Component({
   selector: 'app-todo-detail',
@@ -30,6 +31,8 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
     DetailActionBarComponent,
     CollapsibleSectionComponent,
     BadgeComponent,
+    LucideFileText,
+    LucideSquareCheck,
   ],
   styles: [
     `
@@ -115,21 +118,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Notizen" [expanded]="true">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <path d="M14 2v6h6" />
-            <path d="M16 13H8" />
-            <path d="M16 17H8" />
-            <path d="M10 9H8" />
-          </svg>
+          <svg lucideFileText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           @if (editingDescription()) {
             <textarea
               class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
@@ -162,18 +151,7 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
         </app-collapsible-section>
 
         <app-collapsible-section label="Teilaufgaben" [expanded]="true">
-          <svg
-            sectionIcon
-            class="w-4 h-4 text-[var(--color-text-muted)] shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
-          >
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-          </svg>
+          <svg lucideSquareCheck sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           <ng-container sectionMeta>
             <span class="text-xs text-[var(--color-text-muted)]">{{
               subtaskCounter(todo().subtasks ?? [])
