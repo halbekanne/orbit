@@ -1,0 +1,54 @@
+@if (definitions.length > 0) {
+  <section data-section="experimente" id="section-experimente" class="mb-12">
+    <div class="flex items-center gap-2 mb-1">
+      <svg lucideFlaskConical class="text-[var(--color-text-muted)]" [size]="18"></svg>
+      <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Experimentelle Funktionen</h3>
+    </div>
+    <p class="text-sm text-[var(--color-signal-text)] mb-5">
+      Diese Funktionen befinden sich in aktiver Entwicklung. Sie können instabil sein, sich jederzeit ändern oder entfernt werden.
+    </p>
+
+    @for (def of definitions; track def.id) {
+      <div class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+        @switch (def.type) {
+          @case ('boolean') {
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
+                <p class="text-sm text-[var(--color-text-muted)] mt-0.5">{{ def.description }}</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+                <input type="checkbox" class="sr-only peer"
+                  [checked]="getValue(def.id)()"
+                  (change)="onToggle(def.id, $any($event.target).checked)">
+                <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+                  after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
+                  after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
+                </div>
+              </label>
+            </div>
+          }
+          @case ('select') {
+            <div>
+              <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
+              <p class="text-sm text-[var(--color-text-muted)] mt-0.5 mb-3">{{ def.description }}</p>
+              <div class="flex flex-col gap-2">
+                @for (option of def.options; track option.value) {
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio"
+                      [name]="def.id"
+                      [value]="option.value"
+                      [checked]="getValue(def.id)() === option.value"
+                      (change)="onToggle(def.id, option.value)"
+                      class="accent-violet-500">
+                    <span class="text-sm text-[var(--color-text-body)]">{{ option.label }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+  </section>
+}
