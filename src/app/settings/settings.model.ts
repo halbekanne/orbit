@@ -38,6 +38,7 @@ export interface OrbitSettings {
   appearance: {
     theme: 'light' | 'dark' | 'system';
   };
+  experiments: Record<string, string | boolean>;
 }
 
 export interface JenkinsJobConfig {
@@ -59,5 +60,6 @@ export function createDefaultSettings(): OrbitSettings {
       dayCalendar: { enabled: true },
     },
     appearance: { theme: 'system' },
+    experiments: {},
   };
 }

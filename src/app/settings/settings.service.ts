@@ -48,6 +48,7 @@ export class SettingsService {
       settings.features = { ...defaults.features, ...settings.features };
       settings.features.aiReviews = { ...defaults.features.aiReviews, ...settings.features.aiReviews };
       settings.appearance = { ...defaults.appearance, ...settings.appearance };
+      settings.experiments = { ...defaults.experiments, ...settings.experiments };
       this._settings.set(settings);
     }
     this._loaded.set(true);
@@ -60,6 +61,7 @@ export class SettingsService {
     result.features = { ...defaults.features, ...result.features };
     result.features.aiReviews = { ...defaults.features.aiReviews, ...result.features.aiReviews };
     result.appearance = { ...defaults.appearance, ...result.appearance };
+    result.experiments = { ...defaults.experiments, ...result.experiments };
     this._settings.set(result);
     this._isConfigured.set(true);
   }
