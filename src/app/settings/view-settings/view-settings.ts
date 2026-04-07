@@ -10,11 +10,12 @@ import { KeyValuePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../settings.service';
 import { createDefaultSettings, OrbitSettings } from '../settings.model';
+import { ExperimentSectionComponent } from './experiment-section/experiment-section';
 
 @Component({
   selector: 'app-view-settings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, KeyValuePipe],
+  imports: [FormsModule, KeyValuePipe, ExperimentSectionComponent],
   templateUrl: './view-settings.html',
   host: {
     class: 'flex flex-1 h-full overflow-hidden bg-[var(--color-bg-page)]',
@@ -73,6 +74,7 @@ export class ViewSettingsComponent {
       ],
     },
     { id: 'darstellung', label: 'Darstellung', children: [] },
+    { id: 'experimente', label: 'Experimentell', children: [] },
   ];
 
   readonly agentDescriptions: Record<string, { label: string; description: string }> = {
@@ -137,6 +139,10 @@ export class ViewSettingsComponent {
         if (idx !== -1) agents.splice(idx, 1);
       }
     });
+  }
+
+  updateExperiment(id: string, value: string | boolean): void {
+    this.updateDraft(d => d.experiments[id] = value);
   }
 
   setTheme(theme: 'light' | 'dark' | 'system'): void {

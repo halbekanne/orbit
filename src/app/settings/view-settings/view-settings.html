@@ -435,6 +435,11 @@
         </div>
       </section>
 
+      <!-- Section: Experimentelle Funktionen -->
+      <app-experiment-section
+        (experimentChanged)="updateExperiment($event.id, $event.value)">
+      </app-experiment-section>
+
     </div>
   </div>
 
