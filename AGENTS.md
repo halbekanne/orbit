@@ -105,6 +105,13 @@ ng test --no-watch
 npx ng build
 ```
 
+### Feature Toggles
+
+- New features that are not yet stable or complete must be developed behind a feature toggle using `FeatureToggleService`
+- Register the feature in the toggle registry (`TOGGLE_REGISTRY` in `src/app/settings/feature-toggle.service.ts`) with `defaultValue: false` (off by default)
+- Guard all UI entry points with the toggle signal
+- Only remove the toggle when the feature is considered finished and stable
+
 ## Visual Design System
 
 ### Philosophy
