@@ -2,7 +2,15 @@ import { computed, inject, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { ToggleDefinition } from './feature-toggle.model';
 
-export const TOGGLE_REGISTRY: ToggleDefinition[] = [];
+export const TOGGLE_REGISTRY: ToggleDefinition[] = [
+  {
+    id: 'notes',
+    type: 'boolean',
+    defaultValue: false,
+    label: 'Notizen',
+    description: 'Einfache Notizen für den Arbeitsalltag',
+  },
+];
 
 @Injectable({ providedIn: 'root' })
 export class FeatureToggleService {
