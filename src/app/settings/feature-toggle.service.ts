@@ -2,7 +2,7 @@ import { computed, inject, Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { ToggleDefinition } from './feature-toggle.model';
 
-const TOGGLE_REGISTRY: ToggleDefinition[] = [];
+export const TOGGLE_REGISTRY: ToggleDefinition[] = [];
 
 @Injectable({ providedIn: 'root' })
 export class FeatureToggleService {

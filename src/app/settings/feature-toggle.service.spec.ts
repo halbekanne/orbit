@@ -1,10 +1,22 @@
 import { TestBed } from '@angular/core/testing';
-import { FeatureToggleService } from './feature-toggle.service';
+import { FeatureToggleService, TOGGLE_REGISTRY } from './feature-toggle.service';
 import { SettingsService } from './settings.service';
 import { signal } from '@angular/core';
 import { createDefaultSettings } from './settings.model';
+import { BooleanToggle, SelectToggle } from './feature-toggle.model';
+
+const testBoolToggle: BooleanToggle = { id: 'test-bool', type: 'boolean', defaultValue: false, label: 'Test', description: 'Test' };
+const testSelectToggle: SelectToggle = { id: 'test-select', type: 'select', defaultValue: 'a', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }], label: 'Test Select', description: 'Test' };
 
 describe('FeatureToggleService', () => {
+  beforeEach(() => {
+    TOGGLE_REGISTRY.push(testBoolToggle, testSelectToggle);
+  });
+
+  afterEach(() => {
+    TOGGLE_REGISTRY.length = 0;
+  });
+
   function setup(experiments: Record<string, string | boolean> = {}) {
     const settings = signal({ ...createDefaultSettings(), experiments });
     TestBed.configureTestingModule({
@@ -25,12 +37,8 @@ describe('FeatureToggleService', () => {
   });
 
   it('should return saved value when experiment is set', () => {
-    const service = setup();
-    const defs = service.getDefinitions();
-    if (defs.length === 0) return;
-
-    const firstDef = defs[0];
-    const overrideValue = firstDef.type === 'boolean' ? !firstDef.defaultValue : firstDef.defaultValue;
+    const firstDef = testBoolToggle;
+    const overrideValue = !firstDef.defaultValue;
     const serviceWithOverride = setup({ [firstDef.id]: overrideValue });
     expect(serviceWithOverride.getValue(firstDef.id)()).toBe(overrideValue);
   });
