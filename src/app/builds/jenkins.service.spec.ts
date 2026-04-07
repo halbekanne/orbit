@@ -50,9 +50,9 @@ describe('JenkinsService', () => {
   });
 
   it('loads build detail for a branch', () => {
-    service.loadBuildDetail('job/frontend-app', 'main').subscribe();
+    service.loadBuildDetail('job/frontend-app', 'main', 142).subscribe();
 
-    const detailReq = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/job/main/api/json'));
+    const detailReq = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/job/main/142/api/json'));
     detailReq.flush({
       number: 142,
       result: 'SUCCESS',
