@@ -87,7 +87,7 @@
       <div class="max-w-2xl mx-auto py-5 px-6 space-y-4">
         @if (sanitizedDescription()) {
           <app-collapsible-section label="Beschreibung" [expanded]="true">
-            <div class="prose prose-sm text-[var(--color-text-body)]" [innerHTML]="sanitizedDescription()"></div>
+            <div class="prose prose-sm text-[var(--color-text-body)] [&_a]:text-[var(--color-info-text)] [&_a]:underline [&_a]:hover:text-[var(--color-info-text-hover)]" [innerHTML]="sanitizedDescription()"></div>
           </app-collapsible-section>
         }
 

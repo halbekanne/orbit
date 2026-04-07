@@ -49,7 +49,8 @@ export class BuildDetailComponent implements OnDestroy {
   protected sanitizedDescription(): SafeHtml | null {
     const desc = this.buildDetail()?.description;
     if (!desc) return null;
-    return this.sanitizer.bypassSecurityTrustHtml(desc);
+    const html = desc.replace(/<a\s/gi, '<a target="_blank" rel="noopener" ');
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   protected stageLog(stageId: string): SafeHtml | null {
