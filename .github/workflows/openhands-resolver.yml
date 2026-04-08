@@ -6,15 +6,28 @@ on:
 
 jobs:
   openhands-fix:
-    # This ensures the action ONLY triggers when you apply a specific label
+    # Der Trigger: Funktioniert nur, wenn du das Label vergibst
     if: github.event.label.name == 'let-openhands-handle-it'
-    uses: All-Hands-AI/OpenHands/.github/workflows/openhands-resolver.yml@main
-    with:
-      issue_number: ${{ github.event.issue.number }}
-      # Verifizierter String für Mistral Devstral
-      llm_model: "mistral/devstral-latest"
-      max_iterations: 30
-    secrets:
-      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-      # WICHTIG: Nutze GITHUB_TOKEN für Standard-Rechte oder ein PAT für mehr Kontrolle
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run OpenHands Resolver via Docker
+        run: |
+          docker run --rm \
+            -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+            -e LLM_API_KEY=${{ secrets.LLM_API_KEY }} \
+            -e LLM_MODEL="mistral/devstral-latest" \
+            -v $(pwd):/workspace \
+            ghcr.io/all-hands-ai/openhands-resolver:latest \
+            --issue-number ${{ github.event.issue.number }} \
+            --model "mistral/devstral-latest" \
+            --max-iterations 30
