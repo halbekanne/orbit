@@ -121,7 +121,7 @@ import { LucideFileText, LucideSquareCheck } from '@lucide/angular';
           <svg lucideFileText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
           @if (editingDescription()) {
             <textarea
-              class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[120px] resize-none"
+              class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[180px] resize-none"
               [value]="draftDescription()"
               (input)="draftDescription.set($any($event.target).value)"
               (blur)="saveDescription()"
