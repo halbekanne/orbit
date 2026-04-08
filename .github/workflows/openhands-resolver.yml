@@ -8,38 +8,13 @@ jobs:
   openhands-fix:
     # This ensures the action ONLY triggers when you apply a specific label
     if: github.event.label.name == 'let-openhands-handle-it'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Run OpenHands Agent
-        uses: All-Hands-AI/OpenHands@main
-        env:
-          # Automatically provided by GitHub to allow PR creation
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          # choose model from: https://models.litellm.ai/
-          LLM_MODEL: "mistral/devstral-latest"
-        with:
-          # Tells OpenHands which issue to look at
-          issue_number: ${{ github.event.issue.number }}
-          # Safety limit to prevent runaway loops (and costs)
-          max_iterations: 30
-
-      - name: Add Mistral Promotion
-        if: success()
-        run: |
-          # Wir suchen den neuesten PR, den die Action erstellt hat
-          PR_URL=$(gh pr list --limit 1 --json url --template '{{range .}}{{.url}}{{end}}')
-          gh pr edit "$PR_URL" --body "$(gh pr view "$PR_URL" --json body -q .body) 
-          
-          ---
-          🚀 Proudly powered by **Mistral AI** (Devstral)"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: All-Hands-AI/OpenHands/.github/workflows/openhands-resolver.yml@main
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      # Verifizierter String für Mistral Devstral
+      llm_model: "mistral/devstral-latest"
+      max_iterations: 30
+    secrets:
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      # WICHTIG: Nutze GITHUB_TOKEN für Standard-Rechte oder ein PAT für mehr Kontrolle
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
