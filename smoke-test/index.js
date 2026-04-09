@@ -1,14 +1,24 @@
 const { spawn } = require('child_process');
+const fs = require('fs');
 const http = require('http');
+const os = require('os');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
+const ORBIT_DIR = path.join(os.homedir(), '.orbit');
 const children = [];
+
+let createdSettings = false;
 
 function cleanup() {
   for (const child of children) {
     try {
       child.kill();
+    } catch (_) {}
+  }
+  if (createdSettings) {
+    try {
+      fs.unlinkSync(path.join(ORBIT_DIR, 'settings.json'));
     } catch (_) {}
   }
 }
@@ -57,6 +67,26 @@ function get(url) {
 }
 
 async function run() {
+  fs.mkdirSync(ORBIT_DIR, { recursive: true });
+  const settingsPath = path.join(ORBIT_DIR, 'settings.json');
+  const hadSettings = fs.existsSync(settingsPath);
+  if (!hadSettings) {
+    createdSettings = true;
+    fs.writeFileSync(
+      settingsPath,
+      JSON.stringify({
+        connections: {
+          jira: { baseUrl: 'http://localhost:6202', apiKey: 'smoke-test-token' },
+          bitbucket: {
+            baseUrl: 'http://localhost:6203',
+            apiKey: 'smoke-test-token',
+            userSlug: 'dominik.mueller',
+          },
+        },
+      }),
+    );
+  }
+
   const mockServer = spawn('node', ['mock-server/jira.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockServer);
   mockServer.on('exit', (code) => {
