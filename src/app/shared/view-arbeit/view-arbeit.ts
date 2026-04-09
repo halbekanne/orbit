@@ -5,7 +5,7 @@ import { DayCalendarPanelComponent } from '../../calendar/day-calendar-panel/day
 import { SettingsService } from '../../settings/settings.service';
 import { LucidePanelLeftOpen, LucidePanelRightOpen } from '@lucide/angular';
 
-const SIDEBAR_KEY = 'orbit.sidebar.collapsed';
+const SIDEBAR_KEY = 'orbit.navigator.sidebarCollapsed';
 const CALENDAR_KEY = 'orbit.dayCalendar.collapsed';
 
 @Component({

@@ -123,11 +123,11 @@ describe('ViewArbeitComponent', () => {
     const fixture = TestBed.createComponent(ViewArbeitComponent);
     fixture.componentInstance.toggleSidebar();
     TestBed.tick();
-    expect(localStorage.getItem('orbit.sidebar.collapsed')).toBe('true');
+    expect(localStorage.getItem('orbit.navigator.sidebarCollapsed')).toBe('true');
   });
 
   it('restores sidebarCollapsed from localStorage', async () => {
-    localStorage.setItem('orbit.sidebar.collapsed', 'true');
+    localStorage.setItem('orbit.navigator.sidebarCollapsed', 'true');
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [ViewArbeitComponent],
@@ -144,12 +144,14 @@ describe('ViewArbeitComponent', () => {
     expect(fixture.componentInstance.sidebarCollapsed()).toBe(true);
   });
 
-  it('hides aside when sidebarCollapsed is true', () => {
+  it('collapses aside when sidebarCollapsed is true', () => {
     const fixture = TestBed.createComponent(ViewArbeitComponent);
     fixture.componentInstance.toggleSidebar();
     fixture.detectChanges();
     const aside = fixture.nativeElement.querySelector('aside[aria-label="Navigator"]');
-    expect(aside).toBeNull();
+    expect(aside).toBeTruthy();
+    expect(aside.style.width).toBe('0px');
+    expect(aside.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('shows sidebar-open button when sidebar collapsed', () => {

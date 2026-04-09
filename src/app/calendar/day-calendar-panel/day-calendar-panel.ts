@@ -21,7 +21,7 @@ import { DayAppointment } from '../day-schedule.model';
   ],
   host: {
     class:
-      'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col',
+      'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col overflow-hidden',
     '(document:keydown.escape)': 'onEscape()',
   },
   template: `
