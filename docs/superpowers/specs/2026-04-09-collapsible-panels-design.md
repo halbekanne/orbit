@@ -17,10 +17,10 @@ Ziel: Beide Panels sollen sich elegant ein- und ausklappen lassen — mit einhei
 
 ### Icons (Lucide)
 
-| Zustand | Links (Navigator) | Rechts (Kalender) |
-|---------|-------------------|-------------------|
-| Ausgeklappt → Einklappen | `PanelLeftClose` | `PanelRightClose` |
-| Eingeklappt → Aufklappen | `PanelLeftOpen` | `PanelRightOpen` |
+| Zustand                  | Links (Navigator) | Rechts (Kalender) |
+| ------------------------ | ----------------- | ----------------- |
+| Ausgeklappt → Einklappen | `PanelLeftClose`  | `PanelRightClose` |
+| Eingeklappt → Aufklappen | `PanelLeftOpen`   | `PanelRightOpen`  |
 
 ### Toggle-Button Styling
 
@@ -42,16 +42,19 @@ Ziel: Beide Panels sollen sich elegant ein- und ausklappen lassen — mit einhei
 ## Betroffene Dateien
 
 ### `src/app/shared/view-arbeit/view-arbeit.ts` + `.html`
+
 - Neuen `sidebarCollapsed` Signal hinzufügen mit localStorage-Init
 - `toggleSidebar()` Methode
 - Template: `@if`-Bedingung um `<aside>`, Toggle-Button im Workbench-Bereich wenn eingeklappt
 - Lucide-Imports: `LucidePanelLeftClose`, `LucidePanelLeftOpen`
 
 ### `src/app/shared/navigator/navigator.ts` + `.html`
+
 - Toggle-Button im Navigator-Header hinzufügen (ruft Parent-Methode auf via Output)
 - Oder: Toggle-Button direkt in `view-arbeit.html` im `<aside>`-Header platzieren (einfacher, da state in ViewArbeit lebt)
 
 ### `src/app/calendar/day-calendar-panel/day-calendar-panel.ts`
+
 - Bestehende Collapse-Logik refactorn: schmaler 8px-Streifen entfernt
 - Stattdessen: Panel verschwindet komplett wenn collapsed
 - Toggle-Button im Header wie Navigator (mit `PanelRightClose`)
@@ -59,6 +62,7 @@ Ziel: Beide Panels sollen sich elegant ein- und ausklappen lassen — mit einhei
 - Aufklapp-Button wird von `view-arbeit.html` gerendert (nicht vom Panel selbst)
 
 ### `src/app/shared/view-arbeit/view-arbeit.html`
+
 - Aufklapp-Buttons für beide Panels im Workbench-Bereich rendern, positioniert absolut oben links/rechts
 - Kalender-`@if` anpassen: nicht mehr `settingsService.dayCalendarEnabled()` allein, sondern auch collapse-state berücksichtigen (enabled = Feature an, collapsed = nur visuell versteckt)
 

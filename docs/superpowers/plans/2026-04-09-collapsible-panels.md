@@ -14,21 +14,22 @@
 
 ## File Map
 
-| File | Action | Responsibility |
-|------|--------|---------------|
-| `src/app/shared/view-arbeit/view-arbeit.ts` | Modify | Add collapse signals, toggle methods, localStorage persistence, Lucide imports |
-| `src/app/shared/view-arbeit/view-arbeit.html` | Modify | Conditional rendering of panels, toggle buttons in workbench area |
-| `src/app/shared/view-arbeit/view-arbeit.spec.ts` | Modify | Tests for collapse/expand behavior and persistence |
-| `src/app/shared/navigator/navigator.html` | Modify | Add collapse button in navigator header |
-| `src/app/shared/navigator/navigator.ts` | Modify | Add output event for collapse, Lucide import |
-| `src/app/calendar/day-calendar-panel/day-calendar-panel.ts` | Modify | Remove internal collapse logic entirely, add output + input for collapse, replace icons |
-| `src/app/calendar/day-calendar-panel/day-calendar-panel.spec.ts` | Modify | Update tests to match new collapse pattern |
+| File                                                             | Action | Responsibility                                                                          |
+| ---------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------- |
+| `src/app/shared/view-arbeit/view-arbeit.ts`                      | Modify | Add collapse signals, toggle methods, localStorage persistence, Lucide imports          |
+| `src/app/shared/view-arbeit/view-arbeit.html`                    | Modify | Conditional rendering of panels, toggle buttons in workbench area                       |
+| `src/app/shared/view-arbeit/view-arbeit.spec.ts`                 | Modify | Tests for collapse/expand behavior and persistence                                      |
+| `src/app/shared/navigator/navigator.html`                        | Modify | Add collapse button in navigator header                                                 |
+| `src/app/shared/navigator/navigator.ts`                          | Modify | Add output event for collapse, Lucide import                                            |
+| `src/app/calendar/day-calendar-panel/day-calendar-panel.ts`      | Modify | Remove internal collapse logic entirely, add output + input for collapse, replace icons |
+| `src/app/calendar/day-calendar-panel/day-calendar-panel.spec.ts` | Modify | Update tests to match new collapse pattern                                              |
 
 ---
 
 ### Task 1: Add collapse state and toggle methods to ViewArbeitComponent
 
 **Files:**
+
 - Modify: `src/app/shared/view-arbeit/view-arbeit.ts`
 - Test: `src/app/shared/view-arbeit/view-arbeit.spec.ts`
 
@@ -157,6 +158,7 @@ git commit -m "feat(view-arbeit): add collapse state signals for sidebar and cal
 ### Task 2: Update view-arbeit template with conditional rendering and toggle buttons
 
 **Files:**
+
 - Modify: `src/app/shared/view-arbeit/view-arbeit.html`
 - Test: `src/app/shared/view-arbeit/view-arbeit.spec.ts`
 
@@ -201,37 +203,35 @@ Replace `src/app/shared/view-arbeit/view-arbeit.html` with:
 
 ```html
 @if (!sidebarCollapsed()) {
-  <aside
-    class="w-[360px] xl:w-[400px] shrink-0 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-[width] duration-150 [@media(prefers-reduced-motion:reduce)]:transition-none"
-    aria-label="Navigator"
-  >
-    <app-navigator (collapseSidebar)="toggleSidebar()" />
-  </aside>
+<aside
+  class="w-[360px] xl:w-[400px] shrink-0 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-[width] duration-150 [@media(prefers-reduced-motion:reduce)]:transition-none"
+  aria-label="Navigator"
+>
+  <app-navigator (collapseSidebar)="toggleSidebar()" />
+</aside>
 }
 
 <div class="flex-1 overflow-hidden flex relative">
   @if (sidebarCollapsed()) {
-    <button
-      type="button"
-      class="absolute top-3 left-3 z-10 p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-      (click)="toggleSidebar()"
-      data-testid="sidebar-open"
-      aria-label="Navigator einblenden"
-    >
-      <svg lucidePanelLeftOpen [size]="18" [strokeWidth]="1.75"></svg>
-    </button>
-  }
-
-  @if (settingsService.dayCalendarEnabled() && calendarCollapsed()) {
-    <button
-      type="button"
-      class="absolute top-3 right-3 z-10 p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-      (click)="toggleCalendar()"
-      data-testid="calendar-open"
-      aria-label="Tagesplan einblenden"
-    >
-      <svg lucidePanelRightOpen [size]="18" [strokeWidth]="1.75"></svg>
-    </button>
+  <button
+    type="button"
+    class="absolute top-3 left-3 z-10 p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+    (click)="toggleSidebar()"
+    data-testid="sidebar-open"
+    aria-label="Navigator einblenden"
+  >
+    <svg lucidePanelLeftOpen [size]="18" [strokeWidth]="1.75"></svg>
+  </button>
+  } @if (settingsService.dayCalendarEnabled() && calendarCollapsed()) {
+  <button
+    type="button"
+    class="absolute top-3 right-3 z-10 p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+    (click)="toggleCalendar()"
+    data-testid="calendar-open"
+    aria-label="Tagesplan einblenden"
+  >
+    <svg lucidePanelRightOpen [size]="18" [strokeWidth]="1.75"></svg>
+  </button>
   }
 
   <div class="flex-1 overflow-hidden bg-[var(--color-bg-page)]">
@@ -239,7 +239,7 @@ Replace `src/app/shared/view-arbeit/view-arbeit.html` with:
   </div>
 
   @if (settingsService.dayCalendarEnabled() && !calendarCollapsed()) {
-    <app-day-calendar-panel (collapseCalendar)="toggleCalendar()" />
+  <app-day-calendar-panel (collapseCalendar)="toggleCalendar()" />
   }
 </div>
 ```
@@ -261,6 +261,7 @@ git commit -m "feat(view-arbeit): conditional panel rendering with toggle button
 ### Task 3: Add collapse button to Navigator header
 
 **Files:**
+
 - Modify: `src/app/shared/navigator/navigator.ts`
 - Modify: `src/app/shared/navigator/navigator.html`
 
@@ -269,6 +270,7 @@ git commit -m "feat(view-arbeit): conditional panel rendering with toggle button
 In `src/app/shared/navigator/navigator.ts`:
 
 Add `output` to the Angular import:
+
 ```typescript
 import {
   ChangeDetectionStrategy,
@@ -282,6 +284,7 @@ import {
 ```
 
 Add `LucidePanelLeftClose` to the Lucide import:
+
 ```typescript
 import { LucideChevronDown, LucidePanelLeftClose } from '@lucide/angular';
 ```
@@ -289,6 +292,7 @@ import { LucideChevronDown, LucidePanelLeftClose } from '@lucide/angular';
 Add `LucidePanelLeftClose` to the `imports` array in the component decorator.
 
 Add the output to the class body:
+
 ```typescript
 readonly collapseSidebar = output();
 ```
@@ -300,9 +304,7 @@ In `src/app/shared/navigator/navigator.html`, modify the header `<div>` (lines 2
 ```html
 <div class="px-4 py-3 border-b border-[var(--color-border-subtle)]">
   <div class="flex items-center justify-between">
-    <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
-      >Arbeit</span
-    >
+    <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Arbeit</span>
     <span class="text-xs text-[var(--color-text-muted)]">Dein Command Center</span>
   </div>
 </div>
@@ -313,9 +315,7 @@ With:
 ```html
 <div class="px-4 py-3 border-b border-[var(--color-border-subtle)]">
   <div class="flex items-center justify-between">
-    <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
-      >Arbeit</span
-    >
+    <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Arbeit</span>
     <div class="flex items-center gap-2">
       <span class="text-xs text-[var(--color-text-muted)]">Dein Command Center</span>
       <button
@@ -349,6 +349,7 @@ git commit -m "feat(navigator): add sidebar collapse button in header"
 ### Task 4: Refactor DayCalendarPanelComponent — remove internal collapse, add output
 
 **Files:**
+
 - Modify: `src/app/calendar/day-calendar-panel/day-calendar-panel.ts`
 - Modify: `src/app/calendar/day-calendar-panel/day-calendar-panel.spec.ts`
 
@@ -426,6 +427,7 @@ Expected: FAIL — `collapseCalendar` output doesn't exist yet.
 - [ ] **Step 3: Refactor DayCalendarPanelComponent**
 
 Replace `src/app/calendar/day-calendar-panel/day-calendar-panel.ts`. Key changes:
+
 - Remove `collapsed` signal, `STORAGE_KEY`, `hostClass` computed, `toggleCollapse()` method
 - Remove the `@if (collapsed())` branch (the 8px strip)
 - Add `collapseCalendar = output()`
@@ -434,7 +436,14 @@ Replace `src/app/calendar/day-calendar-panel/day-calendar-panel.ts`. Key changes
 - The collapse toggle button in the header now emits the output instead of toggling internal state
 
 ```typescript
-import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { LucidePanelRightClose, LucidePlay, LucideSquare } from '@lucide/angular';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
@@ -456,7 +465,8 @@ import { DayAppointment } from '../day-schedule.model';
     PomodoroConfigPopupComponent,
   ],
   host: {
-    class: 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col',
+    class:
+      'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col',
     '(document:keydown.escape)': 'onEscape()',
   },
   template: `
@@ -498,9 +508,7 @@ import { DayAppointment } from '../day-schedule.model';
                   class="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary-solid)]"
                 ></span>
               </span>
-              <span class="text-xs font-medium text-[var(--color-primary-text)]"
-                >Fokus läuft</span
-              >
+              <span class="text-xs font-medium text-[var(--color-primary-text)]">Fokus läuft</span>
             </div>
             <span class="text-xs text-[var(--color-text-muted)] tabular-nums">{{
               pomodoroRemainingLabel()
@@ -659,6 +667,7 @@ git commit -m "refactor(day-calendar-panel): remove internal collapse, emit outp
 ### Task 5: Update existing tests for changed template structure
 
 **Files:**
+
 - Modify: `src/app/shared/view-arbeit/view-arbeit.spec.ts`
 
 - [ ] **Step 1: Fix the "should render navigator aside" test**
@@ -678,6 +687,7 @@ const mockSettingsService = {
 ```
 
 And add to providers:
+
 ```typescript
 { provide: SettingsService, useValue: mockSettingsService },
 ```
