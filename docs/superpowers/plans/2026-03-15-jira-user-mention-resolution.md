@@ -29,14 +29,12 @@ app.get('/rest/api/2/user', (req, res) => {
   const username = req.query.username;
   const user = ALL_USERS.find((u) => u.name === username);
   if (!user) {
-    res
-      .status(404)
-      .json({
-        errorMessages: [
-          `User '${username}' does not exist or you do not have permission to view it.`,
-        ],
-        errors: {},
-      });
+    res.status(404).json({
+      errorMessages: [
+        `User '${username}' does not exist or you do not have permission to view it.`,
+      ],
+      errors: {},
+    });
     return;
   }
   res.json(user);

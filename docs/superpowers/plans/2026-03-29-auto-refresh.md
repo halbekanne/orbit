@@ -405,12 +405,10 @@ describe('DataRefreshService — visibility', () => {
     expect(state().lastFetchTime).not.toBeNull();
 
     // Simulate stale data by moving lastFetchTime back
-    (service as any).sources
-      .get('jira')!
-      .state.update((s: DataSourceState) => ({
-        ...s,
-        lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000,
-      }));
+    (service as any).sources.get('jira')!.state.update((s: DataSourceState) => ({
+      ...s,
+      lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000,
+    }));
 
     service.onVisibilityRegained();
     expect(callCount).toBe(1);

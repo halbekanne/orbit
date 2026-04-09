@@ -185,12 +185,10 @@ describe('DataRefreshService — visibility', () => {
     const state = service.sourceState('jira');
     expect(state().lastFetchTime).not.toBeNull();
 
-    (service as any).sources
-      .get('jira')!
-      .state.update((s: DataSourceState) => ({
-        ...s,
-        lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000,
-      }));
+    (service as any).sources.get('jira')!.state.update((s: DataSourceState) => ({
+      ...s,
+      lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000,
+    }));
 
     service.onVisibilityRegained();
     expect(callCount).toBe(1);
