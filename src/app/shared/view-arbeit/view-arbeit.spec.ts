@@ -7,6 +7,7 @@ import { WorkspaceService } from '../workspace.service';
 import { TodoService } from '../../todos/todo.service';
 import { IdeaService } from '../../ideas/idea.service';
 import { AiReviewService } from '../../review/ai-review.service';
+import { SettingsService } from '../../settings/settings.service';
 
 const mockWorkspaceService = {
   tickets: signal([]),
@@ -51,6 +52,12 @@ const mockAiReviewService = {
   triggerReview: () => {},
 };
 
+const mockSettingsService = {
+  dayCalendarEnabled: signal(true),
+  pomodoroEnabled: signal(false),
+  notizenEnabled: signal(false),
+};
+
 describe('ViewArbeitComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
@@ -61,9 +68,14 @@ describe('ViewArbeitComponent', () => {
         { provide: TodoService, useValue: mockTodoService },
         { provide: IdeaService, useValue: mockIdeaService },
         { provide: AiReviewService, useValue: mockAiReviewService },
+        { provide: SettingsService, useValue: mockSettingsService },
         { provide: HttpClient, useValue: { get: () => of([]), post: () => of({}) } },
       ],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
@@ -91,5 +103,68 @@ describe('ViewArbeitComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.classList.contains('flex')).toBe(true);
     expect(fixture.nativeElement.classList.contains('h-full')).toBe(true);
+  });
+
+  it('sidebarCollapsed defaults to false', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    expect(fixture.componentInstance.sidebarCollapsed()).toBe(false);
+  });
+
+  it('toggleSidebar toggles the signal', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    expect(fixture.componentInstance.sidebarCollapsed()).toBe(false);
+    fixture.componentInstance.toggleSidebar();
+    expect(fixture.componentInstance.sidebarCollapsed()).toBe(true);
+    fixture.componentInstance.toggleSidebar();
+    expect(fixture.componentInstance.sidebarCollapsed()).toBe(false);
+  });
+
+  it('persists sidebarCollapsed to localStorage', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleSidebar();
+    TestBed.tick();
+    expect(localStorage.getItem('orbit.sidebar.collapsed')).toBe('true');
+  });
+
+  it('restores sidebarCollapsed from localStorage', async () => {
+    localStorage.setItem('orbit.sidebar.collapsed', 'true');
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [ViewArbeitComponent],
+      providers: [
+        { provide: WorkspaceService, useValue: mockWorkspaceService },
+        { provide: TodoService, useValue: mockTodoService },
+        { provide: IdeaService, useValue: mockIdeaService },
+        { provide: AiReviewService, useValue: mockAiReviewService },
+        { provide: SettingsService, useValue: mockSettingsService },
+        { provide: HttpClient, useValue: { get: () => of([]), post: () => of({}) } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    expect(fixture.componentInstance.sidebarCollapsed()).toBe(true);
+  });
+
+  it('hides aside when sidebarCollapsed is true', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleSidebar();
+    fixture.detectChanges();
+    const aside = fixture.nativeElement.querySelector('aside[aria-label="Navigator"]');
+    expect(aside).toBeNull();
+  });
+
+  it('shows sidebar-open button when sidebar collapsed', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleSidebar();
+    fixture.detectChanges();
+    const btn = fixture.nativeElement.querySelector('[data-testid="sidebar-open"]');
+    expect(btn).toBeTruthy();
+  });
+
+  it('shows calendar-open button when calendar collapsed', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleCalendar();
+    fixture.detectChanges();
+    const btn = fixture.nativeElement.querySelector('[data-testid="calendar-open"]');
+    expect(btn).toBeTruthy();
   });
 });

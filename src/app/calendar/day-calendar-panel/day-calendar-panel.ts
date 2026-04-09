@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { LucideChevronLeft, LucideChevronRight, LucidePlay, LucideSquare } from '@lucide/angular';
+import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import { LucidePanelRightClose, LucidePlay, LucideSquare } from '@lucide/angular';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
 import { PomodoroConfigPopupComponent } from '../../pomodoro/pomodoro-config-popup/pomodoro-config-popup';
@@ -8,14 +8,11 @@ import { PomodoroService } from '../../pomodoro/pomodoro.service';
 import { SettingsService } from '../../settings/settings.service';
 import { DayAppointment } from '../day-schedule.model';
 
-const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
-
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    LucideChevronLeft,
-    LucideChevronRight,
+    LucidePanelRightClose,
     LucidePlay,
     LucideSquare,
     DayTimelineComponent,
@@ -23,35 +20,27 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
     PomodoroConfigPopupComponent,
   ],
   host: {
-    '[class]': 'hostClass()',
+    class:
+      'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col',
     '(document:keydown.escape)': 'onEscape()',
   },
   template: `
-    @if (collapsed()) {
+    <div
+      class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)]"
+    >
+      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
+        >Tagesplan</span
+      >
       <button
-        class="h-full w-full flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors"
-        (click)="toggleCollapse()"
+        type="button"
+        class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+        (click)="collapseCalendar.emit()"
         data-testid="collapse-toggle"
-        aria-label="Tagesplan einblenden"
+        aria-label="Tagesplan ausblenden"
       >
-        <svg lucideChevronLeft [size]="16"></svg>
+        <svg lucidePanelRightClose [size]="16" [strokeWidth]="1.75"></svg>
       </button>
-    } @else {
-      <div
-        class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)]"
-      >
-        <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
-          >Tagesplan</span
-        >
-        <button
-          class="text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] rounded p-0.5 transition-colors"
-          (click)="toggleCollapse()"
-          data-testid="collapse-toggle"
-          aria-label="Tagesplan ausblenden"
-        >
-          <svg lucideChevronRight [size]="16"></svg>
-        </button>
-      </div>
+    </div>
       @if (settingsService.pomodoroEnabled()) {
         <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
           @if (pomodoro.state() === 'idle') {
@@ -102,7 +91,6 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
           (appointmentUpdate)="onResizeUpdate($event)"
         />
       </div>
-    }
 
     @if (popupState() !== null) {
       <app-appointment-popup
@@ -165,25 +153,13 @@ export class DayCalendarPanelComponent {
   readonly pomodoro = inject(PomodoroService);
   readonly settingsService = inject(SettingsService);
 
-  readonly collapsed = signal<boolean>(localStorage.getItem(STORAGE_KEY) === 'true');
+  readonly collapseCalendar = output();
   readonly showPomodoroConfig = signal(false);
   readonly showCancelConfirm = signal(false);
 
   readonly popupState = signal<{ appointment: Partial<DayAppointment>; isNew: boolean } | null>(
     null,
   );
-
-  readonly hostClass = computed(() =>
-    this.collapsed()
-      ? 'w-8 shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col'
-      : 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col transition-[width] duration-150',
-  );
-
-  toggleCollapse(): void {
-    const next = !this.collapsed();
-    this.collapsed.set(next);
-    localStorage.setItem(STORAGE_KEY, String(next));
-  }
 
   onCreateRequest(event: { startTime: string; endTime: string }): void {
     this.popupState.set({
