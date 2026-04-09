@@ -29,7 +29,6 @@ function setup() {
 describe('DayCalendarPanelComponent', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
-    localStorage.removeItem('orbit.dayCalendar.collapsed');
   });
 
   it('renders the timeline', () => {
@@ -44,17 +43,17 @@ describe('DayCalendarPanelComponent', () => {
     expect(toggle).toBeTruthy();
   });
 
-  it('hides timeline content when collapsed', () => {
-    const { fixture, el } = setup();
-    const toggle = el.querySelector<HTMLButtonElement>('[data-testid="collapse-toggle"]');
-    toggle!.click();
-    fixture.detectChanges();
-    const timeline = el.querySelector('app-day-timeline');
-    expect(timeline).toBeNull();
-  });
-
   it('renders header with "Tagesplan"', () => {
     const { el } = setup();
     expect(el.textContent).toContain('Tagesplan');
+  });
+
+  it('emits collapseCalendar when toggle is clicked', () => {
+    const { fixture, el } = setup();
+    const spy = vi.fn();
+    fixture.componentInstance.collapseCalendar.subscribe(spy);
+    const toggle = el.querySelector<HTMLButtonElement>('[data-testid="collapse-toggle"]');
+    toggle!.click();
+    expect(spy).toHaveBeenCalled();
   });
 });

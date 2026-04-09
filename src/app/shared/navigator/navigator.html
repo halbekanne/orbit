@@ -4,7 +4,18 @@
       <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
         >Arbeit</span
       >
-      <span class="text-xs text-[var(--color-text-muted)]">Dein Command Center</span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-[var(--color-text-muted)]">Dein Command Center</span>
+        <button
+          type="button"
+          class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+          (click)="collapseSidebar.emit()"
+          data-testid="sidebar-collapse"
+          aria-label="Navigator ausblenden"
+        >
+          <svg lucidePanelLeftClose [size]="16" [strokeWidth]="1.75"></svg>
+        </button>
+      </div>
     </div>
   </div>
 

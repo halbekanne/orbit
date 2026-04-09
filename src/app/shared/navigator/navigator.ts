@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  output,
   signal,
 } from '@angular/core';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
@@ -22,7 +23,7 @@ import { ReflectionCardComponent } from '../../reflection/reflection-card/reflec
 import { BadgeComponent } from '../badge/badge';
 import { SyncBarComponent } from '../sync-bar/sync-bar';
 import { DataRefreshService } from '../data-refresh.service';
-import { LucideChevronDown } from '@lucide/angular';
+import { LucideChevronDown, LucidePanelLeftClose } from '@lucide/angular';
 
 const STORAGE_KEY = 'orbit.navigator.collapsed';
 
@@ -51,11 +52,13 @@ interface CollapsedState {
     BadgeComponent,
     SyncBarComponent,
     LucideChevronDown,
+    LucidePanelLeftClose,
   ],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },
 })
 export class NavigatorComponent {
+  readonly collapseSidebar = output();
   protected readonly refreshService = inject(DataRefreshService);
   protected readonly data = inject(WorkspaceService);
   protected readonly todoService = inject(TodoService);

@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { LucideChevronLeft, LucideChevronRight, LucidePlay, LucideSquare } from '@lucide/angular';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
+import { LucidePanelRightClose, LucidePlay, LucideSquare } from '@lucide/angular';
 import { DayTimelineComponent } from '../day-timeline/day-timeline';
 import { AppointmentPopupComponent } from '../appointment-popup/appointment-popup';
 import { PomodoroConfigPopupComponent } from '../../pomodoro/pomodoro-config-popup/pomodoro-config-popup';
@@ -8,14 +15,11 @@ import { PomodoroService } from '../../pomodoro/pomodoro.service';
 import { SettingsService } from '../../settings/settings.service';
 import { DayAppointment } from '../day-schedule.model';
 
-const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
-
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    LucideChevronLeft,
-    LucideChevronRight,
+    LucidePanelRightClose,
     LucidePlay,
     LucideSquare,
     DayTimelineComponent,
@@ -23,86 +27,75 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
     PomodoroConfigPopupComponent,
   ],
   host: {
-    '[class]': 'hostClass()',
+    class:
+      'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col overflow-hidden',
     '(document:keydown.escape)': 'onEscape()',
   },
   template: `
-    @if (collapsed()) {
+    <div
+      class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)]"
+    >
+      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
+        >Tagesplan</span
+      >
       <button
-        class="h-full w-full flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors"
-        (click)="toggleCollapse()"
+        type="button"
+        class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+        (click)="collapseCalendar.emit()"
         data-testid="collapse-toggle"
-        aria-label="Tagesplan einblenden"
+        aria-label="Tagesplan ausblenden"
       >
-        <svg lucideChevronLeft [size]="16"></svg>
+        <svg lucidePanelRightClose [size]="16" [strokeWidth]="1.75"></svg>
       </button>
-    } @else {
-      <div
-        class="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-subtle)]"
-      >
-        <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
-          >Tagesplan</span
-        >
-        <button
-          class="text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] rounded p-0.5 transition-colors"
-          (click)="toggleCollapse()"
-          data-testid="collapse-toggle"
-          aria-label="Tagesplan ausblenden"
-        >
-          <svg lucideChevronRight [size]="16"></svg>
-        </button>
-      </div>
-      @if (settingsService.pomodoroEnabled()) {
-        <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
-          @if (pomodoro.state() === 'idle') {
-            <button
-              type="button"
-              class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
-              (click)="showPomodoroConfig.set(true)"
-            >
-              <svg lucidePlay [size]="12" [strokeWidth]="2.5"></svg>
-              Pomodoro starten
-            </button>
-          } @else if (pomodoro.state() === 'running') {
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <div class="flex items-center gap-1.5">
-                <span class="relative flex h-2 w-2">
-                  <span
-                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary-solid)] opacity-75"
-                  ></span>
-                  <span
-                    class="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary-solid)]"
-                  ></span>
-                </span>
-                <span class="text-xs font-medium text-[var(--color-primary-text)]"
-                  >Fokus läuft</span
-                >
-              </div>
-              <span class="text-xs text-[var(--color-text-muted)] tabular-nums">{{
-                pomodoroRemainingLabel()
-              }}</span>
+    </div>
+    @if (settingsService.pomodoroEnabled()) {
+      <div class="shrink-0 p-3 border-b border-[var(--color-border-subtle)]">
+        @if (pomodoro.state() === 'idle') {
+          <button
+            type="button"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]"
+            (click)="showPomodoroConfig.set(true)"
+          >
+            <svg lucidePlay [size]="12" [strokeWidth]="2.5"></svg>
+            Pomodoro starten
+          </button>
+        } @else if (pomodoro.state() === 'running') {
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="relative flex h-2 w-2">
+                <span
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-primary-solid)] opacity-75"
+                ></span>
+                <span
+                  class="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-primary-solid)]"
+                ></span>
+              </span>
+              <span class="text-xs font-medium text-[var(--color-primary-text)]">Fokus läuft</span>
             </div>
-            <button
-              type="button"
-              class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-600 hover:bg-red-50"
-              (click)="showCancelConfirm.set(true)"
-            >
-              <svg lucideSquare [size]="12" [strokeWidth]="2.5"></svg>
-              Pomodoro abbrechen
-            </button>
-          }
-        </div>
-      }
-      <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
-        <app-day-timeline
-          [appointments]="service.appointments()"
-          [pomodoroBlock]="pomodoro.timelineBlock()"
-          (appointmentCreate)="onCreateRequest($event)"
-          (appointmentEdit)="onEditRequest($event)"
-          (appointmentUpdate)="onResizeUpdate($event)"
-        />
+            <span class="text-xs text-[var(--color-text-muted)] tabular-nums">{{
+              pomodoroRemainingLabel()
+            }}</span>
+          </div>
+          <button
+            type="button"
+            class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-red-300 hover:text-red-600 hover:bg-red-50"
+            (click)="showCancelConfirm.set(true)"
+          >
+            <svg lucideSquare [size]="12" [strokeWidth]="2.5"></svg>
+            Pomodoro abbrechen
+          </button>
+        }
       </div>
     }
+    <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+      <app-day-timeline
+        [appointments]="service.appointments()"
+        [pomodoroBlock]="pomodoro.timelineBlock()"
+        (appointmentCreate)="onCreateRequest($event)"
+        (appointmentEdit)="onEditRequest($event)"
+        (appointmentUpdate)="onResizeUpdate($event)"
+      />
+    </div>
 
     @if (popupState() !== null) {
       <app-appointment-popup
@@ -165,25 +158,13 @@ export class DayCalendarPanelComponent {
   readonly pomodoro = inject(PomodoroService);
   readonly settingsService = inject(SettingsService);
 
-  readonly collapsed = signal<boolean>(localStorage.getItem(STORAGE_KEY) === 'true');
+  readonly collapseCalendar = output();
   readonly showPomodoroConfig = signal(false);
   readonly showCancelConfirm = signal(false);
 
   readonly popupState = signal<{ appointment: Partial<DayAppointment>; isNew: boolean } | null>(
     null,
   );
-
-  readonly hostClass = computed(() =>
-    this.collapsed()
-      ? 'w-8 shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col'
-      : 'w-[260px] shrink-0 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] flex flex-col transition-[width] duration-150',
-  );
-
-  toggleCollapse(): void {
-    const next = !this.collapsed();
-    this.collapsed.set(next);
-    localStorage.setItem(STORAGE_KEY, String(next));
-  }
 
   onCreateRequest(event: { startTime: string; endTime: string }): void {
     this.popupState.set({

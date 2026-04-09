@@ -5,7 +5,7 @@
 
 ## Problem
 
-PRs where the user requested changes (`NEEDS_WORK`) currently show as red in Orbit. But the user does not need to act on them — they are waiting for the author to respond. However, once any activity occurs on the PR after the user's NEEDS_WORK review (new commits, comments, etc.), the user _does_ need to act. The current red badge gives no distinction between these two states.
+PRs where the user requested changes (`NEEDS_WORK`) currently show as red in Orbit. But the user does not need to act on them — they are waiting for the author to respond. However, once any activity occurs on the PR after the user's NEEDS*WORK review (new commits, comments, etc.), the user \_does* need to act. The current red badge gives no distinction between these two states.
 
 ## Goal
 
