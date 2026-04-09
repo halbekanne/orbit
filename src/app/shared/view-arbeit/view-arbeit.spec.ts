@@ -122,8 +122,15 @@ describe('ViewArbeitComponent', () => {
   it('persists sidebarCollapsed to localStorage', () => {
     const fixture = TestBed.createComponent(ViewArbeitComponent);
     fixture.componentInstance.toggleSidebar();
-    TestBed.tick();
+    TestBed.flushEffects();
     expect(localStorage.getItem('orbit.navigator.sidebarCollapsed')).toBe('true');
+  });
+
+  it('persists calendarCollapsed to localStorage', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleCalendar();
+    TestBed.flushEffects();
+    expect(localStorage.getItem('orbit.dayCalendar.collapsed')).toBe('true');
   });
 
   it('restores sidebarCollapsed from localStorage', async () => {
@@ -151,7 +158,17 @@ describe('ViewArbeitComponent', () => {
     const aside = fixture.nativeElement.querySelector('aside[aria-label="Navigator"]');
     expect(aside).toBeTruthy();
     expect(aside.style.width).toBe('0px');
-    expect(aside.getAttribute('aria-hidden')).toBe('true');
+    expect(aside.hasAttribute('inert')).toBe(true);
+  });
+
+  it('collapses calendar panel when calendarCollapsed is true', () => {
+    const fixture = TestBed.createComponent(ViewArbeitComponent);
+    fixture.componentInstance.toggleCalendar();
+    fixture.detectChanges();
+    const panel = fixture.nativeElement.querySelector('app-day-calendar-panel');
+    expect(panel).toBeTruthy();
+    expect(panel.style.width).toBe('0px');
+    expect(panel.hasAttribute('inert')).toBe(true);
   });
 
   it('shows sidebar-open button when sidebar collapsed', () => {

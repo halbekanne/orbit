@@ -2,7 +2,7 @@
   class="shrink-0 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] overflow-hidden flex flex-col transition-[width,border-width] duration-150 [@media(prefers-reduced-motion:reduce)]:transition-none"
   [style.width]="sidebarCollapsed() ? '0px' : ''"
   [style.border-right-width]="sidebarCollapsed() ? '0px' : ''"
-  [attr.aria-hidden]="sidebarCollapsed() || null"
+  [attr.inert]="sidebarCollapsed() || null"
   aria-label="Navigator"
 >
   <div class="w-[360px] xl:w-[400px] h-full flex flex-col">
@@ -14,7 +14,7 @@
   @if (sidebarCollapsed()) {
     <button
       type="button"
-      class="absolute top-3 left-3 z-10 p-1.5 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface-hover,var(--color-bg-surface))] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+      class="absolute top-3 left-3 z-10 p-1.5 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
       (click)="toggleSidebar()"
       data-testid="sidebar-open"
       aria-label="Navigator einblenden"
@@ -26,7 +26,7 @@
   @if (settingsService.dayCalendarEnabled() && calendarCollapsed()) {
     <button
       type="button"
-      class="absolute top-3 right-3 z-10 p-1.5 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface-hover,var(--color-bg-surface))] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+      class="absolute top-3 right-3 z-10 p-1.5 rounded-md bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
       (click)="toggleCalendar()"
       data-testid="calendar-open"
       aria-label="Tagesplan einblenden"
@@ -43,7 +43,7 @@
     <app-day-calendar-panel
       [style.width]="calendarCollapsed() ? '0px' : ''"
       [style.border-left-width]="calendarCollapsed() ? '0px' : ''"
-      [attr.aria-hidden]="calendarCollapsed() || null"
+      [attr.inert]="calendarCollapsed() || null"
       class="transition-[width,border-width] duration-150 [@media(prefers-reduced-motion:reduce)]:transition-none"
       (collapseCalendar)="toggleCalendar()"
     />
