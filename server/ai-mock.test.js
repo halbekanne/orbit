@@ -9,7 +9,7 @@ describe('runMockReview', () => {
     const events = [];
     await runMockReview((type, data) => events.push({ type, data }));
 
-    const types = events.map(e => e.type);
+    const types = events.map((e) => e.type);
     assert.ok(types.includes('agent:start'), 'should include agent:start');
     assert.ok(types.includes('done'), 'should include done');
   });
@@ -18,7 +18,7 @@ describe('runMockReview', () => {
     const events = [];
     await runMockReview((type, data) => events.push({ type, data }));
 
-    const starts = events.filter(e => e.type === 'agent:start');
+    const starts = events.filter((e) => e.type === 'agent:start');
     assert.ok(starts.length >= 1);
 
     for (const start of starts) {
@@ -36,7 +36,7 @@ describe('runMockReview', () => {
       allEvents.push(...events);
     }
 
-    const consolDones = allEvents.filter(e => e.type === 'consolidator:done');
+    const consolDones = allEvents.filter((e) => e.type === 'consolidator:done');
     assert.ok(consolDones.length > 0, 'Expected at least one consolidator:done in 20 runs');
 
     for (const cd of consolDones) {
@@ -59,7 +59,7 @@ describe('runMockReview', () => {
       allEvents.push(...events);
     }
 
-    const errors = allEvents.filter(e => e.type === 'agent:error');
+    const errors = allEvents.filter((e) => e.type === 'agent:error');
     assert.ok(errors.length > 0, 'Expected at least one agent:error in 30 runs');
 
     for (const err of errors) {

@@ -15,6 +15,7 @@
 ### Task 1: Refactor `runReview()` to use `emit()` callback
 
 **Files:**
+
 - Modify: `proxy/cosi.js`
 - Test: `proxy/cosi.test.js`
 
@@ -26,11 +27,34 @@ Replace the existing `runReview` tests in `proxy/cosi.test.js`. The new tests ve
 // In the 'runReview' describe block, replace all existing tests with:
 
 it('emits agent:start, agent:done for both agents and consolidator events', async () => {
-  const agent1Result = { findings: [{ severity: 'critical', title: 'AK fehlt', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }] };
-  const agent2Result = { findings: [{ severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' }] };
+  const agent1Result = {
+    findings: [
+      {
+        severity: 'critical',
+        title: 'AK fehlt',
+        file: 'a.ts',
+        line: 1,
+        detail: 'd',
+        suggestion: 's',
+      },
+    ],
+  };
+  const agent2Result = {
+    findings: [
+      { severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' },
+    ],
+  };
   const consolidatedResult = {
     findings: [
-      { severity: 'critical', category: 'ak-abgleich', title: 'AK fehlt', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' },
+      {
+        severity: 'critical',
+        category: 'ak-abgleich',
+        title: 'AK fehlt',
+        file: 'a.ts',
+        line: 1,
+        detail: 'd',
+        suggestion: 's',
+      },
     ],
     summary: '1 Auffälligkeit',
     decisions: [{ action: 'kept', reason: 'Belegbar', finding: 'AK fehlt' }],
@@ -39,14 +63,14 @@ it('emits agent:start, agent:done for both agents and consolidator events', asyn
   let callCount = 0;
   mock.method(global, 'fetch', () => {
     callCount++;
-    const result = callCount <= 2
-      ? (callCount === 1 ? agent1Result : agent2Result)
-      : consolidatedResult;
+    const result =
+      callCount <= 2 ? (callCount === 1 ? agent1Result : agent2Result) : consolidatedResult;
     return Promise.resolve({
       ok: true,
-      json: () => Promise.resolve({
-        candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-      }),
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+        }),
     });
   });
 
@@ -55,19 +79,19 @@ it('emits agent:start, agent:done for both agents and consolidator events', asyn
   const emit = (type, data) => events.push({ type, data });
   await runReview('diff', { key: 'DS-1', summary: 'Test', description: 'AK' }, emit);
 
-  const types = events.map(e => e.type);
+  const types = events.map((e) => e.type);
   assert.ok(types.includes('agent:start'));
   assert.ok(types.includes('agent:done'));
   assert.ok(types.includes('consolidator:start'));
   assert.ok(types.includes('consolidator:done'));
   assert.ok(types.includes('done'));
 
-  const agentStarts = events.filter(e => e.type === 'agent:start');
+  const agentStarts = events.filter((e) => e.type === 'agent:start');
   assert.equal(agentStarts.length, 2);
   assert.equal(agentStarts[0].data.agent, 'ak-abgleich');
   assert.equal(agentStarts[1].data.agent, 'code-quality');
 
-  const consolidatorDone = events.find(e => e.type === 'consolidator:done');
+  const consolidatorDone = events.find((e) => e.type === 'consolidator:done');
   assert.ok(consolidatorDone.data.result);
   assert.ok(Array.isArray(consolidatorDone.data.decisions));
   assert.ok(consolidatorDone.data.duration >= 0);
@@ -77,31 +101,48 @@ it('emits agent:start, agent:done for both agents and consolidator events', asyn
 it('emits warning and skips agent 1 when no jira ticket', async () => {
   const agent2Result = { findings: [] };
 
-  mock.method(global, 'fetch', () => Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({
-      candidates: [{ content: { parts: [{ text: JSON.stringify(agent2Result) }] } }],
+  mock.method(global, 'fetch', () =>
+    Promise.resolve({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(agent2Result) }] } }],
+        }),
     }),
-  }));
+  );
 
   const { runReview } = freshRequire();
   const events = [];
   const emit = (type, data) => events.push({ type, data });
   await runReview('diff', null, emit);
 
-  const warning = events.find(e => e.type === 'warning');
+  const warning = events.find((e) => e.type === 'warning');
   assert.ok(warning);
   assert.match(warning.data.message, /Kein Jira-Ticket/);
 
-  const agentStarts = events.filter(e => e.type === 'agent:start');
+  const agentStarts = events.filter((e) => e.type === 'agent:start');
   assert.equal(agentStarts.length, 1);
   assert.equal(agentStarts[0].data.agent, 'code-quality');
 });
 
 it('emits agent:error when an agent fails', async () => {
-  const agent2Result = { findings: [{ severity: 'minor', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }] };
+  const agent2Result = {
+    findings: [
+      { severity: 'minor', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' },
+    ],
+  };
   const consolidatedResult = {
-    findings: [{ severity: 'minor', category: 'code-quality', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }],
+    findings: [
+      {
+        severity: 'minor',
+        category: 'code-quality',
+        title: 'Test',
+        file: 'a.ts',
+        line: 1,
+        detail: 'd',
+        suggestion: 's',
+      },
+    ],
     summary: '1 Auffälligkeit',
     decisions: [{ action: 'kept', reason: 'Valid', finding: 'Test' }],
   };
@@ -115,9 +156,10 @@ it('emits agent:error when an agent fails', async () => {
     const result = callCount === 2 ? agent2Result : consolidatedResult;
     return Promise.resolve({
       ok: true,
-      json: () => Promise.resolve({
-        candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-      }),
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+        }),
     });
   });
 
@@ -126,26 +168,29 @@ it('emits agent:error when an agent fails', async () => {
   const emit = (type, data) => events.push({ type, data });
   await runReview('diff', { key: 'DS-1', summary: 'T', description: 'd' }, emit);
 
-  const agentError = events.find(e => e.type === 'agent:error');
+  const agentError = events.find((e) => e.type === 'agent:error');
   assert.ok(agentError);
   assert.equal(agentError.data.agent, 'ak-abgleich');
   assert.match(agentError.data.error, /500/);
 });
 
 it('emits done with empty result when no findings and skips consolidator', async () => {
-  mock.method(global, 'fetch', () => Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({
-      candidates: [{ content: { parts: [{ text: '{"findings":[]}' }] } }],
+  mock.method(global, 'fetch', () =>
+    Promise.resolve({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: '{"findings":[]}' }] } }],
+        }),
     }),
-  }));
+  );
 
   const { runReview } = freshRequire();
   const events = [];
   const emit = (type, data) => events.push({ type, data });
   await runReview('diff', null, emit);
 
-  const types = events.map(e => e.type);
+  const types = events.map((e) => e.type);
   assert.ok(!types.includes('consolidator:start'));
   assert.ok(types.includes('done'));
 });
@@ -176,7 +221,7 @@ async function runReview(diff, jiraTicket, emit) {
     const start = Date.now();
     agentCalls.push(
       callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, { temperature: 0.2 })
-        .then(result => {
+        .then((result) => {
           emit('agent:done', {
             agent: 'ak-abgleich',
             duration: Date.now() - start,
@@ -186,11 +231,11 @@ async function runReview(diff, jiraTicket, emit) {
           });
           return result;
         })
-        .catch(err => {
+        .catch((err) => {
           emit('agent:error', { agent: 'ak-abgleich', error: err.message });
           warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
           return { findings: [] };
-        })
+        }),
     );
   } else {
     agentCalls.push(Promise.resolve({ findings: [] }));
@@ -200,7 +245,7 @@ async function runReview(diff, jiraTicket, emit) {
   const cqStart = Date.now();
   agentCalls.push(
     callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 })
-      .then(result => {
+      .then((result) => {
         emit('agent:done', {
           agent: 'code-quality',
           duration: Date.now() - cqStart,
@@ -210,11 +255,11 @@ async function runReview(diff, jiraTicket, emit) {
         });
         return result;
       })
-      .catch(err => {
+      .catch((err) => {
         emit('agent:error', { agent: 'code-quality', error: err.message });
         warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
         return { findings: [] };
-      })
+      }),
   );
 
   const [agent1Result, agent2Result] = await Promise.all(agentCalls);
@@ -253,7 +298,7 @@ async function runReview(diff, jiraTicket, emit) {
 
 function describeFindings(findings) {
   if (findings.length === 0) return 'Keine Findings';
-  const titles = findings.map(f => f.title).join(', ');
+  const titles = findings.map((f) => f.title).join(', ');
   return `${findings.length} Finding${findings.length > 1 ? 's' : ''} — ${titles}`;
 }
 
@@ -304,6 +349,7 @@ git commit -m "feat(cosi): refactor runReview to emit SSE events with consolidat
 ### Task 2: Wire SSE streaming into Express endpoint
 
 **Files:**
+
 - Modify: `proxy/index.js`
 
 - [ ] **Step 1: Replace JSON endpoint with SSE stream**
@@ -318,7 +364,7 @@ app.post('/api/cosi/review', express.json({ limit: '2mb' }), async (req, res) =>
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
   });
 
   const emit = (eventType, data) => {
@@ -355,6 +401,7 @@ git commit -m "feat(cosi): switch review endpoint to SSE streaming"
 ### Task 3: Refactor mock mode to emit SSE events
 
 **Files:**
+
 - Modify: `proxy/cosi-mock.js`
 - Test: `proxy/cosi-mock.test.js`
 
@@ -374,7 +421,7 @@ describe('runMockReview', () => {
     const emit = (type, data) => events.push({ type, data });
     await runMockReview(emit);
 
-    const types = events.map(e => e.type);
+    const types = events.map((e) => e.type);
     assert.ok(types.includes('agent:start'));
     assert.ok(types.includes('done'));
 
@@ -386,9 +433,13 @@ describe('runMockReview', () => {
     const events = [];
     await runMockReview((type, data) => events.push({ type, data }));
 
-    const agentStarts = events.filter(e => e.type === 'agent:start');
+    const agentStarts = events.filter((e) => e.type === 'agent:start');
     assert.ok(agentStarts.length >= 1);
-    assert.ok(agentStarts.every(e => e.data.agent && e.data.label && typeof e.data.temperature === 'number'));
+    assert.ok(
+      agentStarts.every(
+        (e) => e.data.agent && e.data.label && typeof e.data.temperature === 'number',
+      ),
+    );
   });
 
   it('includes consolidator:done with result and decisions when findings exist', async () => {
@@ -399,8 +450,11 @@ describe('runMockReview', () => {
       allEvents.push(...events);
     }
 
-    const consolidatorDones = allEvents.filter(e => e.type === 'consolidator:done');
-    assert.ok(consolidatorDones.length > 0, 'Expected at least one consolidator:done across 20 runs');
+    const consolidatorDones = allEvents.filter((e) => e.type === 'consolidator:done');
+    assert.ok(
+      consolidatorDones.length > 0,
+      'Expected at least one consolidator:done across 20 runs',
+    );
     const cd = consolidatorDones[0];
     assert.ok(cd.data.result);
     assert.ok(Array.isArray(cd.data.result.findings));
@@ -417,7 +471,7 @@ describe('runMockReview', () => {
       allEvents.push(...events);
     }
 
-    const agentErrors = allEvents.filter(e => e.type === 'agent:error');
+    const agentErrors = allEvents.filter((e) => e.type === 'agent:error');
     assert.ok(agentErrors.length > 0, 'Expected at least one agent:error across 30 runs');
   });
 });
@@ -439,29 +493,93 @@ const SCENARIOS = [
     agents: {
       akAbgleich: {
         findings: [
-          { severity: 'critical', title: 'Hover-State für primären Button fehlt', file: 'src/components/button/button.styles.scss', line: 42, detail: 'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.', suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.' },
+          {
+            severity: 'critical',
+            title: 'Hover-State für primären Button fehlt',
+            file: 'src/components/button/button.styles.scss',
+            line: 42,
+            detail:
+              'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.',
+            suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.',
+          },
         ],
       },
       codeQuality: {
         findings: [
-          { severity: 'important', title: 'Typ-Assertion statt Type Guard', file: 'src/components/button/button.ts', line: 87, detail: 'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung. Ein Type Guard wäre sicherer.', suggestion: 'Einen Type Guard `isButtonVariant()` implementieren.' },
-          { severity: 'minor', title: 'Doppelte Berechnung in render()', file: 'src/components/button/button.ts', line: 112, detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet.', suggestion: 'Berechnung in ein `willUpdate()` verschieben.' },
+          {
+            severity: 'important',
+            title: 'Typ-Assertion statt Type Guard',
+            file: 'src/components/button/button.ts',
+            line: 87,
+            detail:
+              'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung. Ein Type Guard wäre sicherer.',
+            suggestion: 'Einen Type Guard `isButtonVariant()` implementieren.',
+          },
+          {
+            severity: 'minor',
+            title: 'Doppelte Berechnung in render()',
+            file: 'src/components/button/button.ts',
+            line: 112,
+            detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet.',
+            suggestion: 'Berechnung in ein `willUpdate()` verschieben.',
+          },
         ],
       },
     },
     consolidated: {
       findings: [
-        { severity: 'critical', category: 'ak-abgleich', title: 'Hover-State für primären Button fehlt', file: 'src/components/button/button.styles.scss', line: 42, detail: 'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.', suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.' },
-        { severity: 'important', category: 'code-quality', title: 'Typ-Assertion statt Type Guard', file: 'src/components/button/button.ts', line: 87, detail: 'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung.', suggestion: 'Type Guard `isButtonVariant()` implementieren.' },
-        { severity: 'minor', category: 'code-quality', title: 'Doppelte Berechnung in render()', file: 'src/components/button/button.ts', line: 112, detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet.', suggestion: 'Berechnung in `willUpdate()` verschieben.' },
+        {
+          severity: 'critical',
+          category: 'ak-abgleich',
+          title: 'Hover-State für primären Button fehlt',
+          file: 'src/components/button/button.styles.scss',
+          line: 42,
+          detail:
+            'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.',
+          suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.',
+        },
+        {
+          severity: 'important',
+          category: 'code-quality',
+          title: 'Typ-Assertion statt Type Guard',
+          file: 'src/components/button/button.ts',
+          line: 87,
+          detail: 'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung.',
+          suggestion: 'Type Guard `isButtonVariant()` implementieren.',
+        },
+        {
+          severity: 'minor',
+          category: 'code-quality',
+          title: 'Doppelte Berechnung in render()',
+          file: 'src/components/button/button.ts',
+          line: 112,
+          detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet.',
+          suggestion: 'Berechnung in `willUpdate()` verschieben.',
+        },
       ],
       summary: '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering',
     },
     decisions: [
-      { action: 'kept', reason: 'AK klar nicht umgesetzt, im Diff belegbar', finding: 'Hover-State für primären Button fehlt' },
-      { action: 'kept', reason: 'Type-Safety-Lücke, Runtime-Risiko', finding: 'Typ-Assertion statt Type Guard' },
-      { action: 'kept', reason: 'Performance-Verbesserung, klar belegbar', finding: 'Doppelte Berechnung in render()' },
-      { action: 'removed', reason: 'Duplikat: Naming in beiden Agents gemeldet', finding: 'Inkonsistente Benennung' },
+      {
+        action: 'kept',
+        reason: 'AK klar nicht umgesetzt, im Diff belegbar',
+        finding: 'Hover-State für primären Button fehlt',
+      },
+      {
+        action: 'kept',
+        reason: 'Type-Safety-Lücke, Runtime-Risiko',
+        finding: 'Typ-Assertion statt Type Guard',
+      },
+      {
+        action: 'kept',
+        reason: 'Performance-Verbesserung, klar belegbar',
+        finding: 'Doppelte Berechnung in render()',
+      },
+      {
+        action: 'removed',
+        reason: 'Duplikat: Naming in beiden Agents gemeldet',
+        finding: 'Inkonsistente Benennung',
+      },
     ],
     warnings: [],
   },
@@ -481,20 +599,55 @@ const SCENARIOS = [
       akAbgleich: null,
       codeQuality: {
         findings: [
-          { severity: 'important', title: 'Event-Listener wird nicht aufgeräumt', file: 'src/components/tooltip/tooltip.ts', line: 34, detail: 'Der `mouseenter`-Listener wird in `connectedCallback` registriert, aber nicht entfernt.', suggestion: 'Listener-Referenz speichern und in `disconnectedCallback` aufräumen.' },
-          { severity: 'minor', title: 'Unnötiger Nullcheck', file: 'src/components/tooltip/tooltip.ts', line: 58, detail: 'Die Property `content` hat einen Default-Wert. Der Nullcheck greift nie.', suggestion: 'Nullcheck entfernen.' },
+          {
+            severity: 'important',
+            title: 'Event-Listener wird nicht aufgeräumt',
+            file: 'src/components/tooltip/tooltip.ts',
+            line: 34,
+            detail:
+              'Der `mouseenter`-Listener wird in `connectedCallback` registriert, aber nicht entfernt.',
+            suggestion: 'Listener-Referenz speichern und in `disconnectedCallback` aufräumen.',
+          },
+          {
+            severity: 'minor',
+            title: 'Unnötiger Nullcheck',
+            file: 'src/components/tooltip/tooltip.ts',
+            line: 58,
+            detail: 'Die Property `content` hat einen Default-Wert. Der Nullcheck greift nie.',
+            suggestion: 'Nullcheck entfernen.',
+          },
         ],
       },
     },
     consolidated: {
       findings: [
-        { severity: 'important', category: 'code-quality', title: 'Event-Listener wird nicht aufgeräumt', file: 'src/components/tooltip/tooltip.ts', line: 34, detail: 'Der `mouseenter`-Listener wird nicht entfernt.', suggestion: 'In `disconnectedCallback` aufräumen.' },
-        { severity: 'minor', category: 'code-quality', title: 'Unnötiger Nullcheck', file: 'src/components/tooltip/tooltip.ts', line: 58, detail: 'Default-Wert vorhanden, Nullcheck redundant.', suggestion: 'Nullcheck entfernen.' },
+        {
+          severity: 'important',
+          category: 'code-quality',
+          title: 'Event-Listener wird nicht aufgeräumt',
+          file: 'src/components/tooltip/tooltip.ts',
+          line: 34,
+          detail: 'Der `mouseenter`-Listener wird nicht entfernt.',
+          suggestion: 'In `disconnectedCallback` aufräumen.',
+        },
+        {
+          severity: 'minor',
+          category: 'code-quality',
+          title: 'Unnötiger Nullcheck',
+          file: 'src/components/tooltip/tooltip.ts',
+          line: 58,
+          detail: 'Default-Wert vorhanden, Nullcheck redundant.',
+          suggestion: 'Nullcheck entfernen.',
+        },
       ],
       summary: '2 Auffälligkeiten: 1 Wichtig, 1 Gering',
     },
     decisions: [
-      { action: 'kept', reason: 'Memory Leak bestätigt', finding: 'Event-Listener wird nicht aufgeräumt' },
+      {
+        action: 'kept',
+        reason: 'Memory Leak bestätigt',
+        finding: 'Event-Listener wird nicht aufgeräumt',
+      },
       { action: 'kept', reason: 'Redundanter Code, klar belegbar', finding: 'Unnötiger Nullcheck' },
     ],
     warnings: ['Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.'],
@@ -505,25 +658,44 @@ const SCENARIOS = [
       akAbgleich: 'error',
       codeQuality: {
         findings: [
-          { severity: 'important', title: 'Shadow DOM Styling Leak', file: 'src/components/card/card.styles.scss', line: 15, detail: 'Der `:host` Selektor fehlt.', suggestion: 'Styles in `:host { }` wrappen.' },
+          {
+            severity: 'important',
+            title: 'Shadow DOM Styling Leak',
+            file: 'src/components/card/card.styles.scss',
+            line: 15,
+            detail: 'Der `:host` Selektor fehlt.',
+            suggestion: 'Styles in `:host { }` wrappen.',
+          },
         ],
       },
     },
     consolidated: {
       findings: [
-        { severity: 'important', category: 'code-quality', title: 'Shadow DOM Styling Leak', file: 'src/components/card/card.styles.scss', line: 15, detail: 'Der `:host` Selektor fehlt.', suggestion: 'Styles in `:host { }` wrappen.' },
+        {
+          severity: 'important',
+          category: 'code-quality',
+          title: 'Shadow DOM Styling Leak',
+          file: 'src/components/card/card.styles.scss',
+          line: 15,
+          detail: 'Der `:host` Selektor fehlt.',
+          suggestion: 'Styles in `:host { }` wrappen.',
+        },
       ],
       summary: '1 Auffälligkeit: 1 Wichtig',
     },
     decisions: [
-      { action: 'kept', reason: 'Styling-Leak bestätigt, im Diff belegbar', finding: 'Shadow DOM Styling Leak' },
+      {
+        action: 'kept',
+        reason: 'Styling-Leak bestätigt, im Diff belegbar',
+        finding: 'Shadow DOM Styling Leak',
+      },
     ],
     warnings: ['Agent 1 (AK-Abgleich) fehlgeschlagen: CoSi API error: 503 — Service Unavailable'],
   },
 ];
 
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function randomBetween(min, max) {
@@ -532,7 +704,9 @@ function randomBetween(min, max) {
 
 // Set to true in tests to skip delays
 let skipDelays = false;
-function setSkipDelays(val) { skipDelays = val; }
+function setSkipDelays(val) {
+  skipDelays = val;
+}
 
 async function maybeDelay(min, max) {
   if (!skipDelays) await delay(randomBetween(min, max));
@@ -557,14 +731,20 @@ async function runMockReview(emit) {
   if (hasAk) {
     await maybeDelay(1000, 2000);
     if (akFails) {
-      emit('agent:error', { agent: 'ak-abgleich', error: 'CoSi API error: 503 — Service Unavailable' });
+      emit('agent:error', {
+        agent: 'ak-abgleich',
+        error: 'CoSi API error: 503 — Service Unavailable',
+      });
     } else {
       const akFindings = scenario.agents.akAbgleich.findings;
       emit('agent:done', {
         agent: 'ak-abgleich',
         duration: randomBetween(1500, 3000),
         findingCount: akFindings.length,
-        summary: akFindings.length === 0 ? 'Keine Findings' : `${akFindings.length} Finding${akFindings.length > 1 ? 's' : ''} — ${akFindings.map(f => f.title).join(', ')}`,
+        summary:
+          akFindings.length === 0
+            ? 'Keine Findings'
+            : `${akFindings.length} Finding${akFindings.length > 1 ? 's' : ''} — ${akFindings.map((f) => f.title).join(', ')}`,
         rawResponse: { findings: akFindings },
       });
     }
@@ -576,7 +756,10 @@ async function runMockReview(emit) {
     agent: 'code-quality',
     duration: randomBetween(1500, 3000),
     findingCount: cqFindings.length,
-    summary: cqFindings.length === 0 ? 'Keine Findings' : `${cqFindings.length} Finding${cqFindings.length > 1 ? 's' : ''} — ${cqFindings.map(f => f.title).join(', ')}`,
+    summary:
+      cqFindings.length === 0
+        ? 'Keine Findings'
+        : `${cqFindings.length} Finding${cqFindings.length > 1 ? 's' : ''} — ${cqFindings.map((f) => f.title).join(', ')}`,
     rawResponse: { findings: cqFindings },
   });
 
@@ -626,6 +809,7 @@ git commit -m "feat(cosi): refactor mock mode to emit SSE events"
 ### Task 4: Extend type model with pipeline types
 
 **Files:**
+
 - Modify: `src/app/models/review.model.ts`
 
 - [ ] **Step 1: Add pipeline types and update `ReviewState`**
@@ -708,6 +892,7 @@ git commit -m "feat(cosi): add pipeline types to review model"
 ### Task 5: Rewrite `CosiReviewService` to consume SSE
 
 **Files:**
+
 - Modify: `src/app/services/cosi-review.service.ts`
 - Test: `src/app/services/cosi-review.service.spec.ts`
 
@@ -732,7 +917,7 @@ function mockFetchSSE(events: string) {
 }
 
 function buildSSE(...events: Array<{ event: string; data: unknown }>): string {
-  return events.map(e => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
+  return events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`).join('');
 }
 
 describe('CosiReviewService', () => {
@@ -749,9 +934,35 @@ describe('CosiReviewService', () => {
 
   it('transitions to running then result on successful SSE stream', async () => {
     const sseData = buildSSE(
-      { event: 'agent:start', data: { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 } },
-      { event: 'agent:done', data: { agent: 'code-quality', duration: 2000, findingCount: 0, summary: 'Keine Findings', rawResponse: { findings: [] } } },
-      { event: 'consolidator:done', data: { duration: 1000, result: { findings: [], summary: 'Keine Auffälligkeiten', warnings: [], reviewedAt: '2026-03-20T10:00:00Z' }, decisions: [], summary: '0 → 0', rawResponse: {} } },
+      {
+        event: 'agent:start',
+        data: { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 },
+      },
+      {
+        event: 'agent:done',
+        data: {
+          agent: 'code-quality',
+          duration: 2000,
+          findingCount: 0,
+          summary: 'Keine Findings',
+          rawResponse: { findings: [] },
+        },
+      },
+      {
+        event: 'consolidator:done',
+        data: {
+          duration: 1000,
+          result: {
+            findings: [],
+            summary: 'Keine Auffälligkeiten',
+            warnings: [],
+            reviewedAt: '2026-03-20T10:00:00Z',
+          },
+          decisions: [],
+          summary: '0 → 0',
+          rawResponse: {},
+        },
+      },
       { event: 'done', data: {} },
     );
     globalThis.fetch = mockFetchSSE(sseData);
@@ -767,10 +978,25 @@ describe('CosiReviewService', () => {
 
   it('handles agent:error events', async () => {
     const sseData = buildSSE(
-      { event: 'agent:start', data: { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 } },
+      {
+        event: 'agent:start',
+        data: { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2 },
+      },
       { event: 'agent:error', data: { agent: 'ak-abgleich', error: 'timeout' } },
-      { event: 'agent:start', data: { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 } },
-      { event: 'agent:done', data: { agent: 'code-quality', duration: 2000, findingCount: 0, summary: 'Keine', rawResponse: { findings: [] } } },
+      {
+        event: 'agent:start',
+        data: { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4 },
+      },
+      {
+        event: 'agent:done',
+        data: {
+          agent: 'code-quality',
+          duration: 2000,
+          findingCount: 0,
+          summary: 'Keine',
+          rawResponse: { findings: [] },
+        },
+      },
       { event: 'done', data: {} },
     );
     globalThis.fetch = mockFetchSSE(sseData);
@@ -786,7 +1012,16 @@ describe('CosiReviewService', () => {
     const sseData = buildSSE(
       { event: 'warning', data: { message: 'Kein Jira-Ticket' } },
       { event: 'agent:start', data: { agent: 'code-quality', label: 'CQ', temperature: 0.4 } },
-      { event: 'agent:done', data: { agent: 'code-quality', duration: 1000, findingCount: 0, summary: '', rawResponse: {} } },
+      {
+        event: 'agent:done',
+        data: {
+          agent: 'code-quality',
+          duration: 1000,
+          findingCount: 0,
+          summary: '',
+          rawResponse: {},
+        },
+      },
       { event: 'done', data: {} },
     );
     globalThis.fetch = mockFetchSSE(sseData);
@@ -819,7 +1054,7 @@ describe('CosiReviewService', () => {
 
   it('emits on reviewRequested$ when triggerReview is called', () => {
     let emitted = false;
-    service.reviewRequested$.subscribe(() => emitted = true);
+    service.reviewRequested$.subscribe(() => (emitted = true));
     service.triggerReview();
     expect(emitted).toBe(true);
   });
@@ -839,7 +1074,14 @@ Replace `src/app/services/cosi-review.service.ts` entirely:
 import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { JiraTicket } from '../models/work-item.model';
-import { AgentStep, ConsolidatorStep, createInitialPipeline, PipelineState, ReviewResult, ReviewState } from '../models/review.model';
+import {
+  AgentStep,
+  ConsolidatorStep,
+  createInitialPipeline,
+  PipelineState,
+  ReviewResult,
+  ReviewState,
+} from '../models/review.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -896,7 +1138,10 @@ export class CosiReviewService {
     this.reviewState.set('idle');
   }
 
-  private async consumeStream(body: ReadableStream<Uint8Array>, pipeline: PipelineState): Promise<void> {
+  private async consumeStream(
+    body: ReadableStream<Uint8Array>,
+    pipeline: PipelineState,
+  ): Promise<void> {
     const reader = body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -946,7 +1191,12 @@ export class CosiReviewService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SSE data is untyped by nature, validated per-case below
-  private handleEvent(event: string, data: Record<string, any>, pipeline: PipelineState, reviewResult: ReviewResult | null): ReviewResult | null {
+  private handleEvent(
+    event: string,
+    data: Record<string, any>,
+    pipeline: PipelineState,
+    reviewResult: ReviewResult | null,
+  ): ReviewResult | null {
     switch (event) {
       case 'agent:start':
         pipeline.agents.push({
@@ -976,7 +1226,10 @@ export class CosiReviewService {
         break;
       }
       case 'consolidator:start':
-        pipeline.consolidator = { status: 'running', temperature: data.temperature } as ConsolidatorStep;
+        pipeline.consolidator = {
+          status: 'running',
+          temperature: data.temperature,
+        } as ConsolidatorStep;
         break;
       case 'consolidator:done':
         pipeline.consolidator.status = 'done';
@@ -1014,6 +1267,7 @@ git commit -m "feat(cosi): rewrite review service to consume SSE stream"
 The `ReviewState` type changed: `'loading'` is now `{ status: 'running', pipeline }`. Update all components that check for `'loading'`.
 
 **Files:**
+
 - Modify: `src/app/components/action-rail/action-rail.ts`
 - Modify: `src/app/components/review-findings/review-findings.ts` (just the state checks — the full redesign is Task 8)
 
@@ -1046,6 +1300,7 @@ Import `isReviewRunning`. In the template:
 - [ ] **Step 4: Update test fixtures**
 
 In `src/app/components/review-findings/review-findings.spec.ts`, replace:
+
 - `setup('loading')` → `setup({ status: 'running', pipeline: createInitialPipeline() })`
 - Add import: `import { createInitialPipeline } from '../../models/review.model';`
 
@@ -1066,6 +1321,7 @@ git commit -m "refactor(cosi): update ReviewState consumers for new running stat
 ### Task 7: Create InlineCodePipe
 
 **Files:**
+
 - Create: `src/app/pipes/inline-code.pipe.ts`
 - Create: `src/app/pipes/inline-code.pipe.spec.ts`
 
@@ -1134,6 +1390,7 @@ git commit -m "feat(cosi): add InlineCodePipe for backtick rendering"
 ### Task 8: Create ReviewPipelineComponent
 
 **Files:**
+
 - Create: `src/app/components/review-pipeline/review-pipeline.ts`
 - Create: `src/app/components/review-pipeline/review-pipeline.spec.ts`
 
@@ -1166,7 +1423,15 @@ describe('ReviewPipelineComponent', () => {
   it('renders agent steps', () => {
     const pipeline = makePipeline({
       agents: [
-        { agent: 'ak-abgleich', label: 'AK-Abgleich', temperature: 0.2, status: 'done', duration: 2000, findingCount: 1, summary: '1 Finding' },
+        {
+          agent: 'ak-abgleich',
+          label: 'AK-Abgleich',
+          temperature: 0.2,
+          status: 'done',
+          duration: 2000,
+          findingCount: 1,
+          summary: '1 Finding',
+        },
         { agent: 'code-quality', label: 'Code-Qualität', temperature: 0.4, status: 'running' },
       ],
     });
@@ -1186,7 +1451,9 @@ describe('ReviewPipelineComponent', () => {
 
   it('shows error state for failed agents', () => {
     const pipeline = makePipeline({
-      agents: [{ agent: 'ak-abgleich', label: 'AK', temperature: 0.2, status: 'error', error: 'timeout' }],
+      agents: [
+        { agent: 'ak-abgleich', label: 'AK', temperature: 0.2, status: 'error', error: 'timeout' },
+      ],
     });
     const fixture = setup(pipeline);
     expect(fixture.nativeElement.textContent).toContain('timeout');
@@ -1244,12 +1511,14 @@ Create `src/app/components/review-pipeline/review-pipeline.ts`. This is a sizeab
 - Total duration in header
 
 The component should:
+
 - Input: `pipeline: PipelineState`
 - Only render when `pipeline.agents.length > 0`
 - Track collapsed/expanded state for the wrapper and per-agent JSON sections via signals
 - Use `@for` for agent iteration, `@if` for conditional sections
 
 Required `data-*` attribute contracts (used by tests):
+
 - `[data-pipeline]` on the outer wrapper (absent when no agents)
 - `[data-status="running"]` / `[data-status="done"]` / `[data-status="error"]` on status dots
 - Temperature text rendered as `T=0.4` format
@@ -1271,6 +1540,7 @@ git commit -m "feat(cosi): add ReviewPipelineComponent with live timeline"
 ### Task 9: Redesign ReviewFindingsComponent with file-grouped cards
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.ts`
 - Modify: `src/app/components/review-findings/review-findings.spec.ts`
 
@@ -1354,7 +1624,9 @@ describe('ReviewFindingsComponent', () => {
         findings: [
           makeFinding({ file: 'src/a.ts', severity: 'critical', detail: 'Critical detail' }),
         ],
-        summary: '1', warnings: [], reviewedAt: '',
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).toContain('Critical detail');
@@ -1365,10 +1637,10 @@ describe('ReviewFindingsComponent', () => {
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [
-          makeFinding({ file: 'src/a.ts', severity: 'minor', detail: 'Minor detail' }),
-        ],
-        summary: '1', warnings: [], reviewedAt: '',
+        findings: [makeFinding({ file: 'src/a.ts', severity: 'minor', detail: 'Minor detail' })],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).not.toContain('Minor detail');
@@ -1380,7 +1652,9 @@ describe('ReviewFindingsComponent', () => {
       pipeline: createInitialPipeline(),
       data: {
         findings: [makeFinding({ file: 'src/a.ts', severity: 'minor', detail: 'Toggled detail' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).not.toContain('Toggled detail');
@@ -1400,7 +1674,9 @@ describe('ReviewFindingsComponent', () => {
           makeFinding({ file: 'src/a.ts', severity: 'critical' }),
           makeFinding({ file: 'src/a.ts', severity: 'minor' }),
         ],
-        summary: '2', warnings: [], reviewedAt: '',
+        summary: '2',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     const dots = fixture.nativeElement.querySelectorAll('[data-file-group] [data-severity-dot]');
@@ -1412,8 +1688,12 @@ describe('ReviewFindingsComponent', () => {
       status: 'result',
       pipeline: createInitialPipeline(),
       data: {
-        findings: [makeFinding({ severity: 'critical', detail: 'Use `ngOnInit` hook', file: 'src/a.ts' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        findings: [
+          makeFinding({ severity: 'critical', detail: 'Use `ngOnInit` hook', file: 'src/a.ts' }),
+        ],
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     const codeEl = fixture.nativeElement.querySelector('code');
@@ -1439,7 +1719,9 @@ describe('ReviewFindingsComponent', () => {
           makeFinding({ file: 'src/b.ts', severity: 'minor' }),
           makeFinding({ file: 'src/a.ts', severity: 'critical' }),
         ],
-        summary: '2', warnings: [], reviewedAt: '',
+        summary: '2',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     const groups = fixture.nativeElement.querySelectorAll('[data-file-group]');
@@ -1475,6 +1757,7 @@ Severity badge classes: `bg-red-50 text-red-700 border-red-200` (critical/Kritis
 Category badge: `bg-stone-100 text-stone-500 border-stone-200` for both values, text "AK-Abgleich" or "Code-Qualität".
 
 Required `data-*` attribute contracts (used by tests):
+
 - `[data-file-group]` on each file group card
 - `[data-severity-dot]` on severity preview dots in the file group header
 - `button` inside `[data-file-group]` for collapse/expand toggle
@@ -1495,6 +1778,7 @@ git commit -m "feat(cosi): redesign findings with file-grouped cards and pipelin
 ### Task 10: Integration — wire pipeline into pr-detail
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 
 - [ ] **Step 1: Verify pr-detail.ts needs no changes**
@@ -1520,12 +1804,14 @@ Expected: All PASS.
 - [ ] **Step 5: Manual smoke test**
 
 Start dev server and proxy:
+
 ```bash
 npx ng serve &
 node proxy/index.js &
 ```
 
 Open the app, select a PR, click "KI-Review starten". Verify:
+
 1. Pipeline timeline appears and animates (agents start → done)
 2. Findings appear grouped by file after consolidator completes
 3. File groups with critical findings are expanded

@@ -1,18 +1,19 @@
 # Orbit — Design Token System
+
 ## Tailwind CSS → Semantische Tokens
 
 ---
 
 ## Tailwind-Paletten-Zuordnung
 
-| Orbit-Konzept       | Tailwind-Palette | Begründung |
-|----------------------|------------------|------------|
-| Warm Neutrals (Basis)| `stone`          | Einzige Tailwind-Palette mit warmem Unterton (gelblich statt bläulich) |
-| Primär / Identität   | `violet`         | Direkte Übereinstimmung mit BD-b Balanced Violet |
-| Signal / Aufmerksamkeit | `amber`       | Warmer Goldton, komplementär zu Violet |
-| Erfolg / Erledigt    | `emerald`        | Klares Grün, gut unterscheidbar von Amber |
-| Fehler / Problem     | `red`            | Universal verständlich |
-| Info (optional)      | `blue`           | Nur für Links und informative Elemente, kein Status |
+| Orbit-Konzept           | Tailwind-Palette | Begründung                                                             |
+| ----------------------- | ---------------- | ---------------------------------------------------------------------- |
+| Warm Neutrals (Basis)   | `stone`          | Einzige Tailwind-Palette mit warmem Unterton (gelblich statt bläulich) |
+| Primär / Identität      | `violet`         | Direkte Übereinstimmung mit BD-b Balanced Violet                       |
+| Signal / Aufmerksamkeit | `amber`          | Warmer Goldton, komplementär zu Violet                                 |
+| Erfolg / Erledigt       | `emerald`        | Klares Grün, gut unterscheidbar von Amber                              |
+| Fehler / Problem        | `red`            | Universal verständlich                                                 |
+| Info (optional)         | `blue`           | Nur für Links und informative Elemente, kein Status                    |
 
 ---
 
@@ -31,7 +32,6 @@ bg.elevated                   white              stone-800
 border.default                stone-300          stone-600
 border.subtle                 stone-200          stone-700
 ```
-
 
 ### Text
 
@@ -75,6 +75,7 @@ primary.on-solid              white              white
 ```
 
 **Tailwind-Klassen-Beispiele:**
+
 - Button: `bg-violet-500 hover:bg-violet-600 text-white` / dark: `bg-violet-400 hover:bg-violet-300`
 - Badge: `bg-violet-50 text-violet-700` / dark: `bg-violet-500/12 text-violet-300`
 - Fokus-Ring: `focus-visible:ring-violet-500` / dark: `focus-visible:ring-violet-400`
@@ -94,6 +95,7 @@ signal.text                   amber-700          amber-500
 ```
 
 **Tailwind-Klassen-Beispiel:**
+
 - Attention-Bar: `border-l-4 border-amber-500` / dark: `border-amber-500`
 - Inline-Text "3d offen": `text-amber-700 font-medium` / dark: `text-amber-500`
 
@@ -113,6 +115,7 @@ success.text                  emerald-700        emerald-400
 ```
 
 **Tailwind-Klassen-Beispiel:**
+
 - Badge: `bg-emerald-50 text-emerald-700` / dark: `bg-emerald-400/10 text-emerald-400`
 - Icon-Farbe: `text-emerald-500` / dark: `text-emerald-400`
 
@@ -132,6 +135,7 @@ danger.text                   red-700            red-400
 ```
 
 **Tailwind-Klassen-Beispiel:**
+
 - Badge: `bg-red-50 text-red-700` / dark: `bg-red-400/10 text-red-400`
 - Zeitlinie "jetzt": `bg-red-500` / dark: `bg-red-400`
 
@@ -216,7 +220,7 @@ module.exports = {
     extend: {
       colors: {
         warm: {
-          50:  '#faf7f2',
+          50: '#faf7f2',
           100: '#f5f0e8',
           200: '#ebe4d8',
           300: '#ddd5c6',
@@ -227,11 +231,11 @@ module.exports = {
           800: '#524840',
           900: '#3a3029',
           950: '#1c1917',
-        }
-      }
-    }
-  }
-}
+        },
+      },
+    },
+  },
+};
 ```
 
 Dann wird aus `bg-stone-100` einfach `bg-warm-100` — gleiche Semantik,

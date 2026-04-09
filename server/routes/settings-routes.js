@@ -18,7 +18,7 @@ function getNestedValue(obj, path) {
 
 function isConfigured(settings) {
   if (!settings) return false;
-  const coreConfigured = REQUIRED_FIELDS.every(f => {
+  const coreConfigured = REQUIRED_FIELDS.every((f) => {
     const val = getNestedValue(settings, f);
     return typeof val === 'string' && val.trim().length > 0;
   });
@@ -28,7 +28,7 @@ function isConfigured(settings) {
   if (jenkins?.baseUrl?.trim()) {
     if (!jenkins.username?.trim() || !jenkins.apiToken?.trim()) return false;
     if (!Array.isArray(jenkins.jobs) || jenkins.jobs.length === 0) return false;
-    if (jenkins.jobs.some(j => !j.displayName?.trim() || !j.jobPath?.trim())) return false;
+    if (jenkins.jobs.some((j) => !j.displayName?.trim() || !j.jobPath?.trim())) return false;
   }
 
   return true;
@@ -50,7 +50,7 @@ function createSettingsRoutes({ onSettingsSaved } = {}) {
 
   router.put('/api/settings', json(), async (req, res) => {
     const settings = req.body;
-    const missing = REQUIRED_FIELDS.filter(f => {
+    const missing = REQUIRED_FIELDS.filter((f) => {
       const val = getNestedValue(settings, f);
       return !val || typeof val !== 'string' || val.trim().length === 0;
     });

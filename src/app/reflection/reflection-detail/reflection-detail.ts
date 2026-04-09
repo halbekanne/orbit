@@ -51,7 +51,15 @@ function formatGermanDate(): string {
 @Component({
   selector: 'app-reflection-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, LucideSun, LucideMoon, LucideCheck, LucideCalendar, DayTimelineComponent, AppointmentPopupComponent],
+  imports: [
+    FormsModule,
+    LucideSun,
+    LucideMoon,
+    LucideCheck,
+    LucideCalendar,
+    DayTimelineComponent,
+    AppointmentPopupComponent,
+  ],
   host: {
     class: 'block h-full',
     '(keydown.escape)': 'onEscape()',
@@ -172,7 +180,11 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[460px]">
             <header class="mb-8 text-center">
               @if (isMorning()) {
-                <svg lucideSun [size]="36" class="text-[var(--color-primary-solid)] mx-auto mb-3"></svg>
+                <svg
+                  lucideSun
+                  [size]="36"
+                  class="text-[var(--color-primary-solid)] mx-auto mb-3"
+                ></svg>
               } @else {
                 <svg lucideMoon [size]="36" class="text-amber-500 mx-auto mb-3"></svg>
               }
@@ -275,7 +287,11 @@ function formatGermanDate(): string {
       @case ('calendar-setup') {
         <div class="h-full flex flex-col items-center pt-6 px-6 anim-page-in">
           <header class="mb-4 text-center shrink-0">
-            <svg lucideCalendar [size]="36" class="text-[var(--color-primary-solid)] mx-auto mb-3"></svg>
+            <svg
+              lucideCalendar
+              [size]="36"
+              class="text-[var(--color-primary-solid)] mx-auto mb-3"
+            ></svg>
             <h1 class="text-xl font-semibold text-[var(--color-text-heading)]">
               Tagesplan erstellen
             </h1>
@@ -374,10 +390,20 @@ function formatGermanDate(): string {
           <div class="w-full max-w-[520px]">
             <header class="mb-10 text-center">
               @if (readonlyMorning()) {
-                <svg lucideSun [size]="44" [strokeWidth]="1.5" class="text-[var(--color-primary-solid)] mx-auto mb-4"></svg>
+                <svg
+                  lucideSun
+                  [size]="44"
+                  [strokeWidth]="1.5"
+                  class="text-[var(--color-primary-solid)] mx-auto mb-4"
+                ></svg>
                 <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">Tagesfokus</h1>
               } @else {
-                <svg lucideMoon [size]="44" [strokeWidth]="1.5" class="text-amber-500 mx-auto mb-4"></svg>
+                <svg
+                  lucideMoon
+                  [size]="44"
+                  [strokeWidth]="1.5"
+                  class="text-amber-500 mx-auto mb-4"
+                ></svg>
                 <h1 class="text-2xl font-semibold text-[var(--color-text-heading)]">
                   Tagesreflektion
                 </h1>

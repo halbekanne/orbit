@@ -27,10 +27,12 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 ### Inhalt des Prototyps
 
 #### Gesamtlayout
+
 - Orbit App-Shell angedeutet (Rail links mit "Builds" aktiv)
 - Master-Detail: Branch-Sidebar (300px) + Detail-Bereich (flex)
 
 #### Branch-Sidebar
+
 - Suchfeld oben
 - Zwei Repo-Gruppen als Sections ("frontend-app", "backend-api")
 - Branches als Cards mit: Branch-Name (monospace), Status-Badge, Build-Nummer, Zeitangabe, Mini-Stage-Bar
@@ -41,6 +43,7 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 - "X weitere Branches" Hinweis unten (für Branches ohne Build in letzten 4 Wochen)
 
 #### Detail-Bereich — Übersicht-Tab
+
 - **Header**: Branch-Name, Repo, Build-Nummer, Zeitpunkt, Dauer, Aktions-Buttons ("Neu starten", "Jenkins öffnen")
 - **Tabs**: Übersicht | Log | Artefakte
 - **Beschreibung** (Collapsible Section): Deploy-Links klickbar + Kopier-Button
@@ -53,6 +56,7 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
   - Erfolgreiche Stage: Kompakt, nur Name + Dauer
 
 #### Detail-Bereich — Log-Tab
+
 - **Vollständiges Console-Log**: Zeigt das gesamte Build-Log (via `consoleText` API), nicht einzelne Stage-Logs. Entspricht dem "Console Output" in Jenkins.
 - **Toolbar**: Suchfeld, "Vollständig in Jenkins"-Link
 - **Log-Zeilen**: Zeilennummern, Monospace-Font, durchgängig nummeriert
@@ -61,6 +65,7 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 - **Hinweis**: Per-Stage-Logs (wfapi) werden nur für die Fehler-Ausschnitte in der Stage-Timeline des Übersicht-Tabs genutzt, nicht im Log-Tab.
 
 #### Detail-Bereich — Artefakte-Tab
+
 - **Tree-View**: Ordnerstruktur aus relativePath rekonstruiert
   - Ordner: Expand/Collapse, Dateianzahl, ZIP-Download-Button
   - Dateien: Icon (nach Dateiendung), Name in Monospace, Größe, klickbar zum Öffnen (Jenkins-URL)
@@ -69,6 +74,7 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 - Zusammenfassung: Dateianzahl, Ordneranzahl, Gesamtgröße
 
 #### Build neustarten — Dialog
+
 - Modal/Overlay über dem Detail-Bereich
 - Header: "Build neu starten" + Branch-Name
 - Dynamisches Formular mit verschiedenen Parameter-Typen:
@@ -82,6 +88,7 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 - Mindestens 3-4 verschiedene Parameter-Typen im Mock
 
 #### Zustände die abgebildet sein müssen
+
 - **Erfolgreicher Build**: Beschreibung mit Links, alle Stages grün, keine KI-Analyse
 - **Fehlgeschlagener Build**: KI-Analyse sichtbar, fehlgeschlagene Stage mit Error-Log
 - **Laufender Build**: Pulsierende aktuelle Stage, ausstehende Stages gedimmt, "Abbrechen" statt "Neu starten", Beschreibung evtl. leer
@@ -89,12 +96,14 @@ Alternativ eine einzelne self-contained HTML-Datei falls das einfacher ist — H
 Alle drei Zustände sollen über die Branch-Sidebar erreichbar sein (verschiedene Branches anklicken).
 
 #### Light/Dark Mode
+
 - Toggle-Switch im Prototyp (z.B. oben rechts)
 - CSS Custom Properties analog zu Orbits `tokens.css`
 - Dark Mode = Default (wie in den Wireframes entwickelt)
 - Light Mode = angepasste Farben die dem Orbit Design System entsprechen (warm/stone-Familie)
 
 #### Design-System-Treue
+
 - Farben: stone (neutral), violet (primary), amber (attention/signal), emerald (success), red (error), blue (info/links)
 - Keine anderen Paletten
 - Collapsible Sections im Stil von `app-collapsible-section` (rounded-xl, border, chevron, uppercase label)
@@ -114,6 +123,7 @@ docs/jenkins-integration-reference/Jenkins-Integration-Guide.md
 ### Inhalt
 
 #### 1. Übersicht
+
 - Welche Jenkins-APIs verfügbar sind (wfapi, Standard Remote API)
 - Welche NICHT verfügbar sind (Blue Ocean REST API, Pipeline Graph View Plugin) und was das bedeutet
 - Authentifizierung (API Token, kein Crumb nötig)
@@ -123,6 +133,7 @@ docs/jenkins-integration-reference/Jenkins-Integration-Guide.md
 Für jeden Use Case eine Tabelle mit: Endpoint-URL, HTTP-Methode, Query-Parameter, Response-Format (JSON-Beispiel).
 
 Use Cases:
+
 - Branches eines Multibranch-Jobs auflisten
 - Builds eines Branches auflisten (mit Pagination via Range)
 - Build-Details abrufen (Beschreibung, Ergebnis, Dauer, Parameter)
@@ -136,6 +147,7 @@ Use Cases:
 - Parameter-Definitionen eines Jobs abrufen
 
 #### 3. Datenmodelle
+
 - Run-Objekt (wfapi)
 - Stage-Objekt (wfapi)
 - StageFlowNode mit Error-Objekt
@@ -144,6 +156,7 @@ Use Cases:
 - Parameter-Definitionen (Typen, Felder, Defaults)
 
 #### 4. Bekannte Einschränkungen
+
 - Stages sind flach — keine Parallel-Erkennung ohne Pipeline Graph View Plugin
 - Artifacts-Liste limitiert auf ~5000 Dateien
 - stageFlowNodes limitiert auf 100 pro Stage
@@ -151,6 +164,7 @@ Use Cases:
 - Build-Beschreibung kann HTML enthalten (muss sanitized werden)
 
 #### 5. Frontend-Implementierungshinweise
+
 - ANSI-Parsing: `ansi_up` Library (v6+, zero deps, TypeScript, `use_classes` Mode)
 - Error-Pattern-Matching: Regex-Patterns für ERROR, WARN, Exception, FAILED
 - Tree-View-Rekonstruktion: relativePath an "/" splitten
@@ -158,6 +172,7 @@ Use Cases:
 - Proxy-Route über Orbit BFF (wie Jira/Bitbucket)
 
 #### 6. Links zu externen Referenzen
+
 - Pipeline REST API Plugin (wfapi) GitHub README
 - Jenkins Remote Access API Dokumentation
 - Jenkins CSRF Protection Dokumentation

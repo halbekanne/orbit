@@ -14,6 +14,7 @@ Add an on-demand, AI-powered code review feature to Orbit's PR detail view. When
 ### First Vertical Slice
 
 Two specialist review agents:
+
 1. **AK-Abgleich** — compares diff against Jira ticket Akzeptanzkriterien
 2. **Code Quality** — checks structure, readability, TypeScript/Lit best practices
 
@@ -35,13 +36,13 @@ User clicks "KI-Review starten" button in action rail
 
 ### Layers
 
-| Layer | Responsibility |
-|-------|---------------|
-| Action Rail | Trigger button with idle/loading/done states |
-| PR Detail | Renders findings section before the diff section |
-| CosiReviewService | Signal-based state management, HTTP call to proxy |
-| Express Proxy | Orchestrates 3 CoSi calls, returns consolidated findings |
-| CoSi API | Gemini 2.5 Flash inference |
+| Layer             | Responsibility                                           |
+| ----------------- | -------------------------------------------------------- |
+| Action Rail       | Trigger button with idle/loading/done states             |
+| PR Detail         | Renders findings section before the diff section         |
+| CosiReviewService | Signal-based state management, HTTP call to proxy        |
+| Express Proxy     | Orchestrates 3 CoSi calls, returns consolidated findings |
+| CoSi API          | Gemini 2.5 Flash inference                               |
 
 ## Backend — Express Proxy
 
@@ -113,6 +114,7 @@ The `warnings` array is empty on success. When a specialist agent fails, a human
 New file: `proxy/cosi.js`
 
 Contains:
+
 - `callCoSi(contents, systemInstruction, generationConfig)` — shared helper for raw CoSi API calls via `fetch` with `x-api-key` header. All calls include `responseMimeType: "application/json"` in `generationConfig` to enforce structured JSON output from Gemini and prevent markdown-wrapped responses.
 - `SYSTEM_PROMPTS` — the three agent system instructions
 - `runReview(diff, jiraTicket)` — orchestration function (fan-out → consolidate → return)
@@ -195,6 +197,7 @@ All agents must output findings in this exact shape:
 ```
 
 Notes:
+
 - `file` must match a file path from the diff — don't invent paths
 - `line` must be a line number visible in the diff context
 - `detail` should be 1-3 sentences, not a paragraph
@@ -214,6 +217,7 @@ Notes:
 - **Scope restriction:** Must NOT comment on code quality, style, structure, naming, or patterns. Those are Agent 2's job. If the code is ugly but satisfies the AK, that is not a finding for this agent.
 - **Edge case — no AK found:** If the Jira ticket description contains no identifiable acceptance criteria (e.g., it's just a title with no description, or the description is purely technical notes), the agent should output `{ "findings": [] }` rather than hallucinating criteria.
 - **Context structure:**
+
   ```
   <jira_ticket>
   Key: {key}
@@ -271,6 +275,7 @@ Notes:
   ```
 - **Empty result:** `{ "findings": [], "summary": "Keine Auffälligkeiten" }`
 - **Context structure:**
+
   ```
   <agent_1_findings>
   {agent_1_json_output}
@@ -341,13 +346,14 @@ Consumers check state via string comparison for `'idle'` / `'loading'`, and via 
 
 When a PR is selected, a new button appears (in addition to "In Bitbucket öffnen"):
 
-| Review State | Button Label | Style |
-|-------------|-------------|-------|
-| `idle` | "KI-Review starten" | indigo (action style) |
-| `loading` | "Review läuft..." | disabled, subtle text pulse |
-| result / error | "Erneut reviewen" | stone/neutral |
+| Review State   | Button Label        | Style                       |
+| -------------- | ------------------- | --------------------------- |
+| `idle`         | "KI-Review starten" | indigo (action style)       |
+| `loading`      | "Review läuft..."   | disabled, subtle text pulse |
+| result / error | "Erneut reviewen"   | stone/neutral               |
 
 **Enable/disable logic (single source of truth):** The button is disabled when:
+
 - Diff is still loading (`diffData() === 'loading'`)
 - Jira ticket is still loading (`jiraTicket() === 'loading'`)
 - Review is already in progress (`reviewState === 'loading'`)
@@ -421,6 +427,7 @@ The architecture supports adding specialist agents without structural changes:
 - **Accessibility Agent** — checks for ARIA, keyboard handling, semantic HTML
 
 Each new agent is:
+
 1. A new system prompt in `proxy/cosi.js`
 2. An additional parallel `fetch` call in `runReview()`
 3. A new `category` value in the findings type

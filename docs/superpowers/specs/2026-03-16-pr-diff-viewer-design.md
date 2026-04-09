@@ -6,15 +6,15 @@ Add a collapsible diff viewer to the PR detail view that fetches the unified dif
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Placement | Below branch-info section, collapsible | ADHD-friendly: user controls when to see code, no wall-of-code on open |
-| Diff format | Line-by-line (unified) | Orbit's detail column is narrow (`max-w-2xl`); side-by-side would squeeze code |
-| Rendering approach | `Diff2Html.html()` + `[innerHTML]` | Angular owns the DOM; static HTML generation is simpler than `Diff2HtmlUI` wrapper |
-| Styling | diff2html defaults (no override for now) | Override proposal saved in `docs/future-pr-diff-override.md` for later |
-| Syntax highlighting | Yes, via highlight.js (already installed) | Included now since hljs is already a dependency; easier than retrofitting later |
-| API endpoint | `GET .../pull-requests/{id}.diff` (full PR diff) | Simplest approach; optimize per-file only if perf becomes an issue |
-| Loading strategy | Fetch on PR select, render on first expand | Diff loads eagerly (parallel with description reading), but HTML generation is lazy |
+| Decision            | Choice                                           | Rationale                                                                           |
+| ------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Placement           | Below branch-info section, collapsible           | ADHD-friendly: user controls when to see code, no wall-of-code on open              |
+| Diff format         | Line-by-line (unified)                           | Orbit's detail column is narrow (`max-w-2xl`); side-by-side would squeeze code      |
+| Rendering approach  | `Diff2Html.html()` + `[innerHTML]`               | Angular owns the DOM; static HTML generation is simpler than `Diff2HtmlUI` wrapper  |
+| Styling             | diff2html defaults (no override for now)         | Override proposal saved in `docs/future-pr-diff-override.md` for later              |
+| Syntax highlighting | Yes, via highlight.js (already installed)        | Included now since hljs is already a dependency; easier than retrofitting later     |
+| API endpoint        | `GET .../pull-requests/{id}.diff` (full PR diff) | Simplest approach; optimize per-file only if perf becomes an issue                  |
+| Loading strategy    | Fetch on PR select, render on first expand       | Diff loads eagerly (parallel with description reading), but HTML generation is lazy |
 
 ## Architecture
 
@@ -73,13 +73,13 @@ Constructs the URL from `pr.toRef.repository.projectKey`, `pr.toRef.repository.s
 
 ### Collapsible UI States
 
-| State | Toggle Button | Content |
-|-------|--------------|---------|
-| Loading | Hidden | "Änderungen laden..." with subtle pulse |
-| Error | Hidden | "Änderungen konnten nicht geladen werden." |
-| Loaded + Collapsed | "Änderungen anzeigen (X Dateien)" | Hidden |
-| Loaded + Expanded | "Änderungen ausblenden" | diff2html rendered HTML |
-| Empty diff | Hidden | "Keine Änderungen vorhanden." muted text |
+| State              | Toggle Button                     | Content                                    |
+| ------------------ | --------------------------------- | ------------------------------------------ |
+| Loading            | Hidden                            | "Änderungen laden..." with subtle pulse    |
+| Error              | Hidden                            | "Änderungen konnten nicht geladen werden." |
+| Loaded + Collapsed | "Änderungen anzeigen (X Dateien)" | Hidden                                     |
+| Loaded + Expanded  | "Änderungen ausblenden"           | diff2html rendered HTML                    |
+| Empty diff         | Hidden                            | "Keine Änderungen vorhanden." muted text   |
 
 No animation on expand/collapse — instant show/hide per low-motion principle.
 
@@ -145,12 +145,12 @@ Subject to the 3-second delay already applied to all mock endpoints.
 
 ## Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `package.json` | Add `diff2html` dependency |
-| `src/app/services/bitbucket.service.ts` | Add `getPullRequestDiff()` method |
-| `src/app/components/pr-detail/pr-detail.ts` | Add diff section with collapsible UI, diff2html rendering, hljs highlighting |
-| `mock-server/bitbucket.js` | Add `.diff` endpoint with fixtures for each mock PR |
-| `angular.json` or component styles | Import diff2html CSS |
-| `src/app/services/bitbucket.service.spec.ts` | Test new method |
-| `src/app/components/pr-detail/pr-detail.spec.ts` | Test diff section |
+| File                                             | Action                                                                       |
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `package.json`                                   | Add `diff2html` dependency                                                   |
+| `src/app/services/bitbucket.service.ts`          | Add `getPullRequestDiff()` method                                            |
+| `src/app/components/pr-detail/pr-detail.ts`      | Add diff section with collapsible UI, diff2html rendering, hljs highlighting |
+| `mock-server/bitbucket.js`                       | Add `.diff` endpoint with fixtures for each mock PR                          |
+| `angular.json` or component styles               | Import diff2html CSS                                                         |
+| `src/app/services/bitbucket.service.spec.ts`     | Test new method                                                              |
+| `src/app/components/pr-detail/pr-detail.spec.ts` | Test diff section                                                            |

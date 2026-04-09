@@ -14,22 +14,23 @@
 
 ## File Structure
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src/app/components/hybrid-rail/hybrid-rail.ts` | Nav rail component with view items, active state, keyboard nav |
-| Create | `src/app/components/hybrid-rail/hybrid-rail.spec.ts` | Tests for rail rendering, selection, keyboard, a11y |
-| Create | `src/app/views/view-arbeit/view-arbeit.ts` | Wraps existing Navigator + Workbench + ActionRail layout |
-| Create | `src/app/views/view-arbeit/view-arbeit.html` | Template extracted from current `app.html` |
-| Create | `src/app/views/view-timeline/view-timeline.ts` | Placeholder timeline view |
-| Modify | `src/app/app.ts` | Add rail + view switching via `@switch`, persist activeView |
-| Modify | `src/app/app.html` | Replace layout with rail + view container |
-| Modify | `src/app/app.spec.ts` | Update tests for new structure |
+| Action | Path                                                 | Responsibility                                                 |
+| ------ | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Create | `src/app/components/hybrid-rail/hybrid-rail.ts`      | Nav rail component with view items, active state, keyboard nav |
+| Create | `src/app/components/hybrid-rail/hybrid-rail.spec.ts` | Tests for rail rendering, selection, keyboard, a11y            |
+| Create | `src/app/views/view-arbeit/view-arbeit.ts`           | Wraps existing Navigator + Workbench + ActionRail layout       |
+| Create | `src/app/views/view-arbeit/view-arbeit.html`         | Template extracted from current `app.html`                     |
+| Create | `src/app/views/view-timeline/view-timeline.ts`       | Placeholder timeline view                                      |
+| Modify | `src/app/app.ts`                                     | Add rail + view switching via `@switch`, persist activeView    |
+| Modify | `src/app/app.html`                                   | Replace layout with rail + view container                      |
+| Modify | `src/app/app.spec.ts`                                | Update tests for new structure                                 |
 
 ---
 
 ### Task 1: Create HybridRailComponent with tests
 
 **Files:**
+
 - Create: `src/app/components/hybrid-rail/hybrid-rail.ts`
 - Create: `src/app/components/hybrid-rail/hybrid-rail.spec.ts`
 
@@ -128,8 +129,13 @@ const VIEWS: OrbitView[] = [
     class: 'w-16 shrink-0 bg-stone-900 flex flex-col items-center',
   },
   template: `
-    <div class="w-full h-12 flex items-center justify-center border-b border-white/[0.06]" aria-hidden="true">
-      <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]">
+    <div
+      class="w-full h-12 flex items-center justify-center border-b border-white/[0.06]"
+      aria-hidden="true"
+    >
+      <div
+        class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.25)]"
+      >
         <div class="w-3 h-3 rounded-full border-2 border-white"></div>
       </div>
     </div>
@@ -150,10 +156,41 @@ const VIEWS: OrbitView[] = [
         >
           @switch (view.id) {
             @case ('arbeit') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"
+                />
+              </svg>
             }
             @case ('timeline') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M3 10h18" />
+              </svg>
             }
           }
           <span class="text-[10px] font-medium leading-tight mt-0.5">{{ view.label }}</span>
@@ -170,9 +207,7 @@ export class HybridRailComponent {
 
   onKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement;
-    const buttons = Array.from(
-      target.closest('nav')!.querySelectorAll('button')
-    ) as HTMLElement[];
+    const buttons = Array.from(target.closest('nav')!.querySelectorAll('button')) as HTMLElement[];
     const index = buttons.indexOf(target);
 
     let next = -1;
@@ -204,6 +239,7 @@ git commit -m "feat(hybrid-rail): add HybridRailComponent with keyboard navigati
 ### Task 2: Create ViewArbeitComponent and update navigator header
 
 **Files:**
+
 - Create: `src/app/views/view-arbeit/view-arbeit.ts`
 - Create: `src/app/views/view-arbeit/view-arbeit.html`
 - Modify: `src/app/components/navigator/navigator.html` (replace logo+brand with view title)
@@ -265,6 +301,7 @@ git commit -m "feat(views): add ViewArbeitComponent wrapping existing layout"
 ### Task 3: Create ViewTimelineComponent placeholder
 
 **Files:**
+
 - Create: `src/app/views/view-timeline/view-timeline.ts`
 
 - [ ] **Step 1: Create the placeholder component**
@@ -279,11 +316,32 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   host: { class: 'flex items-center justify-center h-full' },
   template: `
     <div class="text-center max-w-sm">
-      <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+      <div
+        class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4"
+        aria-hidden="true"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-indigo-400"
+        >
+          <path d="M8 2v4" />
+          <path d="M16 2v4" />
+          <rect width="18" height="18" x="3" y="4" rx="2" />
+          <path d="M3 10h18" />
+        </svg>
       </div>
       <h2 class="text-lg font-semibold text-stone-800 mb-1">Timeline</h2>
-      <p class="text-sm text-stone-400 leading-relaxed">Dein Tagesrückblick wird hier angezeigt — kommt bald.</p>
+      <p class="text-sm text-stone-400 leading-relaxed">
+        Dein Tagesrückblick wird hier angezeigt — kommt bald.
+      </p>
     </div>
   `,
 })
@@ -302,6 +360,7 @@ git commit -m "feat(views): add ViewTimelineComponent placeholder"
 ### Task 4: Wire up AppComponent with rail and view switching
 
 **Files:**
+
 - Modify: `src/app/app.ts`
 - Modify: `src/app/app.html`
 
@@ -361,19 +420,13 @@ Replace `src/app/app.html` with:
 
 ```html
 <div class="flex h-screen overflow-hidden">
-  <app-hybrid-rail
-    [activeView]="activeView()"
-    (viewChange)="activeView.set($event)"
-  />
+  <app-hybrid-rail [activeView]="activeView()" (viewChange)="activeView.set($event)" />
 
-  @switch (activeView()) {
-    @case ('arbeit') {
-      <app-view-arbeit class="flex-1 overflow-hidden" />
-    }
-    @case ('timeline') {
-      <app-view-timeline class="flex-1 overflow-hidden bg-stone-50" />
-    }
-  }
+  @switch (activeView()) { @case ('arbeit') {
+  <app-view-arbeit class="flex-1 overflow-hidden" />
+  } @case ('timeline') {
+  <app-view-timeline class="flex-1 overflow-hidden bg-stone-50" />
+  } }
 </div>
 <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
 ```
@@ -400,6 +453,7 @@ git commit -m "feat(app): wire up hybrid rail with view switching and localStora
 ### Task 5: Update app.spec.ts for new structure
 
 **Files:**
+
 - Modify: `src/app/app.spec.ts`
 
 - [ ] **Step 1: Update the test file**
@@ -475,6 +529,7 @@ Expected: All tests pass, zero failures.
 Run: `npm start`
 
 Verify checklist:
+
 - Dark rail (bg-stone-900) visible on the far left, 64px wide
 - "Arbeit" item shows Zap icon + label, highlighted in indigo
 - "Timeline" item shows Calendar icon + label, in stone-400

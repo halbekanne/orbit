@@ -42,7 +42,18 @@ describe('NavigatorComponent – collapse logic', () => {
       providers: [
         { provide: WorkspaceService, useValue: mockWorkspaceService },
         { provide: RouterSyncService, useValue: mockRouterSyncService },
-        { provide: DataRefreshService, useValue: { refreshSource: () => {}, globalStatus: signal('idle'), retryInfo: signal(null), lastGlobalFetchTime: signal(null), isRefreshing: signal(false), refreshAll: () => {}, resetPollingTimer: () => {} } },
+        {
+          provide: DataRefreshService,
+          useValue: {
+            refreshSource: () => {},
+            globalStatus: signal('idle'),
+            retryInfo: signal(null),
+            lastGlobalFetchTime: signal(null),
+            isRefreshing: signal(false),
+            refreshAll: () => {},
+            resetPollingTimer: () => {},
+          },
+        },
       ],
     }).compileComponents();
   });

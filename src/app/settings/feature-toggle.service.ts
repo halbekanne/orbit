@@ -23,7 +23,7 @@ export class FeatureToggleService {
   getValue(id: string) {
     return computed(() => {
       const experiments = this.settingsService.settings().experiments;
-      const definition = TOGGLE_REGISTRY.find(d => d.id === id);
+      const definition = TOGGLE_REGISTRY.find((d) => d.id === id);
       if (!definition) return experiments[id];
       return experiments[id] ?? definition.defaultValue;
     });

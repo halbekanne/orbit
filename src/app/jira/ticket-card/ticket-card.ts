@@ -14,7 +14,15 @@ import {
 @Component({
   selector: 'app-ticket-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, LucideBug, LucideBookmark, LucideZap, LucideSquareCheck, LucideExternalLink, LucideListChecks],
+  imports: [
+    BadgeComponent,
+    LucideBug,
+    LucideBookmark,
+    LucideZap,
+    LucideSquareCheck,
+    LucideExternalLink,
+    LucideListChecks,
+  ],
   template: `
     <button
       type="button"
@@ -89,7 +97,12 @@ import {
               class="inline-flex items-center gap-1 ml-auto text-[10px]"
               [attr.aria-label]="subtaskDone() + ' von ' + subtaskTotal() + ' Aufgaben erledigt'"
             >
-              <svg lucideListChecks [size]="12" [strokeWidth]="2.5" [class]="subtaskIndicatorClass().icon"></svg>
+              <svg
+                lucideListChecks
+                [size]="12"
+                [strokeWidth]="2.5"
+                [class]="subtaskIndicatorClass().icon"
+              ></svg>
               <span style="font-variant-numeric: tabular-nums;">
                 <span [class]="subtaskDoneTextClass()">{{ subtaskDone() }}</span
                 ><span class="text-[var(--color-text-muted)]">/{{ subtaskTotal() }}</span>

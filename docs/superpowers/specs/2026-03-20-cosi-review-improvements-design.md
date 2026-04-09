@@ -147,9 +147,11 @@ Note: Since the request is `POST`, native `EventSource` (GET-only) cannot be use
 Vertical timeline component showing the agent execution pipeline.
 
 ### Inputs
+
 - `pipeline: PipelineState`
 
 ### Layout (matches approved mockup A)
+
 - Collapsible section with header: "Review-Pipeline" + total duration
 - Vertical timeline with left border line connecting steps
 - Each agent step shows:
@@ -168,6 +170,7 @@ Vertical timeline component showing the agent execution pipeline.
 File-grouped card layout replacing the current flat list.
 
 ### Layout (matches approved mockup "Findings gruppiert nach Datei")
+
 - Findings grouped by `file` field
 - Each file group is a white card with:
   - Collapsible header: chevron, file path (monospace, ellipsis overflow), severity dots preview, finding count
@@ -181,6 +184,7 @@ File-grouped card layout replacing the current flat list.
   - "Vorschlag:" section if suggestion exists
 
 ### Sorting
+
 - File groups sorted by highest severity within group (critical first, then important, then minor)
 - Findings within a group sorted by severity, then by line number
 
@@ -188,7 +192,7 @@ File-grouped card layout replacing the current flat list.
 
 New `InlineCodePipe` that transforms backtick-delimited text into `<code>` elements.
 
-- Regex: `` /`([^`]+)`/g `` → `<code>$1</code>`
+- Regex: ``/`([^`]+)`/g`` → `<code>$1</code>`
 - Single-level backticks only, no nesting support needed
 - Used with `[innerHTML]` binding (Angular sanitizer allows `<code>`)
 - Applied to `detail` and `suggestion` fields in findings
@@ -198,6 +202,7 @@ New `InlineCodePipe` that transforms backtick-delimited text into `<code>` eleme
 `runMockReview(emit)` is refactored to accept the same `emit` callback as `runReview` and emit the same SSE events. It does not need `diff` or `jiraTicket` parameters since scenario selection is random.
 
 ### Event Sequence
+
 1. `agent:start` for both agents (near-simultaneous)
 2. Delay 1-2s per agent, `agent:done` (or `agent:error` for failure scenarios)
 3. `consolidator:start`
@@ -206,7 +211,9 @@ New `InlineCodePipe` that transforms backtick-delimited text into `<code>` eleme
 6. `done`
 
 ### Scenario Updates
+
 The 4 existing scenarios are extended with:
+
 - `rawResponse` per agent (mock JSON matching the agent's prompt schema)
 - `summary` per agent (descriptive text of what was found)
 - `decisions` in consolidator (matching each scenario's logic, e.g. scenario 1: "1 Duplikat entfernt", scenario 4: agent error)
@@ -214,6 +221,7 @@ The 4 existing scenarios are extended with:
 ## Files Changed
 
 ### Modified
+
 - `proxy/index.js` — SSE response headers and streaming write
 - `proxy/cosi.js` — `runReview(diff, jiraTicket, emit)` with emit callback, consolidator prompt update for `decisions`
 - `proxy/cosi-mock.js` — emit-based mock with delays per step
@@ -223,12 +231,14 @@ The 4 existing scenarios are extended with:
 - `src/app/components/review-findings/review-findings.spec.ts` — updated tests
 
 ### New
+
 - `src/app/components/review-pipeline/review-pipeline.ts` — timeline component
 - `src/app/components/review-pipeline/review-pipeline.spec.ts` — tests
 - `src/app/pipes/inline-code.pipe.ts` — backtick-to-code transform
 - `src/app/pipes/inline-code.pipe.spec.ts` — tests
 
 ### Test Updates
+
 - `proxy/cosi.test.js` — test emit callback calls, consolidator decisions
 - `proxy/cosi-mock.test.js` — test event sequence and timing
 - `src/app/services/cosi-review.service.spec.ts` — test SSE parsing, pipeline state transitions

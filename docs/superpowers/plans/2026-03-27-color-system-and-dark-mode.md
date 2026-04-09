@@ -18,49 +18,50 @@
 
 ### New Files
 
-| File | Responsibility |
-|------|---------------|
-| `src/styles/tokens.css` | All CSS custom properties: Tier 1 semantic tokens + Tier 2 component tokens, `:root` and `.dark` variants |
-| `src/app/services/theme.service.ts` | Theme state management (light/dark/system), `<html>` class toggle, localStorage persistence, system preference listener |
-| `src/app/services/theme.service.spec.ts` | Unit tests for ThemeService |
+| File                                     | Responsibility                                                                                                          |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `src/styles/tokens.css`                  | All CSS custom properties: Tier 1 semantic tokens + Tier 2 component tokens, `:root` and `.dark` variants               |
+| `src/app/services/theme.service.ts`      | Theme state management (light/dark/system), `<html>` class toggle, localStorage persistence, system preference listener |
+| `src/app/services/theme.service.spec.ts` | Unit tests for ThemeService                                                                                             |
 
 ### Modified Files
 
-| File | Changes |
-|------|---------|
-| `src/styles.css` | Add `@import './styles/tokens.css'` at top; update RGBA values in animation keyframes (`gentlePulse` etc.) from indigo to violet |
-| `src/index.html` | Add inline script for theme initialization (prevents dark mode flash) |
-| `src/app/components/hybrid-rail/hybrid-rail.ts` | Add dark mode toggle button; migrate `indigo-*` → `violet-*`; add `dark:` variants |
-| `src/app/components/pr-status-colors.ts` | Replace all indigo stripe/badge/dot colors with violet equivalents; add dark mode variant support |
-| `src/app/components/pr-status-class.ts` | Update background+text color mappings |
-| `src/app/components/ticket-card/ticket-card.ts` | Migrate colors, add dark mode, implement three-tier card state logic, sky→stone for type badges |
-| `src/app/components/pr-card/pr-card.ts` | Migrate colors, add dark mode, implement three-tier card state logic |
-| `src/app/components/jira-pr-card/jira-pr-card.ts` | Migrate indigo→violet, hex/RGBA values, sky→stone type badges, add dark mode |
-| `src/app/components/todo-card/todo-card.ts` | Migrate colors, add dark mode, update inactive state |
-| `src/app/components/idea-card/idea-card.ts` | Migrate colors, add dark mode |
-| `src/app/components/rhythm-card/rhythm-card.ts` | Migrate indigo→violet, RGBA values, gradients, add dark mode |
-| `src/app/components/rhythm-detail/rhythm-detail.ts` | Migrate indigo→violet for borders, buttons, focus rings |
-| `src/app/components/navigator/navigator.html` | Migrate indigo→violet for badges/gradients/focus-rings, add dark mode to backgrounds |
-| `src/app/components/navigator/navigator.ts` | Minor: dark mode for any inline styles |
-| `src/app/components/day-calendar-panel/day-calendar-panel.ts` | Migrate indigo→violet, add dark mode |
-| `src/app/components/action-rail/action-rail.ts` | Migrate indigo→violet button colors, add dark mode |
-| `src/app/components/pomodoro-overlay/pomodoro-overlay.ts` | Migrate indigo→violet (gradients, RGBA nebula, hex star colors, buttons) |
-| `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts` | `bg-indigo-500` → token reference |
-| `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts` | Migrate focus rings and button colors |
-| `src/app/components/quick-capture/quick-capture.ts` | Migrate focus ring and badge colors |
-| `src/app/components/pr-detail/pr-detail.ts` | Migrate focus ring, spinner, link colors |
-| `src/app/components/todo-detail/todo-detail.ts` | Migrate border, focus, badge colors |
-| `src/app/components/idea-detail/idea-detail.ts` | Migrate border, focus, badge colors |
-| `src/app/components/review-pipeline/review-pipeline.ts` | Migrate any indigo references |
-| `src/app/components/review-findings/review-findings.ts` | Migrate any indigo references |
-| `src/app/app.html` | Add dark mode to background |
-| `src/app/app.ts` | Minor: import ThemeService if needed for initialization |
+| File                                                                | Changes                                                                                                                          |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `src/styles.css`                                                    | Add `@import './styles/tokens.css'` at top; update RGBA values in animation keyframes (`gentlePulse` etc.) from indigo to violet |
+| `src/index.html`                                                    | Add inline script for theme initialization (prevents dark mode flash)                                                            |
+| `src/app/components/hybrid-rail/hybrid-rail.ts`                     | Add dark mode toggle button; migrate `indigo-*` → `violet-*`; add `dark:` variants                                               |
+| `src/app/components/pr-status-colors.ts`                            | Replace all indigo stripe/badge/dot colors with violet equivalents; add dark mode variant support                                |
+| `src/app/components/pr-status-class.ts`                             | Update background+text color mappings                                                                                            |
+| `src/app/components/ticket-card/ticket-card.ts`                     | Migrate colors, add dark mode, implement three-tier card state logic, sky→stone for type badges                                  |
+| `src/app/components/pr-card/pr-card.ts`                             | Migrate colors, add dark mode, implement three-tier card state logic                                                             |
+| `src/app/components/jira-pr-card/jira-pr-card.ts`                   | Migrate indigo→violet, hex/RGBA values, sky→stone type badges, add dark mode                                                     |
+| `src/app/components/todo-card/todo-card.ts`                         | Migrate colors, add dark mode, update inactive state                                                                             |
+| `src/app/components/idea-card/idea-card.ts`                         | Migrate colors, add dark mode                                                                                                    |
+| `src/app/components/rhythm-card/rhythm-card.ts`                     | Migrate indigo→violet, RGBA values, gradients, add dark mode                                                                     |
+| `src/app/components/rhythm-detail/rhythm-detail.ts`                 | Migrate indigo→violet for borders, buttons, focus rings                                                                          |
+| `src/app/components/navigator/navigator.html`                       | Migrate indigo→violet for badges/gradients/focus-rings, add dark mode to backgrounds                                             |
+| `src/app/components/navigator/navigator.ts`                         | Minor: dark mode for any inline styles                                                                                           |
+| `src/app/components/day-calendar-panel/day-calendar-panel.ts`       | Migrate indigo→violet, add dark mode                                                                                             |
+| `src/app/components/action-rail/action-rail.ts`                     | Migrate indigo→violet button colors, add dark mode                                                                               |
+| `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`           | Migrate indigo→violet (gradients, RGBA nebula, hex star colors, buttons)                                                         |
+| `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts` | `bg-indigo-500` → token reference                                                                                                |
+| `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts` | Migrate focus rings and button colors                                                                                            |
+| `src/app/components/quick-capture/quick-capture.ts`                 | Migrate focus ring and badge colors                                                                                              |
+| `src/app/components/pr-detail/pr-detail.ts`                         | Migrate focus ring, spinner, link colors                                                                                         |
+| `src/app/components/todo-detail/todo-detail.ts`                     | Migrate border, focus, badge colors                                                                                              |
+| `src/app/components/idea-detail/idea-detail.ts`                     | Migrate border, focus, badge colors                                                                                              |
+| `src/app/components/review-pipeline/review-pipeline.ts`             | Migrate any indigo references                                                                                                    |
+| `src/app/components/review-findings/review-findings.ts`             | Migrate any indigo references                                                                                                    |
+| `src/app/app.html`                                                  | Add dark mode to background                                                                                                      |
+| `src/app/app.ts`                                                    | Minor: import ThemeService if needed for initialization                                                                          |
 
 ---
 
 ## Task 1: Token Infrastructure
 
 **Files:**
+
 - Create: `src/styles/tokens.css`
 - Modify: `src/styles.css`
 
@@ -183,54 +184,54 @@ Create `src/styles/tokens.css` with all CSS custom properties. Use `theme()` fun
 Append to the `:root` block in `tokens.css`:
 
 ```css
-    /* --- Tier 2: Component Tokens --- */
+/* --- Tier 2: Component Tokens --- */
 
-    /* Card Selection */
-    --color-card-selected-bg: var(--color-primary-bg);
-    --color-card-selected-ring: var(--color-primary-border);
-    --color-card-selected-bg-hover: var(--color-primary-bg-hover);
+/* Card Selection */
+--color-card-selected-bg: var(--color-primary-bg);
+--color-card-selected-ring: var(--color-primary-border);
+--color-card-selected-bg-hover: var(--color-primary-bg-hover);
 
-    /* Card States */
-    --card-inactive-opacity: 0.55;
-    --color-card-attention-bar: var(--color-signal-bar);
+/* Card States */
+--card-inactive-opacity: 0.55;
+--color-card-attention-bar: var(--color-signal-bar);
 
-    /* PR Status Badges */
-    --color-pr-approved-bg: var(--color-success-bg);
-    --color-pr-approved-text: var(--color-success-text);
-    --color-pr-approved-border: var(--color-success-border);
-    --color-pr-in-review-bg: var(--color-primary-bg);
-    --color-pr-in-review-text: var(--color-primary-text);
-    --color-pr-in-review-border: var(--color-primary-border);
-    --color-pr-changes-bg: var(--color-danger-bg);
-    --color-pr-changes-text: var(--color-danger-text);
-    --color-pr-changes-border: var(--color-danger-border);
+/* PR Status Badges */
+--color-pr-approved-bg: var(--color-success-bg);
+--color-pr-approved-text: var(--color-success-text);
+--color-pr-approved-border: var(--color-success-border);
+--color-pr-in-review-bg: var(--color-primary-bg);
+--color-pr-in-review-text: var(--color-primary-text);
+--color-pr-in-review-border: var(--color-primary-border);
+--color-pr-changes-bg: var(--color-danger-bg);
+--color-pr-changes-text: var(--color-danger-text);
+--color-pr-changes-border: var(--color-danger-border);
 
-    /* Build Status */
-    --color-build-ok: var(--color-success-solid);
-    --color-build-fail: var(--color-danger-solid);
+/* Build Status */
+--color-build-ok: var(--color-success-solid);
+--color-build-fail: var(--color-danger-solid);
 
-    /* Pomodoro */
-    --color-pomodoro-accent: var(--color-primary-solid);
-    --color-pomodoro-bg: var(--color-primary-bg);
+/* Pomodoro */
+--color-pomodoro-accent: var(--color-primary-solid);
+--color-pomodoro-bg: var(--color-primary-bg);
 
-    /* Type Badges (all neutral) */
-    --color-type-badge-bg: var(--color-bg-surface);
-    --color-type-badge-text: var(--color-text-body);
-    --color-type-badge-border: var(--color-border-default);
+/* Type Badges (all neutral) */
+--color-type-badge-bg: var(--color-bg-surface);
+--color-type-badge-text: var(--color-text-body);
+--color-type-badge-border: var(--color-border-default);
 
-    /* Focus Ring */
-    --color-focus-ring: var(--color-primary-solid);
+/* Focus Ring */
+--color-focus-ring: var(--color-primary-solid);
 
-    /* Timeline */
-    --color-timeline-now: var(--color-danger-solid);
-    --color-timeline-grid: var(--color-border-subtle);
+/* Timeline */
+--color-timeline-now: var(--color-danger-solid);
+--color-timeline-grid: var(--color-border-subtle);
 ```
 
 And in the `.dark` block, add the dark-specific overrides:
 
 ```css
-    /* Card States */
-    --card-inactive-opacity: 0.62;
+/* Card States */
+--card-inactive-opacity: 0.62;
 ```
 
 (All other Tier 2 tokens inherit from Tier 1 automatically — they don't need dark overrides.)
@@ -263,6 +264,7 @@ git commit -m "feat: add semantic color token system (Tier 1 + Tier 2)"
 ## Task 2: ThemeService
 
 **Files:**
+
 - Create: `src/app/services/theme.service.ts`
 - Create: `src/app/services/theme.service.spec.ts`
 - Modify: `src/index.html`
@@ -405,9 +407,12 @@ Add this inline script in `<head>` of `src/index.html`, after the font links but
 
 ```html
 <script>
-  (function() {
+  (function () {
     var stored = localStorage.getItem('orbit-theme');
-    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (
+      stored === 'dark' ||
+      (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
       document.documentElement.classList.add('dark');
     }
   })();
@@ -428,6 +433,7 @@ git commit -m "feat: add ThemeService with dark/light/system preference and flas
 ## Task 3: Hybrid Rail — Dark Mode Toggle + Color Migration
 
 **Files:**
+
 - Modify: `src/app/components/hybrid-rail/hybrid-rail.ts`
 - Modify: `src/app/components/hybrid-rail/hybrid-rail.spec.ts` (if tests reference colors)
 
@@ -438,6 +444,7 @@ Read `src/app/components/hybrid-rail/hybrid-rail.ts` fully to understand the cur
 - [ ] **Step 2: Add theme toggle button and migrate colors**
 
 In `hybrid-rail.ts`:
+
 - Import `ThemeService`
 - Inject it: `private theme = inject(ThemeService)`
 - Add a `themeIcon` computed signal that returns the appropriate icon (sun/moon/monitor) based on `theme.preference()`
@@ -459,26 +466,39 @@ The toggle button template (add at bottom of rail, before closing `</nav>`):
 >
   <!-- Sun icon (light mode) -->
   @if (theme.preference() === 'light') {
-    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-    </svg>
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+    />
+  </svg>
   }
   <!-- Moon icon (dark mode) -->
   @if (theme.preference() === 'dark') {
-    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-    </svg>
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+    />
+  </svg>
   }
   <!-- Monitor icon (system mode) -->
   @if (theme.preference() === 'system') {
-    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
-    </svg>
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z"
+    />
+  </svg>
   }
 </button>
 ```
 
 The `themeLabel` computed:
+
 ```typescript
 themeLabel = computed(() => {
   const labels = { system: 'Design: System', light: 'Design: Hell', dark: 'Design: Dunkel' };
@@ -508,6 +528,7 @@ git commit -m "feat: add dark mode toggle to rail, migrate indigo → violet"
 ## Task 4: PR Status Utilities
 
 **Files:**
+
 - Modify: `src/app/components/pr-status-colors.ts`
 - Modify: `src/app/components/pr-status-class.ts`
 
@@ -524,6 +545,7 @@ Replace all indigo references with violet. The file exports three maps (`stripeM
 - All `bg-indigo-400` → `bg-violet-400` (dots)
 
 Add `dark:` variants to badge maps for colored badges:
+
 - Emerald badges: add `dark:bg-[var(--color-success-bg)] dark:text-emerald-400 dark:border-[var(--color-success-border)]`
 - Stone/neutral badges: add `dark:bg-stone-700 dark:text-stone-300 dark:border-stone-600`
 - Amber badges: keep amber values, add dark variants
@@ -550,6 +572,7 @@ git commit -m "feat: migrate PR status colors from indigo to violet with dark mo
 ## Task 5: Ticket Card — Color Migration + Card States
 
 **Files:**
+
 - Modify: `src/app/components/ticket-card/ticket-card.ts`
 
 This is a key component — it establishes the pattern for the three-tier card state system that other cards will follow.
@@ -583,6 +606,7 @@ cardState = computed(() => {
 Replace the card wrapper class binding. Currently it conditionally applies selected/unselected styles. Update to incorporate card state:
 
 **Card container:**
+
 - Remove the existing left-stripe `div` element entirely
 - Apply card state classes to the outer container:
   - Inactive: `opacity-[0.55] dark:opacity-[0.62]` — no stripe
@@ -593,6 +617,7 @@ Replace the card wrapper class binding. Currently it conditionally applies selec
 - Selected state: `bg-[var(--color-card-selected-bg)] ring-1 ring-[var(--color-card-selected-ring)]`
 
 **Indigo → Violet throughout:**
+
 - `bg-indigo-50/70` → `bg-[var(--color-card-selected-bg)]`
 - `ring-indigo-200/80` → `ring-[var(--color-card-selected-ring)]`
 - `text-indigo-600` → `text-[var(--color-primary-text)]`
@@ -601,14 +626,17 @@ Replace the card wrapper class binding. Currently it conditionally applies selec
 - `stroke-indigo-500` → `stroke-[var(--color-primary-solid)]`
 
 **Status badges:**
+
 - `bg-indigo-50 text-indigo-700 border-indigo-200` → `bg-[var(--color-primary-bg)] text-[var(--color-primary-text)] border-[var(--color-primary-border)]`
 - Remove the `statusStripeClass()` function — stripe logic is now handled by `cardState`
 
 **Type badges (sky → stone):**
+
 - `bg-sky-50 text-sky-700 border-sky-200` → `bg-[var(--color-type-badge-bg)] text-[var(--color-type-badge-text)] border-[var(--color-type-badge-border)]`
 - Apply this to ALL type badges ("Fehler", "Aufgabe", "User Story", "Verbesserung") — they all get the same neutral styling
 
 **Text dark mode:**
+
 - `text-stone-800` → `text-[var(--color-text-heading)]`
 - `text-stone-600` → `text-[var(--color-text-body)]`
 - `text-stone-400` → `text-[var(--color-text-muted)]`
@@ -626,6 +654,7 @@ cd /Users/dominik/dev/other/orbit && npx ng serve &
 ```
 
 Open browser, check ticket cards render correctly in light mode. Toggle dark mode via the rail button. Verify:
+
 - Inactive cards are faded
 - Normal cards are neutral
 - High-priority cards show amber bar
@@ -643,6 +672,7 @@ git commit -m "feat: migrate ticket-card to token system with three-tier card st
 ## Task 6: PR Card — Color Migration + Card States
 
 **Files:**
+
 - Modify: `src/app/components/pr-card/pr-card.ts`
 
 - [ ] **Step 1: Read the full PR card component**
@@ -677,6 +707,7 @@ Adapt property names to match the actual `PullRequest` model — read the model 
 - [ ] **Step 3: Migrate template colors**
 
 Follow the same pattern as Task 5:
+
 - Replace card wrapper classes with token-based + card state logic
 - Remove left stripe element, use `border-l-4 border-l-amber-500` on attention cards
 - Indigo → violet via token variables
@@ -701,6 +732,7 @@ git commit -m "feat: migrate pr-card to token system with three-tier card states
 ## Task 7: Remaining Card Components
 
 **Files:**
+
 - Modify: `src/app/components/todo-card/todo-card.ts`
 - Modify: `src/app/components/idea-card/idea-card.ts`
 - Modify: `src/app/components/jira-pr-card/jira-pr-card.ts`
@@ -726,6 +758,7 @@ Read each file fully.
 - [ ] **Step 4: Migrate jira-pr-card**
 
 This is the detailed PR view panel. It has extensive indigo usage:
+
 - `border-indigo-100` → `border-[var(--color-primary-border)]`
 - `bg-indigo-50/40` → `bg-[var(--color-primary-bg)]`
 - `bg-[#f0f3ff]` → `bg-[var(--color-primary-bg)]` (this was a hardcoded hex for indigo-50-like)
@@ -753,6 +786,7 @@ git commit -m "feat: migrate todo/idea/jira-pr cards to token system with dark m
 ## Task 8: Navigator
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.html`
 - Modify: `src/app/components/navigator/navigator.ts` (if inline styles exist)
 
@@ -765,26 +799,32 @@ Read both files fully. The navigator has the most color references of any templa
 Systematic replacement throughout the template:
 
 **Backgrounds:**
+
 - `bg-stone-100` → `bg-[var(--color-bg-surface)]`
 - `bg-white` → `bg-[var(--color-bg-card)]` (if used)
 
 **Text:**
+
 - `text-stone-800` → `text-[var(--color-text-heading)]`
 - `text-stone-400` / `text-stone-500` → `text-[var(--color-text-muted)]`
 
 **Indigo → Violet:**
+
 - `text-indigo-600` → `text-[var(--color-primary-text)]`
 - `bg-gradient-to-r from-indigo-200 to-transparent` → `bg-gradient-to-r from-violet-200 dark:from-violet-500/20 to-transparent`
 - `bg-indigo-100 text-indigo-700` count badges → `bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]`
 - `focus-visible:outline-indigo-500` → `focus-visible:outline-[var(--color-focus-ring)]`
 
 **Borders:**
+
 - `border-stone-200` → `border-[var(--color-border-subtle)]`
 
 **Error indicators (keep red):**
+
 - `text-red-500` → `text-[var(--color-danger-solid)]`
 
 **Amber indicators (keep amber):**
+
 - `bg-amber-100 text-amber-700` → `bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-500`
 
 - [ ] **Step 3: Run navigator tests**
@@ -805,6 +845,7 @@ git commit -m "feat: migrate navigator to token system with dark mode"
 ## Task 9: Detail Components
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 - Modify: `src/app/components/todo-detail/todo-detail.ts`
 - Modify: `src/app/components/idea-detail/idea-detail.ts`
@@ -817,6 +858,7 @@ git commit -m "feat: migrate navigator to token system with dark mode"
 All follow the same pattern — replace indigo with violet via tokens, add dark mode:
 
 **Common replacements:**
+
 - `border-indigo-400` → `border-[var(--color-primary-solid)]`
 - `focus:ring-indigo-400` / `focus:ring-indigo-300` → `focus:ring-[var(--color-primary-solid)]`
 - `focus:border-indigo-300` → `focus:border-[var(--color-primary-border)]`
@@ -827,11 +869,13 @@ All follow the same pattern — replace indigo with violet via tokens, add dark 
 - `text-indigo-400` placeholder/muted → `text-[var(--color-primary-solid)] dark:text-[var(--color-primary-text)]`
 
 **Dark mode for containers:**
+
 - Add `dark:bg-[var(--color-bg-card)]` to white backgrounds
 - Add `dark:border-[var(--color-border-default)]` to borders
 - Add `dark:text-[var(--color-text-heading)]` / `dark:text-[var(--color-text-body)]` to text
 
 **rhythm-detail.ts** has the most references (~15 indigo instances). Pay special attention to:
+
 - Circle animation: `bg-indigo-600` → `bg-[var(--color-primary-solid)]`
 - Input focus rings
 - Button colors (multiple CTA buttons)
@@ -854,6 +898,7 @@ git commit -m "feat: migrate detail components to token system with dark mode"
 ## Task 10: Action Rail + Quick Capture
 
 **Files:**
+
 - Modify: `src/app/components/action-rail/action-rail.ts`
 - Modify: `src/app/components/quick-capture/quick-capture.ts`
 
@@ -862,6 +907,7 @@ git commit -m "feat: migrate detail components to token system with dark mode"
 - [ ] **Step 2: Migrate action-rail**
 
 Replace button color classes:
+
 - Active: `bg-indigo-100 border-indigo-300 text-indigo-700 hover:bg-indigo-200` → token-based primary variants
 - Inactive: `bg-stone-50 border-stone-200` → `bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)]`
 - All action buttons: `bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100` → `bg-[var(--color-primary-bg)] border-[var(--color-primary-border)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-bg-hover)]`
@@ -890,6 +936,7 @@ git commit -m "feat: migrate action-rail and quick-capture to token system with 
 ## Task 11: Day Calendar Panel
 
 **Files:**
+
 - Modify: `src/app/components/day-calendar-panel/day-calendar-panel.ts`
 
 - [ ] **Step 1: Read the component**
@@ -921,6 +968,7 @@ git commit -m "feat: migrate day-calendar-panel to token system with dark mode"
 ## Task 12: Rhythm Card
 
 **Files:**
+
 - Modify: `src/app/components/rhythm-card/rhythm-card.ts`
 
 - [ ] **Step 1: Read the full component**
@@ -930,20 +978,24 @@ This is a complex component with gradients, RGBA values, and animations.
 - [ ] **Step 2: Migrate colors**
 
 **RGBA values:**
+
 - `rgba(129, 140, 248, ...)` (indigo-400 RGB) → `rgba(167, 139, 250, ...)` (violet-400 RGB)
 
 **Indigo → Violet direct replacements:**
+
 - `text-indigo-500` / `text-indigo-400` / `text-indigo-600` → violet equivalents
 - `bg-indigo-50 text-indigo-700 border-indigo-200` badges → token-based primary
 - `bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200/80` selected state → token-based selection
 
 **Gradients:**
+
 - `bg-gradient-to-br from-indigo-50/80 to-white` → `bg-gradient-to-br from-violet-50/80 dark:from-violet-500/10 to-white dark:to-transparent`
 - `ring-indigo-200 hover:ring-indigo-300` → `ring-[var(--color-primary-border)] hover:ring-violet-300 dark:hover:ring-violet-500/40`
 - `bg-gradient-to-b from-indigo-400 to-indigo-300` progress bars → `bg-gradient-to-b from-violet-400 to-violet-300 dark:from-violet-500 dark:to-violet-400`
 - `bg-gradient-to-b from-indigo-400 to-amber-400` → `bg-gradient-to-b from-violet-400 to-amber-400 dark:from-violet-500 dark:to-amber-500`
 
 **Animation class bindings:**
+
 - `[class.bg-indigo-500]` → `[class.bg-violet-500]`
 - `bg-indigo-400` → `bg-violet-400`
 
@@ -965,6 +1017,7 @@ git commit -m "feat: migrate rhythm-card to violet with dark mode"
 ## Task 13: Pomodoro Components
 
 **Files:**
+
 - Modify: `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`
 - Modify: `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts`
 - Modify: `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts`
@@ -976,30 +1029,37 @@ git commit -m "feat: migrate rhythm-card to violet with dark mode"
 This is the most color-intensive component. Replace:
 
 **Buttons:**
+
 - `bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200` → `bg-[var(--color-primary-solid)] hover:bg-[var(--color-primary-solid-hover)] shadow-md shadow-violet-200 dark:shadow-violet-900/30`
 
 **Break screen text:**
+
 - `text-indigo-100` → `text-violet-100`
 - `text-indigo-300/40` → `text-violet-300/40`
 - `text-indigo-300/60` → `text-violet-300/60`
 - `text-indigo-200` → `text-violet-200`
 
 **Gradients:**
+
 - `bg-gradient-to-r from-indigo-400 to-indigo-300` progress bar → `from-violet-400 to-violet-300`
 
 **RGBA nebula values:**
+
 - `rgba(99, 102, 241, 0.06)` nebula-1 → `rgba(139, 92, 246, 0.06)` (violet-500)
 - `rgba(129, 140, 248, 0.04)` nebula-2 → `rgba(167, 139, 250, 0.04)` (violet-400)
 - `rgba(59, 130, 246, 0.12)` earth-glow → `rgba(139, 92, 246, 0.12)` (violet-500)
 
 **Hex star colors:**
+
 - `#818cf8` → `#a78bfa` (violet-400)
 - `#a5b4fc` → `#c4b5fd` (violet-300)
 
 **Background gradient:**
+
 - `linear-gradient(135deg, #312e81, #0f0a1a)` → `linear-gradient(135deg, #4c1d95, #0f0a1a)` (violet-900)
 
 **Focus message badge:**
+
 - `bg-indigo-50 text-indigo-700` → `bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]`
 
 - [ ] **Step 3: Migrate pomodoro-progress-bar**
@@ -1030,6 +1090,7 @@ git commit -m "feat: migrate pomodoro components to violet with dark mode"
 ## Task 14: Review Components
 
 **Files:**
+
 - Modify: `src/app/components/review-pipeline/review-pipeline.ts`
 - Modify: `src/app/components/review-findings/review-findings.ts`
 
@@ -1057,6 +1118,7 @@ git commit -m "feat: migrate review components to violet with dark mode"
 ## Task 15: Global Styles + App Shell
 
 **Files:**
+
 - Modify: `src/styles.css`
 - Modify: `src/app/app.html`
 - Modify: `src/app/app.ts`
@@ -1066,15 +1128,20 @@ git commit -m "feat: migrate review components to violet with dark mode"
 - [ ] **Step 2: Migrate animation keyframes in styles.css**
 
 Update RGBA values in animation keyframes:
+
 - `gentlePulse`: replace indigo RGBA → violet RGBA
 - `gentlePulseAmber`: keep as-is (amber is unchanged)
 - Any other animations referencing indigo colors
 
 Update Jira markup styling:
+
 - Replace any `indigo` references with `violet`
 - Add dark mode variants for `.jira-markup` styles (code blocks, blockquotes, etc.):
+
   ```css
-  .dark .jira-markup code { /* dark variants */ }
+  .dark .jira-markup code {
+    /* dark variants */
+  }
   ```
 
 - [ ] **Step 3: Migrate app.html**
@@ -1145,6 +1212,7 @@ cd /Users/dominik/dev/other/orbit && npx ng serve
 ```
 
 Check:
+
 - [ ] Rail: toggle button works, icon cycles correctly
 - [ ] Navigator: section headers, cards, badges render correctly in both modes
 - [ ] Ticket cards: three states (inactive/normal/attention) look correct

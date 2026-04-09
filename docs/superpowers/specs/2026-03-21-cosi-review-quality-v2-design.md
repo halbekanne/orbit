@@ -26,8 +26,8 @@ This spec addresses all high-impact improvements while keeping temperature, topP
 
 ## Files Changed
 
-| File | Change Type |
-|------|-------------|
+| File            | Change Type                                                              |
+| --------------- | ------------------------------------------------------------------------ |
 | `proxy/cosi.js` | Prompts, responseSchema, preprocessDiff function, prompt builder changes |
 
 No frontend changes. No model changes. Mock mode (`cosi-mock.js`) is unaffected — it returns hardcoded data and does not go through `callCoSi`.
@@ -56,34 +56,56 @@ Severity semantics (what counts as critical vs. important vs. minor) remain as p
 
 ```js
 const FINDING_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
             // description differs per agent — set in agent-specific schema
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" }
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"]
-      }
-    }
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
+      },
+    },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"]
-}
+  required: ['findings'],
+  propertyOrdering: ['findings'],
+};
 ```
 
 The `severity.description` field differs per agent:
@@ -198,6 +220,7 @@ A new `preprocessDiff(rawDiff)` function that annotates every line in the diff w
 ### Prompt Change
 
 Added to SHARED_CONSTRAINTS:
+
 ```
 Every line in the diff starts with [line_number]. Use this number directly as the "line" value.
 ```
@@ -209,17 +232,20 @@ Every line in the diff starts with [line_number]. Use this number directly as th
 ### 3a: Remove Redundant PROCESS Blocks
 
 **Agent 1 (AK-Abgleich):** The old PROCESS block is removed entirely:
+
 ```
 PROCESS:                              ← REMOVE
 1. Read the Jira ticket...            ← REMOVE
 2. For each AK, check...             ← REMOVE
 3. Report only gaps...                ← REMOVE
 ```
+
 The YOUR THINKING PROCESS block (EXTRACT → CLASSIFY → TRACE → FORMULATE) already covers this completely.
 
 The `If the Jira ticket description contains no identifiable Akzeptanzkriterien...` instruction stays — it's a guard clause not covered by the thinking process.
 
 **Consolidator:** The old PROCESS block (8 steps) is replaced by a short OUTPUT RULES block that only covers output transformations:
+
 ```
 OUTPUT RULES:
 - Sort findings: critical first, then important, then minor.
@@ -233,6 +259,7 @@ The thinking steps (OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK) handle all
 ### 3b: SHARED_CONSTRAINTS Rewrite
 
 **Removed** (enforced by responseSchema):
+
 - `"Output valid JSON only. No markdown, no wrapping, no explanation outside the JSON."`
 
 **New SHARED_CONSTRAINTS content:**
@@ -257,6 +284,7 @@ You have a dedicated thinking phase before generating the JSON. You MUST use thi
 ### 3c: All User-Facing Output in German
 
 The rule `"Titles must be in German. Detail and suggestion may use English for technical terms."` is replaced by:
+
 ```
 All textual fields (title, detail, suggestion) must be in German. English technical terms (e.g. "null check", "race condition", "lifecycle hook") may be used inline.
 ```
@@ -268,16 +296,19 @@ This also applies to the `reason` field in Consolidator decisions (already Germa
 The user prompts currently end with `"Output JSON only."` which primes the thinking phase toward JSON construction. Each user prompt now ends with the analysis instruction instead:
 
 **Agent 1:**
+
 ```
 Follow your thinking process step by step: EXTRACT, CLASSIFY, TRACE, FORMULATE.
 ```
 
 **Agent 2:**
+
 ```
 Follow your thinking process step by step: SCAN the added lines, then FORMULATE for confirmed issues only.
 ```
 
 **Consolidator:**
+
 ```
 Follow your thinking process step by step: OVERLAP, GROUNDING, QUALITY GATE, SEVERITY CHECK.
 ```

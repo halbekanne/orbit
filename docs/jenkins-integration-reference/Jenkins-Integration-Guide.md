@@ -6,10 +6,10 @@
 
 Orbit nutzt zwei Jenkins-APIs:
 
-| API | Basis-Pfad | Zweck |
-|-----|-----------|-------|
-| **Standard Jenkins Remote Access API** | `/api/json` | Branches, Builds, Artefakte, Parameter, Build-Trigger |
-| **Pipeline REST API (wfapi)** | `/wfapi/...` | Pipeline-Stages, Stage-Logs, Stage-Fehler |
+| API                                    | Basis-Pfad   | Zweck                                                 |
+| -------------------------------------- | ------------ | ----------------------------------------------------- |
+| **Standard Jenkins Remote Access API** | `/api/json`  | Branches, Builds, Artefakte, Parameter, Build-Trigger |
+| **Pipeline REST API (wfapi)**          | `/wfapi/...` | Pipeline-Stages, Stage-Logs, Stage-Fehler             |
 
 ### Nicht verfügbar
 
@@ -72,16 +72,16 @@ GET /job/{mb-job}/api/json?tree=jobs[name,color,url]
 
 **`color`-Mapping:**
 
-| color | Bedeutung |
-|-------|-----------|
-| `blue` | SUCCESS |
-| `red` | FAILURE |
-| `yellow` | UNSTABLE |
-| `aborted` | ABORTED |
-| `notbuilt` | NOT_BUILT |
-| `disabled` | Deaktiviert |
-| `blue_anime` | SUCCESS, läuft gerade |
-| `red_anime` | FAILURE, läuft gerade |
+| color          | Bedeutung              |
+| -------------- | ---------------------- |
+| `blue`         | SUCCESS                |
+| `red`          | FAILURE                |
+| `yellow`       | UNSTABLE               |
+| `aborted`      | ABORTED                |
+| `notbuilt`     | NOT_BUILT              |
+| `disabled`     | Deaktiviert            |
+| `blue_anime`   | SUCCESS, läuft gerade  |
+| `red_anime`    | FAILURE, läuft gerade  |
 | `yellow_anime` | UNSTABLE, läuft gerade |
 
 Suffix `_anime` = Build läuft gerade auf diesem Branch.
@@ -217,13 +217,13 @@ GET /job/{mb-job}/job/{branch}/{buildNumber}/wfapi/describe
 
 **Status-Werte:**
 
-| Status | Bedeutung |
-|--------|-----------|
-| `SUCCESS` | Erfolgreich |
-| `FAILED` | Fehlgeschlagen |
-| `IN_PROGRESS` | Läuft gerade |
-| `PAUSED_PENDING_INPUT` | Wartet auf manuelle Eingabe |
-| `NOT_EXECUTED` | Nicht ausgeführt (z.B. wegen vorherigem Fehler) |
+| Status                 | Bedeutung                                       |
+| ---------------------- | ----------------------------------------------- |
+| `SUCCESS`              | Erfolgreich                                     |
+| `FAILED`               | Fehlgeschlagen                                  |
+| `IN_PROGRESS`          | Läuft gerade                                    |
+| `PAUSED_PENDING_INPUT` | Wartet auf manuelle Eingabe                     |
+| `NOT_EXECUTED`         | Nicht ausgeführt (z.B. wegen vorherigem Fehler) |
 
 ---
 
@@ -293,10 +293,10 @@ GET /job/{mb-job}/job/{branch}/{buildNumber}/logText/progressiveText?start=0
 
 Response-Headers:
 
-| Header | Wert | Bedeutung |
-|--------|------|-----------|
+| Header        | Wert    | Bedeutung                            |
+| ------------- | ------- | ------------------------------------ |
 | `X-Text-Size` | `48832` | Byte-Offset für den nächsten Request |
-| `X-More-Data` | `true` | `true` solange der Build läuft |
+| `X-More-Data` | `true`  | `true` solange der Build läuft       |
 
 Nächster Request: `?start=48832`. Wiederholen bis `X-More-Data` nicht mehr `true` ist.
 
@@ -487,12 +487,12 @@ GET /job/{mb-job}/job/{branch}/api/json?tree=property[parameterDefinitions[name,
 
 **Parameter-Typen:**
 
-| `type` | UI-Element | Besonderheiten |
-|--------|-----------|----------------|
-| `StringParameterDefinition` | Text-Input | |
-| `BooleanParameterDefinition` | Toggle | `value` ist boolean |
-| `ChoiceParameterDefinition` | Dropdown | Hat `choices`-Array |
-| `TextParameterDefinition` | Textarea | |
+| `type`                        | UI-Element     | Besonderheiten             |
+| ----------------------------- | -------------- | -------------------------- |
+| `StringParameterDefinition`   | Text-Input     |                            |
+| `BooleanParameterDefinition`  | Toggle         | `value` ist boolean        |
+| `ChoiceParameterDefinition`   | Dropdown       | Hat `choices`-Array        |
+| `TextParameterDefinition`     | Textarea       |                            |
 | `PasswordParameterDefinition` | Password-Input | Default ist immer redacted |
 
 `property` ist ein Array — die `parameterDefinitions` können in jedem Element stecken. Nur das Element filtern, das `parameterDefinitions` enthält.
@@ -649,14 +649,14 @@ interface JenkinsPasswordParameter extends JenkinsParameterBase {
 
 ## 4. Bekannte Einschränkungen
 
-| Einschränkung | Detail |
-|---------------|--------|
-| **Keine parallelen Stages** | Ohne Pipeline Graph View Plugin sind Stages immer flach. Parallele Stages erscheinen sequentiell in der Liste. |
-| **Artefakt-Limit** | Die Standard-API listet maximal ~5000 Artefakte. Konfigurierbar über System Property `hudson.model.Run.ArtifactList.listMax`. |
-| **stageFlowNodes-Limit** | Maximal 100 FlowNodes pro Stage. Konfigurierbar über System Property `com.cloudbees.workflow.rest.external.FlowNodeExt.describeMax`. |
-| **wfapi/describe Performance** | Kann bei komplexen Pipelines mit vielen Stages langsam sein. |
-| **HTML in description** | Das `description`-Feld eines Builds kann beliebiges HTML enthalten und muss vor der Anzeige sanitized werden. |
-| **wfapi/runs Pagination** | Nutzt den `since`-Parameter (Run-Name), kein Offset/Limit. |
+| Einschränkung                  | Detail                                                                                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Keine parallelen Stages**    | Ohne Pipeline Graph View Plugin sind Stages immer flach. Parallele Stages erscheinen sequentiell in der Liste.                       |
+| **Artefakt-Limit**             | Die Standard-API listet maximal ~5000 Artefakte. Konfigurierbar über System Property `hudson.model.Run.ArtifactList.listMax`.        |
+| **stageFlowNodes-Limit**       | Maximal 100 FlowNodes pro Stage. Konfigurierbar über System Property `com.cloudbees.workflow.rest.external.FlowNodeExt.describeMax`. |
+| **wfapi/describe Performance** | Kann bei komplexen Pipelines mit vielen Stages langsam sein.                                                                         |
+| **HTML in description**        | Das `description`-Feld eines Builds kann beliebiges HTML enthalten und muss vor der Anzeige sanitized werden.                        |
+| **wfapi/runs Pagination**      | Nutzt den `since`-Parameter (Run-Name), kein Offset/Limit.                                                                           |
 
 ---
 
@@ -681,12 +681,7 @@ const html = ansi.ansi_to_html(rawLogText);
 Regex-Patterns für Log-Zeilen:
 
 ```typescript
-const ERROR_PATTERNS = [
-  /\bERROR\b/,
-  /\bWARN(?:ING)?\b/,
-  /\bException\b/,
-  /\bFAILED\b/,
-];
+const ERROR_PATTERNS = [/\bERROR\b/, /\bWARN(?:ING)?\b/, /\bException\b/, /\bFAILED\b/];
 ```
 
 Fehlerzeilen mit rotem Left-Border markieren (`border-l-2 border-red-500`). Die Textfarbe nicht ändern, damit ANSI-Farben erhalten bleiben.

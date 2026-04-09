@@ -113,7 +113,7 @@ Hier sind meine Gedanken, Punkte, Ideen, in beliebiger Reihenfolge:
 - Bug im Logbuch, es steht ich habe "x weitere" Sachen erledigt aber ich kann es nicht aufklappen, ich würde das feature dass max. 3 Sachen angezeigt werden einfach erstmal entfernen, es sollen einfach alle Sachen die man geschafft hat angezeigt werden.
 - URL-Routing: Wenn man ein Ticket, Pull Request, Task etc. auswählt oder auf das Logbuch wechselt, soll sich die URL ändern. So kann man Browser-Navigation (Zurück/Vorwärts) nutzen, Bookmarks setzen und Links teilen. Logische URL-Struktur.
 - Auto-Aktualisierung: Orbit soll sich automatisch alle X Minuten aktualisieren (Daten neu laden), das Intervall soll später im Einstellungsfenster konfigurierbar sein. Zusätzlich ein manueller Sync-Button zum sofortigen Aktualisieren.
-- Am Anfang des Tages soll man seine Termine auf einem Zeitstrahl / Tagesanzeige per Drag & Drop ziehen können. Also ich sehe den Zeitstrahl, mache drag & drop darauf, es       
-  bildet sich ein Kasten der die Zeit angibt. Beim Loslassen werde ich direkt gefragt wie der Termin heißt. So ist eine Blitzschnelle Anlage von einem Tagesplan möglich. Der Tages-Terminplan soll dann die    
-  ganze Zeit z.B. am rechten Rand der Anwendung einblendbar sein. Keine Wochenansicht, keine Monatsansicht, nur die Tagesansicht. In der Reflektion kann man auch sehen, welche Termine man hatte. Keine        
+- Am Anfang des Tages soll man seine Termine auf einem Zeitstrahl / Tagesanzeige per Drag & Drop ziehen können. Also ich sehe den Zeitstrahl, mache drag & drop darauf, es  
+  bildet sich ein Kasten der die Zeit angibt. Beim Loslassen werde ich direkt gefragt wie der Termin heißt. So ist eine Blitzschnelle Anlage von einem Tagesplan möglich. Der Tages-Terminplan soll dann die  
+  ganze Zeit z.B. am rechten Rand der Anwendung einblendbar sein. Keine Wochenansicht, keine Monatsansicht, nur die Tagesansicht. In der Reflektion kann man auch sehen, welche Termine man hatte. Keine  
   Einbettung per API von externen Kalendern.

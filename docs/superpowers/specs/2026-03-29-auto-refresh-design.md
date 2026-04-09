@@ -47,7 +47,7 @@ refreshService.register('bitbucket', () => bitbucketService.loadAll());
 interface DataSourceState {
   lastFetchTime: number | null;
   status: 'idle' | 'refreshing' | 'retrying' | 'error';
-  retryAttempt: number;   // 0 = kein Retry, 1-3 = aktueller Versuch
+  retryAttempt: number; // 0 = kein Retry, 1-3 = aktueller Versuch
 }
 ```
 
@@ -122,13 +122,13 @@ Sticky am unteren Rand des Navigators, mit `border-top` als visueller Trenner. S
 
 ### Zustände
 
-| Zustand | Linker Text | Rechter Button |
-|---------|------------|----------------|
-| Idle / frisch | "Zuletzt aktualisiert: 14:32" | Statisches Refresh-Icon + "Sync" |
-| Refreshing (auto oder manuell) | "Aktualisiere…" | Drehendes Refresh-Icon |
-| Retrying (beliebige Quelle) | "Erneuter Versuch 2/3…" | Drehendes Refresh-Icon |
-| Alle Quellen fehlgeschlagen | "Aktualisierung fehlgeschlagen" | Statisches Icon + "Sync" (klickbar) |
-| Teilerfolg (eine ok, eine fehlgeschlagen) | "Zuletzt aktualisiert: 14:32" | Statisches Icon (Fehler wird per-Section angezeigt) |
+| Zustand                                   | Linker Text                     | Rechter Button                                      |
+| ----------------------------------------- | ------------------------------- | --------------------------------------------------- |
+| Idle / frisch                             | "Zuletzt aktualisiert: 14:32"   | Statisches Refresh-Icon + "Sync"                    |
+| Refreshing (auto oder manuell)            | "Aktualisiere…"                 | Drehendes Refresh-Icon                              |
+| Retrying (beliebige Quelle)               | "Erneuter Versuch 2/3…"         | Drehendes Refresh-Icon                              |
+| Alle Quellen fehlgeschlagen               | "Aktualisierung fehlgeschlagen" | Statisches Icon + "Sync" (klickbar)                 |
+| Teilerfolg (eine ok, eine fehlgeschlagen) | "Zuletzt aktualisiert: 14:32"   | Statisches Icon (Fehler wird per-Section angezeigt) |
 
 ### Styling
 
@@ -200,6 +200,7 @@ Browser drosseln `setInterval` in inaktiven Tabs (teilweise auf 1x/Minute oder v
 ### Kein Layout-Shift bei Refresh
 
 Bei Folge-Refreshes (nicht Initial-Load):
+
 1. Fetch wird im Hintergrund gestartet
 2. Alte Daten bleiben in den Signals
 3. Bei Erfolg: Signals werden mit neuen Daten überschrieben → Angular rendert die Änderungen

@@ -13,7 +13,15 @@ import {
 @Component({
   selector: 'app-jira-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JiraMarkupPipe, BadgeComponent, LucideBug, LucideBookmark, LucideZap, LucideSquareCheck, LucideExternalLink],
+  imports: [
+    JiraMarkupPipe,
+    BadgeComponent,
+    LucideBug,
+    LucideBookmark,
+    LucideZap,
+    LucideSquareCheck,
+    LucideExternalLink,
+  ],
   template: `
     <section aria-label="Jira-Ticket">
       @if (ticket() === 'loading') {

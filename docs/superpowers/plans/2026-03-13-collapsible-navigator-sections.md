@@ -15,6 +15,7 @@
 ### Task 1: Write failing tests for `NavigatorComponent` collapse logic
 
 **Files:**
+
 - Create: `src/app/components/navigator/navigator.spec.ts`
 
 - [ ] **Step 1: Create the spec file**
@@ -44,7 +45,7 @@ describe('NavigatorComponent – collapse logic', () => {
   it('reads initial collapsed state from localStorage', () => {
     localStorage.setItem(
       'orbit.navigator.collapsed',
-      JSON.stringify({ tickets: true, prs: false, todos: true })
+      JSON.stringify({ tickets: true, prs: false, todos: true }),
     );
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
@@ -118,6 +119,7 @@ Expected: FAIL — `NavigatorComponent` exists but `ticketsCollapsed`, `prsColla
 ### Task 2: Add collapse signals and localStorage logic to `NavigatorComponent`
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.ts`
 
 - [ ] **Step 1: Replace the file contents**
@@ -157,11 +159,14 @@ export class NavigatorComponent {
 
   constructor() {
     effect(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        tickets: this.ticketsCollapsed(),
-        prs: this.prsCollapsed(),
-        todos: this.todosCollapsed(),
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          tickets: this.ticketsCollapsed(),
+          prs: this.prsCollapsed(),
+          todos: this.todosCollapsed(),
+        }),
+      );
     });
   }
 
@@ -174,15 +179,15 @@ export class NavigatorComponent {
   }
 
   toggleTickets(): void {
-    this.ticketsCollapsed.update(v => !v);
+    this.ticketsCollapsed.update((v) => !v);
   }
 
   togglePrs(): void {
-    this.prsCollapsed.update(v => !v);
+    this.prsCollapsed.update((v) => !v);
   }
 
   toggleTodos(): void {
-    this.todosCollapsed.update(v => !v);
+    this.todosCollapsed.update((v) => !v);
   }
 
   isSelected(item: WorkItem): boolean {
@@ -223,11 +228,13 @@ git commit -m "feat: Add collapse signals and localStorage persistence to Naviga
 ### Task 3: Update the navigator template
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.html`
 
 - [ ] **Step 1: Replace the template with the updated version**
 
 Key changes:
+
 - Each `<section>` header row becomes a `<button type="button">` with `aria-expanded` and `aria-controls`
 - Chevron SVG added to the right of each header; rotates `-90deg` when collapsed via Tailwind class
 - Section content wrapped in a `<div>` with `[hidden]` and matching `id`
@@ -239,7 +246,10 @@ Key changes:
   <div class="px-4 py-3 border-b border-stone-200">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center shrink-0" aria-hidden="true">
+        <div
+          class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center shrink-0"
+          aria-hidden="true"
+        >
           <div class="w-2.5 h-2.5 rounded-full border-2 border-white"></div>
         </div>
         <span class="font-semibold text-stone-800 text-sm tracking-wide">Orbit</span>
@@ -249,7 +259,6 @@ Key changes:
   </div>
 
   <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-
     <section aria-labelledby="tickets-heading">
       <button
         type="button"
@@ -260,19 +269,26 @@ Key changes:
         aria-controls="navigator-tickets-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="tickets-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aktuelle Tickets</h2>
+          <h2
+            id="tickets-heading"
+            class="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+          >
+            Aktuelle Tickets
+          </h2>
           @if (data.tickets().length > 0) {
-            <span
-              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-              [attr.aria-label]="data.tickets().length + ' aktive Tickets'"
-            >{{ data.tickets().length }}</span>
+          <span
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
+            [attr.aria-label]="data.tickets().length + ' aktive Tickets'"
+            >{{ data.tickets().length }}</span
+          >
           }
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-stone-400">Jira</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="12" height="12"
+            width="12"
+            height="12"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -283,20 +299,20 @@ Key changes:
             [class.-rotate-90]="ticketsCollapsed()"
             aria-hidden="true"
           >
-            <path d="m6 9 6 6 6-6"/>
+            <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
       </button>
       <div id="navigator-tickets-content" [hidden]="ticketsCollapsed()">
         <ul class="space-y-1.5" role="list">
           @for (ticket of data.tickets(); track ticket.id) {
-            <li>
-              <app-ticket-card
-                [ticket]="ticket"
-                [selected]="isSelected(ticket)"
-                (select)="selectItem($event)"
-              />
-            </li>
+          <li>
+            <app-ticket-card
+              [ticket]="ticket"
+              [selected]="isSelected(ticket)"
+              (select)="selectItem($event)"
+            />
+          </li>
           }
         </ul>
       </div>
@@ -312,19 +328,26 @@ Key changes:
         aria-controls="navigator-prs-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="prs-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Pull Requests</h2>
+          <h2
+            id="prs-heading"
+            class="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+          >
+            Pull Requests
+          </h2>
           @if (data.awaitingReviewCount() > 0) {
-            <span
-              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold"
-              [attr.aria-label]="data.awaitingReviewCount() + ' ausstehende Reviews'"
-            >{{ data.awaitingReviewCount() }}</span>
+          <span
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold"
+            [attr.aria-label]="data.awaitingReviewCount() + ' ausstehende Reviews'"
+            >{{ data.awaitingReviewCount() }}</span
+          >
           }
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-stone-400">Bitbucket</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="12" height="12"
+            width="12"
+            height="12"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -335,20 +358,16 @@ Key changes:
             [class.-rotate-90]="prsCollapsed()"
             aria-hidden="true"
           >
-            <path d="m6 9 6 6 6-6"/>
+            <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
       </button>
       <div id="navigator-prs-content" [hidden]="prsCollapsed()">
         <ul class="space-y-1.5" role="list">
           @for (pr of data.pullRequests(); track pr.id) {
-            <li>
-              <app-pr-card
-                [pr]="pr"
-                [selected]="isSelected(pr)"
-                (select)="selectItem($event)"
-              />
-            </li>
+          <li>
+            <app-pr-card [pr]="pr" [selected]="isSelected(pr)" (select)="selectItem($event)" />
+          </li>
           }
         </ul>
       </div>
@@ -364,17 +383,24 @@ Key changes:
         aria-controls="navigator-todos-content"
       >
         <div class="flex items-center gap-2">
-          <h2 id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meine Todos</h2>
+          <h2
+            id="todos-heading"
+            class="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+          >
+            Meine Todos
+          </h2>
           @if (data.pendingTodoCount() > 0) {
-            <span
-              class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-              [attr.aria-label]="data.pendingTodoCount() + ' offene Todos'"
-            >{{ data.pendingTodoCount() }}</span>
+          <span
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
+            [attr.aria-label]="data.pendingTodoCount() + ' offene Todos'"
+            >{{ data.pendingTodoCount() }}</span
+          >
           }
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="12" height="12"
+          width="12"
+          height="12"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -385,27 +411,26 @@ Key changes:
           [class.-rotate-90]="todosCollapsed()"
           aria-hidden="true"
         >
-          <path d="m6 9 6 6 6-6"/>
+          <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
       <div id="navigator-todos-content" [hidden]="todosCollapsed()">
         <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
         <ul class="space-y-1.5" role="list">
           @for (todo of data.todos(); track todo.id) {
-            <li>
-              <app-todo-card
-                [todo]="todo"
-                [selected]="isSelected(todo)"
-                [highlighted]="data.lastAddedId() === todo.id"
-                (select)="selectItem($event)"
-                (toggle)="toggleTodo($event)"
-              />
-            </li>
+          <li>
+            <app-todo-card
+              [todo]="todo"
+              [selected]="isSelected(todo)"
+              [highlighted]="data.lastAddedId() === todo.id"
+              (select)="selectItem($event)"
+              (toggle)="toggleTodo($event)"
+            />
+          </li>
           }
         </ul>
       </div>
     </section>
-
   </div>
 </nav>
 ```
@@ -433,6 +458,7 @@ ng serve
 ```
 
 Open the app. Verify:
+
 - All three sections start expanded
 - Clicking a section header collapses it; chevron points right
 - Clicking again expands it; chevron points down

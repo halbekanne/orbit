@@ -1,6 +1,6 @@
 // @ts-check
 
-const { buildSharedConstraints } = require("./agent-definition");
+const { buildSharedConstraints } = require('./agent-definition');
 
 function buildSystemPrompt(projectRules) {
   return `${buildSharedConstraints(projectRules)}
@@ -40,39 +40,62 @@ Do NOT suggest features, abstractions, or patterns not needed for the current ch
 }
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import("./agent-definition").AgentDefinition} */
 const codeQualityAgent = {
-  id: "code-quality",
-  label: "Code-Qualität",
+  id: 'code-quality',
+  label: 'Code-Qualität',
   buildSystemPrompt,
   responseSchema: RESPONSE_SCHEMA,
   temperature: 0.4,

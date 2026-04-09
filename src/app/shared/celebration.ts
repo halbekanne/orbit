@@ -27,7 +27,7 @@ export function spawnConfetti(anchor: HTMLElement): void {
 export function playChime(): void {
   try {
     const ctx = new AudioContext();
-    const notes = [261.63, 329.63, 392.00];
+    const notes = [261.63, 329.63, 392.0];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -42,5 +42,7 @@ export function playChime(): void {
       osc.stop(t + 0.4);
     });
     setTimeout(() => ctx.close(), 800);
-  } catch { /* AudioContext may not be available */ }
+  } catch {
+    /* AudioContext may not be available */
+  }
 }

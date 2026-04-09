@@ -12,15 +12,15 @@
 
 ## File Map
 
-| File | Change |
-|---|---|
-| `src/app/models/work-item.model.ts` | Add `'Needs Re-review'` to `PrStatus` union |
-| `src/app/services/bitbucket.service.ts` | Add raw interfaces + `getReviewerPrActivityStatus()` method |
-| `src/app/services/bitbucket.service.spec.ts` | Add tests for new method |
-| `src/app/services/work-data.service.ts` | Add enrichment pass in subscribe; update sort order + `awaitingReviewCount` |
-| `src/app/services/work-data.service.spec.ts` | Add enrichment tests; update `awaitingReviewCount` test |
-| `src/app/components/pr-card/pr-card.ts` | Update `statusClass()` map type and values; add `aria-label` to badge |
-| `mock-server/bitbucket.js` | Add second NEEDS_WORK PR + activities endpoint |
+| File                                         | Change                                                                      |
+| -------------------------------------------- | --------------------------------------------------------------------------- |
+| `src/app/models/work-item.model.ts`          | Add `'Needs Re-review'` to `PrStatus` union                                 |
+| `src/app/services/bitbucket.service.ts`      | Add raw interfaces + `getReviewerPrActivityStatus()` method                 |
+| `src/app/services/bitbucket.service.spec.ts` | Add tests for new method                                                    |
+| `src/app/services/work-data.service.ts`      | Add enrichment pass in subscribe; update sort order + `awaitingReviewCount` |
+| `src/app/services/work-data.service.spec.ts` | Add enrichment tests; update `awaitingReviewCount` test                     |
+| `src/app/components/pr-card/pr-card.ts`      | Update `statusClass()` map type and values; add `aria-label` to badge       |
+| `mock-server/bitbucket.js`                   | Add second NEEDS_WORK PR + activities endpoint                              |
 
 ---
 
@@ -29,13 +29,20 @@
 ### Task 1: Extend PrStatus type
 
 **Files:**
+
 - Modify: `src/app/models/work-item.model.ts:3`
 
 - [ ] **Step 1: Add `'Needs Re-review'` to the `PrStatus` union**
 
 Replace line 3:
+
 ```ts
-export type PrStatus = 'Awaiting Review' | 'Changes Requested' | 'Needs Re-review' | 'Approved' | 'Approved by Others';
+export type PrStatus =
+  | 'Awaiting Review'
+  | 'Changes Requested'
+  | 'Needs Re-review'
+  | 'Approved'
+  | 'Approved by Others';
 ```
 
 - [ ] **Step 2: Verify the project still compiles (TypeScript will show exhaustiveness errors in files that use `Record<PrStatus, ...>`)**
@@ -51,6 +58,7 @@ Expected: errors in `work-data.service.ts` and `pr-card.ts` about missing `'Need
 ### Task 2: Add `getReviewerPrActivityStatus` to BitbucketService — test first
 
 **Files:**
+
 - Modify: `src/app/services/bitbucket.service.spec.ts`
 - Modify: `src/app/services/bitbucket.service.ts`
 
@@ -76,16 +84,33 @@ const makePrRef = (): Pick<PullRequest, 'prNumber' | 'toRef'> => ({
   },
 });
 
-const makeActivity = (action: string, slug: string, reviewedStatus?: 'APPROVED' | 'NEEDS_WORK' | 'UNAPPROVED') => ({
+const makeActivity = (
+  action: string,
+  slug: string,
+  reviewedStatus?: 'APPROVED' | 'NEEDS_WORK' | 'UNAPPROVED',
+) => ({
   action,
-  user: { id: 1, name: slug, slug, displayName: 'User', emailAddress: `${slug}@example.org`, active: true, type: 'NORMAL' },
+  user: {
+    id: 1,
+    name: slug,
+    slug,
+    displayName: 'User',
+    emailAddress: `${slug}@example.org`,
+    active: true,
+    type: 'NORMAL',
+  },
   ...(reviewedStatus !== undefined ? { reviewedStatus } : {}),
 });
 
-const flushActivity = (httpTesting: HttpTestingController, activities: ReturnType<typeof makeActivity>[]) => {
-  httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+const flushActivity = (
+  httpTesting: HttpTestingController,
+  activities: ReturnType<typeof makeActivity>[],
+) => {
   httpTesting
-    .expectOne(req => req.url.includes('/activities'))
+    .expectOne((req) => req.url.endsWith('/config'))
+    .flush({ bitbucketUserSlug: 'dominik.mueller' });
+  httpTesting
+    .expectOne((req) => req.url.includes('/activities'))
     .flush({ values: activities, isLastPage: true });
 };
 
@@ -105,7 +130,7 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
 
   it('returns Changes Requested when NEEDS_WORK is the newest activity', () => {
     let result: string | undefined;
-    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe((s) => (result = s));
     flushActivity(httpTesting, [
       makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
       makeActivity('COMMENTED', 'sarah.kowalski'),
@@ -115,7 +140,7 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
 
   it('returns Needs Re-review when a newer activity follows the NEEDS_WORK review', () => {
     let result: string | undefined;
-    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe((s) => (result = s));
     flushActivity(httpTesting, [
       makeActivity('COMMENTED', 'anna.lehmann'),
       makeActivity('REVIEWED', 'dominik.mueller', 'NEEDS_WORK'),
@@ -125,28 +150,32 @@ describe('BitbucketService — getReviewerPrActivityStatus', () => {
 
   it('returns Changes Requested when no NEEDS_WORK review exists', () => {
     let result: string | undefined;
-    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
-    flushActivity(httpTesting, [
-      makeActivity('COMMENTED', 'dominik.mueller'),
-    ]);
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe((s) => (result = s));
+    flushActivity(httpTesting, [makeActivity('COMMENTED', 'dominik.mueller')]);
     expect(result).toBe('Changes Requested');
   });
 
   it('returns Changes Requested on API error', () => {
     let result: string | undefined;
-    service.getReviewerPrActivityStatus(makePrRef()).subscribe(s => (result = s));
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
+    service.getReviewerPrActivityStatus(makePrRef()).subscribe((s) => (result = s));
     httpTesting
-      .expectOne(req => req.url.includes('/activities'))
+      .expectOne((req) => req.url.endsWith('/config'))
+      .flush({ bitbucketUserSlug: 'dominik.mueller' });
+    httpTesting
+      .expectOne((req) => req.url.includes('/activities'))
       .flush('error', { status: 500, statusText: 'Internal Server Error' });
     expect(result).toBe('Changes Requested');
   });
 
   it('requests the correct activities URL', () => {
     service.getReviewerPrActivityStatus(makePrRef()).subscribe();
-    httpTesting.expectOne(req => req.url.endsWith('/config')).flush({ bitbucketUserSlug: 'dominik.mueller' });
-    const req = httpTesting.expectOne(req => req.url.includes('/activities'));
-    expect(req.request.url).toContain('/projects/SL/repos/versicherung-shared-lib/pull-requests/89/activities');
+    httpTesting
+      .expectOne((req) => req.url.endsWith('/config'))
+      .flush({ bitbucketUserSlug: 'dominik.mueller' });
+    const req = httpTesting.expectOne((req) => req.url.includes('/activities'));
+    expect(req.request.url).toContain(
+      '/projects/SL/repos/versicherung-shared-lib/pull-requests/89/activities',
+    );
     req.flush({ values: [], isLastPage: true });
   });
 });
@@ -163,12 +192,14 @@ Expected: multiple failures mentioning `getReviewerPrActivityStatus is not a fun
 - [ ] **Step 3: Add raw interfaces and implement `getReviewerPrActivityStatus` in `bitbucket.service.ts`**
 
 First, update the imports. The current `bitbucket.service.ts` imports are:
+
 ```ts
 import { Observable } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 ```
 
 Update them to:
+
 ```ts
 import { Observable, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -243,6 +274,7 @@ cd /Users/dominik/dev/other/orbit && git add src/app/models/work-item.model.ts s
 ### Task 3: Add enrichment pass — test first
 
 **Files:**
+
 - Modify: `src/app/services/work-data.service.spec.ts`
 - Modify: `src/app/services/work-data.service.ts`
 
@@ -311,7 +343,7 @@ describe('WorkDataService — enrichment', () => {
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     const service = TestBed.inject(WorkDataService);
     TestBed.tick();
-    const statuses = service.pullRequests().map(pr => pr.myReviewStatus);
+    const statuses = service.pullRequests().map((pr) => pr.myReviewStatus);
     expect(statuses).toContain('Awaiting Review');
     expect(statuses).toContain('Needs Re-review');
     expect(statuses).not.toContain('Changes Requested');
@@ -336,7 +368,11 @@ describe('WorkDataService — enrichment', () => {
     const mockBitbucket = {
       getReviewerPullRequests: () => of([pr1, pr2]),
       getReviewerPrActivityStatus: (pr: Pick<PullRequest, 'prNumber' | 'toRef'>) =>
-        of((pr as PullRequest).id === 'P/repo/2' ? ('Needs Re-review' as const) : ('Changes Requested' as const)),
+        of(
+          (pr as PullRequest).id === 'P/repo/2'
+            ? ('Needs Re-review' as const)
+            : ('Changes Requested' as const),
+        ),
     };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     const service = TestBed.inject(WorkDataService);
@@ -376,7 +412,7 @@ const statusOrder: Record<PrStatus, number> = {
   'Awaiting Review': 0,
   'Changes Requested': 1,
   'Approved by Others': 2,
-  'Approved': 3,
+  Approved: 3,
 };
 ```
 
@@ -388,7 +424,7 @@ const statusOrder: Record<PrStatus, number> = {
   'Needs Re-review': 1,
   'Changes Requested': 2,
   'Approved by Others': 3,
-  'Approved': 4, // filtered out before sort; present only for Record<PrStatus, number> exhaustiveness
+  Approved: 4, // filtered out before sort; present only for Record<PrStatus, number> exhaustiveness
 };
 ```
 
@@ -450,6 +486,7 @@ cd /Users/dominik/dev/other/orbit && git add src/app/services/work-data.service.
 ### Task 4: Update PrCardComponent badge styles
 
 **Files:**
+
 - Modify: `src/app/components/pr-card/pr-card.ts`
 
 The badge `<span>` currently has no `aria-label`. For the `'Needs Re-review'` status, add a German `aria-label` since the label text is English in a German-language UI.
@@ -516,6 +553,7 @@ cd /Users/dominik/dev/other/orbit && git add src/app/components/pr-card/pr-card.
 ### Task 5: Update mock server
 
 **Files:**
+
 - Modify: `mock-server/bitbucket.js`
 
 - [ ] **Step 1: Add a second NEEDS_WORK PR to `mockPullRequests`**
@@ -599,26 +637,30 @@ app.get(
     } else {
       res.json({ values: [], isLastPage: true });
     }
-  }
+  },
 );
 ```
 
 - [ ] **Step 3: Manual smoke test (if mock server is running)**
 
 Start the mock server if not running:
+
 ```bash
 node /Users/dominik/dev/other/orbit/mock-server/bitbucket.js &
 ```
 
 Verify the activities endpoint works:
+
 ```bash
 curl -s "http://localhost:6203/rest/api/latest/projects/SL/repos/versicherung-shared-lib/pull-requests/89/activities" | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');console.log(JSON.parse(d).values[0].action)"
 ```
+
 Expected output: `REVIEWED`
 
 ```bash
 curl -s "http://localhost:6203/rest/api/latest/projects/SL/repos/versicherung-shared-lib/pull-requests/91/activities" | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');console.log(JSON.parse(d).values[0].action)"
 ```
+
 Expected output: `COMMENTED`
 
 - [ ] **Step 4: Run full test suite one final time**

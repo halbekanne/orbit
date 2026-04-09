@@ -15,6 +15,7 @@
 ### Task 1: Add `/rest/api/2/user` endpoint to the mock server
 
 **Files:**
+
 - Modify: `mock-server/jira.js`
 
 - [ ] **Step 1: Add the user lookup route**
@@ -26,9 +27,16 @@ const ALL_USERS = [U1, U2, U3, U4, U5, UNASSIGNED];
 
 app.get('/rest/api/2/user', (req, res) => {
   const username = req.query.username;
-  const user = ALL_USERS.find(u => u.name === username);
+  const user = ALL_USERS.find((u) => u.name === username);
   if (!user) {
-    res.status(404).json({ errorMessages: [`User '${username}' does not exist or you do not have permission to view it.`], errors: {} });
+    res
+      .status(404)
+      .json({
+        errorMessages: [
+          `User '${username}' does not exist or you do not have permission to view it.`,
+        ],
+        errors: {},
+      });
     return;
   }
   res.json(user);
@@ -47,6 +55,7 @@ git commit -m "feat(mock): add /rest/api/2/user endpoint for mention resolution"
 ### Task 2: Write failing tests for mention resolution in JiraService
 
 **Files:**
+
 - Modify: `src/app/services/jira.service.spec.ts`
 
 The existing test suite uses `HttpTestingController`. With mention resolution, `getTicketByKey` and `getAssignedActiveTickets` will make additional HTTP calls after the main issue fetch. Tests must flush both the issue request and any subsequent user requests.
@@ -56,7 +65,9 @@ The existing test suite uses `HttpTestingController`. With mention resolution, `
 Add this helper inside the `describe('JiraService', ...)` block (after the `afterEach`):
 
 ```typescript
-function makeRawIssue(overrides: { description?: string; comments?: { id: string; body: string }[] } = {}) {
+function makeRawIssue(
+  overrides: { description?: string; comments?: { id: string; body: string }[] } = {},
+) {
   return {
     id: '99',
     key: 'TEST-1',
@@ -64,7 +75,10 @@ function makeRawIssue(overrides: { description?: string; comments?: { id: string
     fields: {
       summary: 'Test Issue',
       issuetype: { name: 'Task' },
-      status: { name: 'In Progress', statusCategory: { key: 'indeterminate', name: 'In Progress' } },
+      status: {
+        name: 'In Progress',
+        statusCategory: { key: 'indeterminate', name: 'In Progress' },
+      },
       priority: null,
       assignee: null,
       reporter: null,
@@ -76,7 +90,7 @@ function makeRawIssue(overrides: { description?: string; comments?: { id: string
       labels: [],
       project: { key: 'TEST', name: 'Test' },
       components: [],
-      comment: (overrides.comments ?? []).map(c => ({
+      comment: (overrides.comments ?? []).map((c) => ({
         id: c.id,
         author: { displayName: 'Someone' },
         body: c.body,
@@ -95,12 +109,13 @@ function makeRawIssue(overrides: { description?: string; comments?: { id: string
 ```typescript
 it('resolves user mention in description to display name', () => {
   let result: JiraTicket | undefined;
-  service.getTicketByKey('TEST-1').subscribe(t => (result = t));
+  service.getTicketByKey('TEST-1').subscribe((t) => (result = t));
 
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: 'Bitte [~u99] prüfen.' })
-  );
-  httpMock.expectOne(r => r.url.includes('/user') && r.params.get('username') === 'u99')
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: 'Bitte [~u99] prüfen.' }));
+  httpMock
+    .expectOne((r) => r.url.includes('/user') && r.params.get('username') === 'u99')
     .flush({ displayName: 'Anna Bergmann' });
 
   expect(result!.description).toBe('Bitte [~Anna Bergmann] prüfen.');
@@ -112,12 +127,13 @@ it('resolves user mention in description to display name', () => {
 ```typescript
 it('resolves user mention in comment body to display name', () => {
   let result: JiraTicket | undefined;
-  service.getTicketByKey('TEST-1').subscribe(t => (result = t));
+  service.getTicketByKey('TEST-1').subscribe((t) => (result = t));
 
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ comments: [{ id: 'c1', body: 'FYI [~u99]' }] })
-  );
-  httpMock.expectOne(r => r.url.includes('/user') && r.params.get('username') === 'u99')
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ comments: [{ id: 'c1', body: 'FYI [~u99]' }] }));
+  httpMock
+    .expectOne((r) => r.url.includes('/user') && r.params.get('username') === 'u99')
     .flush({ displayName: 'Michael Braun' });
 
   expect(result!.comments[0].body).toBe('FYI [~Michael Braun]');
@@ -130,17 +146,17 @@ it('resolves user mention in comment body to display name', () => {
 it('does not fetch a user slug that was already resolved', () => {
   // First fetch — resolves u99
   service.getTicketByKey('TEST-1').subscribe();
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: '[~u99]' })
-  );
-  httpMock.expectOne(r => r.url.includes('/user')).flush({ displayName: 'Anna Bergmann' });
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: '[~u99]' }));
+  httpMock.expectOne((r) => r.url.includes('/user')).flush({ displayName: 'Anna Bergmann' });
 
   // Second fetch — same slug, must NOT trigger another /user call
   service.getTicketByKey('TEST-1').subscribe();
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: '[~u99] again' })
-  );
-  httpMock.expectNone(r => r.url.includes('/user'));
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: '[~u99] again' }));
+  httpMock.expectNone((r) => r.url.includes('/user'));
 });
 ```
 
@@ -149,12 +165,13 @@ it('does not fetch a user slug that was already resolved', () => {
 ```typescript
 it('keeps original slug when user lookup fails', () => {
   let result: JiraTicket | undefined;
-  service.getTicketByKey('TEST-1').subscribe(t => (result = t));
+  service.getTicketByKey('TEST-1').subscribe((t) => (result = t));
 
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: '[~u404]' })
-  );
-  httpMock.expectOne(r => r.url.includes('/user') && r.params.get('username') === 'u404')
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: '[~u404]' }));
+  httpMock
+    .expectOne((r) => r.url.includes('/user') && r.params.get('username') === 'u404')
     .flush({ errorMessages: ['User not found'] }, { status: 404, statusText: 'Not Found' });
 
   expect(result!.description).toBe('[~u404]');
@@ -166,19 +183,19 @@ it('keeps original slug when user lookup fails', () => {
 ```typescript
 it('resolves multiple distinct slugs in a single ticket', () => {
   let result: JiraTicket | undefined;
-  service.getTicketByKey('TEST-1').subscribe(t => (result = t));
+  service.getTicketByKey('TEST-1').subscribe((t) => (result = t));
 
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: '[~ua] und [~ub] sind beteiligt.' })
-  );
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: '[~ua] und [~ub] sind beteiligt.' }));
 
-  const userReqs = httpMock.match(r => r.url.includes('/user'));
+  const userReqs = httpMock.match((r) => r.url.includes('/user'));
   expect(userReqs.length).toBe(2);
-  const slugs = userReqs.map(r => r.request.params.get('username'));
+  const slugs = userReqs.map((r) => r.request.params.get('username'));
   expect(slugs).toContain('ua');
   expect(slugs).toContain('ub');
-  userReqs.find(r => r.request.params.get('username') === 'ua')!.flush({ displayName: 'Anna' });
-  userReqs.find(r => r.request.params.get('username') === 'ub')!.flush({ displayName: 'Bob' });
+  userReqs.find((r) => r.request.params.get('username') === 'ua')!.flush({ displayName: 'Anna' });
+  userReqs.find((r) => r.request.params.get('username') === 'ub')!.flush({ displayName: 'Bob' });
 
   expect(result!.description).toBe('[~Anna] und [~Bob] sind beteiligt.');
 });
@@ -189,10 +206,10 @@ it('resolves multiple distinct slugs in a single ticket', () => {
 ```typescript
 it('makes no user API calls when there are no mentions', () => {
   service.getTicketByKey('TEST-1').subscribe();
-  httpMock.expectOne(r => r.url.includes('/issue/TEST-1')).flush(
-    makeRawIssue({ description: 'Kein Erwähnungen hier.' })
-  );
-  httpMock.expectNone(r => r.url.includes('/user'));
+  httpMock
+    .expectOne((r) => r.url.includes('/issue/TEST-1'))
+    .flush(makeRawIssue({ description: 'Kein Erwähnungen hier.' }));
+  httpMock.expectNone((r) => r.url.includes('/user'));
 });
 ```
 
@@ -218,6 +235,7 @@ git commit -m "test(jira): add failing tests for user mention resolution"
 ### Task 3: Implement mention resolution in JiraService
 
 **Files:**
+
 - Modify: `src/app/services/jira.service.ts`
 
 - [ ] **Step 1: Update imports**

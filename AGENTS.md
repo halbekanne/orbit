@@ -100,6 +100,7 @@ Every UI element, interaction, or feature must be evaluated against these princi
 ### After Making Changes
 
 Always run both:
+
 ```bash
 ng test --no-watch
 npx ng build
@@ -123,9 +124,10 @@ npx ng build
 
 ### Color Rules
 
-Orbit uses semantic CSS custom properties defined in `src/styles/tokens.css`. Dark mode is toggled via a `dark` class on `<html>` (managed by `ThemeService`). The tokens redefine themselves under `.dark`, so **using token variables is usually all you need** — dark mode comes for free. Only when you need a color not covered by an existing token do you need to add a new token with both light and dark values to `tokens.css`. 
+Orbit uses semantic CSS custom properties defined in `src/styles/tokens.css`. Dark mode is toggled via a `dark` class on `<html>` (managed by `ThemeService`). The tokens redefine themselves under `.dark`, so **using token variables is usually all you need** — dark mode comes for free. Only when you need a color not covered by an existing token do you need to add a new token with both light and dark values to `tokens.css`.
 
 **Mandatory:**
+
 - **Never hardcode neutral colors.** No `bg-white`, `bg-stone-50`, `text-stone-800`, `#ff00dd` etc. Use token variables that are defined in [src/styles/tokens.css](src/styles/tokens.css) and add them as needed. Some examples:
   - Backgrounds: `bg-[var(--color-bg-card)]`, `bg-[var(--color-bg-page)]`, `bg-[var(--color-bg-surface)]`
   - Text: `text-[var(--color-text-heading)]`, `text-[var(--color-text-body)]`, `text-[var(--color-text-muted)]`
@@ -138,14 +140,14 @@ Orbit uses semantic CSS custom properties defined in `src/styles/tokens.css`. Da
 
 ### Allowed Palettes
 
-| Role | Palette |
-|---|---|
-| Neutral | `stone` |
-| Primary | `violet` |
-| Attention | `amber` |
-| Success | `emerald` |
-| Error | `red` |
-| Info | `blue` (links only) |
+| Role      | Palette             |
+| --------- | ------------------- |
+| Neutral   | `stone`             |
+| Primary   | `violet`            |
+| Attention | `amber`             |
+| Success   | `emerald`           |
+| Error     | `red`               |
+| Info      | `blue` (links only) |
 
 No other palettes (`gray`, `slate`, `zinc`, `indigo`, `sky`, etc.) may be used.
 
@@ -153,11 +155,11 @@ No other palettes (`gray`, `slate`, `zinc`, `indigo`, `sky`, etc.) may be used.
 
 Every card (ticket, PR, todo, idea) has exactly one state:
 
-| State | Visual | When |
-|---|---|---|
-| **Inactive** | Reduced opacity (55% light / 62% dark) | User doesn't need to act |
-| **Normal** | Neutral card, no accent | Default state |
-| **Attention** | `border-l-4 border-amber-500` | Urgent or overdue |
+| State         | Visual                                 | When                     |
+| ------------- | -------------------------------------- | ------------------------ |
+| **Inactive**  | Reduced opacity (55% light / 62% dark) | User doesn't need to act |
+| **Normal**    | Neutral card, no accent                | Default state            |
+| **Attention** | `border-l-4 border-amber-500`          | Urgent or overdue        |
 
 Cards never have colored backgrounds. Color lives only in badges, icons, text, and the amber attention bar. Type badges ("Fehler", "Aufgabe", "User Story") are always neutral stone — only status badges carry semantic colors.
 

@@ -14,27 +14,28 @@
 
 ## File Structure
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src/app/models/day-schedule.model.ts` | `DayAppointment` and `DaySchedule` interfaces |
-| Create | `src/app/services/day-schedule.service.ts` | Signal-based state, CRUD, HTTP persistence, date rollover |
-| Create | `src/app/services/day-schedule.service.spec.ts` | Service unit tests |
-| Create | `src/app/components/day-timeline/day-timeline.ts` | Timeline grid, drag-to-create, drag-to-resize, current time line |
-| Create | `src/app/components/day-timeline/day-timeline.spec.ts` | Timeline component tests |
-| Create | `src/app/components/appointment-popup/appointment-popup.ts` | Edit/create popup overlay |
-| Create | `src/app/components/appointment-popup/appointment-popup.spec.ts` | Popup component tests |
-| Create | `src/app/components/day-calendar-panel/day-calendar-panel.ts` | Right panel wrapper (action buttons + timeline + collapse) |
-| Create | `src/app/components/day-calendar-panel/day-calendar-panel.spec.ts` | Panel component tests |
-| Modify | `proxy/index.js:110-135` | Add `/api/day-schedule` GET/POST routes |
-| Modify | `src/app/views/view-arbeit/view-arbeit.html` | Replace `<app-action-rail />` with `<app-day-calendar-panel />` |
-| Modify | `src/app/views/view-arbeit/view-arbeit.ts` | Import `DayCalendarPanelComponent` |
-| Modify | `src/app/components/rhythm-detail/rhythm-detail.ts` | Add `'calendar-setup'` view state, page transition animation, "Weiter"/"Fertig" flow |
+| Action | Path                                                               | Responsibility                                                                       |
+| ------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Create | `src/app/models/day-schedule.model.ts`                             | `DayAppointment` and `DaySchedule` interfaces                                        |
+| Create | `src/app/services/day-schedule.service.ts`                         | Signal-based state, CRUD, HTTP persistence, date rollover                            |
+| Create | `src/app/services/day-schedule.service.spec.ts`                    | Service unit tests                                                                   |
+| Create | `src/app/components/day-timeline/day-timeline.ts`                  | Timeline grid, drag-to-create, drag-to-resize, current time line                     |
+| Create | `src/app/components/day-timeline/day-timeline.spec.ts`             | Timeline component tests                                                             |
+| Create | `src/app/components/appointment-popup/appointment-popup.ts`        | Edit/create popup overlay                                                            |
+| Create | `src/app/components/appointment-popup/appointment-popup.spec.ts`   | Popup component tests                                                                |
+| Create | `src/app/components/day-calendar-panel/day-calendar-panel.ts`      | Right panel wrapper (action buttons + timeline + collapse)                           |
+| Create | `src/app/components/day-calendar-panel/day-calendar-panel.spec.ts` | Panel component tests                                                                |
+| Modify | `proxy/index.js:110-135`                                           | Add `/api/day-schedule` GET/POST routes                                              |
+| Modify | `src/app/views/view-arbeit/view-arbeit.html`                       | Replace `<app-action-rail />` with `<app-day-calendar-panel />`                      |
+| Modify | `src/app/views/view-arbeit/view-arbeit.ts`                         | Import `DayCalendarPanelComponent`                                                   |
+| Modify | `src/app/components/rhythm-detail/rhythm-detail.ts`                | Add `'calendar-setup'` view state, page transition animation, "Weiter"/"Fertig" flow |
 
 ---
 
 ### Task 1: Data Model
 
 **Files:**
+
 - Create: `src/app/models/day-schedule.model.ts`
 
 - [ ] **Step 1: Create the model file**
@@ -65,6 +66,7 @@ git commit -m "feat(day-calendar): add DayAppointment and DaySchedule model"
 ### Task 2: Backend Route
 
 **Files:**
+
 - Modify: `proxy/index.js:134-135` (after the logbuch POST route)
 
 - [ ] **Step 1: Add GET and POST routes for `/api/day-schedule`**
@@ -101,6 +103,7 @@ git commit -m "feat(day-calendar): add /api/day-schedule backend route"
 ### Task 3: DayScheduleService
 
 **Files:**
+
 - Create: `src/app/services/day-schedule.service.ts`
 - Create: `src/app/services/day-schedule.service.spec.ts`
 
@@ -140,14 +143,20 @@ describe('DayScheduleService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('loads today schedule on init', () => {
-    const schedule: DaySchedule = { date: todayStr(), appointments: [{ id: 'apt-1', title: 'Test', startTime: '09:00', endTime: '10:00' }] };
+    const schedule: DaySchedule = {
+      date: todayStr(),
+      appointments: [{ id: 'apt-1', title: 'Test', startTime: '09:00', endTime: '10:00' }],
+    };
     const { svc } = setup(schedule);
     expect(svc.appointments().length).toBe(1);
     expect(svc.appointments()[0].title).toBe('Test');
   });
 
   it('clears appointments when stored date does not match today', () => {
-    const stale: DaySchedule = { date: '2025-01-01', appointments: [{ id: 'apt-1', title: 'Old', startTime: '09:00', endTime: '10:00' }] };
+    const stale: DaySchedule = {
+      date: '2025-01-01',
+      appointments: [{ id: 'apt-1', title: 'Old', startTime: '09:00', endTime: '10:00' }],
+    };
     const { svc, postSpy } = setup(stale);
     expect(svc.appointments()).toEqual([]);
     expect(postSpy).toHaveBeenCalled();
@@ -227,7 +236,7 @@ export class DayScheduleService {
       startTime,
       endTime,
     };
-    this.schedule.update(s => ({
+    this.schedule.update((s) => ({
       ...s,
       appointments: [...s.appointments, apt],
     }));
@@ -236,24 +245,24 @@ export class DayScheduleService {
   }
 
   updateAppointment(apt: DayAppointment): void {
-    this.schedule.update(s => ({
+    this.schedule.update((s) => ({
       ...s,
-      appointments: s.appointments.map(a => a.id === apt.id ? apt : a),
+      appointments: s.appointments.map((a) => (a.id === apt.id ? apt : a)),
     }));
     this.save();
   }
 
   deleteAppointment(id: string): void {
-    this.schedule.update(s => ({
+    this.schedule.update((s) => ({
       ...s,
-      appointments: s.appointments.filter(a => a.id !== id),
+      appointments: s.appointments.filter((a) => a.id !== id),
     }));
     this.save();
   }
 
   private load(): void {
     this.http.get<DaySchedule | unknown[]>(this.baseUrl).subscribe({
-      next: data => {
+      next: (data) => {
         if (Array.isArray(data) || !data || (data as DaySchedule).date !== this.todayString()) {
           this.schedule.set({ date: this.todayString(), appointments: [] });
           this.save();
@@ -261,13 +270,13 @@ export class DayScheduleService {
           this.schedule.set(data as DaySchedule);
         }
       },
-      error: err => console.error('Failed to load day schedule:', err),
+      error: (err) => console.error('Failed to load day schedule:', err),
     });
   }
 
   private save(): void {
     this.http.post(this.baseUrl, this.schedule()).subscribe({
-      error: err => console.error('Failed to save day schedule:', err),
+      error: (err) => console.error('Failed to save day schedule:', err),
     });
   }
 
@@ -295,6 +304,7 @@ git commit -m "feat(day-calendar): add DayScheduleService with CRUD and date rol
 ### Task 4: AppointmentPopupComponent
 
 **Files:**
+
 - Create: `src/app/components/appointment-popup/appointment-popup.ts`
 - Create: `src/app/components/appointment-popup/appointment-popup.spec.ts`
 
@@ -326,9 +336,15 @@ class TestHostComponent {
   saved: DayAppointment | null = null;
   deleted: string | null = null;
   cancelled = false;
-  onSave(apt: DayAppointment) { this.saved = apt; }
-  onDelete(id: string) { this.deleted = id; }
-  onCancel() { this.cancelled = true; }
+  onSave(apt: DayAppointment) {
+    this.saved = apt;
+  }
+  onDelete(id: string) {
+    this.deleted = id;
+  }
+  onCancel() {
+    this.cancelled = true;
+  }
 }
 
 describe('AppointmentPopupComponent', () => {
@@ -416,13 +432,18 @@ import { DayAppointment } from '../../models/day-schedule.model';
   template: `
     <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" (click)="cancel.emit()"></div>
     <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div class="bg-white rounded-xl shadow-lg p-4 w-[280px] pointer-events-auto" (click)="$event.stopPropagation()">
+      <div
+        class="bg-white rounded-xl shadow-lg p-4 w-[280px] pointer-events-auto"
+        (click)="$event.stopPropagation()"
+      >
         <h3 class="text-sm font-semibold text-stone-900 mb-3">
           {{ isNew() ? 'Neuer Termin' : 'Termin bearbeiten' }}
         </h3>
 
         <div class="mb-3">
-          <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1">Name</label>
+          <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1"
+            >Name</label
+          >
           <input
             type="text"
             class="w-full rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-900 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
@@ -436,7 +457,9 @@ import { DayAppointment } from '../../models/day-schedule.model';
 
         <div class="flex gap-2 mb-4">
           <div class="flex-1">
-            <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1">Von</label>
+            <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1"
+              >Von</label
+            >
             <input
               type="text"
               class="w-full rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-900 text-center tabular-nums focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
@@ -446,7 +469,9 @@ import { DayAppointment } from '../../models/day-schedule.model';
             />
           </div>
           <div class="flex-1">
-            <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1">Bis</label>
+            <label class="text-[10px] font-medium uppercase tracking-wide text-stone-500 block mb-1"
+              >Bis</label
+            >
             <input
               type="text"
               class="w-full rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-900 text-center tabular-nums focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
@@ -464,24 +489,32 @@ import { DayAppointment } from '../../models/day-schedule.model';
             [disabled]="!name().trim()"
             (click)="onSave()"
             data-testid="apt-save"
-          >Speichern</button>
+          >
+            Speichern
+          </button>
           <button
             type="button"
             class="rounded-lg px-3 py-1.5 text-xs font-medium text-stone-600 bg-stone-100 border border-stone-200 hover:bg-stone-200 transition-colors"
             (click)="cancel.emit()"
             data-testid="apt-cancel"
-          >Abbrechen</button>
+          >
+            Abbrechen
+          </button>
           @if (!isNew()) {
             <button
               type="button"
               class="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors ms-auto"
               (click)="delete.emit(appointment().id!)"
               data-testid="apt-delete"
-            >Löschen</button>
+            >
+              Löschen
+            </button>
           }
         </div>
 
-        <p class="text-[10px] text-stone-400 text-center mt-3">Enter = Speichern · Esc = Abbrechen</p>
+        <p class="text-[10px] text-stone-400 text-center mt-3">
+          Enter = Speichern · Esc = Abbrechen
+        </p>
       </div>
     </div>
   `,
@@ -537,6 +570,7 @@ git commit -m "feat(day-calendar): add AppointmentPopupComponent with create/edi
 ### Task 5: DayTimelineComponent — Grid Rendering
 
 **Files:**
+
 - Create: `src/app/components/day-timeline/day-timeline.ts`
 - Create: `src/app/components/day-timeline/day-timeline.spec.ts`
 
@@ -570,9 +604,15 @@ class TestHostComponent {
   created: { startTime: string; endTime: string } | null = null;
   edited: DayAppointment | null = null;
   updated: DayAppointment | null = null;
-  onCreate(e: { startTime: string; endTime: string }) { this.created = e; }
-  onEdit(apt: DayAppointment) { this.edited = apt; }
-  onUpdate(apt: DayAppointment) { this.updated = apt; }
+  onCreate(e: { startTime: string; endTime: string }) {
+    this.created = e;
+  }
+  onEdit(apt: DayAppointment) {
+    this.edited = apt;
+  }
+  onUpdate(apt: DayAppointment) {
+    this.updated = apt;
+  }
 }
 
 describe('DayTimelineComponent', () => {
@@ -671,7 +711,10 @@ function minutesToPercent(minutes: number): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block h-full select-none' },
   styles: `
-    .grid-container { position: relative; height: 100%; }
+    .grid-container {
+      position: relative;
+      height: 100%;
+    }
     .hour-row {
       position: absolute;
       left: 0;
@@ -680,7 +723,9 @@ function minutesToPercent(minutes: number): number {
       align-items: flex-start;
       border-top: 1px solid #f5f5f4;
     }
-    .hour-row[data-half] { border-top: 1px dotted #e7e5e4; }
+    .hour-row[data-half] {
+      border-top: 1px dotted #e7e5e4;
+    }
     .hour-label {
       width: 36px;
       flex-shrink: 0;
@@ -701,7 +746,9 @@ function minutesToPercent(minutes: number): number {
       overflow: hidden;
       z-index: 2;
     }
-    .appointment-block:hover { background: #e0e7ff; }
+    .appointment-block:hover {
+      background: #e0e7ff;
+    }
     .current-time-line {
       position: absolute;
       left: 36px;
@@ -750,8 +797,12 @@ function minutesToPercent(minutes: number): number {
       border-radius: 2px;
       opacity: 0.5;
     }
-    .resize-handle-top { top: -1px; }
-    .resize-handle-bottom { bottom: -1px; }
+    .resize-handle-top {
+      top: -1px;
+    }
+    .resize-handle-bottom {
+      bottom: -1px;
+    }
   `,
   template: `
     <div
@@ -776,13 +827,23 @@ function minutesToPercent(minutes: number): number {
           [attr.data-testid]="'appointment-' + apt.id"
           [attr.data-appointment-id]="apt.id"
           [style.top.%]="minutesToPercent(timeToMinutes(apt.startTime))"
-          [style.height.%]="((timeToMinutes(apt.endTime) - timeToMinutes(apt.startTime)) / TOTAL_MINUTES) * 100"
+          [style.height.%]="
+            ((timeToMinutes(apt.endTime) - timeToMinutes(apt.startTime)) / TOTAL_MINUTES) * 100
+          "
           (dblclick)="appointmentEdit.emit(apt)"
         >
           <div class="text-[10px] font-medium text-indigo-900 truncate">{{ apt.title }}</div>
           <div class="text-[9px] text-indigo-500">{{ apt.startTime }} – {{ apt.endTime }}</div>
-          <div class="resize-handle resize-handle-top" data-resize="top" [attr.data-appointment-id]="apt.id"></div>
-          <div class="resize-handle resize-handle-bottom" data-resize="bottom" [attr.data-appointment-id]="apt.id"></div>
+          <div
+            class="resize-handle resize-handle-top"
+            data-resize="top"
+            [attr.data-appointment-id]="apt.id"
+          ></div>
+          <div
+            class="resize-handle resize-handle-bottom"
+            data-resize="bottom"
+            [attr.data-appointment-id]="apt.id"
+          ></div>
         </div>
       }
 
@@ -790,9 +851,12 @@ function minutesToPercent(minutes: number): number {
         <div
           class="drag-preview"
           [style.top.%]="minutesToPercent(dragPreview()!.startMinutes)"
-          [style.height.%]="((dragPreview()!.endMinutes - dragPreview()!.startMinutes) / TOTAL_MINUTES) * 100"
+          [style.height.%]="
+            ((dragPreview()!.endMinutes - dragPreview()!.startMinutes) / TOTAL_MINUTES) * 100
+          "
         >
-          {{ minutesToTime(dragPreview()!.startMinutes) }} – {{ minutesToTime(dragPreview()!.endMinutes) }}
+          {{ minutesToTime(dragPreview()!.startMinutes) }} –
+          {{ minutesToTime(dragPreview()!.endMinutes) }}
         </div>
       }
 
@@ -818,14 +882,19 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
   protected readonly START_HOUR = START_HOUR;
   protected readonly END_HOUR = END_HOUR;
   protected readonly TOTAL_MINUTES = TOTAL_MINUTES;
-  protected readonly hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
+  protected readonly hours = Array.from(
+    { length: END_HOUR - START_HOUR + 1 },
+    (_, i) => START_HOUR + i,
+  );
 
   protected readonly minutesToPercent = minutesToPercent;
   protected readonly timeToMinutes = timeToMinutes;
   protected readonly minutesToTime = minutesToTime;
 
   protected readonly currentTimePercent = signal<number | null>(null);
-  protected readonly dragPreview = signal<{ startMinutes: number; endMinutes: number } | null>(null);
+  protected readonly dragPreview = signal<{ startMinutes: number; endMinutes: number } | null>(
+    null,
+  );
 
   private readonly elRef = inject(ElementRef);
   private timeInterval: ReturnType<typeof setInterval> | null = null;
@@ -877,7 +946,7 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
     if (resizeHandle) {
       const direction = resizeHandle.dataset['resize'] as 'top' | 'bottom';
       const aptId = resizeHandle.dataset['appointmentId']!;
-      const apt = this.appointments().find(a => a.id === aptId);
+      const apt = this.appointments().find((a) => a.id === aptId);
       if (!apt) return;
       event.preventDefault();
       (event.target as HTMLElement).setPointerCapture(event.pointerId);
@@ -943,7 +1012,7 @@ export class DayTimelineComponent implements OnInit, OnDestroy {
         endTime: minutesToTime(preview.endMinutes),
       });
     } else {
-      const apt = this.appointments().find(a => a.id === this.dragState!.appointmentId);
+      const apt = this.appointments().find((a) => a.id === this.dragState!.appointmentId);
       if (apt) {
         this.appointmentUpdate.emit({
           ...apt,
@@ -975,6 +1044,7 @@ git commit -m "feat(day-calendar): add DayTimelineComponent with grid, appointme
 ### Task 6: DayCalendarPanelComponent
 
 **Files:**
+
 - Create: `src/app/components/day-calendar-panel/day-calendar-panel.ts`
 - Create: `src/app/components/day-calendar-panel/day-calendar-panel.spec.ts`
 
@@ -1059,7 +1129,8 @@ import { DayAppointment } from '../../models/day-schedule.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DayTimelineComponent, AppointmentPopupComponent, ActionRailComponent],
   host: {
-    '[class]': 'collapsed() ? "w-8 shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col" : "w-[260px] shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col transition-[width] duration-150"',
+    '[class]':
+      'collapsed() ? "w-8 shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col" : "w-[260px] shrink-0 border-l border-stone-200 bg-stone-50 flex flex-col transition-[width] duration-150"',
   },
   template: `
     @if (collapsed()) {
@@ -1070,7 +1141,20 @@ import { DayAppointment } from '../../models/day-schedule.model';
         data-testid="collapse-toggle"
         aria-label="Tagesplan einblenden"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
       </button>
     } @else {
       <div class="flex items-center justify-between px-2 py-2 border-b border-stone-100">
@@ -1082,7 +1166,20 @@ import { DayAppointment } from '../../models/day-schedule.model';
           data-testid="collapse-toggle"
           aria-label="Tagesplan ausblenden"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
         </button>
       </div>
 
@@ -1111,7 +1208,7 @@ export class DayCalendarPanelComponent {
   protected readonly schedule = inject(DayScheduleService);
 
   protected readonly collapsed = signal(
-    localStorage.getItem('orbit.dayCalendar.collapsed') === 'true'
+    localStorage.getItem('orbit.dayCalendar.collapsed') === 'true',
   );
 
   protected readonly popupState = signal<{
@@ -1120,7 +1217,7 @@ export class DayCalendarPanelComponent {
   } | null>(null);
 
   toggleCollapse(): void {
-    this.collapsed.update(v => !v);
+    this.collapsed.update((v) => !v);
     localStorage.setItem('orbit.dayCalendar.collapsed', String(this.collapsed()));
   }
 
@@ -1175,6 +1272,7 @@ git commit -m "feat(day-calendar): add DayCalendarPanelComponent with collapse/e
 ### Task 7: Integrate Panel into Arbeit View
 
 **Files:**
+
 - Modify: `src/app/views/view-arbeit/view-arbeit.html`
 - Modify: `src/app/views/view-arbeit/view-arbeit.ts`
 
@@ -1187,13 +1285,13 @@ Read: `src/app/views/view-arbeit/view-arbeit.ts` and `src/app/views/view-arbeit/
 In `src/app/views/view-arbeit/view-arbeit.html`, replace:
 
 ```html
-  <app-action-rail />
+<app-action-rail />
 ```
 
 with:
 
 ```html
-  <app-day-calendar-panel />
+<app-day-calendar-panel />
 ```
 
 - [ ] **Step 3: Update the component imports**
@@ -1217,6 +1315,7 @@ git commit -m "feat(day-calendar): replace action rail with day calendar panel i
 ### Task 8: Morning Flow Integration
 
 **Files:**
+
 - Modify: `src/app/components/rhythm-detail/rhythm-detail.ts`
 
 This is the most delicate task — modifying the existing morning flow to add the calendar setup step with a journal-like page transition.
@@ -1231,12 +1330,24 @@ Add new CSS animations for the page transition:
 
 ```css
 @keyframes pageOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-20px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .anim-page-out {
   animation: pageOut 400ms ease-out forwards;
@@ -1256,41 +1367,57 @@ Add a new `@case ('calendar-setup')` block to the template's `@switch`:
 
 ```html
 @case ('calendar-setup') {
-  <div class="h-full flex items-start justify-center pt-12 px-6 anim-page-in">
-    <div class="w-full max-w-[520px]">
-      <header class="mb-6 text-center">
-        <svg class="w-9 h-9 text-indigo-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
-        <p class="text-sm text-stone-400 mt-1">Wie sieht dein Tag heute aus?</p>
-      </header>
+<div class="h-full flex items-start justify-center pt-12 px-6 anim-page-in">
+  <div class="w-full max-w-[520px]">
+    <header class="mb-6 text-center">
+      <svg
+        class="w-9 h-9 text-indigo-400 mx-auto mb-3"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+      <h1 class="text-xl font-semibold text-stone-900">Tagesplan erstellen</h1>
+      <p class="text-sm text-stone-400 mt-1">Wie sieht dein Tag heute aus?</p>
+    </header>
 
-      <div class="h-[400px] border border-stone-200 rounded-xl overflow-hidden bg-white">
-        <app-day-timeline
-          [appointments]="calendarAppointments()"
-          (appointmentCreate)="onCalendarCreate($event)"
-          (appointmentEdit)="onCalendarEdit($event)"
-          (appointmentUpdate)="onCalendarResizeUpdate($event)"
-        />
-      </div>
+    <div class="h-[400px] border border-stone-200 rounded-xl overflow-hidden bg-white">
+      <app-day-timeline
+        [appointments]="calendarAppointments()"
+        (appointmentCreate)="onCalendarCreate($event)"
+        (appointmentEdit)="onCalendarEdit($event)"
+        (appointmentUpdate)="onCalendarResizeUpdate($event)"
+      />
+    </div>
 
-      <div class="flex gap-3 mt-4">
-        <button
-          type="button"
-          class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="onCalendarDone()"
-          data-testid="btn-calendar-done"
-        >Fertig</button>
-        <button
-          type="button"
-          class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
-          (click)="onCalendarSkip()"
-          data-testid="btn-calendar-skip"
-        >Überspringen</button>
-      </div>
+    <div class="flex gap-3 mt-4">
+      <button
+        type="button"
+        class="flex-1 rounded-xl px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        (click)="onCalendarDone()"
+        data-testid="btn-calendar-done"
+      >
+        Fertig
+      </button>
+      <button
+        type="button"
+        class="rounded-xl px-5 py-2.5 text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400"
+        (click)="onCalendarSkip()"
+        data-testid="btn-calendar-skip"
+      >
+        Überspringen
+      </button>
     </div>
   </div>
+</div>
 }
 ```
 
@@ -1381,13 +1508,13 @@ Add the popup to the `calendar-setup` template (inside the case block, after the
 
 ```html
 @if (calendarPopupState()) {
-  <app-appointment-popup
-    [appointment]="calendarPopupState()!.appointment"
-    [isNew]="calendarPopupState()!.isNew"
-    (save)="onCalendarPopupSave($event)"
-    (delete)="onCalendarPopupDelete($event)"
-    (cancel)="calendarPopupState.set(null)"
-  />
+<app-appointment-popup
+  [appointment]="calendarPopupState()!.appointment"
+  [isNew]="calendarPopupState()!.isNew"
+  (save)="onCalendarPopupSave($event)"
+  (delete)="onCalendarPopupDelete($event)"
+  (cancel)="calendarPopupState.set(null)"
+/>
 }
 ```
 
@@ -1407,7 +1534,8 @@ private syncViewState(phase: string): void {
 Instead of a separate `@case ('page-transition')`, use a CSS class approach: when transitioning, add the `anim-page-out` class to the existing `'input'` case content. After the 400ms animation completes, switch viewState to `'calendar-setup'` which has `anim-page-in`. This way the user sees the actual focus form content fading out, then the calendar content fading in.
 
 Implementation: Add a `pageTransitioning` signal. In the `'input'` case, bind `[class.anim-page-out]="pageTransitioning()"`. In `startPageTransition()`, set `pageTransitioning(true)`, then after 400ms set `viewState('calendar-setup')` and `pageTransitioning(false)`.
-```
+
+````
 
 - [ ] **Step 8: Verify the app compiles and test manually**
 
@@ -1421,13 +1549,14 @@ Manual test: Open Orbit → click Tagesfokus card → answer question → click 
 ```bash
 git add src/app/components/rhythm-detail/rhythm-detail.ts
 git commit -m "feat(day-calendar): integrate calendar setup into morning flow with page transition"
-```
+````
 
 ---
 
 ### Task 9: Skip Flow Adjustments
 
 **Files:**
+
 - Modify: `src/app/components/rhythm-detail/rhythm-detail.ts`
 
 - [ ] **Step 1: Update onSkip to skip both focus and calendar**

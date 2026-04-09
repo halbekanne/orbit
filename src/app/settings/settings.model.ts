@@ -56,7 +56,11 @@ export function createDefaultSettings(): OrbitSettings {
     },
     features: {
       pomodoro: { enabled: true, focusMinutes: 25, breakMinutes: 5 },
-      aiReviews: { enabled: false, enabledAgents: ['code-quality', 'ak-abgleich'], projectRules: '' },
+      aiReviews: {
+        enabled: false,
+        enabledAgents: ['code-quality', 'ak-abgleich'],
+        projectRules: '',
+      },
       dayCalendar: { enabled: true },
     },
     appearance: { theme: 'system' },

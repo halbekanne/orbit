@@ -104,7 +104,11 @@ Inside the `@for (finding of group.findings; track $index)` loop, between the ti
 
 ```html
 @if (finding.codeSnippet) {
-  <pre class="font-mono text-xs bg-stone-900 text-stone-100 rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
+<pre
+  class="font-mono text-xs bg-stone-900 text-stone-100 rounded px-3 py-2 mb-1.5 overflow-x-auto whitespace-pre-wrap"
+>
+{{ finding.codeSnippet }}</pre
+>
 }
 ```
 
@@ -116,13 +120,14 @@ Inside the `@for (finding of group.findings; track $index)` loop, between the ti
 
 Add `thinkingConfig` and `maxOutputTokens` to each agent's generation config object passed to `callCoSi`:
 
-| Agent | temperature | maxOutputTokens | thinkingBudget | includeThoughts |
-|-------|-------------|-----------------|----------------|-----------------|
-| AK-Abgleich | 0.2 (unchanged) | 4096 (new) | 4096 | true |
-| Code-Qualität | 0.4 (unchanged) | 4096 (new) | 4096 | true |
-| Konsolidator | 0.2 (unchanged) | 8192 (new) | 2048 | true |
+| Agent         | temperature     | maxOutputTokens | thinkingBudget | includeThoughts |
+| ------------- | --------------- | --------------- | -------------- | --------------- |
+| AK-Abgleich   | 0.2 (unchanged) | 4096 (new)      | 4096           | true            |
+| Code-Qualität | 0.4 (unchanged) | 4096 (new)      | 4096           | true            |
+| Konsolidator  | 0.2 (unchanged) | 8192 (new)      | 2048           | true            |
 
 Example config for Agent 2:
+
 ```js
 {
   temperature: 0.4,
@@ -141,19 +146,22 @@ With `includeThoughts: true`, the Vertex AI response returns multiple `parts` in
 
 ```json
 {
-  "candidates": [{
-    "content": {
-      "parts": [
-        { "text": "reasoning step 1...", "thought": true },
-        { "text": "reasoning step 2...", "thought": true },
-        { "text": "{\"findings\": [...]}" }
-      ]
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          { "text": "reasoning step 1...", "thought": true },
+          { "text": "reasoning step 2...", "thought": true },
+          { "text": "{\"findings\": [...]}" }
+        ]
+      }
     }
-  }]
+  ]
 }
 ```
 
 Update `callCoSi` to iterate over all parts:
+
 - **Thought parts** (`part.thought === true`): concatenate their `text` into a single `thoughts` string
 - **Non-thought parts** (`part.thought` is falsy): concatenate their `text` and `JSON.parse()` it
 
@@ -185,10 +193,12 @@ All callers in `runReview` must destructure `{ result, thoughts }` instead of us
 **File:** `proxy/cosi.js` — `runReview`
 
 Agent events:
+
 - `agent:start`: add `thinkingBudget` field (number)
 - `agent:done`: add `thoughts` field (string | null)
 
 Consolidator events:
+
 - `consolidator:start`: add `thinkingBudget` field (number)
 - `consolidator:done`: add `thoughts` field (string | null)
 
@@ -197,6 +207,7 @@ Consolidator events:
 **File:** `src/app/models/review.model.ts`
 
 Update `AgentStep`:
+
 ```ts
 export interface AgentStep {
   agent: string;
@@ -214,6 +225,7 @@ export interface AgentStep {
 ```
 
 Update `ConsolidatorStep`:
+
 ```ts
 export interface ConsolidatorStep {
   status: 'pending' | 'running' | 'done' | 'error';
@@ -229,6 +241,7 @@ export interface ConsolidatorStep {
 ```
 
 Also fix existing inconsistency — add `merged` to `ConsolidatorDecision.action` to match the consolidator prompt:
+
 ```ts
 export interface ConsolidatorDecision {
   action: 'kept' | 'removed' | 'merged' | 'severity-changed';
@@ -253,6 +266,7 @@ export interface ConsolidatorDecision {
 **File:** `src/app/components/review-pipeline/review-pipeline.ts`
 
 For both agent steps and consolidator step:
+
 - Display thinking budget next to temperature label: `T=0.4 · TB=4096`
 - Add collapsible "Denkprozess anzeigen" `<details>` block when `thoughts` is present:
   - Summary text in indigo (`text-indigo-600`, `font-weight: 500`, `font-size: 11px`)
@@ -272,10 +286,10 @@ Covered in section 4a — `maxOutputTokens` is added as part of each agent's gen
 
 ## Files changed
 
-| File | Changes |
-|------|---------|
-| `proxy/cosi.js` | Prompts, generation config, `callCoSi` return shape, `buildConsolidatorPrompt` signature |
-| `src/app/models/review.model.ts` | `ReviewFinding.codeSnippet`, `AgentStep.thoughts`/`thinkingBudget`, `ConsolidatorStep.thoughts`/`thinkingBudget`, `ConsolidatorDecision.action` union fix |
-| `src/app/services/cosi-review.service.ts` | Handle new SSE event fields (`thinkingBudget`, `thoughts`) for both agents and consolidator |
-| `src/app/components/review-findings/review-findings.ts` | Code snippet block in finding card |
-| `src/app/components/review-pipeline/review-pipeline.ts` | Thinking budget display, thoughts toggle for agents and consolidator |
+| File                                                    | Changes                                                                                                                                                   |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `proxy/cosi.js`                                         | Prompts, generation config, `callCoSi` return shape, `buildConsolidatorPrompt` signature                                                                  |
+| `src/app/models/review.model.ts`                        | `ReviewFinding.codeSnippet`, `AgentStep.thoughts`/`thinkingBudget`, `ConsolidatorStep.thoughts`/`thinkingBudget`, `ConsolidatorDecision.action` union fix |
+| `src/app/services/cosi-review.service.ts`               | Handle new SSE event fields (`thinkingBudget`, `thoughts`) for both agents and consolidator                                                               |
+| `src/app/components/review-findings/review-findings.ts` | Code snippet block in finding card                                                                                                                        |
+| `src/app/components/review-pipeline/review-pipeline.ts` | Thinking budget display, thoughts toggle for agents and consolidator                                                                                      |

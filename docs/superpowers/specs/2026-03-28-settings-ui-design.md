@@ -43,9 +43,7 @@ Orbit bekommt eine eigene Settings-UI als dritte View, über die Nutzer alle Kon
     },
     "vertexAi": {
       "url": "",
-      "customHeaders": [
-        { "name": "", "value": "" }
-      ]
+      "customHeaders": [{ "name": "", "value": "" }]
     }
   },
   "features": {
@@ -92,15 +90,16 @@ Alles andere ist optional oder hat Defaults.
 
 ### Neue Routen (`settings-routes.js`)
 
-| Methode | Pfad | Beschreibung |
-|---------|------|-------------|
-| `GET` | `/api/settings` | Liefert die aktuelle `settings.json`. Wenn Datei nicht existiert: `{ exists: false }` |
-| `PUT` | `/api/settings` | Schreibt die komplette Settings-JSON. Server validiert Pflichtfelder. Bei fehlenden Pflichtfeldern: `400` mit Liste der fehlenden Felder |
-| `GET` | `/api/settings/status` | Schneller Check: `{ configured: true/false }`. Prüft ob Datei existiert UND alle Pflichtfelder gesetzt sind |
+| Methode | Pfad                   | Beschreibung                                                                                                                             |
+| ------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`   | `/api/settings`        | Liefert die aktuelle `settings.json`. Wenn Datei nicht existiert: `{ exists: false }`                                                    |
+| `PUT`   | `/api/settings`        | Schreibt die komplette Settings-JSON. Server validiert Pflichtfelder. Bei fehlenden Pflichtfeldern: `400` mit Liste der fehlenden Felder |
+| `GET`   | `/api/settings/status` | Schneller Check: `{ configured: true/false }`. Prüft ob Datei existiert UND alle Pflichtfelder gesetzt sind                              |
 
 ### Änderungen an bestehenden Server-Dateien
 
 **`index.js`:**
+
 - `dotenv`-Import und `process.env`-Zugriffe für Credentials entfernen
 - `settings-routes.js` einbinden
 - Settings beim Start aus `~/.orbit/settings.json` laden
@@ -108,17 +107,20 @@ Alles andere ist optional oder hat Defaults.
 - Server startet auch ohne Settings (für den Fall dass der Nutzer sie erst über die UI anlegt)
 
 **`proxy-routes.js`:**
+
 - Liest Jira/Bitbucket-Credentials aus dem Settings-Objekt statt aus `process.env`
 - Der `/config`-Endpoint (der `bitbucketUserSlug` liefert) entfällt — Frontend liest den Slug aus dem `SettingsService`
 - Proxy-Routen geben `503` zurück wenn Settings nicht konfiguriert sind
 
 **`cosi-routes.js` → `ai-routes.js`:**
+
 - Umbenennung der Datei und aller internen Referenzen
 - Liest Vertex AI URL und Custom Headers aus Settings
 - URL-Aufbau: `settings.connections.vertexAi.url` + `:generateContent` (der Code hängt die Methode an)
 - Custom Headers werden bei jedem Request an den Proxy als HTTP-Header mitgesendet
 
 **`cosi-mock.js` → `ai-mock.js`:**
+
 - Umbenennung, gleiche Funktionalität
 
 ---
@@ -140,11 +142,13 @@ Die gesamte App zeigt einen **Fullscreen Welcome-Screen** — kein Rail, kein Na
 **Fullscreen-Layout** ohne jegliche App-Chrome (kein Rail, keine Navigation).
 
 **Hintergrund:**
+
 - Basis: `#0c0a09` (Orbit stone-950)
 - Darüber ein violetter Gradient von oben: `radial-gradient(ellipse 100% 80% at 50% 30%, rgba(124, 58, 237, 0.18) 0%, rgba(91, 33, 182, 0.08) 35%, transparent 65%)` plus zwei weitere subtile Ellipsen für Tiefe
 - Subtiler Sternenstaub: Viele kleine `radial-gradient`-Punkte (1-1.5px) in `rgba(231, 229, 228, 0.1-0.25)` und vereinzelt in `rgba(167, 139, 250, 0.15-0.2)`, mit einer langsamen Twinkle-Animation (12s ease-in-out alternate, Opacity 0.7 → 1)
 
 **2D Orbit-Illustration (zentriert, oberhalb des Textes):**
+
 - Breite/Höhe: ca. 260×260px
 - Ein **Planet** im Zentrum (56px): `radial-gradient` von `#c4b5fd` (Highlight oben-links) über `#7c3aed` zu `#3b0764` (Schatten). Subtiler Glanzpunkt oben-links (weiße Ellipse, 30% Opacity). Box-Shadow als Glow: `0 0 30px rgba(167, 139, 250, 0.3)`. Sanftes Pulsieren (6s, Shadow-Intensität wechselt).
 - **Drei konzentrische Ringe** um den Planeten:
@@ -159,6 +163,7 @@ Die gesamte App zeigt einen **Fullscreen Welcome-Screen** — kein Rail, kein Na
 - Gesamte Illustration faded in (1.2s, scale 0.92 → 1)
 
 **Text-Content (unterhalb der Illustration, zentriert, max-width 440px):**
+
 - **Titel:** "Willkommen bei Orbit" — `font-size: 30px`, `font-weight: 800`, "Orbit" mit violettem Gradient-Text (`#a78bfa` → `#c4b5fd` → `#a78bfa`). Fade-up Animation (0.8s, delay 0.3s).
 - **Subtitle:** "Deine persönliche Kommandozentrale für den Arbeitsalltag — gebaut für Fokus, Struktur und Orientierung." — `font-size: 15px`, `color: #a8a29e`, `line-height: 1.65`. Fade-up (delay 0.4s).
 - **Feature-Chips** (drei Stück, horizontal zentriert, flex-wrap):
@@ -198,6 +203,7 @@ Zahnrad-Icon in der linken Rail, unterhalb von Arbeit und Logbuch, oberhalb des 
 Zwei-Spalten-Layout innerhalb der Main-Area (der Rail bleibt wie bei allen Views links stehen):
 
 **Linke Spalte — Sticky Sektions-Navigation:**
+
 - Sticky, scrollt nicht mit
 - Überschrift "Einstellungen" oben (klein, uppercase, `letter-spacing`, stone-grau)
 - Sektions-Header (Verbindungen, Funktionen, Darstellung) als primäre Einträge
@@ -209,6 +215,7 @@ Zwei-Spalten-Layout innerhalb der Main-Area (der Rail bleibt wie bei allen Views
 - Klick auf einen Eintrag: smooth scroll zur entsprechenden Sektion
 
 **Rechte Spalte — Scrollbarer Content:**
+
 - Linke Borderlinie als visueller Separator
 - Alle Sektionen untereinander, getrennt durch Sektions-Header
 
@@ -217,12 +224,14 @@ Zwei-Spalten-Layout innerhalb der Main-Area (der Rail bleibt wie bei allen Views
 Sektions-Header: "Verbindungen" (fett, groß) + Subtitle "Zugangsdaten für externe Dienste" (klein, stone-grau)
 
 **Jira-Karte:**
+
 - Karten-Header: "Jira" (fett)
 - Feld: "Server-URL" — Text-Input, Pflicht (roter Stern), Placeholder: `https://jira.example.com`
 - Feld: "Personal Access Token" — Passwort-Input (maskiert) mit Toggle-Button zum Anzeigen/Verbergen, Pflicht (roter Stern)
 - Hilfetext unter dem PAT-Feld: "Erstelle einen Token in deinen Jira-Profileinstellungen" (klein, stone-grau)
 
 **Bitbucket-Karte:**
+
 - Karten-Header: "Bitbucket" (fett)
 - Feld: "Server-URL" — Text-Input, Pflicht, Placeholder: `https://bitbucket.example.com`
 - Feld: "Personal Access Token" — Passwort-Input, Pflicht
@@ -230,6 +239,7 @@ Sektions-Header: "Verbindungen" (fett, groß) + Subtitle "Zugangsdaten für exte
 - Hilfetext: "Dein Bitbucket-Benutzername, zu finden in deinem Profil"
 
 **Vertex AI Proxy-Karte:**
+
 - Karten-Header: "Vertex AI Proxy" (fett) + "Optional"-Badge rechts (klein, stone-grau)
 - Feld: "URL" — Text-Input, Placeholder: `https://example.com/v1/models/.../gemini-2.5-flash`
 - Hilfetext: "Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch angehängt."
@@ -245,6 +255,7 @@ Sektions-Header: "Funktionen" (fett) + Subtitle "Features aktivieren und konfigu
 Jedes Feature ist eine eigene Karte. Im Karten-Header steht der Feature-Name links und ein Toggle-Switch rechts.
 
 **Pomodoro-Timer:**
+
 - Toggle-Switch: an/aus
 - Wenn an: Zwei Number-Inputs nebeneinander
   - "Fokus-Dauer (Min.)" — Default: 25
@@ -252,11 +263,13 @@ Jedes Feature ist eine eigene Karte. Im Karten-Header steht der Feature-Name lin
 - Wenn aus: Gesamte Karte gedimmt (niedrige Opacity), Inputs nicht interagierbar
 
 **KI-gestützte Reviews:**
+
 - Toggle-Switch: an/aus
 - Wenn aus: Gedimmt
 - Wenn an aber keine Vertex AI URL konfiguriert: Hinweis "Benötigt Vertex AI Proxy-Konfiguration" (klein, amber/warning-farbig)
 
 **Tageskalender:**
+
 - Toggle-Switch: an/aus
 - Keine weiteren Sub-Settings
 
@@ -265,6 +278,7 @@ Jedes Feature ist eine eigene Karte. Im Karten-Header steht der Feature-Name lin
 Sektions-Header: "Darstellung" (fett) + Subtitle "Aussehen von Orbit anpassen"
 
 **Farbschema-Karte:**
+
 - Label: "Farbschema"
 - Drei klickbare Mini-Previews nebeneinander:
   - **Hell:** Mini-Version von Orbit's Layout im hellen Theme (heller Hintergrund, Stone-Farben für Rail und Sidebar-Elemente)
@@ -290,6 +304,7 @@ Am unteren Rand der Settings-View, immer sichtbar:
 ### Unsaved-Changes-Guard
 
 Wenn der Nutzer bei ungespeicherten Änderungen auf einen anderen Rail-Button klickt (Arbeit, Logbuch):
+
 - Dialog/Prompt: "Du hast ungespeicherte Änderungen. Möchtest du speichern oder verwerfen?"
 - Optionen: "Speichern" (speichert und navigiert) / "Verwerfen" (verwirft und navigiert) / "Abbrechen" (bleibt in Settings)
 
@@ -311,14 +326,14 @@ Das Popup **bleibt bestehen**. Es zeigt beim Öffnen die Default-Werte aus `Sett
 
 Alle Referenzen auf "CoSi" werden aus dem gesamten Codebase entfernt und generisch umbenannt:
 
-| Alt | Neu |
-|-----|-----|
-| `cosi-routes.js` | `ai-routes.js` |
-| `cosi-mock.js` | `ai-mock.js` |
-| `CosiReviewService` | `AiReviewService` |
-| `COSI_API_KEY` | entfällt (kommt aus Settings Custom Headers) |
-| `COSI_BASE_URL` | entfällt (kommt aus Settings `vertexAi.url`) |
-| Alle Variablen/Typen mit `cosi` | `ai` oder `vertexAi` je nach Kontext |
+| Alt                             | Neu                                          |
+| ------------------------------- | -------------------------------------------- |
+| `cosi-routes.js`                | `ai-routes.js`                               |
+| `cosi-mock.js`                  | `ai-mock.js`                                 |
+| `CosiReviewService`             | `AiReviewService`                            |
+| `COSI_API_KEY`                  | entfällt (kommt aus Settings Custom Headers) |
+| `COSI_BASE_URL`                 | entfällt (kommt aus Settings `vertexAi.url`) |
+| Alle Variablen/Typen mit `cosi` | `ai` oder `vertexAi` je nach Kontext         |
 
 ---
 
@@ -359,33 +374,33 @@ Zentraler Angular Service für den gesamten Settings-State.
 
 ### Neue Komponenten
 
-| Komponente | Beschreibung |
-|-----------|-------------|
-| `WelcomeScreenComponent` | Fullscreen-Willkommensbildschirm mit 2D Orbit-Animation und CTA |
-| `ViewSettingsComponent` | Settings-View mit Zwei-Spalten-Layout (Nav links + Content rechts) |
+| Komponente                    | Beschreibung                                                         |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `WelcomeScreenComponent`      | Fullscreen-Willkommensbildschirm mit 2D Orbit-Animation und CTA      |
+| `ViewSettingsComponent`       | Settings-View mit Zwei-Spalten-Layout (Nav links + Content rechts)   |
 | `SettingsSectionNavComponent` | Sticky Sektions-Navigation, IntersectionObserver für Active-Tracking |
-| `SettingsFooterComponent` | Sticky Footer mit Speichern-Button, Dirty-State, Validierung |
+| `SettingsFooterComponent`     | Sticky Footer mit Speichern-Button, Dirty-State, Validierung         |
 
 ### Geänderte Komponenten
 
-| Komponente | Änderung |
-|-----------|---------|
-| `AppComponent` | Onboarding-Gate (`isConfigured()`), Welcome-Screen rendern, dritter Rail-Button, `@case ('einstellungen')` |
-| `AppRailComponent` | Zahnrad-Icon für Settings, Theme-Toggle entfernen |
-| `PomodoroConfigPopupComponent` | Defaults aus SettingsService statt localStorage |
+| Komponente                     | Änderung                                                                                                   |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `AppComponent`                 | Onboarding-Gate (`isConfigured()`), Welcome-Screen rendern, dritter Rail-Button, `@case ('einstellungen')` |
+| `AppRailComponent`             | Zahnrad-Icon für Settings, Theme-Toggle entfernen                                                          |
+| `PomodoroConfigPopupComponent` | Defaults aus SettingsService statt localStorage                                                            |
 
 ### Neue Server-Dateien
 
-| Datei | Beschreibung |
-|------|-------------|
+| Datei                | Beschreibung                                          |
+| -------------------- | ----------------------------------------------------- |
 | `settings-routes.js` | GET/PUT/STATUS Endpunkte für `~/.orbit/settings.json` |
 
 ### Umbenannte Server-Dateien
 
-| Alt | Neu |
-|-----|-----|
+| Alt              | Neu            |
+| ---------------- | -------------- |
 | `cosi-routes.js` | `ai-routes.js` |
-| `cosi-mock.js` | `ai-mock.js` |
+| `cosi-mock.js`   | `ai-mock.js`   |
 
 ### Entfernte Abhängigkeiten
 

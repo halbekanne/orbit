@@ -105,7 +105,11 @@ const GERMAN_WEEKDAYS = [
               <span class="text-xs text-[var(--color-text-muted)]">{{ weekday() }}</span>
             </div>
             <div class="flex items-start gap-2">
-              <svg lucideSun [size]="16" class="text-[var(--color-primary-solid)] shrink-0 mt-0.5"></svg>
+              <svg
+                lucideSun
+                [size]="16"
+                class="text-[var(--color-primary-solid)] shrink-0 mt-0.5"
+              ></svg>
               <div class="min-w-0">
                 @if (displayEntry()?.morningQuestion) {
                   <p class="font-serif italic text-xs text-[var(--color-text-muted)] mb-0.5">

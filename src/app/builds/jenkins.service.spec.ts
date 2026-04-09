@@ -37,7 +37,7 @@ describe('JenkinsService', () => {
   it('loads branches for configured jobs', () => {
     service.loadBranches().subscribe();
 
-    const req = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/api/json'));
+    const req = httpMock.expectOne((r) => r.url.includes('/jenkins/job/frontend-app/api/json'));
     expect(req.request.params.get('tree')).toContain('jobs[name,color,url]');
     req.flush({
       jobs: [
@@ -45,14 +45,28 @@ describe('JenkinsService', () => {
       ],
     });
 
-    const buildReq = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/job/main/api/json'));
-    buildReq.flush({ builds: [{ number: 1, result: 'SUCCESS', timestamp: Date.now(), duration: 1000, url: 'http://localhost:6204/job/frontend-app/job/main/1/' }] });
+    const buildReq = httpMock.expectOne((r) =>
+      r.url.includes('/jenkins/job/frontend-app/job/main/api/json'),
+    );
+    buildReq.flush({
+      builds: [
+        {
+          number: 1,
+          result: 'SUCCESS',
+          timestamp: Date.now(),
+          duration: 1000,
+          url: 'http://localhost:6204/job/frontend-app/job/main/1/',
+        },
+      ],
+    });
   });
 
   it('loads build detail for a branch', () => {
     service.loadBuildDetail('job/frontend-app', 'main', 142).subscribe();
 
-    const detailReq = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/job/main/142/api/json'));
+    const detailReq = httpMock.expectOne((r) =>
+      r.url.includes('/jenkins/job/frontend-app/job/main/142/api/json'),
+    );
     detailReq.flush({
       number: 142,
       result: 'SUCCESS',
@@ -65,19 +79,21 @@ describe('JenkinsService', () => {
       actions: [],
     });
 
-    const stagesReq = httpMock.expectOne(r => r.url.includes('wfapi/describe'));
+    const stagesReq = httpMock.expectOne((r) => r.url.includes('wfapi/describe'));
     stagesReq.flush({ id: '142', name: '#142', status: 'SUCCESS', stages: [] });
   });
 
   it('triggers a build', () => {
     service.triggerBuild('job/frontend-app', 'main', {}).subscribe();
-    const req = httpMock.expectOne(r => r.url.includes('buildWithParameters') && r.method === 'POST');
+    const req = httpMock.expectOne(
+      (r) => r.url.includes('buildWithParameters') && r.method === 'POST',
+    );
     req.flush(null, { status: 201, statusText: 'Created' });
   });
 
   it('stops a build', () => {
     service.stopBuild('job/frontend-app', 'main', 142).subscribe();
-    const req = httpMock.expectOne(r => r.url.includes('/142/stop') && r.method === 'POST');
+    const req = httpMock.expectOne((r) => r.url.includes('/142/stop') && r.method === 'POST');
     req.flush(null);
   });
 });

@@ -6,10 +6,7 @@
     <app-pomodoro-progress-bar />
   }
   <div class="flex h-screen overflow-hidden">
-    <app-rail
-      [activeView]="routerSync.activeView()"
-      (viewChange)="onViewChange($event)"
-    />
+    <app-rail [activeView]="routerSync.activeView()" (viewChange)="onViewChange($event)" />
 
     <router-outlet />
   </div>

@@ -44,13 +44,12 @@ export function pickQuestion(pool: string[], storageKey: string): string {
     if (raw) recent = JSON.parse(raw);
   } catch {}
 
-  const eligible = pool
-    .map((q, i) => ({ q, i }))
-    .filter(({ i }) => !recent.includes(i));
+  const eligible = pool.map((q, i) => ({ q, i })).filter(({ i }) => !recent.includes(i));
 
-  const pick = eligible.length > 0
-    ? eligible[Math.floor(Math.random() * eligible.length)]
-    : { q: pool[0], i: 0 };
+  const pick =
+    eligible.length > 0
+      ? eligible[Math.floor(Math.random() * eligible.length)]
+      : { q: pool[0], i: 0 };
 
   const updated = [pick.i, ...recent].slice(0, 5);
   localStorage.setItem(storageKey, JSON.stringify(updated));

@@ -17,6 +17,7 @@
 ### Task 1: Install diff2html
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `src/styles.css`
 
@@ -33,6 +34,7 @@ In `src/styles.css`, add the import after the existing highlight.js import:
 ```
 
 The file should start with:
+
 ```css
 @import 'tailwindcss';
 @import 'highlight.js/styles/github.css';
@@ -56,6 +58,7 @@ git commit -m "feat(pr-diff): install diff2html and import CSS"
 ### Task 2: Add mock diff endpoint
 
 **Files:**
+
 - Modify: `mock-server/bitbucket.js`
 
 - [ ] **Step 1: Add diff fixtures and endpoint**
@@ -522,7 +525,7 @@ app.get(
     const diff = DIFF_FIXTURES[prId] || GENERIC_DIFF;
     res.set('Content-Type', 'text/plain');
     res.send(diff);
-  }
+  },
 );
 ```
 
@@ -545,6 +548,7 @@ git commit -m "feat(pr-diff): add mock diff endpoint with fixtures for all PRs"
 ### Task 3: Add getPullRequestDiff method with tests
 
 **Files:**
+
 - Modify: `src/app/services/bitbucket.service.ts`
 - Modify: `src/app/services/bitbucket.service.spec.ts`
 
@@ -569,9 +573,11 @@ describe('BitbucketService — getPullRequestDiff', () => {
 
   it('requests the correct diff URL with text responseType', () => {
     let result: string | undefined;
-    service.getPullRequestDiff(makePrRef()).subscribe(d => (result = d));
-    const req = httpTesting.expectOne(r => r.url.includes('pull-requests/89.diff'));
-    expect(req.request.url).toContain('/projects/SL/repos/versicherung-shared-lib/pull-requests/89.diff');
+    service.getPullRequestDiff(makePrRef()).subscribe((d) => (result = d));
+    const req = httpTesting.expectOne((r) => r.url.includes('pull-requests/89.diff'));
+    expect(req.request.url).toContain(
+      '/projects/SL/repos/versicherung-shared-lib/pull-requests/89.diff',
+    );
     expect(req.request.responseType).toBe('text');
     req.flush('diff --git a/file.ts b/file.ts');
     expect(result).toBe('diff --git a/file.ts b/file.ts');
@@ -579,9 +585,9 @@ describe('BitbucketService — getPullRequestDiff', () => {
 
   it('propagates errors', () => {
     let error: unknown;
-    service.getPullRequestDiff(makePrRef()).subscribe({ error: e => (error = e) });
+    service.getPullRequestDiff(makePrRef()).subscribe({ error: (e) => (error = e) });
     httpTesting
-      .expectOne(r => r.url.includes('pull-requests/89.diff'))
+      .expectOne((r) => r.url.includes('pull-requests/89.diff'))
       .flush('error', { status: 500, statusText: 'Internal Server Error' });
     expect(error).toBeTruthy();
   });
@@ -629,6 +635,7 @@ git commit -m "feat(pr-diff): add getPullRequestDiff method to BitbucketService"
 ### Task 4: Add diff fetching and collapsible UI to PrDetailComponent
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 
 - [ ] **Step 1: Add imports and diff data fetching**
@@ -697,30 +704,35 @@ Replace the final spacer `<div class="h-6" aria-hidden="true"></div>` in the tem
 ```html
 <section class="border-b border-stone-100" aria-labelledby="pr-diff-heading">
   <div class="max-w-2xl mx-auto px-6 py-4">
-    <h2 id="pr-diff-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3">Änderungen</h2>
+    <h2
+      id="pr-diff-heading"
+      class="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3"
+    >
+      Änderungen
+    </h2>
     @if (diffData() === 'loading') {
-      <p class="text-sm text-stone-400 animate-pulse">Änderungen laden...</p>
+    <p class="text-sm text-stone-400 animate-pulse">Änderungen laden...</p>
     } @else if (diffData() === 'error') {
-      <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
+    <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
     } @else if (diffFileCount() === 0) {
-      <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
+    <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
     } @else {
-      <button
-        (click)="toggleDiff()"
-        class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-stone-600 bg-stone-50 border border-stone-200 rounded hover:bg-stone-100 transition-colors"
-        [attr.aria-expanded]="diffExpanded()"
-        aria-controls="pr-diff-content"
-      >
-        @if (diffExpanded()) {
-          Änderungen ausblenden
-        } @else {
-          Änderungen anzeigen ({{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }})
-        }
-      </button>
-      @if (diffExpanded()) {
-        <div id="pr-diff-content" class="mt-3 overflow-x-auto rounded border border-stone-200" [innerHTML]="diffHtml()"></div>
-      }
-    }
+    <button
+      (click)="toggleDiff()"
+      class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-stone-600 bg-stone-50 border border-stone-200 rounded hover:bg-stone-100 transition-colors"
+      [attr.aria-expanded]="diffExpanded()"
+      aria-controls="pr-diff-content"
+    >
+      @if (diffExpanded()) { Änderungen ausblenden } @else { Änderungen anzeigen ({{ diffFileCount()
+      }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}) }
+    </button>
+    @if (diffExpanded()) {
+    <div
+      id="pr-diff-content"
+      class="mt-3 overflow-x-auto rounded border border-stone-200"
+      [innerHTML]="diffHtml()"
+    ></div>
+    } }
   </div>
 </section>
 
@@ -744,6 +756,7 @@ git commit -m "feat(pr-diff): add collapsible diff viewer to PR detail"
 ### Task 5: Add syntax highlighting
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 
 - [ ] **Step 1: Add highlight.js imports and afterNextRender**
@@ -805,7 +818,12 @@ constructor() {
 Add a `ViewChild` ref for the diff container. Change the diff container `<div>` in the template to:
 
 ```html
-<div #diffContainer id="pr-diff-content" class="mt-3 overflow-x-auto rounded border border-stone-200" [innerHTML]="diffHtml()"></div>
+<div
+  #diffContainer
+  id="pr-diff-content"
+  class="mt-3 overflow-x-auto rounded border border-stone-200"
+  [innerHTML]="diffHtml()"
+></div>
 ```
 
 Add a `viewChild` ref and an `effect` to the component class to highlight after rendering. Use `setTimeout` to run after Angular has flushed the innerHTML update to the DOM:
@@ -845,6 +863,7 @@ git commit -m "feat(pr-diff): add syntax highlighting via highlight.js"
 ### Task 6: Add PrDetailComponent diff tests
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.spec.ts`
 
 - [ ] **Step 1: Update test setup and add diff tests**
@@ -940,7 +959,9 @@ it('expands and collapses diff on toggle click', async () => {
   await fixture.whenStable();
   fixture.detectChanges();
 
-  const toggleBtn = fixture.nativeElement.querySelector('button[aria-controls="pr-diff-content"]') as HTMLButtonElement;
+  const toggleBtn = fixture.nativeElement.querySelector(
+    'button[aria-controls="pr-diff-content"]',
+  ) as HTMLButtonElement;
   expect(toggleBtn).toBeTruthy();
   expect(fixture.nativeElement.querySelector('#pr-diff-content')).toBeNull();
 

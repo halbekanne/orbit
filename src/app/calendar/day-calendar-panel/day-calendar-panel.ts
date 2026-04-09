@@ -13,7 +13,15 @@ const STORAGE_KEY = 'orbit.dayCalendar.collapsed';
 @Component({
   selector: 'app-day-calendar-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideChevronLeft, LucideChevronRight, LucidePlay, LucideSquare, DayTimelineComponent, AppointmentPopupComponent, PomodoroConfigPopupComponent],
+  imports: [
+    LucideChevronLeft,
+    LucideChevronRight,
+    LucidePlay,
+    LucideSquare,
+    DayTimelineComponent,
+    AppointmentPopupComponent,
+    PomodoroConfigPopupComponent,
+  ],
   host: {
     '[class]': 'hostClass()',
     '(document:keydown.escape)': 'onEscape()',

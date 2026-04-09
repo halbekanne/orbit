@@ -28,7 +28,16 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
 @Component({
   selector: 'app-review-findings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucidePencil, LucideCheck, LucideChevronRight, LucideRefreshCw, ReviewPipelineComponent, InlineCodePipe, CollapsibleSectionComponent, BadgeComponent],
+  imports: [
+    LucidePencil,
+    LucideCheck,
+    LucideChevronRight,
+    LucideRefreshCw,
+    ReviewPipelineComponent,
+    InlineCodePipe,
+    CollapsibleSectionComponent,
+    BadgeComponent,
+  ],
   styles: [
     `
       :host {
@@ -39,7 +48,13 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
   template: `
     @let review = reviewState();
     <app-collapsible-section label="KI-Review" [expanded]="true" [noPadding]="true">
-      <svg lucidePencil sectionIcon [size]="16" [strokeWidth]="1.5" class="text-[var(--color-text-muted)] shrink-0"></svg>
+      <svg
+        lucidePencil
+        sectionIcon
+        [size]="16"
+        [strokeWidth]="1.5"
+        class="text-[var(--color-text-muted)] shrink-0"
+      ></svg>
       <ng-container sectionMeta>
         @if (review === 'idle') {
           <span class="text-xs text-[var(--color-text-muted)]">Noch nicht gestartet</span>
@@ -100,7 +115,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <svg lucideCheck [size]="10" [strokeWidth]="2.5" class="text-white check-animated"></svg>
+                    <svg
+                      lucideCheck
+                      [size]="10"
+                      [strokeWidth]="2.5"
+                      class="text-white check-animated"
+                    ></svg>
                   </span>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-baseline gap-2 flex-wrap slide-in">
@@ -172,7 +192,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     class="mt-[3px] w-4 h-4 shrink-0 rounded-full bg-emerald-500 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <svg lucideCheck [size]="10" [strokeWidth]="2.5" class="text-white check-animated"></svg>
+                    <svg
+                      lucideCheck
+                      [size]="10"
+                      [strokeWidth]="2.5"
+                      class="text-white check-animated"
+                    ></svg>
                   </span>
                   <div class="min-w-0 flex-1">
                     <div class="flex items-baseline gap-2 flex-wrap slide-in">
@@ -230,7 +255,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
           <div class="relative w-24 h-24 mb-6 opacity-40">
             <div class="absolute inset-0 rounded-full border-2 border-dashed border-red-300"></div>
             <div class="absolute inset-3 rounded-full border-2 border-dashed border-red-300"></div>
-            <svg lucidePencil [size]="32" [strokeWidth]="1.5" class="absolute inset-0 m-auto text-red-300"></svg>
+            <svg
+              lucidePencil
+              [size]="32"
+              [strokeWidth]="1.5"
+              class="absolute inset-0 m-auto text-red-300"
+            ></svg>
           </div>
           <p class="text-sm font-medium text-[var(--color-text-heading)] mb-1">
             Review konnte nicht durchgeführt werden
@@ -306,7 +336,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     [attr.aria-expanded]="isExpanded(group.file)"
                     (click)="toggleGroup(group.file)"
                   >
-                    <svg lucideChevronRight [size]="12" class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="isExpanded(group.file)"></svg>
+                    <svg
+                      lucideChevronRight
+                      [size]="12"
+                      class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
+                      [class.rotate-90]="isExpanded(group.file)"
+                    ></svg>
                     <span
                       class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1"
                       >{{ group.file }}</span
@@ -405,7 +440,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
                     [attr.aria-expanded]="isExpanded(group.file)"
                     (click)="toggleGroup(group.file)"
                   >
-                    <svg lucideChevronRight [size]="12" class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="isExpanded(group.file)"></svg>
+                    <svg
+                      lucideChevronRight
+                      [size]="12"
+                      class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
+                      [class.rotate-90]="isExpanded(group.file)"
+                    ></svg>
                     <span
                       class="font-mono text-sm text-[var(--color-text-body)] break-all leading-snug min-w-0 flex-1"
                       >{{ group.file }}</span
@@ -488,7 +528,12 @@ const SEVERITY_PRIORITY: Record<string, number> = { critical: 0, important: 1, m
               class="absolute inset-3 rounded-full border-2 border-dashed border-[var(--color-border-subtle)] orbit-breathe"
               style="animation-delay: -1.5s"
             ></div>
-            <svg lucidePencil [size]="32" [strokeWidth]="1.5" class="absolute inset-0 m-auto text-[var(--color-text-muted)]"></svg>
+            <svg
+              lucidePencil
+              [size]="32"
+              [strokeWidth]="1.5"
+              class="absolute inset-0 m-auto text-[var(--color-text-muted)]"
+            ></svg>
           </div>
           <p class="text-sm text-[var(--color-text-muted)] text-center max-w-xs mb-5">
             Lass die KI den Code analysieren. Prüft Code-Qualität und Abgleich mit den

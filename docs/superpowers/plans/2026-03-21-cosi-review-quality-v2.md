@@ -17,6 +17,7 @@
 ### Task 1: Add `preprocessDiff` function
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — add function before `SHARED_CONSTRAINTS` (insert after line 52)
 
 - [ ] **Step 1: Write the `preprocessDiff` function**
@@ -36,7 +37,13 @@ function preprocessDiff(rawDiff) {
       oldLine = parseInt(hunkMatch[1], 10);
       newLine = parseInt(hunkMatch[2], 10);
       result.push(line);
-    } else if (line.startsWith('diff ') || line.startsWith('index ') || line.startsWith('--- ') || line.startsWith('+++ ') || line.startsWith('Binary ')) {
+    } else if (
+      line.startsWith('diff ') ||
+      line.startsWith('index ') ||
+      line.startsWith('--- ') ||
+      line.startsWith('+++ ') ||
+      line.startsWith('Binary ')
+    ) {
       result.push(line);
     } else if (line.startsWith('-')) {
       result.push(`[${oldLine}]${line}`);
@@ -74,6 +81,7 @@ git commit -m "feat(cosi): add preprocessDiff function for line number injection
 ### Task 2: Add responseSchema constants
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — add schema constants after `preprocessDiff`, before `SHARED_CONSTRAINTS`
 
 - [ ] **Step 1: Add the three schema constants**
@@ -82,117 +90,186 @@ Insert after `preprocessDiff` function, before `SHARED_CONSTRAINTS`:
 
 ```js
 const AK_FINDING_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 const CODE_QUALITY_FINDING_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 const CONSOLIDATOR_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "Final, filtered list of findings.",
+      type: 'ARRAY',
+      description: 'Final, filtered list of findings.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = real runtime risk, important = structural problem, minor = small improvement",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = real runtime risk, important = structural problem, minor = small improvement',
           },
           category: {
-            type: "STRING",
-            enum: ["ak-abgleich", "code-quality"],
-            description: "Which agent originally produced the finding",
+            type: 'STRING',
+            enum: ['ak-abgleich', 'code-quality'],
+            description: 'Which agent originally produced the finding',
           },
-          title: { type: "STRING", description: "Short German summary" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff" },
-          codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
-          detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
-          suggestion: { type: "STRING", description: "Improvement suggestion in German" },
+          title: { type: 'STRING', description: 'Short German summary' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: { type: 'INTEGER', description: 'Line number from the diff' },
+          codeSnippet: {
+            type: 'STRING',
+            description: 'Exact lines from the diff, copied verbatim',
+          },
+          detail: { type: 'STRING', description: 'Problem description in German (1-3 sentences)' },
+          suggestion: { type: 'STRING', description: 'Improvement suggestion in German' },
         },
-        required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
     decisions: {
-      type: "ARRAY",
-      description: "For each input finding, a decision explaining what happened to it.",
+      type: 'ARRAY',
+      description: 'For each input finding, a decision explaining what happened to it.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
-          agent: { type: "STRING", enum: ["ak-abgleich", "code-quality"] },
-          finding: { type: "STRING", description: "Original title of the finding" },
-          action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
-          reason: { type: "STRING", description: "Reasoning in German" },
+          agent: { type: 'STRING', enum: ['ak-abgleich', 'code-quality'] },
+          finding: { type: 'STRING', description: 'Original title of the finding' },
+          action: { type: 'STRING', enum: ['kept', 'removed', 'merged', 'severity-changed'] },
+          reason: { type: 'STRING', description: 'Reasoning in German' },
         },
-        required: ["agent", "finding", "action", "reason"],
-        propertyOrdering: ["agent", "finding", "action", "reason"],
+        required: ['agent', 'finding', 'action', 'reason'],
+        propertyOrdering: ['agent', 'finding', 'action', 'reason'],
       },
     },
     summary: {
-      type: "STRING",
-      description: "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
+      type: 'STRING',
+      description:
+        "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
     },
   },
-  required: ["findings", "decisions", "summary"],
-  propertyOrdering: ["findings", "decisions", "summary"],
+  required: ['findings', 'decisions', 'summary'],
+  propertyOrdering: ['findings', 'decisions', 'summary'],
 };
 ```
 
@@ -215,6 +292,7 @@ git commit -m "feat(cosi): add responseSchema constants for structured output"
 ### Task 3: Rewrite SHARED_CONSTRAINTS
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — replace `SHARED_CONSTRAINTS` constant (currently lines 54-67)
 
 - [ ] **Step 1: Replace the entire SHARED_CONSTRAINTS string**
@@ -250,6 +328,7 @@ git commit -m "feat(cosi): rewrite SHARED_CONSTRAINTS with unified English instr
 ### Task 4: Rewrite Agent 1 (AK-Abgleich) system prompt
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — replace `SYSTEM_PROMPTS.akAbgleich`
 
 - [ ] **Step 1: Replace the akAbgleich prompt**
@@ -298,6 +377,7 @@ git commit -m "feat(cosi): rewrite AK-Abgleich prompt with few-shot and no redun
 ### Task 5: Rewrite Agent 2 (Code Quality) system prompt
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — replace `SYSTEM_PROMPTS.codeQuality`
 
 - [ ] **Step 1: Replace the codeQuality prompt**
@@ -353,6 +433,7 @@ git commit -m "feat(cosi): rewrite Code Quality prompt with refocused areas and 
 ### Task 6: Rewrite Consolidator system prompt
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — replace `SYSTEM_PROMPTS.consolidator`
 
 - [ ] **Step 1: Replace the consolidator prompt**
@@ -425,6 +506,7 @@ git commit -m "feat(cosi): rewrite Consolidator prompt with noise examples and f
 ### Task 7: Update user prompt builders
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — rewrite `buildAgent1Prompt`, `buildAgent2Prompt`, `buildConsolidatorPrompt`
 
 - [ ] **Step 1: Rewrite all three prompt builder functions**
@@ -484,6 +566,7 @@ git commit -m "feat(cosi): update user prompts to end with analysis instruction"
 ### Task 8: Wire up `preprocessDiff` and `responseSchema` in `runReview`
 
 **Files:**
+
 - Modify: `proxy/cosi.js` — update `runReview` function
 
 - [ ] **Step 1: Add preprocessDiff call at the start of runReview**
@@ -491,12 +574,13 @@ git commit -m "feat(cosi): update user prompts to end with analysis instruction"
 Inside `runReview`, right after `const warnings = [];`, add:
 
 ```js
-  const processedDiff = preprocessDiff(diff);
+const processedDiff = preprocessDiff(diff);
 ```
 
 - [ ] **Step 2: Replace all `diff` references in prompt builders with `processedDiff`**
 
 Change these calls:
+
 - `buildAgent1Prompt(diff, jiraTicket)` → `buildAgent1Prompt(processedDiff, jiraTicket)`
 - `buildAgent2Prompt(diff)` → `buildAgent2Prompt(processedDiff)`
 - `buildConsolidatorPrompt(agent1Result, agent2Result, diff)` → `buildConsolidatorPrompt(agent1Result, agent2Result, processedDiff)`
@@ -504,26 +588,29 @@ Change these calls:
 - [ ] **Step 3: Add `responseSchema` to each `callCoSi` generationConfig**
 
 For Agent 1 (AK-Abgleich), add `responseSchema: AK_FINDING_SCHEMA` to the config object:
+
 ```js
 callCoSi(buildAgent1Prompt(processedDiff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
   temperature: 0.2,
   maxOutputTokens: 65536,
   responseSchema: AK_FINDING_SCHEMA,
   thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
-})
+});
 ```
 
 For Agent 2 (Code Quality), add `responseSchema: CODE_QUALITY_FINDING_SCHEMA`:
+
 ```js
 callCoSi(buildAgent2Prompt(processedDiff), SYSTEM_PROMPTS.codeQuality, {
   temperature: 0.4,
   maxOutputTokens: 65536,
   responseSchema: CODE_QUALITY_FINDING_SCHEMA,
   thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
-})
+});
 ```
 
 For the Consolidator, add `responseSchema: CONSOLIDATOR_SCHEMA`:
+
 ```js
 callCoSi(
   buildConsolidatorPrompt(agent1Result, agent2Result, processedDiff),
@@ -534,16 +621,19 @@ callCoSi(
     responseSchema: CONSOLIDATOR_SCHEMA,
     thinkingConfig: { thinkingBudget: 16384, includeThoughts: true },
   },
-)
+);
 ```
 
 - [ ] **Step 4: Update module.exports to include preprocessDiff**
 
 Change:
+
 ```js
 module.exports = { callCoSi, SYSTEM_PROMPTS, runReview };
 ```
+
 To:
+
 ```js
 module.exports = { callCoSi, preprocessDiff, SYSTEM_PROMPTS, runReview };
 ```
@@ -574,6 +664,7 @@ Verify: Server starts without errors. Mock mode should still work since it bypas
 - [ ] **Step 2: If API key is available, run a real review**
 
 Trigger a review from the Orbit UI on a PR with a Jira ticket that has Akzeptanzkriterien. Check:
+
 - JSON parsing succeeds (no errors in console)
 - Line numbers in findings match the `[N]` annotations in the preprocessed diff
 - `thoughts` output shows structured analysis steps (EXTRACT/CLASSIFY/TRACE/FORMULATE for Agent 1, SCAN/FORMULATE for Agent 2)
@@ -583,6 +674,7 @@ Trigger a review from the Orbit UI on a PR with a Jira ticket that has Akzeptanz
 - [ ] **Step 3: Final commit with all changes verified**
 
 If any adjustments were needed during verification, commit them:
+
 ```bash
 git add proxy/cosi.js
 git commit -m "fix(cosi): adjustments from manual verification"

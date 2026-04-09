@@ -15,6 +15,7 @@
 ### Task 1: Install `@angular/cdk`
 
 **Files:**
+
 - Modify: `package.json` (automatically via npm)
 
 - [ ] **Step 1: Install the package**
@@ -43,6 +44,7 @@ git commit -m "feat: add @angular/cdk dependency"
 ### Task 2: Update the data model
 
 **Files:**
+
 - Modify: `src/app/models/work-item.model.ts`
 
 The existing `Todo` interface uses `done: boolean`. Replace it with the three-state model and add `Idea`.
@@ -95,6 +97,7 @@ git commit -m "feat(model): replace Todo.done with status+urgent+completedAt, ad
 ### Task 3: Extend BFF with `/api/todos` and `/api/ideas` endpoints
 
 **Files:**
+
 - Modify: `proxy/index.js`
 
 The BFF currently only proxies Jira and Bitbucket. Add two pairs of GET/POST routes that read/write JSON files in `~/.orbit/`.
@@ -177,6 +180,7 @@ git commit -m "feat(bff): add /api/todos and /api/ideas GET/POST endpoints with 
 ### Task 4: Create `TodoService`
 
 **Files:**
+
 - Create: `src/app/services/todo.service.ts`
 - Create: `src/app/services/todo.service.spec.ts`
 
@@ -208,10 +212,7 @@ const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
 
 function setup(http: Partial<{ get: unknown; post: unknown }>) {
   TestBed.configureTestingModule({
-    providers: [
-      TodoService,
-      { provide: HttpClient, useValue: http },
-    ],
+    providers: [TodoService, { provide: HttpClient, useValue: http }],
   });
   return TestBed.inject(TodoService);
 }
@@ -245,7 +246,7 @@ describe('TodoService', () => {
     const urgent = makeTodo({ id: 'b', status: 'open', urgent: true });
     const svc = setup({ get: () => of([open, urgent]), post: () => of([open, urgent]) });
     TestBed.tick();
-    const ids = svc.openTodos().map(t => t.id);
+    const ids = svc.openTodos().map((t) => t.id);
     expect(ids[0]).toBe('b');
     expect(ids[1]).toBe('a');
   });
@@ -254,7 +255,7 @@ describe('TodoService', () => {
     const doneToday = makeTodo({ id: 'x', status: 'done', completedAt: new Date().toISOString() });
     const svc = setup({ get: () => of([doneToday]), post: () => of([doneToday]) });
     TestBed.tick();
-    expect(svc.openTodos().map(t => t.id)).toContain('x');
+    expect(svc.openTodos().map((t) => t.id)).toContain('x');
   });
 
   it('doneTodos excludes todos completed today', () => {
@@ -353,10 +354,12 @@ export class TodoService {
     const todayStr = this.today;
     const isOpenItem = (t: Todo) => t.status === 'open';
     const isDoneToday = (t: Todo) =>
-      t.status === 'done' && t.completedAt !== null && new Date(t.completedAt).toDateString() === todayStr;
+      t.status === 'done' &&
+      t.completedAt !== null &&
+      new Date(t.completedAt).toDateString() === todayStr;
 
     return this.todos()
-      .filter(t => isOpenItem(t) || isDoneToday(t))
+      .filter((t) => isOpenItem(t) || isDoneToday(t))
       .sort((a, b) => {
         const aIsOpen = isOpenItem(a);
         const bIsOpen = isOpenItem(b);
@@ -373,11 +376,14 @@ export class TodoService {
   readonly doneTodos = computed(() => {
     const todayStr = this.today;
     return this.todos().filter(
-      t => t.status === 'done' && t.completedAt !== null && new Date(t.completedAt).toDateString() !== todayStr
+      (t) =>
+        t.status === 'done' &&
+        t.completedAt !== null &&
+        new Date(t.completedAt).toDateString() !== todayStr,
     );
   });
 
-  readonly wontDoTodos = computed(() => this.todos().filter(t => t.status === 'wont-do'));
+  readonly wontDoTodos = computed(() => this.todos().filter((t) => t.status === 'wont-do'));
 
   readonly pendingCount = computed(() => this.openTodos().length);
 
@@ -387,11 +393,11 @@ export class TodoService {
 
   load(): void {
     this.http.get<Todo[]>(this.baseUrl).subscribe({
-      next: todos => {
+      next: (todos) => {
         this.todos.set(todos);
         this.todosLoading.set(false);
       },
-      error: err => {
+      error: (err) => {
         console.error('Failed to load todos:', err);
         this.todosError.set(true);
         this.todosLoading.set(false);
@@ -410,7 +416,7 @@ export class TodoService {
       createdAt: new Date().toISOString(),
       completedAt: null,
     };
-    this.todos.update(todos => [todo, ...todos]);
+    this.todos.update((todos) => [todo, ...todos]);
     this.save();
     return todo;
   }
@@ -422,12 +428,12 @@ export class TodoService {
       this.lastCompletedId.set(todo.id);
       this.completedTimer = setTimeout(() => this.lastCompletedId.set(null), 1500);
     }
-    this.todos.update(todos => todos.map(t => t.id === todo.id ? todo : t));
+    this.todos.update((todos) => todos.map((t) => (t.id === todo.id ? todo : t)));
     this.save();
   }
 
   reorder(fromIndex: number, toIndex: number): void {
-    this.todos.update(todos => {
+    this.todos.update((todos) => {
       const arr = [...todos];
       const [moved] = arr.splice(fromIndex, 1);
       arr.splice(toIndex, 0, moved);
@@ -437,13 +443,13 @@ export class TodoService {
   }
 
   remove(id: string): void {
-    this.todos.update(todos => todos.filter(t => t.id !== id));
+    this.todos.update((todos) => todos.filter((t) => t.id !== id));
     this.save();
   }
 
   private save(): void {
     this.http.post<Todo[]>(this.baseUrl, this.todos()).subscribe({
-      error: err => console.error('Failed to save todos:', err),
+      error: (err) => console.error('Failed to save todos:', err),
     });
   }
 }
@@ -469,6 +475,7 @@ git commit -m "feat: add TodoService with BFF persistence, computed views, and c
 ### Task 5: Create `IdeaService`
 
 **Files:**
+
 - Create: `src/app/services/idea.service.ts`
 - Create: `src/app/services/idea.service.spec.ts`
 
@@ -494,10 +501,7 @@ const makeIdea = (overrides: Partial<Idea> = {}): Idea => ({
 
 function setup(http: Partial<{ get: unknown; post: unknown }>) {
   TestBed.configureTestingModule({
-    providers: [
-      IdeaService,
-      { provide: HttpClient, useValue: http },
-    ],
+    providers: [IdeaService, { provide: HttpClient, useValue: http }],
   });
   return TestBed.inject(IdeaService);
 }
@@ -596,8 +600,8 @@ export class IdeaService {
   readonly ideasLoading = signal(true);
   readonly ideasError = signal(false);
 
-  readonly activeIdeas = computed(() => this.ideas().filter(i => i.status === 'active'));
-  readonly wontDoIdeas = computed(() => this.ideas().filter(i => i.status === 'wont-do'));
+  readonly activeIdeas = computed(() => this.ideas().filter((i) => i.status === 'active'));
+  readonly wontDoIdeas = computed(() => this.ideas().filter((i) => i.status === 'wont-do'));
 
   constructor() {
     this.load();
@@ -605,11 +609,11 @@ export class IdeaService {
 
   load(): void {
     this.http.get<Idea[]>(this.baseUrl).subscribe({
-      next: ideas => {
+      next: (ideas) => {
         this.ideas.set(ideas);
         this.ideasLoading.set(false);
       },
-      error: err => {
+      error: (err) => {
         console.error('Failed to load ideas:', err);
         this.ideasError.set(true);
         this.ideasLoading.set(false);
@@ -626,18 +630,18 @@ export class IdeaService {
       status: 'active',
       createdAt: new Date().toISOString(),
     };
-    this.ideas.update(ideas => [idea, ...ideas]);
+    this.ideas.update((ideas) => [idea, ...ideas]);
     this.save();
     return idea;
   }
 
   update(idea: Idea): void {
-    this.ideas.update(ideas => ideas.map(i => i.id === idea.id ? idea : i));
+    this.ideas.update((ideas) => ideas.map((i) => (i.id === idea.id ? idea : i)));
     this.save();
   }
 
   reorder(fromIndex: number, toIndex: number): void {
-    this.ideas.update(ideas => {
+    this.ideas.update((ideas) => {
       const arr = [...ideas];
       const [moved] = arr.splice(fromIndex, 1);
       arr.splice(toIndex, 0, moved);
@@ -648,7 +652,7 @@ export class IdeaService {
 
   private save(): void {
     this.http.post<Idea[]>(this.baseUrl, this.ideas()).subscribe({
-      error: err => console.error('Failed to save ideas:', err),
+      error: (err) => console.error('Failed to save ideas:', err),
     });
   }
 }
@@ -672,6 +676,7 @@ git commit -m "feat: add IdeaService with BFF persistence and computed views"
 ### Task 6: Clean up `WorkDataService` and add coordinator methods
 
 **Files:**
+
 - Modify: `src/app/services/work-data.service.ts`
 - Modify: `src/app/services/work-data.service.spec.ts`
 
@@ -695,8 +700,12 @@ describe('WorkDataService — coordinator', () => {
 
   it('promoteToTodo marks idea as wont-do and adds a new todo', () => {
     const idea: Idea = {
-      type: 'idea', id: 'i1', title: 'Idea', description: 'desc',
-      status: 'active', createdAt: '2026-03-16T00:00:00',
+      type: 'idea',
+      id: 'i1',
+      title: 'Idea',
+      description: 'desc',
+      status: 'active',
+      createdAt: '2026-03-16T00:00:00',
     };
 
     const updatedIdeas: Idea[] = [];
@@ -706,7 +715,16 @@ describe('WorkDataService — coordinator', () => {
     const mockIdea = {
       update: (i: Idea) => updatedIdeas.push(i),
       add: (title: string, desc: string) => {
-        const t: Todo = { type: 'todo', id: 'new1', title, description: desc, status: 'open', urgent: false, createdAt: '', completedAt: null };
+        const t: Todo = {
+          type: 'todo',
+          id: 'new1',
+          title,
+          description: desc,
+          status: 'open',
+          urgent: false,
+          createdAt: '',
+          completedAt: null,
+        };
         addedTodos.push(t);
         return t;
       },
@@ -728,8 +746,14 @@ describe('WorkDataService — coordinator', () => {
 
   it('demoteToIdea removes todo and adds a new idea', () => {
     const todo: Todo = {
-      type: 'todo', id: 'td1', title: 'Task', description: 'desc',
-      status: 'open', urgent: false, createdAt: '', completedAt: null,
+      type: 'todo',
+      id: 'td1',
+      title: 'Task',
+      description: 'desc',
+      status: 'open',
+      urgent: false,
+      createdAt: '',
+      completedAt: null,
     };
 
     const removedIds: string[] = [];
@@ -740,7 +764,14 @@ describe('WorkDataService — coordinator', () => {
     };
     const mockIdea = {
       add: (title: string, desc: string) => {
-        const i: Idea = { type: 'idea', id: 'new1', title, description: desc, status: 'active', createdAt: '' };
+        const i: Idea = {
+          type: 'idea',
+          id: 'new1',
+          title,
+          description: desc,
+          status: 'active',
+          createdAt: '',
+        };
         addedIdeas.push(i);
         return i;
       },
@@ -794,7 +825,7 @@ export class WorkDataService {
 
   private readonly tickets$ = this.jira.getAssignedActiveTickets().pipe(
     tap(() => this.ticketsLoading.set(false)),
-    catchError(err => {
+    catchError((err) => {
       console.error('Failed to load Jira tickets:', err);
       this.ticketsError.set(true);
       this.ticketsLoading.set(false);
@@ -814,17 +845,18 @@ export class WorkDataService {
       'Needs Re-review': 1,
       'Changes Requested': 2,
       'Approved by Others': 3,
-      'Approved': 4,
+      Approved: 4,
     };
     return this._rawPullRequests()
-      .filter(pr => pr.myReviewStatus !== 'Approved')
+      .filter((pr) => pr.myReviewStatus !== 'Approved')
       .sort((a, b) => statusOrder[a.myReviewStatus] - statusOrder[b.myReviewStatus]);
   });
 
-  readonly awaitingReviewCount = computed(() =>
-    this.pullRequests().filter(
-      pr => pr.myReviewStatus === 'Awaiting Review' || pr.myReviewStatus === 'Needs Re-review'
-    ).length
+  readonly awaitingReviewCount = computed(
+    () =>
+      this.pullRequests().filter(
+        (pr) => pr.myReviewStatus === 'Awaiting Review' || pr.myReviewStatus === 'Needs Re-review',
+      ).length,
   );
 
   readonly selectedItem = signal<WorkItem | null>(null);
@@ -832,40 +864,43 @@ export class WorkDataService {
   constructor() {
     effect(() => {
       untracked(() => {
-        this.bitbucket.getReviewerPullRequests().pipe(
-          tap(prs => {
-            this.pullRequestsLoading.set(false);
-            this._rawPullRequests.set(prs);
-          }),
-          switchMap(prs => {
-            const needsWorkPrs = prs.filter(pr => pr.myReviewStatus === 'Changes Requested');
-            if (needsWorkPrs.length === 0) return of(null);
+        this.bitbucket
+          .getReviewerPullRequests()
+          .pipe(
+            tap((prs) => {
+              this.pullRequestsLoading.set(false);
+              this._rawPullRequests.set(prs);
+            }),
+            switchMap((prs) => {
+              const needsWorkPrs = prs.filter((pr) => pr.myReviewStatus === 'Changes Requested');
+              if (needsWorkPrs.length === 0) return of(null);
 
-            return forkJoin(
-              needsWorkPrs.map(pr =>
-                this.bitbucket.getReviewerPrActivityStatus(pr).pipe(
-                  catchError(() => of('Changes Requested' as const))
-                )
-              )
-            ).pipe(
-              tap(results => {
-                const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
-                this._rawPullRequests.update(all =>
-                  all.map(pr => {
-                    const enriched = statusById.get(pr.id);
-                    return enriched ? { ...pr, myReviewStatus: enriched } : pr;
-                  })
-                );
-              })
-            );
-          }),
-          catchError(err => {
-            console.error('Failed to load Bitbucket pull requests:', err);
-            this.pullRequestsError.set(true);
-            this.pullRequestsLoading.set(false);
-            return of(null);
-          }),
-        ).subscribe();
+              return forkJoin(
+                needsWorkPrs.map((pr) =>
+                  this.bitbucket
+                    .getReviewerPrActivityStatus(pr)
+                    .pipe(catchError(() => of('Changes Requested' as const))),
+                ),
+              ).pipe(
+                tap((results) => {
+                  const statusById = new Map(needsWorkPrs.map((pr, i) => [pr.id, results[i]]));
+                  this._rawPullRequests.update((all) =>
+                    all.map((pr) => {
+                      const enriched = statusById.get(pr.id);
+                      return enriched ? { ...pr, myReviewStatus: enriched } : pr;
+                    }),
+                  );
+                }),
+              );
+            }),
+            catchError((err) => {
+              console.error('Failed to load Bitbucket pull requests:', err);
+              this.pullRequestsError.set(true);
+              this.pullRequestsLoading.set(false);
+              return of(null);
+            }),
+          )
+          .subscribe();
       });
     });
   }
@@ -910,6 +945,7 @@ git commit -m "refactor(WorkDataService): remove todo state, add promoteToTodo/d
 ### Task 7: Create `ActionRailComponent`
 
 **Files:**
+
 - Create: `src/app/components/action-rail/action-rail.ts`
 - Create: `src/app/components/action-rail/action-rail.spec.ts`
 
@@ -928,13 +964,25 @@ import { ActionRailComponent } from './action-rail';
 import { Todo, Idea, JiraTicket } from '../../models/work-item.model';
 
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
-  type: 'todo', id: 'td1', title: 'Test', description: '',
-  status: 'open', urgent: false, createdAt: '', completedAt: null, ...overrides,
+  type: 'todo',
+  id: 'td1',
+  title: 'Test',
+  description: '',
+  status: 'open',
+  urgent: false,
+  createdAt: '',
+  completedAt: null,
+  ...overrides,
 });
 
 const makeIdea = (overrides: Partial<Idea> = {}): Idea => ({
-  type: 'idea', id: 'id1', title: 'Test', description: '',
-  status: 'active', createdAt: '', ...overrides,
+  type: 'idea',
+  id: 'id1',
+  title: 'Test',
+  description: '',
+  status: 'active',
+  createdAt: '',
+  ...overrides,
 });
 
 describe('ActionRailComponent', () => {
@@ -949,7 +997,14 @@ describe('ActionRailComponent', () => {
     TestBed.configureTestingModule({
       imports: [ActionRailComponent],
       providers: [
-        { provide: WorkDataService, useValue: { selectedItem: mockData.selectedItem, promoteToTodo: promoteSpy, demoteToIdea: demoteSpy } },
+        {
+          provide: WorkDataService,
+          useValue: {
+            selectedItem: mockData.selectedItem,
+            promoteToTodo: promoteSpy,
+            demoteToIdea: demoteSpy,
+          },
+        },
         { provide: TodoService, useValue: { update: updateSpy } },
         { provide: IdeaService, useValue: { update: vi.fn() } },
       ],
@@ -974,20 +1029,25 @@ describe('ActionRailComponent', () => {
 
   it('shows Wieder öffnen for done todo', () => {
     const { fixture } = setup(makeTodo({ status: 'done', completedAt: '2026-03-16T00:00:00' }));
-    const labels = Array.from(fixture.nativeElement.querySelectorAll('button'))
-      .map((b: Element) => b.textContent?.trim());
-    expect(labels.some(l => l?.includes('Wieder öffnen'))).toBe(true);
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b: Element) =>
+      b.textContent?.trim(),
+    );
+    expect(labels.some((l) => l?.includes('Wieder öffnen'))).toBe(true);
   });
 
   it('shows Zur Aufgabe machen for active idea', () => {
     const { fixture } = setup(makeIdea({ status: 'active' }));
-    const labels = Array.from(fixture.nativeElement.querySelectorAll('button'))
-      .map((b: Element) => b.textContent?.trim());
-    expect(labels.some(l => l?.includes('Zur Aufgabe machen'))).toBe(true);
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b: Element) =>
+      b.textContent?.trim(),
+    );
+    expect(labels.some((l) => l?.includes('Zur Aufgabe machen'))).toBe(true);
   });
 
   it('shows In Jira öffnen link for ticket', () => {
-    const ticket: Partial<JiraTicket> = { type: 'ticket', url: 'https://jira.example.com/browse/T-1' };
+    const ticket: Partial<JiraTicket> = {
+      type: 'ticket',
+      url: 'https://jira.example.com/browse/T-1',
+    };
     const { fixture } = setup(ticket);
     const link = fixture.nativeElement.querySelector('a');
     expect(link).toBeTruthy();
@@ -1023,16 +1083,45 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
       @let todo = asTodo(item);
       @if (todo.status === 'open') {
         <button type="button" class="action-btn action-btn-green" (click)="completeTodo(todo)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
           Erledigt
         </button>
-        <button type="button"
+        <button
+          type="button"
           class="action-btn"
           [class]="todo.urgent ? 'action-btn-amber' : 'action-btn-stone'"
           (click)="toggleUrgent(todo)"
           [attr.aria-pressed]="todo.urgent"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+          </svg>
           Dringend
         </button>
         <button type="button" class="action-btn action-btn-stone" (click)="data.demoteToIdea(todo)">
@@ -1060,7 +1149,11 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
     @if (item?.type === 'idea') {
       @let idea = asIdea(item);
       @if (idea.status === 'active') {
-        <button type="button" class="action-btn action-btn-indigo" (click)="data.promoteToTodo(idea)">
+        <button
+          type="button"
+          class="action-btn action-btn-indigo"
+          (click)="data.promoteToTodo(idea)"
+        >
           Zur Aufgabe machen
         </button>
         <button type="button" class="action-btn action-btn-muted" (click)="wontFollowIdea(idea)">
@@ -1098,42 +1191,52 @@ import { Todo, Idea, JiraTicket, PullRequest } from '../../models/work-item.mode
       </a>
     }
   `,
-  styles: [`
-    :host {
-      .action-btn {
-        @apply flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center;
+  styles: [
+    `
+      :host {
+        .action-btn {
+          @apply flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center;
+        }
+        .action-btn-green {
+          @apply bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100;
+        }
+        .action-btn-amber {
+          @apply bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100;
+        }
+        .action-btn-indigo {
+          @apply bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100;
+        }
+        .action-btn-stone {
+          @apply bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300;
+        }
+        .action-btn-muted {
+          @apply bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300;
+        }
       }
-      .action-btn-green {
-        @apply bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100;
-      }
-      .action-btn-amber {
-        @apply bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100;
-      }
-      .action-btn-indigo {
-        @apply bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100;
-      }
-      .action-btn-stone {
-        @apply bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300;
-      }
-      .action-btn-muted {
-        @apply bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300;
-      }
-    }
-  `],
+    `,
+  ],
 })
 export class ActionRailComponent {
   protected readonly data = inject(WorkDataService);
   private readonly todoService = inject(TodoService);
   private readonly ideaService = inject(IdeaService);
 
-  asTodo(item: unknown): Todo { return item as Todo; }
-  asIdea(item: unknown): Idea { return item as Idea; }
-  asTicket(item: unknown): JiraTicket { return item as JiraTicket; }
-  asPr(item: unknown): PullRequest { return item as PullRequest; }
+  asTodo(item: unknown): Todo {
+    return item as Todo;
+  }
+  asIdea(item: unknown): Idea {
+    return item as Idea;
+  }
+  asTicket(item: unknown): JiraTicket {
+    return item as JiraTicket;
+  }
+  asPr(item: unknown): PullRequest {
+    return item as PullRequest;
+  }
 
   completeTodo(todo: Todo): void {
     this.todoService.update({ ...todo, status: 'done' as const });
-    const updated = this.todoService.todos().find(t => t.id === todo.id);
+    const updated = this.todoService.todos().find((t) => t.id === todo.id);
     if (updated) this.data.selectedItem.set(updated);
   }
 
@@ -1187,6 +1290,7 @@ git commit -m "feat: add ActionRailComponent with context-sensitive actions per 
 ### Task 8: Update app layout and remove external links from detail components
 
 **Files:**
+
 - Modify: `src/app/app.html`
 - Modify: `src/app/app.ts`
 - Modify: `src/app/components/ticket-detail/ticket-detail.ts` (template — remove "In Jira öffnen" link)
@@ -1195,25 +1299,28 @@ git commit -m "feat: add ActionRailComponent with context-sensitive actions per 
 - [ ] **Step 1: Update `app.html`** — split the workbench wrapper to add the action rail column
 
 Replace:
+
 ```html
 <div class="flex-1 overflow-hidden bg-stone-50">
-    <app-workbench />
-  </div>
+  <app-workbench />
+</div>
 ```
 
 With:
+
 ```html
 <div class="flex-1 overflow-hidden flex">
-    <div class="flex-1 overflow-hidden bg-stone-50">
-      <app-workbench />
-    </div>
-    <app-action-rail />
+  <div class="flex-1 overflow-hidden bg-stone-50">
+    <app-workbench />
   </div>
+  <app-action-rail />
+</div>
 ```
 
 - [ ] **Step 2: Update `app.ts`** — import `ActionRailComponent`
 
 Add `ActionRailComponent` to the imports array and add the import statement:
+
 ```ts
 import { ActionRailComponent } from './components/action-rail/action-rail';
 ```
@@ -1256,6 +1363,7 @@ git commit -m "feat: add action rail column to app layout, move external links f
 ### Task 9: Update `TodoDetailComponent` — inline editing, inject `TodoService`
 
 **Files:**
+
 - Modify: `src/app/components/todo-detail/todo-detail.ts`
 
 The detail panel becomes a pure edit view. All action buttons are removed (they moved to the rail). Title and description are click-to-edit.
@@ -1273,17 +1381,24 @@ import { WorkDataService } from '../../services/work-data.service';
   selector: 'app-todo-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Todo: ' + todo().title">
+    <article
+      class="h-full flex flex-col max-w-2xl mx-auto w-full"
+      [attr.aria-label]="'Todo: ' + todo().title"
+    >
       <header class="pb-5 border-b border-stone-200">
         <div class="flex items-start gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2">
-              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-                [class]="statusBadgeClass()">
+              <span
+                class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                [class]="statusBadgeClass()"
+              >
                 {{ statusLabel() }}
               </span>
               @if (todo().urgent) {
-                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-800 border border-amber-300">
+                <span
+                  class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-800 border border-amber-300"
+                >
                   Dringend
                 </span>
               }
@@ -1308,7 +1423,9 @@ import { WorkDataService } from '../../services/work-data.service';
                 tabindex="0"
                 (keydown.enter)="startEditTitle()"
                 aria-label="Titel anklicken zum Bearbeiten"
-              >{{ todo().title }}</h1>
+              >
+                {{ todo().title }}
+              </h1>
             }
           </div>
         </div>
@@ -1317,12 +1434,16 @@ import { WorkDataService } from '../../services/work-data.service';
       <div class="py-5 border-b border-stone-200">
         <dl class="grid grid-cols-2 gap-4">
           <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
+            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">
+              Erstellt am
+            </dt>
             <dd class="text-sm text-stone-700">{{ formatDate(todo().createdAt) }}</dd>
           </div>
           @if (todo().completedAt) {
             <div>
-              <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erledigt am</dt>
+              <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">
+                Erledigt am
+              </dt>
               <dd class="text-sm text-stone-700">{{ formatDate(todo().completedAt!) }}</dd>
             </div>
           }
@@ -1348,7 +1469,9 @@ import { WorkDataService } from '../../services/work-data.service';
             (click)="startEditDescription()"
             tabindex="0"
             (keydown.enter)="startEditDescription()"
-            [attr.aria-label]="todo().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
+            [attr.aria-label]="
+              todo().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'
+            "
           >
             @if (todo().description) {
               {{ todo().description }}
@@ -1383,17 +1506,23 @@ export class TodoDetailComponent {
 
   statusBadgeClass(): string {
     switch (this.todo().status) {
-      case 'done': return 'bg-emerald-100 text-emerald-700';
-      case 'wont-do': return 'bg-stone-100 text-stone-500';
-      default: return 'bg-indigo-100 text-indigo-700';
+      case 'done':
+        return 'bg-emerald-100 text-emerald-700';
+      case 'wont-do':
+        return 'bg-stone-100 text-stone-500';
+      default:
+        return 'bg-indigo-100 text-indigo-700';
     }
   }
 
   statusLabel(): string {
     switch (this.todo().status) {
-      case 'done': return 'Erledigt';
-      case 'wont-do': return 'Nicht verfolgt';
-      default: return 'Offen';
+      case 'done':
+        return 'Erledigt';
+      case 'wont-do':
+        return 'Nicht verfolgt';
+      default:
+        return 'Offen';
     }
   }
 
@@ -1413,8 +1542,13 @@ export class TodoDetailComponent {
   }
 
   onTitleKeydown(e: KeyboardEvent): void {
-    if (e.key === 'Enter') { e.preventDefault(); this.saveTitle(); }
-    if (e.key === 'Escape') { this.editingTitle.set(false); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.saveTitle();
+    }
+    if (e.key === 'Escape') {
+      this.editingTitle.set(false);
+    }
   }
 
   startEditDescription(): void {
@@ -1433,12 +1567,20 @@ export class TodoDetailComponent {
   }
 
   onDescriptionKeydown(e: KeyboardEvent): void {
-    if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
-    if (e.key === 'Escape') { this.editingDescription.set(false); }
+    if (e.ctrlKey && e.key === 'Enter') {
+      this.saveDescription();
+    }
+    if (e.key === 'Escape') {
+      this.editingDescription.set(false);
+    }
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(iso).toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 }
 ```
@@ -1461,6 +1603,7 @@ git commit -m "feat(todo-detail): inline title/description editing, remove actio
 ### Task 10: Update `TodoCardComponent` — drag handle, urgent stripe, completion celebration
 
 **Files:**
+
 - Modify: `src/app/components/todo-card/todo-card.ts`
 - Modify: `src/app/components/navigator/navigator.ts` (update toggle handler to use TodoService)
 
@@ -1470,7 +1613,17 @@ The card gains a drag handle (shown on hover), an amber left stripe when `urgent
 
 ```ts
 // src/app/components/todo-card/todo-card.ts
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { Todo } from '../../models/work-item.model';
 import { TodoService } from '../../services/todo.service';
@@ -1481,36 +1634,55 @@ const CONFETTI_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', 
   selector: 'app-todo-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CdkDragHandle],
-  styles: [`
-    @keyframes celebrateBounce {
-      0% { transform: scale(1); }
-      30% { transform: scale(1.4); }
-      60% { transform: scale(0.9); }
-      100% { transform: scale(1); }
-    }
-    .celebrating .checkbox-inner {
-      animation: celebrateBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    @keyframes confettiFly {
-      0% { transform: translate(0,0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-    }
-    .confetti-particle {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: confettiFly 0.65s ease-out forwards;
-    }
-  `],
+  styles: [
+    `
+      @keyframes celebrateBounce {
+        0% {
+          transform: scale(1);
+        }
+        30% {
+          transform: scale(1.4);
+        }
+        60% {
+          transform: scale(0.9);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .celebrating .checkbox-inner {
+        animation: celebrateBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes confettiFly {
+        0% {
+          transform: translate(0, 0) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0);
+          opacity: 0;
+        }
+      }
+      .confetti-particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: confettiFly 0.65s ease-out forwards;
+      }
+    `,
+  ],
   template: `
     <div
       class="group relative w-full rounded-lg border transition-all duration-150"
       [class]="outerClasses()"
     >
       @if (todo().urgent) {
-        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg bg-amber-500" aria-hidden="true"></div>
+        <div
+          class="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg bg-amber-500"
+          aria-hidden="true"
+        ></div>
       }
 
       <div class="flex items-start gap-2.5 px-3 py-2.5 pl-4">
@@ -1520,12 +1692,27 @@ const CONFETTI_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', 
             class="checkbox-inner w-4 h-4 rounded border-2 transition-colors flex items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500"
             [class]="checkboxClass()"
             (click)="onToggle()"
-            [attr.aria-label]="todo().status === 'done' ? 'Als offen markieren' : 'Als erledigt markieren'"
+            [attr.aria-label]="
+              todo().status === 'done' ? 'Als offen markieren' : 'Als erledigt markieren'
+            "
             [attr.aria-checked]="todo().status === 'done'"
             role="checkbox"
           >
             @if (todo().status === 'done') {
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
             }
           </button>
         </div>
@@ -1537,8 +1724,10 @@ const CONFETTI_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', 
           [attr.aria-pressed]="selected()"
           [attr.aria-label]="todo().title"
         >
-          <p class="text-sm font-medium leading-snug text-stone-800"
-            [class]="todo().status === 'done' ? 'line-through text-stone-400' : ''">
+          <p
+            class="text-sm font-medium leading-snug text-stone-800"
+            [class]="todo().status === 'done' ? 'line-through text-stone-400' : ''"
+          >
             {{ todo().title }}
           </p>
         </button>
@@ -1547,7 +1736,9 @@ const CONFETTI_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', 
           cdkDragHandle
           class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
           aria-label="Aufgabe verschieben"
-        >⠿</div>
+        >
+          ⠿
+        </div>
       </div>
     </div>
   `,
@@ -1587,7 +1778,7 @@ export class TodoCardComponent {
   checkboxClass = computed(() =>
     this.todo().status === 'done'
       ? 'bg-emerald-500 border-emerald-500'
-      : 'border-stone-300 hover:border-indigo-400'
+      : 'border-stone-300 hover:border-indigo-400',
   );
 
   onToggle(): void {
@@ -1624,7 +1815,7 @@ export class TodoCardComponent {
   private playChime(): void {
     try {
       const ctx = new AudioContext();
-      const notes = [261.63, 329.63, 392.00];
+      const notes = [261.63, 329.63, 392.0];
       notes.forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -1647,6 +1838,7 @@ export class TodoCardComponent {
 - [ ] **Step 2: Update `NavigatorComponent`** — it currently calls `data.toggleTodo()` which no longer exists. Remove that method call and inject `TodoService` directly for the `pendingCount`.
 
 In `navigator.ts`:
+
 - Remove the `toggleTodo()` method
 - Import `TodoService` and inject it
 - The template's `(toggle)="toggleTodo($event)"` on `app-todo-card` can be removed since the card now handles toggles internally
@@ -1671,6 +1863,7 @@ git commit -m "feat(todo-card): add drag handle, urgent stripe, completion celeb
 ### Task 11: Create `IdeaCardComponent`
 
 **Files:**
+
 - Create: `src/app/components/idea-card/idea-card.ts`
 
 - [ ] **Step 1: Create the component**
@@ -1693,14 +1886,18 @@ import { Idea } from '../../models/work-item.model';
       [attr.aria-label]="idea().title"
     >
       <span class="mt-0.5 shrink-0 text-sm" aria-hidden="true">💡</span>
-      <p class="text-sm font-medium leading-snug text-stone-800 flex-1"
-        [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''">
+      <p
+        class="text-sm font-medium leading-snug text-stone-800 flex-1"
+        [class]="idea().status === 'wont-do' ? 'line-through text-stone-400' : ''"
+      >
         {{ idea().title }}
       </p>
       <div
         class="opacity-0 group-hover:opacity-100 transition-opacity text-stone-300 cursor-grab active:cursor-grabbing ml-1 shrink-0 self-center select-none"
         aria-hidden="true"
-      >⠿</div>
+      >
+        ⠿
+      </div>
     </button>
   `,
 })
@@ -1714,7 +1911,7 @@ export class IdeaCardComponent {
       ? 'bg-indigo-50 border-indigo-300 shadow-sm'
       : this.idea().status === 'wont-do'
         ? 'bg-stone-50 border-stone-150 opacity-60'
-        : 'bg-indigo-50/40 border-indigo-100 hover:border-indigo-200 hover:shadow-sm'
+        : 'bg-indigo-50/40 border-indigo-100 hover:border-indigo-200 hover:shadow-sm',
   );
 }
 ```
@@ -1737,6 +1934,7 @@ git commit -m "feat: add IdeaCardComponent with indigo styling and drag handle"
 ### Task 12: Create `IdeaDetailComponent`
 
 **Files:**
+
 - Create: `src/app/components/idea-detail/idea-detail.ts`
 
 - [ ] **Step 1: Create the component**
@@ -1752,12 +1950,21 @@ import { WorkDataService } from '../../services/work-data.service';
   selector: 'app-idea-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article class="h-full flex flex-col max-w-2xl mx-auto w-full" [attr.aria-label]="'Idee: ' + idea().title">
+    <article
+      class="h-full flex flex-col max-w-2xl mx-auto w-full"
+      [attr.aria-label]="'Idee: ' + idea().title"
+    >
       <header class="pb-5 border-b border-stone-200">
         <div class="flex items-start gap-2 mb-2">
           <span class="text-lg" aria-hidden="true">💡</span>
-          <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-            [class]="idea().status === 'wont-do' ? 'bg-stone-100 text-stone-500' : 'bg-indigo-100 text-indigo-700'">
+          <span
+            class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+            [class]="
+              idea().status === 'wont-do'
+                ? 'bg-stone-100 text-stone-500'
+                : 'bg-indigo-100 text-indigo-700'
+            "
+          >
             {{ idea().status === 'wont-do' ? 'Nicht verfolgt' : 'Aktiv' }}
           </span>
         </div>
@@ -1780,14 +1987,18 @@ import { WorkDataService } from '../../services/work-data.service';
             tabindex="0"
             (keydown.enter)="startEditTitle()"
             aria-label="Titel anklicken zum Bearbeiten"
-          >{{ idea().title }}</h1>
+          >
+            {{ idea().title }}
+          </h1>
         }
       </header>
 
       <div class="py-5 border-b border-stone-200">
         <dl>
           <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Erstellt am</dt>
+            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">
+              Erstellt am
+            </dt>
             <dd class="text-sm text-stone-700">{{ formatDate(idea().createdAt) }}</dd>
           </div>
         </dl>
@@ -1812,7 +2023,9 @@ import { WorkDataService } from '../../services/work-data.service';
             (click)="startEditDescription()"
             tabindex="0"
             (keydown.enter)="startEditDescription()"
-            [attr.aria-label]="idea().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'"
+            [attr.aria-label]="
+              idea().description ? 'Notizen anklicken zum Bearbeiten' : 'Notizen hinzufügen'
+            "
           >
             @if (idea().description) {
               {{ idea().description }}
@@ -1845,7 +2058,10 @@ export class IdeaDetailComponent {
     });
   }
 
-  startEditTitle(): void { this.draftTitle.set(this.idea().title); this.editingTitle.set(true); }
+  startEditTitle(): void {
+    this.draftTitle.set(this.idea().title);
+    this.editingTitle.set(true);
+  }
 
   saveTitle(): void {
     const val = this.draftTitle().trim();
@@ -1858,11 +2074,19 @@ export class IdeaDetailComponent {
   }
 
   onTitleKeydown(e: KeyboardEvent): void {
-    if (e.key === 'Enter') { e.preventDefault(); this.saveTitle(); }
-    if (e.key === 'Escape') { this.editingTitle.set(false); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.saveTitle();
+    }
+    if (e.key === 'Escape') {
+      this.editingTitle.set(false);
+    }
   }
 
-  startEditDescription(): void { this.draftDescription.set(this.idea().description); this.editingDescription.set(true); }
+  startEditDescription(): void {
+    this.draftDescription.set(this.idea().description);
+    this.editingDescription.set(true);
+  }
 
   saveDescription(): void {
     const val = this.draftDescription().trim();
@@ -1875,12 +2099,20 @@ export class IdeaDetailComponent {
   }
 
   onDescriptionKeydown(e: KeyboardEvent): void {
-    if (e.ctrlKey && e.key === 'Enter') { this.saveDescription(); }
-    if (e.key === 'Escape') { this.editingDescription.set(false); }
+    if (e.ctrlKey && e.key === 'Enter') {
+      this.saveDescription();
+    }
+    if (e.key === 'Escape') {
+      this.editingDescription.set(false);
+    }
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(iso).toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 }
 ```
@@ -1891,9 +2123,9 @@ In `workbench.ts`, add `IdeaDetailComponent` to imports and add to `workbench.ht
 
 ```html
 @if (item?.type === 'idea') {
-  <div class="flex-1 overflow-y-auto p-6 lg:p-8">
-    <app-idea-detail [idea]="$any(item)" />
-  </div>
+<div class="flex-1 overflow-y-auto p-6 lg:p-8">
+  <app-idea-detail [idea]="$any(item)" />
+</div>
 }
 ```
 
@@ -1917,6 +2149,7 @@ git commit -m "feat: add IdeaDetailComponent with inline editing, add idea branc
 ### Task 13: Update `NavigatorComponent` with Ideen section, drag-to-reorder, and new CollapsedState
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.ts`
 - Modify: `src/app/components/navigator/navigator.html`
 
@@ -1953,7 +2186,15 @@ interface CollapsedState {
 @Component({
   selector: 'app-navigator',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TicketCardComponent, PrCardComponent, TodoCardComponent, IdeaCardComponent, TodoInlineInputComponent, CdkDrag, CdkDropList],
+  imports: [
+    TicketCardComponent,
+    PrCardComponent,
+    TodoCardComponent,
+    IdeaCardComponent,
+    TodoInlineInputComponent,
+    CdkDrag,
+    CdkDropList,
+  ],
   templateUrl: './navigator.html',
   host: { class: 'flex flex-col h-full' },
 })
@@ -1974,15 +2215,18 @@ export class NavigatorComponent {
 
   constructor() {
     effect(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        tickets: this.ticketsCollapsed(),
-        prs: this.prsCollapsed(),
-        todos: this.todosCollapsed(),
-        todosDone: this.todosDoneCollapsed(),
-        todosWontDo: this.todosWontDoCollapsed(),
-        ideas: this.ideasCollapsed(),
-        ideasWontDo: this.ideasWontDoCollapsed(),
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          tickets: this.ticketsCollapsed(),
+          prs: this.prsCollapsed(),
+          todos: this.todosCollapsed(),
+          todosDone: this.todosDoneCollapsed(),
+          todosWontDo: this.todosWontDoCollapsed(),
+          ideas: this.ideasCollapsed(),
+          ideasWontDo: this.ideasWontDoCollapsed(),
+        }),
+      );
     });
   }
 
@@ -1995,16 +2239,38 @@ export class NavigatorComponent {
   }
 
   private defaultCollapsed(): CollapsedState {
-    return { tickets: false, prs: false, todos: false, todosDone: false, todosWontDo: false, ideas: false, ideasWontDo: false };
+    return {
+      tickets: false,
+      prs: false,
+      todos: false,
+      todosDone: false,
+      todosWontDo: false,
+      ideas: false,
+      ideasWontDo: false,
+    };
   }
 
-  toggleTickets(): void { this.ticketsCollapsed.update(v => !v); }
-  togglePrs(): void { this.prsCollapsed.update(v => !v); }
-  toggleTodos(): void { this.todosCollapsed.update(v => !v); }
-  toggleTodosDone(): void { this.todosDoneCollapsed.update(v => !v); }
-  toggleTodosWontDo(): void { this.todosWontDoCollapsed.update(v => !v); }
-  toggleIdeas(): void { this.ideasCollapsed.update(v => !v); }
-  toggleIdeasWontDo(): void { this.ideasWontDoCollapsed.update(v => !v); }
+  toggleTickets(): void {
+    this.ticketsCollapsed.update((v) => !v);
+  }
+  togglePrs(): void {
+    this.prsCollapsed.update((v) => !v);
+  }
+  toggleTodos(): void {
+    this.todosCollapsed.update((v) => !v);
+  }
+  toggleTodosDone(): void {
+    this.todosDoneCollapsed.update((v) => !v);
+  }
+  toggleTodosWontDo(): void {
+    this.todosWontDoCollapsed.update((v) => !v);
+  }
+  toggleIdeas(): void {
+    this.ideasCollapsed.update((v) => !v);
+  }
+  toggleIdeasWontDo(): void {
+    this.ideasWontDoCollapsed.update((v) => !v);
+  }
 
   isSelected(item: WorkItem): boolean {
     return this.data.selectedItem()?.id === item.id;
@@ -2021,13 +2287,13 @@ export class NavigatorComponent {
   onTodoDrop(event: CdkDragDrop<Todo[]>): void {
     if (event.previousIndex !== event.currentIndex) {
       const openTodos = this.todoService.openTodos();
-      const openOnly = openTodos.filter(t => t.status === 'open');
+      const openOnly = openTodos.filter((t) => t.status === 'open');
       const fromId = openOnly[event.previousIndex]?.id;
       const toId = openOnly[event.currentIndex]?.id;
       if (!fromId || !toId) return;
       const all = this.todoService.todos();
-      const fromReal = all.findIndex(t => t.id === fromId);
-      const toReal = all.findIndex(t => t.id === toId);
+      const fromReal = all.findIndex((t) => t.id === fromId);
+      const toReal = all.findIndex((t) => t.id === toId);
       if (fromReal !== -1 && toReal !== -1) {
         this.todoService.reorder(fromReal, toReal);
       }
@@ -2041,8 +2307,8 @@ export class NavigatorComponent {
       const toId = active[event.currentIndex]?.id;
       if (!fromId || !toId) return;
       const all = this.ideaService.ideas();
-      const fromReal = all.findIndex(i => i.id === fromId);
-      const toReal = all.findIndex(i => i.id === toId);
+      const fromReal = all.findIndex((i) => i.id === fromId);
+      const toReal = all.findIndex((i) => i.id === toId);
       if (fromReal !== -1 && toReal !== -1) {
         this.ideaService.reorder(fromReal, toReal);
       }
@@ -2054,6 +2320,7 @@ export class NavigatorComponent {
 - [ ] **Step 2: Update `navigator.html`** — add the full new structure
 
 Replace the entire Todos section and add the Ideas section below it. The key changes are:
+
 - The Todos section now shows only `todoService.openTodos()` with a `cdkDropList` wrapping the open items
 - Below the open items: collapsed subsections for Erledigt and Nicht verfolgt
 - New Ideas section below Todos following the same pattern
@@ -2071,15 +2338,33 @@ Here is the complete new Todos section (replace from `<section aria-labelledby="
     aria-controls="navigator-todos-content"
   >
     <div class="flex items-center gap-2">
-      <span id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Aufgaben</span>
+      <span id="todos-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+        >Aufgaben</span
+      >
       @if (todoService.pendingCount() > 0) {
-        <span
-          class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-          [attr.aria-label]="todoService.pendingCount() + ' offene Aufgaben'"
-        >{{ todoService.pendingCount() }}</span>
+      <span
+        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
+        [attr.aria-label]="todoService.pendingCount() + ' offene Aufgaben'"
+        >{{ todoService.pendingCount() }}</span
+      >
       }
     </div>
-    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-stone-400 transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="todosCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="text-stone-400 transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+      [class.-rotate-90]="todosCollapsed()"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   </button>
   <div id="navigator-todos-content" [hidden]="todosCollapsed()">
     <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
@@ -2092,58 +2377,100 @@ Here is the complete new Todos section (replace from `<section aria-labelledby="
       role="list"
     >
       @for (todo of todoService.openTodos(); track todo.id) {
-        <li cdkDrag [cdkDragData]="todo">
+      <li cdkDrag [cdkDragData]="todo">
+        <app-todo-card [todo]="todo" [selected]="isSelected(todo)" (select)="selectItem($event)" />
+      </li>
+      }
+    </ul>
+
+    @if (todoService.doneTodos().length > 0) {
+    <div class="mt-3">
+      <button
+        type="button"
+        class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        (click)="toggleTodosDone()"
+        [attr.aria-expanded]="!todosDoneCollapsed()"
+        aria-controls="navigator-todos-done-content"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="transition-transform duration-100"
+          [class.-rotate-90]="todosDoneCollapsed()"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+        Erledigt ({{ todoService.doneTodos().length }})
+      </button>
+      <ul
+        id="navigator-todos-done-content"
+        [hidden]="todosDoneCollapsed()"
+        class="space-y-1.5 mt-1"
+        role="list"
+      >
+        @for (todo of todoService.doneTodos(); track todo.id) {
+        <li>
           <app-todo-card
             [todo]="todo"
             [selected]="isSelected(todo)"
             (select)="selectItem($event)"
           />
         </li>
-      }
-    </ul>
-
-    @if (todoService.doneTodos().length > 0) {
-      <div class="mt-3">
-        <button
-          type="button"
-          class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="toggleTodosDone()"
-          [attr.aria-expanded]="!todosDoneCollapsed()"
-          aria-controls="navigator-todos-done-content"
+        }
+      </ul>
+    </div>
+    } @if (todoService.wontDoTodos().length > 0) {
+    <div class="mt-2">
+      <button
+        type="button"
+        class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        (click)="toggleTodosWontDo()"
+        [attr.aria-expanded]="!todosWontDoCollapsed()"
+        aria-controls="navigator-todos-wontdo-content"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="transition-transform duration-100"
+          [class.-rotate-90]="todosWontDoCollapsed()"
+          aria-hidden="true"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="todosDoneCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-          Erledigt ({{ todoService.doneTodos().length }})
-        </button>
-        <ul id="navigator-todos-done-content" [hidden]="todosDoneCollapsed()" class="space-y-1.5 mt-1" role="list">
-          @for (todo of todoService.doneTodos(); track todo.id) {
-            <li>
-              <app-todo-card [todo]="todo" [selected]="isSelected(todo)" (select)="selectItem($event)" />
-            </li>
-          }
-        </ul>
-      </div>
-    }
-
-    @if (todoService.wontDoTodos().length > 0) {
-      <div class="mt-2">
-        <button
-          type="button"
-          class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="toggleTodosWontDo()"
-          [attr.aria-expanded]="!todosWontDoCollapsed()"
-          aria-controls="navigator-todos-wontdo-content"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="todosWontDoCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-          Nicht verfolgt ({{ todoService.wontDoTodos().length }})
-        </button>
-        <ul id="navigator-todos-wontdo-content" [hidden]="todosWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">
-          @for (todo of todoService.wontDoTodos(); track todo.id) {
-            <li>
-              <app-todo-card [todo]="todo" [selected]="isSelected(todo)" (select)="selectItem($event)" />
-            </li>
-          }
-        </ul>
-      </div>
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+        Nicht verfolgt ({{ todoService.wontDoTodos().length }})
+      </button>
+      <ul
+        id="navigator-todos-wontdo-content"
+        [hidden]="todosWontDoCollapsed()"
+        class="space-y-1.5 mt-1"
+        role="list"
+      >
+        @for (todo of todoService.wontDoTodos(); track todo.id) {
+        <li>
+          <app-todo-card
+            [todo]="todo"
+            [selected]="isSelected(todo)"
+            (select)="selectItem($event)"
+          />
+        </li>
+        }
+      </ul>
+    </div>
     }
   </div>
 </section>
@@ -2162,15 +2489,33 @@ And add the Ideas section after the Todos section:
     aria-controls="navigator-ideas-content"
   >
     <div class="flex items-center gap-2">
-      <span id="ideas-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Ideen</span>
+      <span id="ideas-heading" class="text-xs font-semibold text-stone-500 uppercase tracking-wider"
+        >Ideen</span
+      >
       @if (ideaService.activeIdeas().length > 0) {
-        <span
-          class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
-          [attr.aria-label]="ideaService.activeIdeas().length + ' aktive Ideen'"
-        >{{ ideaService.activeIdeas().length }}</span>
+      <span
+        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
+        [attr.aria-label]="ideaService.activeIdeas().length + ' aktive Ideen'"
+        >{{ ideaService.activeIdeas().length }}</span
+      >
       }
     </div>
-    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-stone-400 transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ideasCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="text-stone-400 transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+      [class.-rotate-90]="ideasCollapsed()"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   </button>
   <div id="navigator-ideas-content" [hidden]="ideasCollapsed()">
     <ul
@@ -2181,32 +2526,56 @@ And add the Ideas section after the Todos section:
       role="list"
     >
       @for (idea of ideaService.activeIdeas(); track idea.id) {
-        <li cdkDrag [cdkDragData]="idea">
-          <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
-        </li>
+      <li cdkDrag [cdkDragData]="idea">
+        <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
+      </li>
       }
     </ul>
 
     @if (ideaService.wontDoIdeas().length > 0) {
-      <div class="mt-2">
-        <button
-          type="button"
-          class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          (click)="toggleIdeasWontDo()"
-          [attr.aria-expanded]="!ideasWontDoCollapsed()"
-          aria-controls="navigator-ideas-wontdo-content"
+    <div class="mt-2">
+      <button
+        type="button"
+        class="flex items-center gap-1.5 w-full px-1 py-1 text-xs text-stone-400 hover:text-stone-600 transition-colors rounded-md hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        (click)="toggleIdeasWontDo()"
+        [attr.aria-expanded]="!ideasWontDoCollapsed()"
+        aria-controls="navigator-ideas-wontdo-content"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="transition-transform duration-100"
+          [class.-rotate-90]="ideasWontDoCollapsed()"
+          aria-hidden="true"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-100" [class.-rotate-90]="ideasWontDoCollapsed()" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-          Nicht verfolgt ({{ ideaService.wontDoIdeas().length }})
-        </button>
-        <ul id="navigator-ideas-wontdo-content" [hidden]="ideasWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">
-          @for (idea of ideaService.wontDoIdeas(); track idea.id) {
-            <li>
-              <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
-            </li>
-          }
-        </ul>
-      </div>
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+        Nicht verfolgt ({{ ideaService.wontDoIdeas().length }})
+      </button>
+      <ul
+        id="navigator-ideas-wontdo-content"
+        [hidden]="ideasWontDoCollapsed()"
+        class="space-y-1.5 mt-1"
+        role="list"
+      >
+        @for (idea of ideaService.wontDoIdeas(); track idea.id) {
+        <li>
+          <app-idea-card
+            [idea]="idea"
+            [selected]="isSelected(idea)"
+            (select)="selectItem($event)"
+          />
+        </li>
+        }
+      </ul>
+    </div>
     }
   </div>
 </section>
@@ -2240,6 +2609,7 @@ git commit -m "feat(navigator): add Ideen section, CDK drag-to-reorder, extend C
 ### Task 14: Update `QuickCaptureComponent` with Aufgabe/Idee toggle
 
 **Files:**
+
 - Modify: `src/app/components/quick-capture/quick-capture.ts`
 
 The modal gets a toggle below the input. Defaults to Aufgabe. Switching changes the placeholder. Enter saves to the right service.
@@ -2248,7 +2618,17 @@ The modal gets a toggle below the input. Defaults to Aufgabe. Switching changes 
 
 ```ts
 // src/app/components/quick-capture/quick-capture.ts
-import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { TodoService } from '../../services/todo.service';
 import { IdeaService } from '../../services/idea.service';
 
@@ -2286,7 +2666,11 @@ type CaptureMode = 'todo' | 'idea';
             <button
               type="button"
               class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              [class]="mode() === 'todo' ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              [class]="
+                mode() === 'todo'
+                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                  : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'
+              "
               (click)="mode.set('todo')"
               [attr.aria-pressed]="mode() === 'todo'"
             >
@@ -2295,7 +2679,11 @@ type CaptureMode = 'todo' | 'idea';
             <button
               type="button"
               class="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              [class]="mode() === 'idea' ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'"
+              [class]="
+                mode() === 'idea'
+                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                  : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'
+              "
               (click)="mode.set('idea')"
               [attr.aria-pressed]="mode() === 'idea'"
             >
@@ -2329,7 +2717,7 @@ export class QuickCaptureComponent {
   onKeydown(e: KeyboardEvent): void {
     if (e.key === 'Tab') {
       e.preventDefault();
-      this.mode.update(m => m === 'todo' ? 'idea' : 'todo');
+      this.mode.update((m) => (m === 'todo' ? 'idea' : 'todo'));
       return;
     }
     if (e.key === 'Enter') {
@@ -2387,6 +2775,7 @@ ng serve
 ```
 
 Verify:
+
 - [ ] Quick capture (Cmd+K) shows Aufgabe/Idee toggle; Tab switches between them
 - [ ] Adding a todo saves to `~/.orbit/todos.json` and appears in the navigator
 - [ ] Adding an idea saves to `~/.orbit/ideas.json` and appears in the Ideen section

@@ -18,11 +18,19 @@ export class SettingsService {
   readonly loaded = this._loaded.asReadonly();
 
   readonly jiraConfig = computed(() => this._settings().connections.jira);
-  readonly jenkinsConfig = computed(() => this._settings().connections.jenkins ?? { baseUrl: '', username: '', apiToken: '', jobs: [] });
+  readonly jenkinsConfig = computed(
+    () =>
+      this._settings().connections.jenkins ?? { baseUrl: '', username: '', apiToken: '', jobs: [] },
+  );
   readonly jenkinsConfigured = computed(() => {
     const j = this._settings().connections.jenkins;
     if (!j) return false;
-    return j.baseUrl.trim() !== '' && j.username.trim() !== '' && j.apiToken.trim() !== '' && j.jobs.length > 0;
+    return (
+      j.baseUrl.trim() !== '' &&
+      j.username.trim() !== '' &&
+      j.apiToken.trim() !== '' &&
+      j.jobs.length > 0
+    );
   });
   readonly bitbucketConfig = computed(() => this._settings().connections.bitbucket);
   readonly vertexAiConfig = computed(() => this._settings().connections.vertexAi);
@@ -46,7 +54,10 @@ export class SettingsService {
       const defaults = createDefaultSettings();
       settings.connections = { ...defaults.connections, ...settings.connections };
       settings.features = { ...defaults.features, ...settings.features };
-      settings.features.aiReviews = { ...defaults.features.aiReviews, ...settings.features.aiReviews };
+      settings.features.aiReviews = {
+        ...defaults.features.aiReviews,
+        ...settings.features.aiReviews,
+      };
       settings.appearance = { ...defaults.appearance, ...settings.appearance };
       settings.experiments = { ...defaults.experiments, ...settings.experiments };
       this._settings.set(settings);

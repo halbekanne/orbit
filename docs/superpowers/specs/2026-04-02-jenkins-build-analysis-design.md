@@ -37,6 +37,7 @@ Frontend: Ergebnis anzeigen + In-Memory cachen
 ### `POST /api/ai/build-analysis`
 
 **Request:**
+
 ```json
 {
   "jobPath": "my-multibranch-job",
@@ -53,6 +54,7 @@ Frontend: Ergebnis anzeigen + In-Memory cachen
 ```
 
 **Response (Erfolg):**
+
 ```json
 {
   "cause": "npm-Dependency @angular/core@19.2.0 nicht auflösbar — Version existiert nicht in der Registry.",
@@ -66,6 +68,7 @@ Frontend: Ergebnis anzeigen + In-Memory cachen
 ```
 
 **Response (Fehler):**
+
 ```json
 {
   "error": "Vertex AI nicht erreichbar",
@@ -78,6 +81,7 @@ Frontend: Ergebnis anzeigen + In-Memory cachen
 Beim ersten Analyse-Request für einen Job wird die config.xml einmalig geladen und das Repo-Mapping im Memory gecacht (`Map<jobPath, { project, repo, scriptPath }>`).
 
 **Extrahierte Werte:**
+
 - `sources > data > BranchSource > source > traits > GitBrowserSCMSourceTrait > browser > url` → Projekt + Repo-Slug parsen (z.B. `https://git.system.local/projects/DSYS/repos/design-system/` → `DSYS` / `design-system`)
 - `factory > scriptPath` → Pfad zum Jenkinsfile (z.B. `Jenkinsfile`)
 
@@ -86,6 +90,7 @@ Beim ersten Analyse-Request für einen Job wird die config.xml einmalig geladen 
 ## KI-Prompt
 
 **System-Prompt:**
+
 ```
 Du bist ein Build-Fehler-Analyst. Du erhältst das Jenkinsfile einer Pipeline und das Log einer fehlgeschlagenen Stage. Analysiere die Fehlerursache.
 
@@ -99,6 +104,7 @@ Regeln:
 Wenn kein Jenkinsfile verfügbar ist, wird der System-Prompt angepasst (nur Log-Analyse erwähnt).
 
 **User-Prompt:**
+
 ```
 Jenkinsfile:
 ---
@@ -113,6 +119,7 @@ Stage-Log:
 ```
 
 **Structured Output (JSON Schema):**
+
 ```json
 {
   "cause": "string — Fehlerursache, 1-2 Sätze, extrem prägnant",
@@ -125,6 +132,7 @@ Stage-Log:
 ```
 
 **Vertex AI Config:**
+
 - Temperature: 0.2
 - Thinking Budget: 8192 Tokens
 - Response MIME Type: `application/json`
@@ -145,19 +153,20 @@ Beim Laden eines Builds: wenn `result === 'FAILURE'` → Analyse automatisch sta
 
 ### UI-Zustände
 
-| Zustand | Darstellung |
-|---------|-------------|
-| Kein Fehler | KI-Analyse-Bereich wird nicht gezeigt |
-| Loading | "Fehlerursache wird analysiert..." mit Ladeanimation |
-| Result | Ursache, Lösung, Beleg + "Neu analysieren"-Button |
+| Zustand                   | Darstellung                                                             |
+| ------------------------- | ----------------------------------------------------------------------- |
+| Kein Fehler               | KI-Analyse-Bereich wird nicht gezeigt                                   |
+| Loading                   | "Fehlerursache wird analysiert..." mit Ladeanimation                    |
+| Result                    | Ursache, Lösung, Beleg + "Neu analysieren"-Button                       |
 | Result (ohne Jenkinsfile) | Wie Result, aber Hinweis dass Analyse ohne Jenkinsfile-Kontext erfolgte |
-| Error | Fehlermeldung + "Erneut versuchen"-Button |
+| Error                     | Fehlermeldung + "Erneut versuchen"-Button                               |
 
 ### UI-Design
 
 Der KI-Analyse-Bereich erscheint im Overview-Tab als eigene Karte (collapsible, wie andere Sektionen).
 
 **Struktur:**
+
 - Header: "KI-Analyse" + Beta-Badge
 - **Ursache**: Überschrift "Ursache", darunter 1-2 Sätze mit inline `<code>` für technische Details
 - **Lösung**: Überschrift "Lösung", darunter konkrete Handlungsanweisung
@@ -176,8 +185,8 @@ Die Build-Analyse benötigt eine konfigurierte Vertex AI Verbindung. Das Verhalt
 
 ### UI-Zustand ergänzt
 
-| Zustand | Darstellung |
-|---------|-------------|
+| Zustand            | Darstellung                                                                |
+| ------------------ | -------------------------------------------------------------------------- |
 | Nicht konfiguriert | Hinweis "Vertex AI ist nicht konfiguriert" + Button "Einstellungen öffnen" |
 
 ## Mock-Server
@@ -208,12 +217,14 @@ Neues Mock-Szenario für Build-Analyse (analog zu den bestehenden Review-Szenari
 ## Dateien
 
 **Neu:**
+
 - `src/app/builds/build-analysis.service.ts` — Service mit HTTP-Call, Cache, State-Signale
 - `src/app/builds/build-analysis/build-analysis.ts` — UI-Komponente für die Analyse-Darstellung
 - `server/routes/build-analysis-routes.js` — Express-Route für `/api/ai/build-analysis`
 - `server/build-analysis.js` — Orchestrierung: config.xml-Parsing, Jenkinsfile-Laden, Prompt-Bau, Vertex AI Call
 
 **Bestehend (zu modifizieren):**
+
 - `src/app/builds/build-detail/build-detail.ts` + `.html` — Integration der `BuildAnalysisComponent`
 - `src/app/builds/jenkins.model.ts` — Neue Interfaces für `BuildAnalysisResult`
 - `server/app.js` — Neue Route registrieren

@@ -1,9 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  OnDestroy,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AnsiUp } from 'ansi_up';
 import { JenkinsService } from '../jenkins.service';
 import { BuildLogService } from '../build-log.service';
-import { BranchBuild, JenkinsBuildDetail, JenkinsRun, JenkinsStage, JenkinsStageLog } from '../jenkins.model';
+import {
+  BranchBuild,
+  JenkinsBuildDetail,
+  JenkinsRun,
+  JenkinsStage,
+  JenkinsStageLog,
+} from '../jenkins.model';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 import { RestartDialogComponent } from '../restart-dialog/restart-dialog';
 import { BadgeComponent } from '../../shared/badge/badge';
@@ -59,13 +74,15 @@ export class BuildDetailComponent implements OnDestroy {
     const stripped = log.text.replace(/<[^>]+>/g, '');
     const converted = this.ansi.ansi_to_html(stripped);
     const lines = converted.split('\n');
-    const html = lines.map(line => {
-      const { time, message } = this.parseTimestamp(line);
-      const timeHtml = time
-        ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
-        : `<span class="w-16 shrink-0"></span>`;
-      return `<div class="flex">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
-    }).join('');
+    const html = lines
+      .map((line) => {
+        const { time, message } = this.parseTimestamp(line);
+        const timeHtml = time
+          ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
+          : `<span class="w-16 shrink-0"></span>`;
+        return `<div class="flex">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
+      })
+      .join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
@@ -74,16 +91,18 @@ export class BuildDetailComponent implements OnDestroy {
     if (!raw) return this.sanitizer.bypassSecurityTrustHtml('');
     const lines = raw.split('\n');
     const errorPattern = /ERROR|Exception|FAILED/;
-    const html = lines.map(line => {
-      const escaped = this.ansi.ansi_to_html(line);
-      const { time, message } = this.parseTimestamp(escaped);
-      const isError = errorPattern.test(line);
-      const borderClass = isError ? 'border-l-4 border-l-[var(--color-danger-solid)]' : '';
-      const timeHtml = time
-        ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
-        : `<span class="w-16 shrink-0"></span>`;
-      return `<div class="flex ${borderClass}">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
-    }).join('');
+    const html = lines
+      .map((line) => {
+        const escaped = this.ansi.ansi_to_html(line);
+        const { time, message } = this.parseTimestamp(escaped);
+        const isError = errorPattern.test(line);
+        const borderClass = isError ? 'border-l-4 border-l-[var(--color-danger-solid)]' : '';
+        const timeHtml = time
+          ? `<span class="select-none text-right pr-3 text-[var(--color-text-muted)] opacity-50 w-16 shrink-0">${time}</span>`
+          : `<span class="w-16 shrink-0"></span>`;
+        return `<div class="flex ${borderClass}">${timeHtml}<span class="flex-1 whitespace-pre-wrap break-all">${message}</span></div>`;
+      })
+      .join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   });
 
@@ -143,7 +162,9 @@ export class BuildDetailComponent implements OnDestroy {
   }
 
   private parseTimestamp(line: string): { time: string | null; message: string } {
-    const match = line.match(/^(?:(\d{2}:\d{2}:\d{2})\s+)?\[\d{4}-\d{2}-\d{2}T(\d{2}:\d{2}:\d{2})\.\d+Z\]\s*/);
+    const match = line.match(
+      /^(?:(\d{2}:\d{2}:\d{2})\s+)?\[\d{4}-\d{2}-\d{2}T(\d{2}:\d{2}:\d{2})\.\d+Z\]\s*/,
+    );
     if (!match) return { time: null, message: line };
     const time = match[1] ?? match[2];
     return { time, message: line.slice(match[0].length) };
@@ -173,21 +194,23 @@ export class BuildDetailComponent implements OnDestroy {
   }
 
   private loadFailedStageLogs(b: BranchBuild, detail: JenkinsBuildDetail, run: JenkinsRun): void {
-    const failedStages = run.stages.filter(s => s.status === 'FAILED');
+    const failedStages = run.stages.filter((s) => s.status === 'FAILED');
     for (const stage of failedStages) {
       this.jenkins.loadStageDetail(b.jobPath, b.branchName, detail.number, stage.id).subscribe({
         next: (stageDetail) => {
-          const failedNode = stageDetail.stageFlowNodes.find(n => n.status === 'FAILED');
+          const failedNode = stageDetail.stageFlowNodes.find((n) => n.status === 'FAILED');
           if (!failedNode) return;
-          this.jenkins.loadStageLog(b.jobPath, b.branchName, detail.number, failedNode.id).subscribe({
-            next: (log) => {
-              this.stageLogs.update(m => {
-                const next = new Map(m);
-                next.set(stage.id, log);
-                return next;
-              });
-            },
-          });
+          this.jenkins
+            .loadStageLog(b.jobPath, b.branchName, detail.number, failedNode.id)
+            .subscribe({
+              next: (log) => {
+                this.stageLogs.update((m) => {
+                  const next = new Map(m);
+                  next.set(stage.id, log);
+                  return next;
+                });
+              },
+            });
         },
       });
     }

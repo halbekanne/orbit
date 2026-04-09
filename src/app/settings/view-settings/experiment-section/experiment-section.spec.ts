@@ -24,7 +24,10 @@ describe('ExperimentSectionComponent', () => {
     description: 'Eine Testauswahl',
   };
 
-  function setup(definitions: (BooleanToggle | SelectToggle)[] = [], experiments: Record<string, string | boolean> = {}) {
+  function setup(
+    definitions: (BooleanToggle | SelectToggle)[] = [],
+    experiments: Record<string, string | boolean> = {},
+  ) {
     TestBed.configureTestingModule({
       imports: [ExperimentSectionComponent],
       providers: [
@@ -33,7 +36,7 @@ describe('ExperimentSectionComponent', () => {
           useValue: {
             getDefinitions: () => definitions,
             getValue: (id: string) => {
-              const def = definitions.find(d => d.id === id);
+              const def = definitions.find((d) => d.id === id);
               return () => experiments[id] ?? def?.defaultValue;
             },
           },

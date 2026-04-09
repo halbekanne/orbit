@@ -84,34 +84,71 @@ If no accessibility issues are found, return an empty findings array.`;
 }
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = component unusable for screen reader or keyboard users, important = accessibility impaired but not fully blocked, minor = improvement potential without direct barrier",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = component unusable for screen reader or keyboard users, important = accessibility impaired but not fully blocked, minor = improvement potential without direct barrier',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
-          wcagCriterion: { type: "STRING", description: "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
+          wcagCriterion: {
+            type: 'STRING',
+            description:
+              "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'",
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
+        required: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import('./agent-definition').AgentDefinition} */

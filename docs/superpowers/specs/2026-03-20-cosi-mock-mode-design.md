@@ -15,6 +15,7 @@ Exports a single function `runMockReview()` with no parameters. It ignores the r
 Returns a `Promise<ReviewResult>` matching the shape returned by `runReview()` in `proxy/cosi.js`.
 
 Behavior:
+
 - Waits 2–3 seconds (random) to simulate API latency
 - Selects one of 4 scenarios via random index (no round-robin, pure random)
 - Returns a response conforming to the `ReviewResult` shape: `{ findings, summary, warnings, reviewedAt }`
@@ -23,12 +24,14 @@ Behavior:
 ### Modified File: `proxy/index.js`
 
 The `/api/cosi/review` handler checks `COSI_API_KEY`:
+
 - **Set** → calls `runReview(diff, jiraTicket)` (existing behavior, unchanged)
 - **Not set** → calls `runMockReview()` from `cosi-mock.js`
 
 The existing `diff` validation (400 if missing) stays in place for both modes — the request shape is identical.
 
 On startup, when `COSI_API_KEY` is missing, the existing `console.warn` is updated to:
+
 ```
 [CoSi] Mock-Modus aktiv — kein API Key gesetzt
 ```

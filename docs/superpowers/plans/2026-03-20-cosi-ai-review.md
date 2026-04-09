@@ -14,20 +14,20 @@
 
 ## File Structure
 
-| File | Responsibility | Action |
-|------|---------------|--------|
-| `src/app/models/review.model.ts` | ReviewFinding, ReviewResult, ReviewState types | Create |
-| `src/app/services/cosi-review.service.ts` | Signal-based state, HTTP call to proxy | Create |
-| `src/app/services/cosi-review.service.spec.ts` | Service unit tests | Create |
-| `proxy/cosi.js` | callCoSi helper, system prompts, runReview orchestration | Create |
-| `proxy/cosi.test.js` | Backend orchestration tests (Node test runner) | Create |
-| `proxy/index.js` | Add `/api/cosi/review` route | Modify |
-| `src/app/components/action-rail/action-rail.ts` | Add KI-Review button for PRs | Modify |
-| `src/app/components/action-rail/action-rail.spec.ts` | Add button tests | Modify |
-| `src/app/components/review-findings/review-findings.ts` | Standalone findings section component | Create |
-| `src/app/components/review-findings/review-findings.spec.ts` | Findings section tests | Create |
-| `src/app/components/pr-detail/pr-detail.ts` | Wire up review trigger, embed findings component | Modify |
-| `src/app/components/pr-detail/pr-detail.spec.ts` | Add review trigger tests | Modify |
+| File                                                         | Responsibility                                           | Action |
+| ------------------------------------------------------------ | -------------------------------------------------------- | ------ |
+| `src/app/models/review.model.ts`                             | ReviewFinding, ReviewResult, ReviewState types           | Create |
+| `src/app/services/cosi-review.service.ts`                    | Signal-based state, HTTP call to proxy                   | Create |
+| `src/app/services/cosi-review.service.spec.ts`               | Service unit tests                                       | Create |
+| `proxy/cosi.js`                                              | callCoSi helper, system prompts, runReview orchestration | Create |
+| `proxy/cosi.test.js`                                         | Backend orchestration tests (Node test runner)           | Create |
+| `proxy/index.js`                                             | Add `/api/cosi/review` route                             | Modify |
+| `src/app/components/action-rail/action-rail.ts`              | Add KI-Review button for PRs                             | Modify |
+| `src/app/components/action-rail/action-rail.spec.ts`         | Add button tests                                         | Modify |
+| `src/app/components/review-findings/review-findings.ts`      | Standalone findings section component                    | Create |
+| `src/app/components/review-findings/review-findings.spec.ts` | Findings section tests                                   | Create |
+| `src/app/components/pr-detail/pr-detail.ts`                  | Wire up review trigger, embed findings component         | Modify |
+| `src/app/components/pr-detail/pr-detail.spec.ts`             | Add review trigger tests                                 | Modify |
 
 ---
 
@@ -36,6 +36,7 @@
 ### Task 1: Create `proxy/cosi.js` — callCoSi helper
 
 **Files:**
+
 - Create: `proxy/cosi.js`
 - Create: `proxy/cosi.test.js`
 
@@ -61,17 +62,21 @@ describe('callCoSi', () => {
 
   it('sends correct request to CoSi API', async () => {
     const mockResponse = {
-      candidates: [{
-        content: {
-          parts: [{ text: '{"findings": []}' }]
-        }
-      }]
+      candidates: [
+        {
+          content: {
+            parts: [{ text: '{"findings": []}' }],
+          },
+        },
+      ],
     };
 
-    const fetchMock = mock.fn(() => Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-    }));
+    const fetchMock = mock.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      }),
+    );
     mock.method(global, 'fetch', fetchMock);
 
     const { callCoSi } = freshRequire();
@@ -96,11 +101,13 @@ describe('callCoSi', () => {
   });
 
   it('throws on non-ok response', async () => {
-    mock.method(global, 'fetch', () => Promise.resolve({
-      ok: false,
-      status: 429,
-      text: () => Promise.resolve('Rate limited'),
-    }));
+    mock.method(global, 'fetch', () =>
+      Promise.resolve({
+        ok: false,
+        status: 429,
+        text: () => Promise.resolve('Rate limited'),
+      }),
+    );
 
     const { callCoSi } = freshRequire();
     await assert.rejects(
@@ -108,7 +115,7 @@ describe('callCoSi', () => {
       (err) => {
         assert.match(err.message, /429/);
         return true;
-      }
+      },
     );
   });
 });
@@ -125,7 +132,8 @@ Create `proxy/cosi.js`:
 
 ```js
 const COSI_API_KEY = process.env.COSI_API_KEY;
-const COSI_BASE_URL = process.env.COSI_BASE_URL ||
+const COSI_BASE_URL =
+  process.env.COSI_BASE_URL ||
   'https://api.co-si.system.local/v1/models/locations/europe-west4/publishers/google/models/gemini-2.5-flash:generateContent';
 
 async function callCoSi(userPrompt, systemInstruction, generationConfig = {}) {
@@ -182,6 +190,7 @@ git commit -m "feat(cosi): add callCoSi helper with tests"
 ### Task 2: Add system prompts to `proxy/cosi.js`
 
 **Files:**
+
 - Modify: `proxy/cosi.js`
 
 Read the spec section "CoSi Agent Prompts" thoroughly before writing the prompts. The spec contains detailed prompt engineering guidance, structure patterns, tone rules, and per-agent context templates. Do not summarize or simplify — implement the full guidance.
@@ -339,6 +348,7 @@ git commit -m "feat(cosi): add agent system prompts"
 ### Task 3: Add `runReview` orchestration to `proxy/cosi.js`
 
 **Files:**
+
 - Modify: `proxy/cosi.js`
 - Modify: `proxy/cosi.test.js`
 
@@ -354,12 +364,43 @@ describe('runReview', () => {
   });
 
   it('orchestrates parallel agents and consolidation', async () => {
-    const agent1Result = { findings: [{ severity: 'critical', title: 'AK #1 fehlt', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }] };
-    const agent2Result = { findings: [{ severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' }] };
+    const agent1Result = {
+      findings: [
+        {
+          severity: 'critical',
+          title: 'AK #1 fehlt',
+          file: 'a.ts',
+          line: 1,
+          detail: 'd',
+          suggestion: 's',
+        },
+      ],
+    };
+    const agent2Result = {
+      findings: [
+        { severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' },
+      ],
+    };
     const consolidatedResult = {
       findings: [
-        { severity: 'critical', category: 'ak-abgleich', title: 'AK #1 fehlt', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' },
-        { severity: 'minor', category: 'code-quality', title: 'Naming', file: 'b.ts', line: 5, detail: 'd', suggestion: 's' },
+        {
+          severity: 'critical',
+          category: 'ak-abgleich',
+          title: 'AK #1 fehlt',
+          file: 'a.ts',
+          line: 1,
+          detail: 'd',
+          suggestion: 's',
+        },
+        {
+          severity: 'minor',
+          category: 'code-quality',
+          title: 'Naming',
+          file: 'b.ts',
+          line: 5,
+          detail: 'd',
+          suggestion: 's',
+        },
       ],
       summary: '2 Auffälligkeiten: 1 Kritisch, 0 Wichtig, 1 Gering',
     };
@@ -367,19 +408,23 @@ describe('runReview', () => {
     let callCount = 0;
     mock.method(global, 'fetch', () => {
       callCount++;
-      const result = callCount <= 2
-        ? (callCount === 1 ? agent1Result : agent2Result)
-        : consolidatedResult;
+      const result =
+        callCount <= 2 ? (callCount === 1 ? agent1Result : agent2Result) : consolidatedResult;
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-        }),
+        json: () =>
+          Promise.resolve({
+            candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+          }),
       });
     });
 
     const { runReview } = freshRequire();
-    const result = await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' });
+    const result = await runReview('diff content', {
+      key: 'DS-1',
+      summary: 'Test',
+      description: 'AK: something',
+    });
 
     assert.equal(result.findings.length, 2);
     assert.equal(result.summary, '2 Auffälligkeiten: 1 Kritisch, 0 Wichtig, 1 Gering');
@@ -390,9 +435,23 @@ describe('runReview', () => {
   });
 
   it('returns partial result when agent 1 fails', async () => {
-    const agent2Result = { findings: [{ severity: 'minor', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }] };
+    const agent2Result = {
+      findings: [
+        { severity: 'minor', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' },
+      ],
+    };
     const consolidatedResult = {
-      findings: [{ severity: 'minor', category: 'code-quality', title: 'Test', file: 'a.ts', line: 1, detail: 'd', suggestion: 's' }],
+      findings: [
+        {
+          severity: 'minor',
+          category: 'code-quality',
+          title: 'Test',
+          file: 'a.ts',
+          line: 1,
+          detail: 'd',
+          suggestion: 's',
+        },
+      ],
       summary: '1 Auffälligkeit: 0 Kritisch, 0 Wichtig, 1 Gering',
     };
 
@@ -405,14 +464,19 @@ describe('runReview', () => {
       const result = callCount === 2 ? agent2Result : consolidatedResult;
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-        }),
+        json: () =>
+          Promise.resolve({
+            candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+          }),
       });
     });
 
     const { runReview } = freshRequire();
-    const result = await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'desc' });
+    const result = await runReview('diff content', {
+      key: 'DS-1',
+      summary: 'Test',
+      description: 'desc',
+    });
 
     assert.equal(result.warnings.length, 1);
     assert.match(result.warnings[0], /AK-Abgleich/);
@@ -428,9 +492,10 @@ describe('runReview', () => {
       const result = callCount === 1 ? agent2Result : consolidatedResult;
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({
-          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-        }),
+        json: () =>
+          Promise.resolve({
+            candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+          }),
       });
     });
 
@@ -496,11 +561,12 @@ async function runReview(diff, jiraTicket) {
 
   if (jiraTicket) {
     agentCalls.push(
-      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, { temperature: 0.2 })
-        .catch((err) => {
-          warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
-          return { findings: [] };
-        })
+      callCoSi(buildAgent1Prompt(diff, jiraTicket), SYSTEM_PROMPTS.akAbgleich, {
+        temperature: 0.2,
+      }).catch((err) => {
+        warnings.push(`Agent 1 (AK-Abgleich) fehlgeschlagen: ${err.message}`);
+        return { findings: [] };
+      }),
     );
   } else {
     warnings.push('Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.');
@@ -508,11 +574,12 @@ async function runReview(diff, jiraTicket) {
   }
 
   agentCalls.push(
-    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 })
-      .catch((err) => {
+    callCoSi(buildAgent2Prompt(diff), SYSTEM_PROMPTS.codeQuality, { temperature: 0.4 }).catch(
+      (err) => {
         warnings.push(`Agent 2 (Code-Qualität) fehlgeschlagen: ${err.message}`);
         return { findings: [] };
-      })
+      },
+    ),
   );
 
   const [agent1Result, agent2Result] = await Promise.all(agentCalls);
@@ -549,6 +616,7 @@ git commit -m "feat(cosi): add runReview orchestration with tests"
 ### Task 4: Add `/api/cosi/review` route to `proxy/index.js`
 
 **Files:**
+
 - Modify: `proxy/index.js`
 
 - [ ] **Step 1: Add route**
@@ -609,12 +677,12 @@ git commit -m "feat(cosi): add /api/cosi/review route to proxy"
 
 ---
 
-
 ## Chunk 2: Frontend — Types & Service
 
 ### Task 5: Create review types
 
 **Files:**
+
 - Create: `src/app/models/review.model.ts`
 
 - [ ] **Step 1: Create the types file**
@@ -654,6 +722,7 @@ git commit -m "feat(cosi): add ReviewFinding, ReviewResult, ReviewState types"
 ### Task 6: Create CosiReviewService with tests
 
 **Files:**
+
 - Create: `src/app/services/cosi-review.service.ts`
 - Create: `src/app/services/cosi-review.service.spec.ts`
 
@@ -673,11 +742,28 @@ import { ReviewResult } from '../models/review.model';
 
 function makeTicket(overrides: Partial<JiraTicket> = {}): JiraTicket {
   return {
-    type: 'ticket', id: '1', key: 'DS-1', summary: 'Test', issueType: 'Story',
-    status: 'In Progress', priority: 'Medium', assignee: '', reporter: '', creator: '',
-    description: 'AK: something', dueDate: null, createdAt: '', updatedAt: '',
-    url: '', labels: [], project: null, components: [],
-    comments: [], attachments: [], relations: [], epicLink: null,
+    type: 'ticket',
+    id: '1',
+    key: 'DS-1',
+    summary: 'Test',
+    issueType: 'Story',
+    status: 'In Progress',
+    priority: 'Medium',
+    assignee: '',
+    reporter: '',
+    creator: '',
+    description: 'AK: something',
+    dueDate: null,
+    createdAt: '',
+    updatedAt: '',
+    url: '',
+    labels: [],
+    project: null,
+    components: [],
+    comments: [],
+    attachments: [],
+    relations: [],
+    epicLink: null,
     ...overrides,
   } as JiraTicket;
 }
@@ -711,7 +797,7 @@ describe('CosiReviewService', () => {
     service.requestReview('diff text', makeTicket());
     expect(service.reviewState()).toBe('loading');
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
+    const req = httpMock.expectOne((r) => r.url.includes('/api/cosi/review'));
     expect(req.request.method).toBe('POST');
     expect(req.request.body.diff).toBe('diff text');
     expect(req.request.body.jiraTicket.key).toBe('DS-1');
@@ -726,7 +812,7 @@ describe('CosiReviewService', () => {
   it('transitions to error on failure', () => {
     service.requestReview('diff', makeTicket());
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
+    const req = httpMock.expectOne((r) => r.url.includes('/api/cosi/review'));
     req.flush('Server Error', { status: 502, statusText: 'Bad Gateway' });
 
     const state = service.reviewState();
@@ -737,16 +823,26 @@ describe('CosiReviewService', () => {
   it('sends null jiraTicket when no ticket provided', () => {
     service.requestReview('diff', null);
 
-    const req = httpMock.expectOne(r => r.url.includes('/api/cosi/review'));
+    const req = httpMock.expectOne((r) => r.url.includes('/api/cosi/review'));
     expect(req.request.body.jiraTicket).toBeNull();
-    req.flush({ findings: [], summary: 'Keine Auffälligkeiten', warnings: ['Kein Jira-Ticket'], reviewedAt: '' });
+    req.flush({
+      findings: [],
+      summary: 'Keine Auffälligkeiten',
+      warnings: ['Kein Jira-Ticket'],
+      reviewedAt: '',
+    });
   });
 
   it('resets to idle via reset()', () => {
     service.requestReview('diff', makeTicket());
-    httpMock.expectOne(r => r.url.includes('/api/cosi/review')).flush({
-      findings: [], summary: '', warnings: [], reviewedAt: '',
-    });
+    httpMock
+      .expectOne((r) => r.url.includes('/api/cosi/review'))
+      .flush({
+        findings: [],
+        summary: '',
+        warnings: [],
+        reviewedAt: '',
+      });
 
     service.reset();
     expect(service.reviewState()).toBe('idle');
@@ -754,7 +850,7 @@ describe('CosiReviewService', () => {
 
   it('emits on reviewRequested$ when triggerReview is called', () => {
     let emitted = false;
-    service.reviewRequested$.subscribe(() => emitted = true);
+    service.reviewRequested$.subscribe(() => (emitted = true));
     service.triggerReview();
     expect(emitted).toBe(true);
   });
@@ -804,7 +900,8 @@ export class CosiReviewService {
 
     this.http.post<ReviewResult>(this.baseUrl, body).subscribe({
       next: (result) => this.reviewState.set({ status: 'result', data: result }),
-      error: (err) => this.reviewState.set({ status: 'error', message: err.message || 'Review fehlgeschlagen' }),
+      error: (err) =>
+        this.reviewState.set({ status: 'error', message: err.message || 'Review fehlgeschlagen' }),
     });
   }
 
@@ -833,6 +930,7 @@ git commit -m "feat(cosi): add CosiReviewService with Subject-based trigger and 
 ### Task 7: Add KI-Review button to action rail
 
 **Files:**
+
 - Modify: `src/app/components/action-rail/action-rail.ts`
 - Modify: `src/app/components/action-rail/action-rail.spec.ts`
 
@@ -843,6 +941,7 @@ The action rail button calls `cosiReview.triggerReview()` on click. The PR detai
 Add to `action-rail.spec.ts`. The existing `setup` function provides mocked providers. Add `CosiReviewService` to the mocks.
 
 Add imports:
+
 ```typescript
 import { CosiReviewService } from '../../services/cosi-review.service';
 import { PullRequest } from '../../models/work-item.model';
@@ -850,18 +949,71 @@ import { ReviewState } from '../../models/review.model';
 ```
 
 Add PR factory:
+
 ```typescript
-const makePr = (overrides: Partial<PullRequest> = {}): PullRequest => ({
-  type: 'pr', id: '1', prNumber: 1, title: 'Test PR', description: '',
-  state: 'OPEN', open: true, closed: false, locked: false, isDraft: false,
-  createdDate: 0, updatedDate: 0,
-  fromRef: { id: 'refs/heads/feat', displayId: 'feat', latestCommit: 'abc', repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'P', browseUrl: '' } },
-  toRef: { id: 'refs/heads/main', displayId: 'main', latestCommit: 'def', repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'P', browseUrl: '' } },
-  author: { user: { id: 1, name: 'u', displayName: 'User', emailAddress: '', slug: 'u', active: true, type: 'NORMAL', profileUrl: '' }, role: 'AUTHOR', approved: false, status: 'UNAPPROVED' },
-  reviewers: [], participants: [],
-  commentCount: 0, openTaskCount: 0, url: '', myReviewStatus: 'Awaiting Review',
-  ...overrides,
-} as PullRequest);
+const makePr = (overrides: Partial<PullRequest> = {}): PullRequest =>
+  ({
+    type: 'pr',
+    id: '1',
+    prNumber: 1,
+    title: 'Test PR',
+    description: '',
+    state: 'OPEN',
+    open: true,
+    closed: false,
+    locked: false,
+    isDraft: false,
+    createdDate: 0,
+    updatedDate: 0,
+    fromRef: {
+      id: 'refs/heads/feat',
+      displayId: 'feat',
+      latestCommit: 'abc',
+      repository: {
+        id: 1,
+        slug: 'repo',
+        name: 'repo',
+        projectKey: 'P',
+        projectName: 'P',
+        browseUrl: '',
+      },
+    },
+    toRef: {
+      id: 'refs/heads/main',
+      displayId: 'main',
+      latestCommit: 'def',
+      repository: {
+        id: 1,
+        slug: 'repo',
+        name: 'repo',
+        projectKey: 'P',
+        projectName: 'P',
+        browseUrl: '',
+      },
+    },
+    author: {
+      user: {
+        id: 1,
+        name: 'u',
+        displayName: 'User',
+        emailAddress: '',
+        slug: 'u',
+        active: true,
+        type: 'NORMAL',
+        profileUrl: '',
+      },
+      role: 'AUTHOR',
+      approved: false,
+      status: 'UNAPPROVED',
+    },
+    reviewers: [],
+    participants: [],
+    commentCount: 0,
+    openTaskCount: 0,
+    url: '',
+    myReviewStatus: 'Awaiting Review',
+    ...overrides,
+  }) as PullRequest;
 ```
 
 Update the existing `setup` function to include a `CosiReviewService` mock. Add to the providers array:
@@ -886,7 +1038,7 @@ it('shows KI-Review button when PR is selected', () => {
   const { fixture } = setup(makePr());
   const buttons = fixture.nativeElement.querySelectorAll('button');
   const labels = Array.from(buttons).map((b: unknown) => (b as Element).textContent?.trim());
-  expect(labels.some(l => l?.includes('KI-Review starten'))).toBe(true);
+  expect(labels.some((l) => l?.includes('KI-Review starten'))).toBe(true);
 });
 
 it('shows In Bitbucket öffnen link when PR is selected', () => {
@@ -901,7 +1053,7 @@ it('disables KI-Review button and shows loading text during review', () => {
   fixture.detectChanges();
 
   const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
-  const reviewBtn = buttons.find(b => b.textContent?.includes('Review läuft'));
+  const reviewBtn = buttons.find((b) => b.textContent?.includes('Review läuft'));
   expect(reviewBtn).toBeTruthy();
   expect(reviewBtn?.disabled).toBe(true);
 });
@@ -915,7 +1067,7 @@ it('shows "Erneut reviewen" after review completes', () => {
   fixture.detectChanges();
 
   const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
-  const reviewBtn = buttons.find(b => b.textContent?.includes('Erneut reviewen'));
+  const reviewBtn = buttons.find((b) => b.textContent?.includes('Erneut reviewen'));
   expect(reviewBtn).toBeTruthy();
 });
 
@@ -925,14 +1077,14 @@ it('disables KI-Review button when canReview is false', () => {
   fixture.detectChanges();
 
   const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
-  const reviewBtn = buttons.find(b => b.textContent?.includes('KI-Review starten'));
+  const reviewBtn = buttons.find((b) => b.textContent?.includes('KI-Review starten'));
   expect(reviewBtn?.disabled).toBe(true);
 });
 
 it('calls triggerReview on button click', () => {
   const { fixture, mockCosiReview } = setup(makePr());
   const buttons: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('button'));
-  const reviewBtn = buttons.find(b => b.textContent?.includes('KI-Review starten'));
+  const reviewBtn = buttons.find((b) => b.textContent?.includes('KI-Review starten'));
   reviewBtn?.click();
   expect(mockCosiReview.triggerReview).toHaveBeenCalled();
 });
@@ -948,11 +1100,13 @@ Expected: FAIL — KI-Review button doesn't exist in the template
 Modify `action-rail.ts`:
 
 Add import:
+
 ```typescript
 import { CosiReviewService } from '../../services/cosi-review.service';
 ```
 
 Add injection:
+
 ```typescript
 private readonly cosiReview = inject(CosiReviewService);
 ```
@@ -961,18 +1115,16 @@ Add template in the `@if (item?.type === 'pr')` block, **before** the Bitbucket 
 
 ```html
 @let review = cosiReview.reviewState();
-<button type="button"
+<button
+  type="button"
   class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
   [class]="review === 'idle' ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
   [disabled]="review === 'loading' || !cosiReview.canReview()"
-  (click)="cosiReview.triggerReview()">
+  (click)="cosiReview.triggerReview()"
+>
   @if (review === 'loading') {
-    <span class="animate-pulse">Review läuft...</span>
-  } @else if (review === 'idle') {
-    KI-Review starten
-  } @else {
-    Erneut reviewen
-  }
+  <span class="animate-pulse">Review läuft...</span>
+  } @else if (review === 'idle') { KI-Review starten } @else { Erneut reviewen }
 </button>
 ```
 
@@ -993,6 +1145,7 @@ git commit -m "feat(cosi): add KI-Review button to action rail"
 ### Task 8: Create ReviewFindingsComponent
 
 **Files:**
+
 - Create: `src/app/components/review-findings/review-findings.ts`
 - Create: `src/app/components/review-findings/review-findings.spec.ts`
 
@@ -1072,7 +1225,9 @@ describe('ReviewFindingsComponent', () => {
       status: 'result',
       data: {
         findings: [makeFinding({ severity: 'critical', detail: 'Critical detail text' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).toContain('Critical detail text');
@@ -1083,7 +1238,9 @@ describe('ReviewFindingsComponent', () => {
       status: 'result',
       data: {
         findings: [makeFinding({ severity: 'minor', detail: 'Minor detail text' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).not.toContain('Minor detail text');
@@ -1094,7 +1251,9 @@ describe('ReviewFindingsComponent', () => {
       status: 'result',
       data: {
         findings: [makeFinding({ severity: 'minor', detail: 'Toggled detail' })],
-        summary: '1', warnings: [], reviewedAt: '',
+        summary: '1',
+        warnings: [],
+        reviewedAt: '',
       },
     });
     expect(fixture.nativeElement.textContent).not.toContain('Toggled detail');
@@ -1144,20 +1303,38 @@ Expected: FAIL — `ReviewFindingsComponent` not found
 Create `src/app/components/review-findings/review-findings.ts`:
 
 ```typescript
-import { ChangeDetectionStrategy, Component, effect, input, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { ReviewState } from '../../models/review.model';
 
 @Component({
   selector: 'app-review-findings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`:host { display: block; }`],
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
   template: `
     @let review = reviewState();
     @if (review !== 'idle') {
       <section class="border-b border-stone-100" aria-labelledby="pr-review-heading">
         <div class="max-w-2xl mx-auto px-6 py-5">
           <div class="flex items-center justify-between mb-3">
-            <h2 id="pr-review-heading" class="text-xs font-semibold text-stone-400 uppercase tracking-wider">KI-Review</h2>
+            <h2
+              id="pr-review-heading"
+              class="text-xs font-semibold text-stone-400 uppercase tracking-wider"
+            >
+              KI-Review
+            </h2>
             @if (review !== 'loading' && review.status === 'result') {
               <span class="text-xs text-stone-400">{{ review.data.summary }}</span>
             }
@@ -1191,15 +1368,24 @@ import { ReviewState } from '../../models/review.model';
                         [class]="severityDotClass(finding.severity)"
                         aria-hidden="true"
                       ></span>
-                      <span class="text-sm font-medium text-stone-800 flex-1 min-w-0">{{ finding.title }}</span>
-                      <span class="font-mono text-xs text-stone-400 shrink-0">{{ finding.file }}:{{ finding.line }}</span>
+                      <span class="text-sm font-medium text-stone-800 flex-1 min-w-0">{{
+                        finding.title
+                      }}</span>
+                      <span class="font-mono text-xs text-stone-400 shrink-0"
+                        >{{ finding.file }}:{{ finding.line }}</span
+                      >
                     </button>
 
                     @if (isFindingExpanded($index, finding.severity)) {
-                      <div class="ml-4 mb-2.5 px-3 py-2 bg-stone-100 rounded text-xs text-stone-500 leading-relaxed">
+                      <div
+                        class="ml-4 mb-2.5 px-3 py-2 bg-stone-100 rounded text-xs text-stone-500 leading-relaxed"
+                      >
                         <p>{{ finding.detail }}</p>
                         @if (finding.suggestion) {
-                          <p class="mt-1"><span class="font-medium text-stone-600">Vorschlag:</span> {{ finding.suggestion }}</p>
+                          <p class="mt-1">
+                            <span class="font-medium text-stone-600">Vorschlag:</span>
+                            {{ finding.suggestion }}
+                          </p>
                         }
                       </div>
                     }
@@ -1242,13 +1428,13 @@ export class ReviewFindingsComponent {
 
   toggleFinding(index: number, severity: string): void {
     if (severity === 'critical') {
-      this.collapsedCritical.update(set => {
+      this.collapsedCritical.update((set) => {
         const next = new Set(set);
         next.has(index) ? next.delete(index) : next.add(index);
         return next;
       });
     } else {
-      this.expandedNonCritical.update(set => {
+      this.expandedNonCritical.update((set) => {
         const next = new Set(set);
         next.has(index) ? next.delete(index) : next.add(index);
         return next;
@@ -1258,9 +1444,12 @@ export class ReviewFindingsComponent {
 
   severityDotClass(severity: string): string {
     switch (severity) {
-      case 'critical': return 'bg-red-500';
-      case 'important': return 'bg-amber-500';
-      default: return 'bg-stone-400';
+      case 'critical':
+        return 'bg-red-500';
+      case 'important':
+        return 'bg-amber-500';
+      default:
+        return 'bg-stone-400';
     }
   }
 }
@@ -1281,6 +1470,7 @@ git commit -m "feat(cosi): add ReviewFindingsComponent with expand/collapse and 
 ### Task 9: Wire up review trigger in PR detail
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 - Modify: `src/app/components/pr-detail/pr-detail.spec.ts`
 
@@ -1330,6 +1520,7 @@ Expected: FAIL — `app-review-findings` not found in template
 In `pr-detail.ts`:
 
 Add imports:
+
 ```typescript
 import { CosiReviewService } from '../../services/cosi-review.service';
 import { ReviewFindingsComponent } from '../review-findings/review-findings';
@@ -1339,11 +1530,13 @@ import { skip } from 'rxjs';
 ```
 
 Add `ReviewFindingsComponent` to `imports` array in `@Component` decorator:
+
 ```typescript
 imports: [DatePipe, JiraMarkupPipe, JiraPrCardComponent, ReviewFindingsComponent],
 ```
 
 Add injections to the component class:
+
 ```typescript
 private readonly cosiReview = inject(CosiReviewService);
 private readonly destroyRef = inject(DestroyRef);
@@ -1367,23 +1560,21 @@ Add subscriptions in `constructor()` (after the existing hljs registration block
 
 ```typescript
 // Handle review trigger from action rail
-this.cosiReview.reviewRequested$.pipe(
-  takeUntilDestroyed(this.destroyRef),
-).subscribe(() => {
+this.cosiReview.reviewRequested$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
   const diff = this.diffData();
   if (diff === 'loading' || diff === 'error') return;
 
   const ticket = this.jiraTicket();
-  const resolvedTicket = (ticket !== 'loading' && ticket !== 'error' && ticket !== 'no-ticket') ? ticket : null;
+  const resolvedTicket =
+    ticket !== 'loading' && ticket !== 'error' && ticket !== 'no-ticket' ? ticket : null;
 
   this.cosiReview.requestReview(diff, resolvedTicket);
 });
 
 // Reset review state when PR changes (skip initial emission)
-toObservable(this.pr).pipe(
-  skip(1),
-  takeUntilDestroyed(this.destroyRef),
-).subscribe(() => this.cosiReview.reset());
+toObservable(this.pr)
+  .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+  .subscribe(() => this.cosiReview.reset());
 ```
 
 Add the findings component to the template, **before** the diff section (`aria-labelledby="pr-diff-heading"`):

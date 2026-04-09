@@ -66,7 +66,13 @@ function preprocessDiff(rawDiff) {
       oldLine = parseInt(hunkMatch[1], 10);
       newLine = parseInt(hunkMatch[2], 10);
       result.push(line);
-    } else if (line.startsWith('diff ') || line.startsWith('index ') || line.startsWith('--- ') || line.startsWith('+++ ') || line.startsWith('Binary ')) {
+    } else if (
+      line.startsWith('diff ') ||
+      line.startsWith('index ') ||
+      line.startsWith('--- ') ||
+      line.startsWith('+++ ') ||
+      line.startsWith('Binary ')
+    ) {
       result.push(line);
     } else if (line.startsWith('-')) {
       result.push(`[${oldLine}]${line}`);
@@ -85,57 +91,81 @@ function preprocessDiff(rawDiff) {
 }
 
 const CONSOLIDATOR_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "Final, filtered list of findings.",
+      type: 'ARRAY',
+      description: 'Final, filtered list of findings.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = real runtime risk, important = structural problem, minor = small improvement",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = real runtime risk, important = structural problem, minor = small improvement',
           },
           category: {
-            type: "STRING",
-            description: "Which agent originally produced the finding",
+            type: 'STRING',
+            description: 'Which agent originally produced the finding',
           },
-          title: { type: "STRING", description: "Short German summary" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff" },
-          codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
-          detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
-          suggestion: { type: "STRING", description: "Improvement suggestion in German" },
-          wcagCriterion: { type: "STRING", description: "WCAG criterion reference, if applicable" },
+          title: { type: 'STRING', description: 'Short German summary' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: { type: 'INTEGER', description: 'Line number from the diff' },
+          codeSnippet: {
+            type: 'STRING',
+            description: 'Exact lines from the diff, copied verbatim',
+          },
+          detail: { type: 'STRING', description: 'Problem description in German (1-3 sentences)' },
+          suggestion: { type: 'STRING', description: 'Improvement suggestion in German' },
+          wcagCriterion: { type: 'STRING', description: 'WCAG criterion reference, if applicable' },
         },
-        required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
+        required: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
       },
     },
     decisions: {
-      type: "ARRAY",
-      description: "For each input finding, a decision explaining what happened to it.",
+      type: 'ARRAY',
+      description: 'For each input finding, a decision explaining what happened to it.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
-          agent: { type: "STRING" },
-          finding: { type: "STRING", description: "Original title of the finding" },
-          action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
-          reason: { type: "STRING", description: "Reasoning in German" },
+          agent: { type: 'STRING' },
+          finding: { type: 'STRING', description: 'Original title of the finding' },
+          action: { type: 'STRING', enum: ['kept', 'removed', 'merged', 'severity-changed'] },
+          reason: { type: 'STRING', description: 'Reasoning in German' },
         },
-        required: ["agent", "finding", "action", "reason"],
-        propertyOrdering: ["agent", "finding", "action", "reason"],
+        required: ['agent', 'finding', 'action', 'reason'],
+        propertyOrdering: ['agent', 'finding', 'action', 'reason'],
       },
     },
     summary: {
-      type: "STRING",
-      description: "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
+      type: 'STRING',
+      description:
+        "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
     },
   },
-  required: ["findings", "decisions", "summary"],
-  propertyOrdering: ["findings", "decisions", "summary"],
+  required: ['findings', 'decisions', 'summary'],
+  propertyOrdering: ['findings', 'decisions', 'summary'],
 };
 
 function buildConsolidatorSystemPrompt(projectRules) {
@@ -197,9 +227,9 @@ function buildConsolidatorPrompt(agentResults, diff) {
 
 function describeFindings(findings) {
   if (findings.length === 0) return 'Keine Auffälligkeiten';
-  const critical = findings.filter(f => f.severity === 'critical').length;
-  const important = findings.filter(f => f.severity === 'important').length;
-  const minor = findings.filter(f => f.severity === 'minor').length;
+  const critical = findings.filter((f) => f.severity === 'critical').length;
+  const important = findings.filter((f) => f.severity === 'important').length;
+  const minor = findings.filter((f) => f.severity === 'minor').length;
   const parts = [];
   if (critical) parts.push(`${critical} Kritisch`);
   if (important) parts.push(`${important} Wichtig`);
@@ -219,12 +249,12 @@ async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, proj
   const warnings = [];
   const processedDiff = preprocessDiff(diff);
 
-  const enabledFromSettings = AGENT_REGISTRY.filter(a => enabledAgents.includes(a.id));
+  const enabledFromSettings = AGENT_REGISTRY.filter((a) => enabledAgents.includes(a.id));
   const applicableAgents = enabledFromSettings.filter(
-    a => !a.isApplicable || a.isApplicable(jiraTicket)
+    (a) => !a.isApplicable || a.isApplicable(jiraTicket),
   );
 
-  const skipped = enabledFromSettings.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+  const skipped = enabledFromSettings.filter((a) => a.isApplicable && !a.isApplicable(jiraTicket));
   for (const agent of skipped) {
     if (agent.skipMessage) {
       emit('warning', { message: agent.skipMessage });
@@ -233,7 +263,7 @@ async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, proj
   }
 
   const agentResults = await Promise.all(
-    applicableAgents.map(agent => {
+    applicableAgents.map((agent) => {
       emit('agent:start', {
         agent: agent.id,
         label: agent.label,
@@ -263,15 +293,15 @@ async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, proj
           });
           return { id: agent.id, label: agent.label, findings: result.findings };
         })
-        .catch(err => {
+        .catch((err) => {
           emit('agent:error', { agent: agent.id, error: err.message });
           warnings.push(`Agent (${agent.label}) fehlgeschlagen: ${err.message}`);
           return { id: agent.id, label: agent.label, findings: [] };
         });
-    })
+    }),
   );
 
-  const hasFindings = agentResults.some(r => r.findings.length > 0);
+  const hasFindings = agentResults.some((r) => r.findings.length > 0);
   if (!hasFindings) {
     emit('done', {});
     return;

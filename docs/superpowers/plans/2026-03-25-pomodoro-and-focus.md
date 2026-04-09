@@ -16,35 +16,36 @@
 
 ### New Files
 
-| File | Responsibility |
-|------|---------------|
-| `src/app/services/focus.service.ts` | Focus state management (focused item ID+type, resolve, persist) |
-| `src/app/services/focus.service.spec.ts` | Unit tests for FocusService |
-| `src/app/services/pomodoro.service.ts` | Timer state machine (idle/running/break), timestamp-based, persist |
-| `src/app/services/pomodoro.service.spec.ts` | Unit tests for PomodoroService |
-| `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts` | Config popup (duration inputs + start button) |
-| `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts` | Thin top bar showing session progress |
-| `src/app/components/pomodoro-overlay/pomodoro-overlay.ts` | Focus-end popup, break screen with astronaut, break-end popup |
-| `src/app/components/pomodoro-overlay/pomodoro-overlay.spec.ts` | Tests for overlay state transitions |
+| File                                                                | Responsibility                                                     |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `src/app/services/focus.service.ts`                                 | Focus state management (focused item ID+type, resolve, persist)    |
+| `src/app/services/focus.service.spec.ts`                            | Unit tests for FocusService                                        |
+| `src/app/services/pomodoro.service.ts`                              | Timer state machine (idle/running/break), timestamp-based, persist |
+| `src/app/services/pomodoro.service.spec.ts`                         | Unit tests for PomodoroService                                     |
+| `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts` | Config popup (duration inputs + start button)                      |
+| `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts` | Thin top bar showing session progress                              |
+| `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`           | Focus-end popup, break screen with astronaut, break-end popup      |
+| `src/app/components/pomodoro-overlay/pomodoro-overlay.spec.ts`      | Tests for overlay state transitions                                |
 
 ### Modified Files
 
-| File | Changes |
-|------|---------|
-| `src/app/models/work-item.model.ts` | Add `FocusTarget` type alias |
-| `src/app/components/action-rail/action-rail.ts` | Add focus toggle button at top of template |
-| `src/app/components/navigator/navigator.ts` | Add focus section below rhythm card |
-| `src/app/components/navigator/navigator.html` | Render pinned focus card |
+| File                                                          | Changes                                                                     |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `src/app/models/work-item.model.ts`                           | Add `FocusTarget` type alias                                                |
+| `src/app/components/action-rail/action-rail.ts`               | Add focus toggle button at top of template                                  |
+| `src/app/components/navigator/navigator.ts`                   | Add focus section below rhythm card                                         |
+| `src/app/components/navigator/navigator.html`                 | Render pinned focus card                                                    |
 | `src/app/components/day-calendar-panel/day-calendar-panel.ts` | Add Pomodoro start/cancel button in header, pass pomodoro block to timeline |
-| `src/app/components/day-timeline/day-timeline.ts` | Add `pomodoroBlock` input, render overlay block |
-| `src/app/app.ts` | Import progress bar and overlay components |
-| `src/app/app.html` | Add progress bar and overlay to root template |
+| `src/app/components/day-timeline/day-timeline.ts`             | Add `pomodoroBlock` input, render overlay block                             |
+| `src/app/app.ts`                                              | Import progress bar and overlay components                                  |
+| `src/app/app.html`                                            | Add progress bar and overlay to root template                               |
 
 ---
 
 ## Task 1: FocusService
 
 **Files:**
+
 - Create: `src/app/services/focus.service.ts`
 - Create: `src/app/services/focus.service.spec.ts`
 - Modify: `src/app/models/work-item.model.ts`
@@ -74,7 +75,16 @@ import { IdeaService } from './idea.service';
 import { Todo, Idea, JiraTicket } from '../models/work-item.model';
 
 function makeTodo(id: string): Todo {
-  return { type: 'todo', id, title: 'Test', description: '', status: 'open', urgent: false, createdAt: '', completedAt: null };
+  return {
+    type: 'todo',
+    id,
+    title: 'Test',
+    description: '',
+    status: 'open',
+    urgent: false,
+    createdAt: '',
+    completedAt: null,
+  };
 }
 
 function makeIdea(id: string): Idea {
@@ -83,11 +93,28 @@ function makeIdea(id: string): Idea {
 
 function makeTicket(id: string): JiraTicket {
   return {
-    type: 'ticket', id, key: 'TEST-1', summary: 'Test', issueType: 'Task',
-    status: 'To Do', priority: 'Medium', assignee: '', reporter: '', creator: '',
-    description: '', dueDate: null, createdAt: '', updatedAt: '', url: '',
-    labels: [], project: null, components: [], comments: [], attachments: [],
-    relations: [], epicLink: null,
+    type: 'ticket',
+    id,
+    key: 'TEST-1',
+    summary: 'Test',
+    issueType: 'Task',
+    status: 'To Do',
+    priority: 'Medium',
+    assignee: '',
+    reporter: '',
+    creator: '',
+    description: '',
+    dueDate: null,
+    createdAt: '',
+    updatedAt: '',
+    url: '',
+    labels: [],
+    project: null,
+    components: [],
+    comments: [],
+    attachments: [],
+    relations: [],
+    epicLink: null,
   };
 }
 
@@ -105,7 +132,10 @@ describe('FocusService', () => {
         FocusService,
         { provide: TodoService, useValue: { todos: todosSignal } },
         { provide: IdeaService, useValue: { ideas: ideasSignal } },
-        { provide: WorkDataService, useValue: { tickets: ticketsSignal, pullRequests: pullRequestsSignal } },
+        {
+          provide: WorkDataService,
+          useValue: { tickets: ticketsSignal, pullRequests: pullRequestsSignal },
+        },
       ],
     });
     service = TestBed.inject(FocusService);
@@ -163,7 +193,9 @@ describe('FocusService', () => {
   it('persists focus to localStorage', () => {
     service.setFocus({ id: 'td-1', type: 'todo' });
     TestBed.tick();
-    expect(localStorage.getItem('orbit.focus.state')).toEqual(JSON.stringify({ id: 'td-1', type: 'todo' }));
+    expect(localStorage.getItem('orbit.focus.state')).toEqual(
+      JSON.stringify({ id: 'td-1', type: 'todo' }),
+    );
   });
 });
 ```
@@ -234,13 +266,13 @@ export class FocusService {
   private resolve(target: FocusTarget): WorkItem | null {
     switch (target.type) {
       case 'ticket':
-        return this.data.tickets().find(t => t.id === target.id) ?? null;
+        return this.data.tickets().find((t) => t.id === target.id) ?? null;
       case 'pr':
-        return this.data.pullRequests().find(p => p.id === target.id) ?? null;
+        return this.data.pullRequests().find((p) => p.id === target.id) ?? null;
       case 'todo':
-        return this.todoService.todos().find(t => t.id === target.id) ?? null;
+        return this.todoService.todos().find((t) => t.id === target.id) ?? null;
       case 'idea':
-        return this.ideaService.ideas().find(i => i.id === target.id) ?? null;
+        return this.ideaService.ideas().find((i) => i.id === target.id) ?? null;
     }
   }
 
@@ -271,6 +303,7 @@ git commit -m "feat: add FocusService for work item focus marker"
 ## Task 2: Focus Marker UI — Action Rail Button
 
 **Files:**
+
 - Modify: `src/app/components/action-rail/action-rail.ts`
 
 - [ ] **Step 1: Add focus toggle button to action rail**
@@ -291,13 +324,30 @@ Add at the very top of the template, before `@if (item?.type === 'todo')`:
 
 ```html
 @if (item) {
-  <button type="button"
-    class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
-    [class]="focusService.isFocused(item.id) ? 'bg-indigo-100 border-indigo-300 text-indigo-700 hover:bg-indigo-200' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
-    (click)="toggleFocus(item)">
-    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    {{ focusService.isFocused(item.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
-  </button>
+<button
+  type="button"
+  class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-medium transition-colors cursor-pointer w-full text-center"
+  [class]="focusService.isFocused(item.id) ? 'bg-indigo-100 border-indigo-300 text-indigo-700 hover:bg-indigo-200' : 'bg-stone-50 border-stone-200 text-stone-600 hover:border-stone-300'"
+  (click)="toggleFocus(item)"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+  {{ focusService.isFocused(item.id) ? 'Fokus entfernen' : 'Fokus setzen' }}
+</button>
 }
 ```
 
@@ -331,6 +381,7 @@ git commit -m "feat: add focus toggle button to action rail"
 ## Task 3: Focus Marker UI — Navigator Pinned Section
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.ts`
 - Modify: `src/app/components/navigator/navigator.html`
 
@@ -354,30 +405,43 @@ In `src/app/components/navigator/navigator.html`, insert the focus section after
 
 ```html
 @if (focusService.focusedItem(); as focusedItem) {
-  <section aria-labelledby="focus-heading" class="mb-2">
-    <div class="flex items-center gap-2 mb-2 px-1">
-      <span id="focus-heading" class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">🎯 Fokus</span>
-      <div class="flex-1 h-px bg-gradient-to-r from-indigo-200 to-transparent"></div>
-    </div>
-    <ul class="space-y-1.5" role="list">
-      <li>
-        @switch (focusedItem.type) {
-          @case ('ticket') {
-            <app-ticket-card [ticket]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
-          }
-          @case ('pr') {
-            <app-pr-card [pr]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
-          }
-          @case ('todo') {
-            <app-todo-card [todo]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
-          }
-          @case ('idea') {
-            <app-idea-card [idea]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
-          }
-        }
-      </li>
-    </ul>
-  </section>
+<section aria-labelledby="focus-heading" class="mb-2">
+  <div class="flex items-center gap-2 mb-2 px-1">
+    <span id="focus-heading" class="text-xs font-semibold text-indigo-600 uppercase tracking-wider"
+      >🎯 Fokus</span
+    >
+    <div class="flex-1 h-px bg-gradient-to-r from-indigo-200 to-transparent"></div>
+  </div>
+  <ul class="space-y-1.5" role="list">
+    <li>
+      @switch (focusedItem.type) { @case ('ticket') {
+      <app-ticket-card
+        [ticket]="$any(focusedItem)"
+        [selected]="isSelected(focusedItem)"
+        (select)="selectItem($event)"
+      />
+      } @case ('pr') {
+      <app-pr-card
+        [pr]="$any(focusedItem)"
+        [selected]="isSelected(focusedItem)"
+        (select)="selectItem($event)"
+      />
+      } @case ('todo') {
+      <app-todo-card
+        [todo]="$any(focusedItem)"
+        [selected]="isSelected(focusedItem)"
+        (select)="selectItem($event)"
+      />
+      } @case ('idea') {
+      <app-idea-card
+        [idea]="$any(focusedItem)"
+        [selected]="isSelected(focusedItem)"
+        (select)="selectItem($event)"
+      />
+      } }
+    </li>
+  </ul>
+</section>
 }
 ```
 
@@ -401,6 +465,7 @@ readonly filteredActiveIdeas = computed(() =>
 ```
 
 Then update the template to use these filtered signals instead of the originals:
+
 - Replace `data.tickets()` with `filteredTickets()`
 - Replace `data.pullRequests()` with `filteredPullRequests()`
 - Replace `todoService.openTodos()` with `filteredOpenTodos()`
@@ -411,6 +476,7 @@ Also update the count badges to use the filtered counts where appropriate.
 - [ ] **Step 4: Verify manually**
 
 Run: `npx ng serve` and verify:
+
 1. Setting focus on a todo promotes it to the focus section
 2. The todo disappears from the Aufgaben list
 3. Removing focus returns it to the list
@@ -428,6 +494,7 @@ git commit -m "feat: add pinned focus section to navigator"
 ## Task 4: PomodoroService
 
 **Files:**
+
 - Create: `src/app/services/pomodoro.service.ts`
 - Create: `src/app/services/pomodoro.service.spec.ts`
 
@@ -524,7 +591,10 @@ describe('PomodoroService', () => {
   });
 
   it('loads default durations from localStorage', () => {
-    localStorage.setItem('orbit.pomodoro.defaults', JSON.stringify({ focusMinutes: 45, breakMinutes: 10 }));
+    localStorage.setItem(
+      'orbit.pomodoro.defaults',
+      JSON.stringify({ focusMinutes: 45, breakMinutes: 10 }),
+    );
     const freshService = TestBed.inject(PomodoroService);
     expect(freshService.defaultFocusMinutes()).toBe(45);
     expect(freshService.defaultBreakMinutes()).toBe(10);
@@ -734,7 +804,10 @@ export class PomodoroService {
       }
       this.startTicking();
     } else if (s.state === 'break') {
-      if (!s.breakStartedAt) { this.session.set(null); return; }
+      if (!s.breakStartedAt) {
+        this.session.set(null);
+        return;
+      }
       const elapsed = now - s.breakStartedAt;
       if (elapsed >= s.breakMinutes * 60_000) {
         this.session.set(null);
@@ -779,6 +852,7 @@ git commit -m "feat: add PomodoroService with timer state machine"
 ## Task 5: Pomodoro Config Popup
 
 **Files:**
+
 - Create: `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts`
 
 - [ ] **Step 1: Create the config popup component**
@@ -786,7 +860,16 @@ git commit -m "feat: add PomodoroService with timer state machine"
 Create `src/app/components/pomodoro-config-popup/pomodoro-config-popup.ts`:
 
 ```typescript
-import { ChangeDetectionStrategy, Component, inject, output, signal, afterNextRender, viewChild, ElementRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  output,
+  signal,
+  afterNextRender,
+  viewChild,
+  ElementRef,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PomodoroService } from '../../services/pomodoro.service';
 
@@ -800,24 +883,42 @@ import { PomodoroService } from '../../services/pomodoro.service';
   template: `
     <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-50" (click)="cancel.emit()"></div>
     <div class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div class="bg-white rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Pomodoro konfigurieren">
+      <div
+        class="bg-white rounded-xl shadow-lg p-5 w-[280px] pointer-events-auto"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Pomodoro konfigurieren"
+      >
         <h3 class="text-sm font-semibold text-stone-800 mb-4">Pomodoro starten</h3>
 
         <label class="block mb-3">
           <span class="text-xs font-medium text-stone-600 mb-1 block">Fokuszeit (Minuten)</span>
-          <input #focusInput type="number" min="1" max="120" [(ngModel)]="focusMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300" />
+          <input
+            #focusInput
+            type="number"
+            min="1"
+            max="120"
+            [(ngModel)]="focusMinutes"
+            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300"
+          />
         </label>
 
         <label class="block mb-4">
           <span class="text-xs font-medium text-stone-600 mb-1 block">Pausenzeit (Minuten)</span>
-          <input type="number" min="1" max="60" [(ngModel)]="breakMinutes"
-            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300" />
+          <input
+            type="number"
+            min="1"
+            max="60"
+            [(ngModel)]="breakMinutes"
+            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300"
+          />
         </label>
 
-        <button type="button"
+        <button
+          type="button"
           class="w-full rounded-lg bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors"
-          (click)="onStart()">
+          (click)="onStart()"
+        >
           Starten
         </button>
       </div>
@@ -859,6 +960,7 @@ git commit -m "feat: add Pomodoro config popup component"
 ## Task 6: Pomodoro Button in Tagesplan Panel
 
 **Files:**
+
 - Modify: `src/app/components/day-calendar-panel/day-calendar-panel.ts`
 
 - [ ] **Step 1: Add Pomodoro button and popup integration**
@@ -866,6 +968,7 @@ git commit -m "feat: add Pomodoro config popup component"
 In `src/app/components/day-calendar-panel/day-calendar-panel.ts`:
 
 Add imports:
+
 ```typescript
 import { PomodoroService } from '../../services/pomodoro.service';
 import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-config-popup';
@@ -874,6 +977,7 @@ import { PomodoroConfigPopupComponent } from '../pomodoro-config-popup/pomodoro-
 Add to `imports` array: `PomodoroConfigPopupComponent`
 
 Inject the service:
+
 ```typescript
 readonly pomodoro = inject(PomodoroService);
 readonly showPomodoroConfig = signal(false);
@@ -887,37 +991,76 @@ In the template, modify the header section (the `@else` branch, the `<div>` with
   <span class="font-semibold text-stone-800 text-sm tracking-wide">Tagesplan</span>
   <div class="flex items-center gap-1">
     @if (pomodoro.state() === 'idle') {
-      <button
-        class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded p-1 transition-colors text-xs font-medium"
-        (click)="showPomodoroConfig.set(true)"
-        aria-label="Pomodoro starten"
+    <button
+      class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded p-1 transition-colors text-xs font-medium"
+      (click)="showPomodoroConfig.set(true)"
+      aria-label="Pomodoro starten"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        <polygon points="6 3 20 12 6 21 6 3" />
+      </svg>
+    </button>
+    } @else if (pomodoro.state() === 'running') { @if (showCancelConfirm()) {
+    <div class="flex items-center gap-1">
+      <span class="text-xs text-stone-500">Abbrechen?</span>
+      <button
+        class="text-xs text-red-600 hover:text-red-800 font-medium px-1"
+        (click)="confirmCancel()"
+      >
+        Ja
       </button>
-    } @else if (pomodoro.state() === 'running') {
-      @if (showCancelConfirm()) {
-        <div class="flex items-center gap-1">
-          <span class="text-xs text-stone-500">Abbrechen?</span>
-          <button class="text-xs text-red-600 hover:text-red-800 font-medium px-1" (click)="confirmCancel()">Ja</button>
-          <button class="text-xs text-stone-400 hover:text-stone-600 font-medium px-1" (click)="showCancelConfirm.set(false)">Nein</button>
-        </div>
-      } @else {
-        <button
-          class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors text-xs font-medium"
-          (click)="showCancelConfirm.set(true)"
-          aria-label="Pomodoro abbrechen"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-        </button>
-      }
-    }
+      <button
+        class="text-xs text-stone-400 hover:text-stone-600 font-medium px-1"
+        (click)="showCancelConfirm.set(false)"
+      >
+        Nein
+      </button>
+    </div>
+    } @else {
+    <button
+      class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors text-xs font-medium"
+      (click)="showCancelConfirm.set(true)"
+      aria-label="Pomodoro abbrechen"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="6" y="6" width="12" height="12" rx="2" />
+      </svg>
+    </button>
+    } }
     <button
       class="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded p-0.5 transition-colors"
       (click)="toggleCollapse()"
       data-testid="collapse-toggle"
       aria-label="Tagesplan ausblenden"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="9 18 15 12 9 6"></polyline>
       </svg>
     </button>
@@ -929,10 +1072,10 @@ Add the config popup rendering at the end of the template (next to the appointme
 
 ```html
 @if (showPomodoroConfig()) {
-  <app-pomodoro-config-popup
-    (started)="showPomodoroConfig.set(false)"
-    (cancel)="showPomodoroConfig.set(false)"
-  />
+<app-pomodoro-config-popup
+  (started)="showPomodoroConfig.set(false)"
+  (cancel)="showPomodoroConfig.set(false)"
+/>
 }
 ```
 
@@ -960,6 +1103,7 @@ Also pass the pomodoro timeline block to the day-timeline component. Update the 
 - [ ] **Step 2: Verify manually**
 
 Run: `npx ng serve` and verify:
+
 1. Play button appears in Tagesplan header when idle
 2. Clicking it opens the config popup
 3. Escape closes the popup
@@ -978,6 +1122,7 @@ git commit -m "feat: add Pomodoro start/cancel button to Tagesplan panel"
 ## Task 7: Pomodoro Timeline Block
 
 **Files:**
+
 - Modify: `src/app/components/day-timeline/day-timeline.ts`
 
 - [ ] **Step 1: Add pomodoroBlock input and rendering**
@@ -1034,9 +1179,9 @@ Add the template block:
 
 ```html
 @if (pomodoroBlockStyle(); as style) {
-  <div class="pomodoro-block" [style.top]="style.top" [style.height]="style.height">
-    <span class="pomodoro-block-label">Fokus</span>
-  </div>
+<div class="pomodoro-block" [style.top]="style.top" [style.height]="style.height">
+  <span class="pomodoro-block-label">Fokus</span>
+</div>
 }
 ```
 
@@ -1056,6 +1201,7 @@ git commit -m "feat: render Pomodoro block on day timeline"
 ## Task 8: Top Progress Bar
 
 **Files:**
+
 - Create: `src/app/components/pomodoro-progress-bar/pomodoro-progress-bar.ts`
 - Modify: `src/app/app.ts`
 - Modify: `src/app/app.html`
@@ -1125,6 +1271,7 @@ git commit -m "feat: add Pomodoro progress bar at top of app"
 ## Task 9: Pomodoro Overlay — Focus End & Break End Popups
 
 **Files:**
+
 - Create: `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`
 - Modify: `src/app/app.ts`
 - Modify: `src/app/app.html`
@@ -1134,7 +1281,15 @@ git commit -m "feat: add Pomodoro progress bar at top of app"
 Create `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`. This is a large component that handles three states: focus-end popup, break screen, and break-end popup.
 
 ```typescript
-import { ChangeDetectionStrategy, Component, inject, computed, signal, effect, OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  computed,
+  signal,
+  effect,
+  OnDestroy,
+} from '@angular/core';
 import { PomodoroService } from '../../services/pomodoro.service';
 
 const FOCUS_END_MESSAGES = [
@@ -1163,21 +1318,38 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
   template: `
     @switch (overlayState()) {
       @case ('focus-end') {
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-[3px] z-[60] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Fokuszeit beendet">
+        <div
+          class="fixed inset-0 bg-black/40 backdrop-blur-[3px] z-[60] flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fokuszeit beendet"
+        >
           <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-amber-50 rounded-full flex items-center justify-center text-2xl">☀️</div>
+            <div
+              class="w-12 h-12 mx-auto mb-4 bg-amber-50 rounded-full flex items-center justify-center text-2xl"
+            >
+              ☀️
+            </div>
             <h2 class="text-lg font-semibold text-stone-900 mb-1">{{ congratsMessage() }}</h2>
-            <p class="text-sm text-stone-500 mb-5">{{ focusMinutes() }} Minuten Fokuszeit geschafft.</p>
-            <div class="bg-indigo-50 rounded-lg px-4 py-2.5 mb-5 text-sm text-indigo-700">💡 {{ breakSuggestion() }}</div>
+            <p class="text-sm text-stone-500 mb-5">
+              {{ focusMinutes() }} Minuten Fokuszeit geschafft.
+            </p>
+            <div class="bg-indigo-50 rounded-lg px-4 py-2.5 mb-5 text-sm text-indigo-700">
+              💡 {{ breakSuggestion() }}
+            </div>
             <div class="flex flex-col gap-2">
-              <button type="button"
+              <button
+                type="button"
                 class="w-full rounded-xl bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200"
-                (click)="startBreak()">
+                (click)="startBreak()"
+              >
                 Pause starten ({{ breakMinutes() }} Min)
               </button>
-              <button type="button"
+              <button
+                type="button"
                 class="w-full rounded-xl border border-stone-200 text-stone-500 py-2 text-sm hover:border-stone-300 hover:text-stone-700 transition-colors"
-                (click)="snooze()">
+                (click)="snooze()"
+              >
                 Noch 5 Minuten arbeiten
               </button>
             </div>
@@ -1186,25 +1358,35 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
       }
 
       @case ('break-active') {
-        <div class="fixed inset-0 z-[60] flex flex-col items-center justify-center"
+        <div
+          class="fixed inset-0 z-[60] flex flex-col items-center justify-center"
           style="background: linear-gradient(135deg, #312e81 0%, #1e1b4b 40%, #0c0a09 100%)"
-          role="dialog" aria-modal="true" aria-label="Pause">
-
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pause"
+        >
           <div class="relative w-32 h-32 mb-8" aria-hidden="true">
             <!-- Astronaut SVG placeholder — will be replaced with actual animated SVG -->
             <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-300 to-indigo-600 opacity-30"
-                style="animation: float 8s ease-in-out infinite;"></div>
+              <div
+                class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-300 to-indigo-600 opacity-30"
+                style="animation: float 8s ease-in-out infinite;"
+              ></div>
             </div>
-            <div class="absolute inset-0 flex items-center justify-center text-4xl"
-              style="animation: float 8s ease-in-out infinite;">🧑‍🚀</div>
+            <div
+              class="absolute inset-0 flex items-center justify-center text-4xl"
+              style="animation: float 8s ease-in-out infinite;"
+            >
+              🧑‍🚀
+            </div>
           </div>
 
           <p class="text-xl font-light text-indigo-100 mb-1 tracking-wide">Pause</p>
           <p class="text-xs text-indigo-300/40 mb-4 tracking-widest">schwerelos treiben lassen …</p>
 
           <div class="w-40 h-[3px] bg-white/10 rounded-full mb-3 overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-indigo-400 to-indigo-300 rounded-full transition-[width] duration-1000 ease-linear"
+            <div
+              class="h-full bg-gradient-to-r from-indigo-400 to-indigo-300 rounded-full transition-[width] duration-1000 ease-linear"
               [style.width.%]="breakProgress()"
               role="progressbar"
               [attr.aria-valuenow]="breakProgress()"
@@ -1214,31 +1396,48 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
           </div>
           <p class="text-xs text-indigo-300/60 mb-6">noch {{ breakRemainingMinutes() }} Minuten</p>
 
-          <div class="bg-white/5 rounded-xl px-5 py-2.5 text-sm text-indigo-200 mb-8">💡 {{ breakSuggestion() }}</div>
+          <div class="bg-white/5 rounded-xl px-5 py-2.5 text-sm text-indigo-200 mb-8">
+            💡 {{ breakSuggestion() }}
+          </div>
 
-          <button type="button"
+          <button
+            type="button"
             class="text-xs text-indigo-300/40 border border-indigo-300/15 rounded-lg px-4 py-1.5 hover:text-indigo-200 hover:border-indigo-300/30 transition-colors"
-            (click)="cancelBreak()">
+            (click)="cancelBreak()"
+          >
             Pause beenden
           </button>
         </div>
       }
 
       @case ('break-end') {
-        <div class="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[60] flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Pause beendet">
+        <div
+          class="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[60] flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pause beendet"
+        >
           <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-2xl">🚀</div>
+            <div
+              class="w-12 h-12 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-2xl"
+            >
+              🚀
+            </div>
             <h2 class="text-lg font-semibold text-stone-900 mb-1">Pause vorbei!</h2>
             <p class="text-sm text-stone-500 mb-5">Bereit für die nächste Runde?</p>
             <div class="flex flex-col gap-2">
-              <button type="button"
+              <button
+                type="button"
                 class="w-full rounded-xl bg-indigo-600 text-white py-2.5 text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200"
-                (click)="startNewRound()">
+                (click)="startNewRound()"
+              >
                 Neue Fokuszeit starten
               </button>
-              <button type="button"
+              <button
+                type="button"
                 class="w-full rounded-xl border border-stone-200 text-stone-500 py-2 text-sm hover:border-stone-300 hover:text-stone-700 transition-colors"
-                (click)="finish()">
+                (click)="finish()"
+              >
                 Fertig für jetzt
               </button>
             </div>
@@ -1247,19 +1446,34 @@ type OverlayState = 'hidden' | 'focus-end' | 'break-active' | 'break-end';
       }
     }
   `,
-  styles: [`
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      25% { transform: translateY(-6px) rotate(0deg); }
-      50% { transform: translateY(2px) rotate(3deg); }
-      75% { transform: translateY(-3px) rotate(1deg); }
-    }
-    :host.hidden { display: none; }
+  styles: [
+    `
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-3deg);
+        }
+        25% {
+          transform: translateY(-6px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(2px) rotate(3deg);
+        }
+        75% {
+          transform: translateY(-3px) rotate(1deg);
+        }
+      }
+      :host.hidden {
+        display: none;
+      }
 
-    @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; }
-    }
-  `],
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+        }
+      }
+    `,
+  ],
 })
 export class PomodoroOverlayComponent implements OnDestroy {
   private readonly pomodoro = inject(PomodoroService);
@@ -1367,6 +1581,7 @@ In `src/app/app.html`, add after the quick-capture line:
 - [ ] **Step 3: Verify manually**
 
 Start a short Pomodoro (e.g. 1 minute) and verify:
+
 1. After 1 minute, the focus-end popup appears
 2. "Noch 5 Minuten arbeiten" dismisses it (snooze)
 3. "Pause starten" shows the break screen
@@ -1387,11 +1602,13 @@ git commit -m "feat: add Pomodoro overlay with focus-end, break, and break-end s
 ## Task 10: Astronaut SVG Animation
 
 **Files:**
+
 - Modify: `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`
 
 - [ ] **Step 1: Replace emoji astronaut with proper SVG**
 
 Replace the astronaut placeholder in the `break-active` template section with a proper SVG astronaut that has idle animations (floating, waving, relaxing). The SVG should:
+
 - Be approximately 120x150px
 - Use indigo/stone color palette
 - Have a floating animation (8-12s cycle, ease-in-out)
@@ -1401,6 +1618,7 @@ Replace the astronaut placeholder in the `break-active` template section with a 
 - Respect `prefers-reduced-motion`
 
 This step requires creative SVG work — build the astronaut with basic geometric shapes (circles for helmet, rectangles for body/limbs, rounded corners). Add keyframe animations for:
+
 - `float`: gentle vertical bobbing (8s)
 - `wave`: arm raises and lowers (10s)
 - `twinkle`: star opacity pulsing (4-6s, varied per star)
@@ -1421,6 +1639,7 @@ git commit -m "feat: add animated astronaut SVG to break screen"
 ## Task 11: Sound Effects
 
 **Files:**
+
 - Create: `src/assets/sounds/chime.mp3` (or `.wav`)
 - Create: `src/assets/sounds/soft-chime.mp3` (or `.wav`)
 - Modify: `src/app/components/pomodoro-overlay/pomodoro-overlay.ts`
@@ -1428,6 +1647,7 @@ git commit -m "feat: add animated astronaut SVG to break screen"
 - [ ] **Step 1: Add sound files**
 
 Source or generate two short sound files:
+
 - `chime.mp3`: A distinct bell/chime, ~1-2 seconds. For focus session end.
 - `soft-chime.mp3`: A softer, gentler tone, ~1-2 seconds. For break end.
 
@@ -1472,6 +1692,7 @@ Expected: All tests pass.
 - [ ] **Step 2: Full manual walkthrough**
 
 Test the complete flow:
+
 1. Set focus on a ticket → appears in focus section, disappears from ticket list
 2. Switch focus to a todo → ticket returns, todo promotes
 3. Remove focus → todo returns to list, focus section gone

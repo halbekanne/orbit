@@ -37,6 +37,7 @@ Orbit is a three-part system:
 ```
 
 **Startup modes:**
+
 - `npm start` — frontend + proxy + mock servers (local dev, no credentials needed)
 - `npm run start:real` — frontend + proxy only (connects to real Jira/Bitbucket)
 
@@ -103,6 +104,7 @@ CosiReviewService        (fetch SSE → Proxy /api/cosi/review → CoSi AI API)
 **Current name:** `proxy/` — this is misleading. It started as a proxy (passing requests to Jira/Bitbucket with injected auth tokens), but has grown into a full backend that also serves local data APIs and orchestrates AI-powered code reviews. Only 2 of its 3 roles are proxying.
 
 **Structure:**
+
 ```
 proxy/
 ├── index.js              (170 lines — Express app: all routes, all middleware, JSON file I/O)
@@ -119,6 +121,7 @@ proxy/
 ```
 
 **index.js is doing too much (170 lines, 3 distinct roles):**
+
 1. **API proxy** (lines 64–90): Forward `/jira/*` and `/bitbucket/*` with auth header injection
 2. **Local data API** (lines 92–164): CRUD for todos, ideas, logbook, day-schedule, ticket subtasks — all stored as JSON files in `~/.orbit/`
 3. **CoSi review endpoint** (lines 27–55): SSE streaming endpoint that delegates to `cosi.js`
@@ -126,6 +129,7 @@ proxy/
 Plus the `/config` endpoint, CORS setup, and JSON helpers.
 
 **CoSi review system (`cosi.js` + `agents/`):**
+
 - Multi-agent architecture: 3 specialist agents (AK-Abgleich, Code-Quality, Accessibility) run in parallel against a PR diff
 - Each agent calls CoSi API (Gemini behind a corporate proxy) with structured output schemas
 - A consolidator agent then filters, deduplicates, and quality-gates the combined findings
@@ -174,50 +178,50 @@ These things should be preserved:
 
 ### Services
 
-| Current Name | Problem | Suggested Name | Rationale |
-|---|---|---|---|
-| `WorkDataService` | "Work data" is vague — this is the central orchestrator that aggregates all sources, manages selection, and handles promotion/demotion | `WorkspaceService` | It manages the workspace state: what's loaded, what's selected, cross-domain operations |
-| `TicketLocalDataService` | "Local data" is confusing — it manages subtasks that are stored locally (not in Jira) | `TicketSubtaskService` | That's exactly what it does: manage local subtasks for Jira tickets |
-| `DayRhythmService` | "Rhythm" is an internal concept that would confuse a new developer | `DailyReflectionService` | It manages morning/evening reflections and daily entries |
+| Current Name             | Problem                                                                                                                                | Suggested Name           | Rationale                                                                               |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------- |
+| `WorkDataService`        | "Work data" is vague — this is the central orchestrator that aggregates all sources, manages selection, and handles promotion/demotion | `WorkspaceService`       | It manages the workspace state: what's loaded, what's selected, cross-domain operations |
+| `TicketLocalDataService` | "Local data" is confusing — it manages subtasks that are stored locally (not in Jira)                                                  | `TicketSubtaskService`   | That's exactly what it does: manage local subtasks for Jira tickets                     |
+| `DayRhythmService`       | "Rhythm" is an internal concept that would confuse a new developer                                                                     | `DailyReflectionService` | It manages morning/evening reflections and daily entries                                |
 
 ### Components
 
-| Current Name | Problem | Suggested Name | Rationale |
-|---|---|---|---|
-| `HybridRailComponent` | "Hybrid" is meaningless — it's the main navigation rail | `AppRailComponent` | Simple, descriptive |
-| `ActionRailComponent` | It's not really a "rail" — it's a contextual action panel | `ItemActionsComponent` | It shows actions for the selected item |
-| `WorkbenchComponent` | Acceptable but generic — it's specifically the detail view container | `DetailPanelComponent` | Describes its actual role more precisely |
-| `RhythmCardComponent` | See DayRhythmService above | `ReflectionCardComponent` | Matches the domain concept |
-| `RhythmDetailComponent` | Same | `ReflectionDetailComponent` | Matches the domain concept |
+| Current Name            | Problem                                                              | Suggested Name              | Rationale                                |
+| ----------------------- | -------------------------------------------------------------------- | --------------------------- | ---------------------------------------- |
+| `HybridRailComponent`   | "Hybrid" is meaningless — it's the main navigation rail              | `AppRailComponent`          | Simple, descriptive                      |
+| `ActionRailComponent`   | It's not really a "rail" — it's a contextual action panel            | `ItemActionsComponent`      | It shows actions for the selected item   |
+| `WorkbenchComponent`    | Acceptable but generic — it's specifically the detail view container | `DetailPanelComponent`      | Describes its actual role more precisely |
+| `RhythmCardComponent`   | See DayRhythmService above                                           | `ReflectionCardComponent`   | Matches the domain concept               |
+| `RhythmDetailComponent` | Same                                                                 | `ReflectionDetailComponent` | Matches the domain concept               |
 
 ### Utility Files in `components/`
 
-| File | Problem | Suggestion |
-|---|---|---|
-| `pr-jira-key.ts` | Utility function living in components/ | Move to `utils/pr-jira-key.ts` |
-| `pr-status-label.ts` | Same | Move to `utils/pr-status-label.ts` |
-| `pr-status-class.ts` | Same | Move to `utils/pr-status.ts` (merge with pr-status-colors.ts) |
-| `pr-status-colors.ts` | Same, and overlaps with pr-status-class.ts | Merge into `utils/pr-status.ts` |
+| File                  | Problem                                    | Suggestion                                                    |
+| --------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `pr-jira-key.ts`      | Utility function living in components/     | Move to `utils/pr-jira-key.ts`                                |
+| `pr-status-label.ts`  | Same                                       | Move to `utils/pr-status-label.ts`                            |
+| `pr-status-class.ts`  | Same                                       | Move to `utils/pr-status.ts` (merge with pr-status-colors.ts) |
+| `pr-status-colors.ts` | Same, and overlaps with pr-status-class.ts | Merge into `utils/pr-status.ts`                               |
 
 ### Models
 
-| Current | Problem | Suggestion |
-|---|---|---|
+| Current              | Problem                                                                                   | Suggestion                                                                                                                                                                                          |
+| -------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `work-item.model.ts` | Contains everything: tickets, PRs, todos, ideas, build status, focus targets — 150+ lines | Keep as is. It's a single-domain model file. Splitting would scatter related types across files, making imports worse. The file is cohesive because all these types represent "things you work on." |
 
 ### Backend Naming
 
-| Current | Problem | Suggestion |
-|---|---|---|
-| `proxy/` directory | Only 2 of 3 roles are proxying. It's really the backend server. | Rename to `server/` |
-| `proxy/index.js` | 170-line monolith serving 3 unrelated roles | Split (see architectural issues below) |
-| `cosi-mock.js` | "Mock" is ambiguous — it mocks the CoSi review *pipeline*, not the CoSi *API* | `cosi-demo.js` or keep as-is (the name is clear enough in context) |
-| `mock-server/` directory | Fine, but consider `mock-apis/` to be more specific | Optional rename |
+| Current                  | Problem                                                                       | Suggestion                                                         |
+| ------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `proxy/` directory       | Only 2 of 3 roles are proxying. It's really the backend server.               | Rename to `server/`                                                |
+| `proxy/index.js`         | 170-line monolith serving 3 unrelated roles                                   | Split (see architectural issues below)                             |
+| `cosi-mock.js`           | "Mock" is ambiguous — it mocks the CoSi review _pipeline_, not the CoSi _API_ | `cosi-demo.js` or keep as-is (the name is clear enough in context) |
+| `mock-server/` directory | Fine, but consider `mock-apis/` to be more specific                           | Optional rename                                                    |
 
 ### Signals in `WorkDataService`
 
-| Current | Problem | Suggestion |
-|---|---|---|
+| Current          | Problem                                                 | Suggestion                                                                                        |
+| ---------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `rhythmSelected` | Selection state that has nothing to do with "work data" | This should move to a selection service or stay in WorkDataService if renamed to WorkspaceService |
 
 ---
@@ -229,6 +233,7 @@ These things should be preserved:
 **Impact: High**
 
 WorkDataService currently handles:
+
 - Aggregating Jira tickets (via toSignal)
 - Fetching, deduplicating, enriching, and sorting PRs (70+ lines of complex RxJS in a single effect)
 - Managing selection state (`selectedItem`, `rhythmSelected`)
@@ -238,6 +243,7 @@ WorkDataService currently handles:
 This makes it the hardest file to understand and the most fragile to change.
 
 **Recommendation:** Split into focused concerns:
+
 - **`WorkspaceService`** — selection state (`selectedItem`, `rhythmSelected`), cross-domain operations (promote/demote)
 - **`PullRequestAggregator`** (or keep the enrichment logic inside `BitbucketService`) — the 70-line PR fetching/enrichment/deduplication effect should move closer to where PRs are defined. BitbucketService already knows how to fetch PRs; it should also know how to enrich them.
 - Ticket aggregation is simple enough (one `toSignal` call) that it can stay in the workspace service.
@@ -247,6 +253,7 @@ This makes it the hardest file to understand and the most fragile to change.
 **Impact: Medium**
 
 These two components share:
+
 - The same inline edit pattern (title editing with enter/escape, description editing with ctrl+enter)
 - The same draft signals (`editingTitle`, `editingDescription`, `draftTitle`, `draftDescription`)
 - The same keyboard handlers (`onTitleKeydown`, `onDescriptionKeydown`)
@@ -265,6 +272,7 @@ The only differences are: the model type (Todo vs Idea), the service (TodoServic
 **Impact: Medium** (becomes high when URL routing is implemented — it's in IDEAS.md)
 
 The app uses signal-based view switching (`activeView` in AppComponent) instead of Angular Router. Routes exist in `app.routes.ts` but the array is empty. This means:
+
 - No browser back/forward navigation
 - No deep linking
 - No URL-based state
@@ -308,6 +316,7 @@ Same problem as above — set once, never updates. The rhythm phase computation 
 **Impact: Low**
 
 The second effect in WorkDataService's constructor runs immediately and unconditionally. It uses `untracked()` to avoid dependency tracking, then subscribes to an observable chain. This means:
+
 - It runs once and done (no re-fetching)
 - The subscription is never cleaned up
 - If the effect re-runs for any reason, it creates duplicate subscriptions
@@ -331,6 +340,7 @@ The signal exists and is checked in the action rail template, but it's never set
 **Impact: High**
 
 One 170-line file handles:
+
 1. API proxying (Jira, Bitbucket auth injection)
 2. Local data CRUD (todos, ideas, logbook, schedule, tickets)
 3. CoSi review SSE endpoint
@@ -395,6 +405,7 @@ The frontend defines TypeScript models (`work-item.model.ts`, `review.model.ts`)
 If someone changes the backend response shape, the frontend breaks silently at runtime.
 
 **Recommendation:** This is acceptable at the current scale (one developer). If the team grows or the API surface expands, consider:
+
 - A shared `types/` directory with TypeScript interfaces used by both sides
 - Or at minimum, documenting the API contract in a single place
 
@@ -404,7 +415,7 @@ For now, the test files (`cosi.test.js`) serve as an implicit contract — they 
 
 **Impact: Low** (correctness issue)
 
-The `SHARED_CONSTRAINTS` in `proxy/agents/agent-definition.js` repeatedly reference Lit Web Components, Shadow DOM, `connectedCallback`, and SCSS — but Orbit is an Angular app using Tailwind CSS. The CoSi agents review PRs from a *different* project (the user's work codebase, which uses Lit), not Orbit itself.
+The `SHARED_CONSTRAINTS` in `proxy/agents/agent-definition.js` repeatedly reference Lit Web Components, Shadow DOM, `connectedCallback`, and SCSS — but Orbit is an Angular app using Tailwind CSS. The CoSi agents review PRs from a _different_ project (the user's work codebase, which uses Lit), not Orbit itself.
 
 **Assessment:** This is not a bug — it's correct for the agents' intended use case (reviewing the user's work PRs, which are from a Lit-based design system). But it could confuse someone reading the Orbit codebase who assumes the agents review Orbit code. A brief comment in `agent-definition.js` explaining this would help.
 
@@ -444,6 +455,7 @@ src/app/
 **Assessment:** This is fine for the current scale. The flat `components/` directory has 30 items, which is at the upper limit of comfortable scanning. But grouping by feature domain (e.g., `components/pomodoro/`, `components/pr/`) would add directory nesting without real benefit at this size.
 
 **One change worth making:** Create a `utils/` directory and move the 4 utility files out of `components/`:
+
 - `pr-jira-key.ts` → `utils/pr-jira-key.ts`
 - `pr-status-label.ts` → `utils/pr-status.ts` (merge)
 - `pr-status-class.ts` → merge into above

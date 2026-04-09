@@ -5,8 +5,24 @@ import { signal } from '@angular/core';
 import { createDefaultSettings } from './settings.model';
 import { BooleanToggle, SelectToggle } from './feature-toggle.model';
 
-const testBoolToggle: BooleanToggle = { id: 'test-bool', type: 'boolean', defaultValue: false, label: 'Test', description: 'Test' };
-const testSelectToggle: SelectToggle = { id: 'test-select', type: 'select', defaultValue: 'a', options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }], label: 'Test Select', description: 'Test' };
+const testBoolToggle: BooleanToggle = {
+  id: 'test-bool',
+  type: 'boolean',
+  defaultValue: false,
+  label: 'Test',
+  description: 'Test',
+};
+const testSelectToggle: SelectToggle = {
+  id: 'test-select',
+  type: 'select',
+  defaultValue: 'a',
+  options: [
+    { value: 'a', label: 'A' },
+    { value: 'b', label: 'B' },
+  ],
+  label: 'Test Select',
+  description: 'Test',
+};
 
 describe('FeatureToggleService', () => {
   beforeEach(() => {
@@ -20,10 +36,7 @@ describe('FeatureToggleService', () => {
   function setup(experiments: Record<string, string | boolean> = {}) {
     const settings = signal({ ...createDefaultSettings(), experiments });
     TestBed.configureTestingModule({
-      providers: [
-        FeatureToggleService,
-        { provide: SettingsService, useValue: { settings } },
-      ],
+      providers: [FeatureToggleService, { provide: SettingsService, useValue: { settings } }],
     });
     return TestBed.inject(FeatureToggleService);
   }

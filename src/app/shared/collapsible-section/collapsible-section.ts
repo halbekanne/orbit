@@ -16,7 +16,12 @@ import { LucideChevronRight } from '@lucide/angular';
         (click)="expanded.set(!expanded())"
         [attr.aria-expanded]="expanded()"
       >
-        <svg lucideChevronRight [size]="14" class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150" [class.rotate-90]="expanded()"></svg>
+        <svg
+          lucideChevronRight
+          [size]="14"
+          class="text-[var(--color-text-muted)] shrink-0 transition-transform duration-150"
+          [class.rotate-90]="expanded()"
+        ></svg>
         <ng-content select="[sectionIcon]" />
         <span
           class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"

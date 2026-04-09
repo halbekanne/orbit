@@ -145,7 +145,12 @@ import {
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Beschreibung" [expanded]="true">
-          <svg lucideFile sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+          <svg
+            lucideFile
+            sectionIcon
+            [size]="16"
+            class="text-[var(--color-text-muted)] shrink-0"
+          ></svg>
           @if (ticket().description) {
             <div class="jira-markup" [innerHTML]="ticket().description | jiraMarkup"></div>
           } @else {
@@ -156,7 +161,12 @@ import {
         </app-collapsible-section>
 
         <app-collapsible-section label="Teilaufgaben" [expanded]="true">
-          <svg lucideSquareCheck sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+          <svg
+            lucideSquareCheck
+            sectionIcon
+            [size]="16"
+            class="text-[var(--color-text-muted)] shrink-0"
+          ></svg>
           <ng-container sectionMeta>
             <span class="text-xs text-[var(--color-text-muted)]">{{
               subtaskCounter(ticketSubtaskService.subtasks())
@@ -171,14 +181,24 @@ import {
 
         @if (ticket().epicLink) {
           <app-collapsible-section label="Epic">
-            <svg lucideZap sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+            <svg
+              lucideZap
+              sectionIcon
+              [size]="16"
+              class="text-[var(--color-text-muted)] shrink-0"
+            ></svg>
             <span class="font-mono text-xs font-bold text-violet-600">{{ ticket().epicLink }}</span>
           </app-collapsible-section>
         }
 
         @if (ticket().components.length) {
           <app-collapsible-section label="Komponenten">
-            <svg lucideGrid2x2 sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+            <svg
+              lucideGrid2x2
+              sectionIcon
+              [size]="16"
+              class="text-[var(--color-text-muted)] shrink-0"
+            ></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().components.length
@@ -194,7 +214,12 @@ import {
 
         @if (ticket().relations.length) {
           <app-collapsible-section label="Verknüpfungen" [expanded]="true">
-            <svg lucideLink sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+            <svg
+              lucideLink
+              sectionIcon
+              [size]="16"
+              class="text-[var(--color-text-muted)] shrink-0"
+            ></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().relations.length
@@ -232,7 +257,12 @@ import {
 
         @if (ticket().comments.length) {
           <app-collapsible-section label="Kommentare" [expanded]="true">
-            <svg lucideMessageSquare sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+            <svg
+              lucideMessageSquare
+              sectionIcon
+              [size]="16"
+              class="text-[var(--color-text-muted)] shrink-0"
+            ></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().comments.length
@@ -258,7 +288,12 @@ import {
 
         @if (ticket().attachments.length) {
           <app-collapsible-section label="Anhänge" [expanded]="true">
-            <svg lucidePaperclip sectionIcon [size]="16" class="text-[var(--color-text-muted)] shrink-0"></svg>
+            <svg
+              lucidePaperclip
+              sectionIcon
+              [size]="16"
+              class="text-[var(--color-text-muted)] shrink-0"
+            ></svg>
             <ng-container sectionMeta>
               <span class="text-xs text-[var(--color-text-muted)]">{{
                 ticket().attachments.length
@@ -287,7 +322,12 @@ import {
                     <div
                       class="aspect-video bg-[var(--color-bg-surface)] rounded-md border border-[var(--color-border-subtle)] group-hover:border-[var(--color-primary-border)] transition-colors duration-150 flex items-center justify-center"
                     >
-                      <svg lucideFile [size]="20" [strokeWidth]="1.5" class="text-[var(--color-text-muted)]"></svg>
+                      <svg
+                        lucideFile
+                        [size]="20"
+                        [strokeWidth]="1.5"
+                        class="text-[var(--color-text-muted)]"
+                      ></svg>
                     </div>
                   }
                   <p

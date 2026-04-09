@@ -22,14 +22,14 @@ describe('BuildLogService', () => {
 
   it('loads full console log', () => {
     service.loadFullLog('job/frontend-app', 'main', 142);
-    const req = httpMock.expectOne(r => r.url.includes('/142/consoleText'));
+    const req = httpMock.expectOne((r) => r.url.includes('/142/consoleText'));
     req.flush('[Pipeline] Start of Pipeline\n[Pipeline] End', { headers: {} });
     expect(service.logText()).toContain('Start of Pipeline');
   });
 
   it('signals not streaming after full load', () => {
     service.loadFullLog('job/frontend-app', 'main', 142);
-    const req = httpMock.expectOne(r => r.url.includes('consoleText'));
+    const req = httpMock.expectOne((r) => r.url.includes('consoleText'));
     req.flush('log text');
     expect(service.isStreaming()).toBe(false);
   });

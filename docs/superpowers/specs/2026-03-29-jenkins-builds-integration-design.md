@@ -17,16 +17,17 @@ Neuer Abschnitt **Jenkins** unter Verbindungen in den Einstellungen.
 
 ### Felder
 
-| Feld | Typ | Pflicht | Beschreibung |
-|------|-----|---------|--------------|
-| Base-URL | Text-Input | Ja (wenn Jenkins genutzt) | z.B. `https://jenkins.example.com` |
-| Username | Text-Input | Ja | Jenkins-Benutzername |
-| API-Token | Password-Input (Show/Hide) | Ja | Persönlicher API-Token aus Jenkins |
-| Jobs | Dynamische Liste | Min. 1 | Pro Eintrag: Anzeigename + Job-Pfad |
+| Feld      | Typ                        | Pflicht                   | Beschreibung                        |
+| --------- | -------------------------- | ------------------------- | ----------------------------------- |
+| Base-URL  | Text-Input                 | Ja (wenn Jenkins genutzt) | z.B. `https://jenkins.example.com`  |
+| Username  | Text-Input                 | Ja                        | Jenkins-Benutzername                |
+| API-Token | Password-Input (Show/Hide) | Ja                        | Persönlicher API-Token aus Jenkins  |
+| Jobs      | Dynamische Liste           | Min. 1                    | Pro Eintrag: Anzeigename + Job-Pfad |
 
 ### Jobs-Liste
 
 Jeder Eintrag hat:
+
 - **Anzeigename** (Text) — wird als Gruppen-Header in der Sidebar verwendet (z.B. "frontend-app")
 - **Job-Pfad** (Text, Monospace) — relativer Pfad zum Multibranch-Job (z.B. `job/frontend-app`)
 
@@ -128,6 +129,7 @@ src/app/builds/
 ### jenkins.model.ts
 
 TypeScript-Interfaces direkt aus dem Jenkins-Integration-Guide übernommen:
+
 - `JenkinsBranch`, `JenkinsBuild`, `JenkinsBuildDetail`
 - `JenkinsRun`, `JenkinsStage`, `JenkinsStageDetail`, `JenkinsStageFlowNode`, `JenkinsStageError`
 - `JenkinsStageLog`
@@ -139,14 +141,17 @@ TypeScript-Interfaces direkt aus dem Jenkins-Integration-Guide übernommen:
 Signal-basierter Service nach dem Pattern von JiraService/BitbucketService:
 
 **State-Signals**:
+
 - `branches()` — alle Branches aller konfigurierten Jobs, angereichert mit letztem Build-Status
 - `loading()`, `error()` — Lade-/Fehlerzustand
 
 **Computed Signals**:
+
 - `sortedBranchesByJob()` — gruppiert nach Job, sortiert chronologisch nach letztem Build-Start (neueste zuerst)
 - `selectedBuild()` — Detail-Daten des selektierten Builds (inkl. Stages)
 
 **Methoden**:
+
 - `loadBranches()` — für alle konfigurierten Jobs: Branches + letzten Build laden
 - `loadBuildDetail(jobPath, branch)` — Build-Details + wfapi/describe für Stages
 - `loadStageDetail(jobPath, branch, buildNumber, stageId)` — Stage-FlowNodes + Error
@@ -156,10 +161,12 @@ Signal-basierter Service nach dem Pattern von JiraService/BitbucketService:
 - `stopBuild(jobPath, branch, buildNumber)` — POST stop
 
 **DataRefreshService-Integration**:
+
 - Registriert `loadBranches` als Refresh-Funktion
 - Globaler Refresh alle 10 Minuten (wie Jira/Bitbucket)
 
 **PR-Matching**:
+
 - Lookup gegen `BitbucketService.pullRequests()` per Branch-Name
 - Kein manuelles Mapping nötig — Branch-Names sind de facto eindeutig
 - Funktioniert nur wenn Bitbucket auch konfiguriert ist, sonst keine PR-Badges
@@ -169,11 +176,13 @@ Signal-basierter Service nach dem Pattern von JiraService/BitbucketService:
 Separater Service für Console-Log-Handling:
 
 **State-Signals**:
+
 - `logText()` — aktueller Log-Inhalt (roh, mit ANSI-Codes)
 - `isStreaming()` — ob gerade gepollt wird
 - `error()` — Fehlerzustand
 
 **Methoden**:
+
 - `loadFullLog(jobPath, branch, buildNumber)` — GET consoleText, setzt logText
 - `startStreaming(jobPath, branch, buildNumber)` — startet Polling:
   1. Merkt sich Byte-Offset aus initialem Log (Textlänge)
@@ -203,6 +212,7 @@ Separater Service für Console-Log-Handling:
 ```
 
 **URL-Muster**:
+
 - `/builds` — keine Selektion (Empty State)
 - `/builds/{jobDisplayName}/{branch}` — letzter Build des Branches
 
@@ -234,6 +244,7 @@ div.flex.flex-1.h-full.overflow-hidden
 Component `builds-sidebar/` im Stil des Navigators der Work-View.
 
 ### Header
+
 - Titel "Builds"
 - Subtitle (z.B. "Deine CI/CD Pipelines")
 
@@ -244,6 +255,7 @@ Gruppiert nach Job-Anzeigename (Collapsible Sections):
 **Job-Header**: Anzeigename in Uppercase, Violet, mit Branch-Anzahl.
 
 **Branch-Card** pro Branch:
+
 - Branch-Name (Monospace, truncated)
 - Status-Badge (Pill mit Punkt): Fehler (rot), Läuft (blau), Erfolg (grün)
 - Build-Nummer + relative Zeitangabe
@@ -296,12 +308,12 @@ Max-width `max-w-2xl` (672px), zentriert.
 
 Flache Stage-Timeline (keine Verbindungslinien):
 
-| Stage-Status | Darstellung |
-|-------------|-------------|
-| SUCCESS | Grünes Icon (✓), Name, Dauer — kompakt |
-| FAILED | Rotes Icon (✗), Name, Dauer + Error-Log-Ausschnitt direkt sichtbar (roter left-border auf Error-Zeilen) |
-| IN_PROGRESS | Pulsierendes blaues Icon, Name, "seit X Min." |
-| NOT_EXECUTED | Gedimmtes Icon, Name — keine Dauer |
+| Stage-Status | Darstellung                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| SUCCESS      | Grünes Icon (✓), Name, Dauer — kompakt                                                                  |
+| FAILED       | Rotes Icon (✗), Name, Dauer + Error-Log-Ausschnitt direkt sichtbar (roter left-border auf Error-Zeilen) |
+| IN_PROGRESS  | Pulsierendes blaues Icon, Name, "seit X Min."                                                           |
+| NOT_EXECUTED | Gedimmtes Icon, Name — keine Dauer                                                                      |
 
 **Error-Log bei fehlgeschlagener Stage**: Wird via wfapi Stage-Log geladen und direkt unter der Stage angezeigt. Monospace, mit rotem left-border auf Fehlerzeilen.
 
@@ -341,12 +353,12 @@ Wenn der Job keine Parameter-Definitionen hat: Einfacher Bestätigungsdialog "Bu
 
 Dynamisches Formular basierend auf `parameterDefinitions`:
 
-| Parameter-Typ | UI-Element |
-|--------------|------------|
-| `BooleanParameterDefinition` | Toggle-Switch |
-| `ChoiceParameterDefinition` | Dropdown |
-| `StringParameterDefinition` | Text-Input |
-| `TextParameterDefinition` | Textarea |
+| Parameter-Typ                 | UI-Element     |
+| ----------------------------- | -------------- |
+| `BooleanParameterDefinition`  | Toggle-Switch  |
+| `ChoiceParameterDefinition`   | Dropdown       |
+| `StringParameterDefinition`   | Text-Input     |
+| `TextParameterDefinition`     | Textarea       |
 | `PasswordParameterDefinition` | Password-Input |
 
 Pro Parameter: Label (Parameter-Name), Description darunter (falls vorhanden), Default vorausgefüllt.
@@ -370,6 +382,7 @@ Pro Parameter: Label (Parameter-Name), Description darunter (falls vorhanden), D
 ### Globaler Refresh
 
 JenkinsService registriert sich beim `DataRefreshService`:
+
 - Alle 10 Minuten: Branches + letzter Build-Status für alle Jobs neu laden
 - Bei Tab-Fokus: Refresh wenn letzter Fetch > 10 Min. her
 - Exponential Backoff bei Fehlern (3s, 6s, 12s)
@@ -377,6 +390,7 @@ JenkinsService registriert sich beim `DataRefreshService`:
 ### Schnelles Polling für laufende Builds
 
 Wenn ein laufender Build selektiert ist:
+
 - `wfapi/describe` alle 5 Sekunden (Stages aktualisieren)
 - `progressiveText` alle 5 Sekunden (Log-Streaming)
 - Build-Detail alle 5 Sekunden (Status-Änderung erkennen)

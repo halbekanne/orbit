@@ -5,6 +5,7 @@
 The CoSi review pipeline currently uses two hardcoded specialist agents (AK-Abgleich, Code Quality) and a Consolidator. The agents, their prompts, schemas, and orchestration logic are tightly coupled in `proxy/cosi.js`. Adding a new agent requires editing multiple locations and updating the Consolidator prompt to reference the new agent by name.
 
 This spec introduces:
+
 1. A declarative **Agent Registry** that makes the pipeline extensible
 2. An **Accessibility agent** as the first new specialist, focused on WCAG AA issues detectable in PR diffs
 3. A **generalized Consolidator** that works with any number of agents
@@ -34,17 +35,17 @@ This spec introduces:
 
 ## Files Changed
 
-| File | Change Type |
-|------|-------------|
-| `proxy/agents/agent-definition.js` | New — JSDoc `@typedef` for `AgentDefinition` interface |
-| `proxy/agents/ak-abgleich.js` | New — extracted from `cosi.js`, implements `AgentDefinition` |
-| `proxy/agents/code-quality.js` | New — extracted from `cosi.js`, implements `AgentDefinition` |
-| `proxy/agents/accessibility.js` | New — implements `AgentDefinition` |
-| `proxy/agents/index.js` | New — imports all agents, exports registry array |
-| `proxy/cosi.js` | Refactored to pure orchestrator — imports registry, iterates over agents |
-| `proxy/cosi-mock.js` | New mock scenario with accessibility findings |
-| `src/app/models/review.model.ts` | `category` type change, `wcagCriterion` field |
-| `src/app/components/review-findings/review-findings.ts` | Accessibility badge color, WCAG criterion pill |
+| File                                                    | Change Type                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `proxy/agents/agent-definition.js`                      | New — JSDoc `@typedef` for `AgentDefinition` interface                   |
+| `proxy/agents/ak-abgleich.js`                           | New — extracted from `cosi.js`, implements `AgentDefinition`             |
+| `proxy/agents/code-quality.js`                          | New — extracted from `cosi.js`, implements `AgentDefinition`             |
+| `proxy/agents/accessibility.js`                         | New — implements `AgentDefinition`                                       |
+| `proxy/agents/index.js`                                 | New — imports all agents, exports registry array                         |
+| `proxy/cosi.js`                                         | Refactored to pure orchestrator — imports registry, iterates over agents |
+| `proxy/cosi-mock.js`                                    | New mock scenario with accessibility findings                            |
+| `src/app/models/review.model.ts`                        | `category` type change, `wcagCriterion` field                            |
+| `src/app/components/review-findings/review-findings.ts` | Accessibility badge color, WCAG criterion pill                           |
 
 ---
 
@@ -116,7 +117,9 @@ You are an accessibility reviewer specialized in WCAG AA compliance for componen
 ...
 `;
 
-const RESPONSE_SCHEMA = { /* ... */ };
+const RESPONSE_SCHEMA = {
+  /* ... */
+};
 
 /** @type {import('./agent-definition').AgentDefinition} */
 module.exports = {
@@ -206,6 +209,7 @@ Walk through each added line in the diff. For each line, check against 8 focus a
 
 **Phase 2 — VALIDATE:**
 For each candidate:
+
 - Can the issue be evidenced by a concrete code snippet from the diff?
 - Is it an actual accessibility barrier, not a style preference?
 - Could the surrounding component context already solve this? (If uncertain, report with lower severity.)
@@ -267,6 +271,7 @@ ID-Referenzen über Shadow-Grenzen hinweg (funktionieren nicht). Fehlendes `dele
 Diese Beispiele kalibrieren die Qualität der Findings. Sie sind nicht erschöpfend — der Agent soll auch Probleme finden, die nicht im Katalog stehen.
 
 **Rollen & Semantik:**
+
 ```html
 <!-- Problem -->
 <div class="nav-links">
@@ -276,21 +281,27 @@ Diese Beispiele kalibrieren die Qualität der Findings. Sie sind nicht erschöpf
 
 <!-- Besser -->
 <nav aria-label="Hauptnavigation">
-  <ul><li><a href="/home">Home</a></li>...</ul>
+  <ul>
+    <li><a href="/home">Home</a></li>
+    ...
+  </ul>
 </nav>
 ```
 
 **Tastaturinteraktion:**
+
 ```html
 <!-- Problem -->
-<div class="chip" @click=${this.remove}>✕</div>
+<div class="chip" @click="${this.remove}">✕</div>
 
 <!-- Besser -->
-<button class="chip" @click=${this.remove} aria-label="Filter entfernen">✕</button>
+<button class="chip" @click="${this.remove}" aria-label="Filter entfernen">✕</button>
 ```
+
 Kein Keyboard-Pendant, kein zugänglicher Name, kein semantisches Element.
 
 **ARIA & Shadow DOM:**
+
 ```html
 <!-- Problem: ID-Referenz über Shadow-Grenze -->
 <label for="input-1">Name</label>
@@ -301,48 +312,63 @@ Kein Keyboard-Pendant, kein zugänglicher Name, kein semantisches Element.
 ```
 
 **Qualität zugänglicher Namen:**
+
 ```html
 <!-- Problem -->
 <button aria-label="button">
-<button aria-label="click here">
-<img alt="image">
+  <button aria-label="click here">
+    <img alt="image" />
 
-<!-- Besser -->
-<button aria-label="Dialog schließen">
-<button aria-label="Änderungen speichern">
-<img alt="Organigramm der Abteilung XY">
+    <!-- Besser -->
+    <button aria-label="Dialog schließen">
+      <button aria-label="Änderungen speichern">
+        <img alt="Organigramm der Abteilung XY" />
+      </button>
+    </button>
+  </button>
+</button>
 ```
 
 **Touch-Target-Größe:**
+
 ```html
 <!-- Problem -->
-<button class="close-btn" @click=${this.close}>
+<button class="close-btn" @click="${this.close}">
   <svg>...</svg>
 </button>
 ```
+
 ```scss
-.close-btn { padding: 2px; }
+.close-btn {
+  padding: 2px;
+}
 ```
 
 ```html
 <!-- Besser -->
-<button class="close-btn" @click=${this.close}>
+<button class="close-btn" @click="${this.close}">
   <svg>...</svg>
 </button>
 ```
+
 ```scss
-.close-btn { padding: 2px; min-width: 24px; min-height: 24px; }
+.close-btn {
+  padding: 2px;
+  min-width: 24px;
+  min-height: 24px;
+}
 ```
 
 **Formular ohne Label:**
+
 ```html
 <!-- Problem -->
-<input type="text" placeholder="Suche...">
+<input type="text" placeholder="Suche..." />
 
 <!-- Besser -->
 <label>
   <span class="visually-hidden">Suchbegriff</span>
-  <input type="text" placeholder="Suche...">
+  <input type="text" placeholder="Suche..." />
 </label>
 ```
 
@@ -362,34 +388,72 @@ Kein Keyboard-Pendant, kein zugänglicher Name, kein semantisches Element.
 
 ```js
 const ACCESSIBILITY_FINDING_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of accessibility issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of accessibility issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = component not usable for assistive tech users, important = accessibility degraded but not blocking, minor = improvement opportunity without direct barrier"
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = component not usable for assistive tech users, important = accessibility degraded but not blocking, minor = improvement opportunity without direct barrier',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters for accessibility (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
-          wcagCriterion: { type: "STRING", description: "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'" }
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description:
+              'What the problem is and why it matters for accessibility (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
+          wcagCriterion: {
+            type: 'STRING',
+            description:
+              "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'",
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"]
-      }
-    }
+        required: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
+      },
+    },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"]
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 ```
 
@@ -422,6 +486,7 @@ The Consolidator receives a dynamic array of agent results instead of hardcoded 
 The current `buildConsolidatorPrompt(agent1Findings, agent2Findings)` takes two separate arguments and renders them as `<agent_1_findings>` and `<agent_2_findings>`. This changes to `buildConsolidatorPrompt(agentResults)` taking a single array. The prompt renders all results inside a single `<agent_findings>` tag as shown in the Input Format above. This function stays in `cosi.js` (not in an agent file) since the Consolidator is not an `AgentDefinition` — it has a fundamentally different input shape and role.
 
 Prompt text changes:
+
 - Replace all hardcoded references to `ak-abgleich` and `code-quality` with generic language ("die Fach-Agenten", "der jeweilige Agent")
 - The `category` field in output findings is set to the `id` of the originating agent
 - The `agent` field in decisions is set to the `id` of the originating agent

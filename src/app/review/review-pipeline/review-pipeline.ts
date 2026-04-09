@@ -37,7 +37,12 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
               formatDuration(p.totalDuration!)
             }}</span>
           }
-          <svg lucideChevronDown [size]="12" class="text-[var(--color-text-muted)] ml-auto transition-transform duration-150" [class.rotate-180]="sectionOpen()"></svg>
+          <svg
+            lucideChevronDown
+            [size]="12"
+            class="text-[var(--color-text-muted)] ml-auto transition-transform duration-150"
+            [class.rotate-180]="sectionOpen()"
+          ></svg>
         </button>
 
         @if (sectionOpen()) {
@@ -86,7 +91,12 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                         class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                         (click)="toggleAgentDetails(agent.agent)"
                       >
-                        <svg lucideChevronRight [size]="12" class="transition-transform duration-150" [class.rotate-90]="isAgentDetailsOpen(agent.agent)"></svg>
+                        <svg
+                          lucideChevronRight
+                          [size]="12"
+                          class="transition-transform duration-150"
+                          [class.rotate-90]="isAgentDetailsOpen(agent.agent)"
+                        ></svg>
                         Details anzeigen
                       </button>
                       @if (isAgentDetailsOpen(agent.agent)) {
@@ -192,7 +202,12 @@ import { BadgeColor, BadgeComponent } from '../../shared/badge/badge';
                         class="text-[11px] text-[var(--color-text-muted)] font-medium cursor-pointer hover:text-[var(--color-text-body)] inline-flex items-center gap-1"
                         (click)="consolidatorDetailsOpen.set(!consolidatorDetailsOpen())"
                       >
-                        <svg lucideChevronRight [size]="12" class="transition-transform duration-150" [class.rotate-90]="consolidatorDetailsOpen()"></svg>
+                        <svg
+                          lucideChevronRight
+                          [size]="12"
+                          class="transition-transform duration-150"
+                          [class.rotate-90]="consolidatorDetailsOpen()"
+                        ></svg>
                         Details anzeigen
                       </button>
                       @if (consolidatorDetailsOpen()) {

@@ -16,7 +16,16 @@ import {
 @Component({
   selector: 'app-pr-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, LucideExternalLink, LucideCircleAlert, LucideSquareCheck, LucideCheck, LucideX, LucideLoaderCircle, LucideMessageSquare],
+  imports: [
+    BadgeComponent,
+    LucideExternalLink,
+    LucideCircleAlert,
+    LucideSquareCheck,
+    LucideCheck,
+    LucideX,
+    LucideLoaderCircle,
+    LucideMessageSquare,
+  ],
   template: `
     <button
       type="button"
@@ -110,7 +119,12 @@ import {
                   } @else if (icon.type === 'failed') {
                     <svg lucideX [size]="12" [strokeWidth]="2.5"></svg>
                   } @else if (icon.type === 'running') {
-                    <svg lucideLoaderCircle class="animate-spin" [size]="12" [strokeWidth]="2.5"></svg>
+                    <svg
+                      lucideLoaderCircle
+                      class="animate-spin"
+                      [size]="12"
+                      [strokeWidth]="2.5"
+                    ></svg>
                   }
                   Build
                 </span>

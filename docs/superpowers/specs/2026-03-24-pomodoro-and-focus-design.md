@@ -86,6 +86,7 @@ idle → running → break → idle
 ### During a Focus Session
 
 #### Timeline Block
+
 - A block renders on the day timeline at the current time slot.
 - Styled **distinctly from appointments** (e.g. dashed border, different pattern, or subtle pulsing) so it's clearly a timer block, not a scheduled event.
 - Shows the duration label inside the block.
@@ -94,6 +95,7 @@ idle → running → break → idle
 - If the session extends past the timeline's `END_HOUR` (17:00), the block is clipped at the grid boundary. The progress bar at the top still shows the full session progress.
 
 #### Top Progress Bar
+
 - A thin bar (3–4px tall) at the very top of the entire app, above all other content.
 - Fills left-to-right as the focus session progresses.
 - Indigo colored.
@@ -123,6 +125,7 @@ idle → running → break → idle
     - **"Noch 5 Minuten arbeiten"** — secondary, less prominent. Snooze.
 
 #### Snooze Mechanic
+
 - Clicking "Noch 5 Minuten arbeiten" dismisses the overlay and extends the focus session by 5 minutes.
 - After those 5 minutes, the **same chime + overlay appear again**.
 - This is infinitely repeatable — the user always has the option to snooze, but the repeated interruption creates enough friction to eventually nudge them into taking a break.
@@ -130,11 +133,13 @@ idle → running → break → idle
 ### Break Experience
 
 #### Break Overlay
+
 - After clicking "Pause starten", the overlay transforms into the **break screen**.
 - **Full dark background** (deep indigo-to-dark gradient) covering the entire app.
 - The app beneath remains blurred and inaccessible — actively discouraging work.
 
 #### Floating Astronaut Animation
+
 - A small **SVG astronaut** floats weightlessly above an Earth curve glow at the bottom of the screen.
 - The astronaut has **idle personality animations** that cycle through:
   - Waving a hand
@@ -146,6 +151,7 @@ idle → running → break → idle
 - Subtext: **"Schwerelos treiben lassen …"**
 
 #### Break UI Elements
+
 - "Pause" title in light, airy typography.
 - A **subtle progress bar** showing break progress (not a countdown timer — calm, not pressuring).
 - **"noch X Minuten"** in subdued text.
@@ -168,6 +174,7 @@ idle → running → break → idle
 ## Data & Persistence
 
 ### PomodoroService
+
 - Manages timer state machine (idle / running / break).
 - Stores start timestamp and durations (not an interval counter) — survives page refresh.
 - Emits events: `sessionStart`, `sessionEnd`, `breakStart`, `breakEnd`.
@@ -175,6 +182,7 @@ idle → running → break → idle
 - No backend dependency.
 
 ### Page Refresh / Recovery Behavior
+
 - On page load, `PomodoroService` checks localStorage for an active session.
 - **If focus session is still in progress:** Resume — timeline block reappears, progress bar jumps to the correct position based on elapsed time since start timestamp.
 - **If focus session ended while page was closed** (elapsed time > focus duration): Silently reset to idle. No overlay or chime — the moment has passed and retroactively interrupting would be confusing.
@@ -182,11 +190,13 @@ idle → running → break → idle
 - **If break ended while page was closed:** Silently reset to idle.
 
 ### FocusService
+
 - Manages which item is focused (ID + type, or `null`).
 - Persisted to localStorage.
 - No backend dependency.
 
 ### Independence
+
 - The two services have **no dependencies on each other**.
 - Starting a Pomodoro does not affect focus state and vice versa.
 

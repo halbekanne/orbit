@@ -17,6 +17,7 @@
 ### Task 1: Mock module (`proxy/cosi-mock.js`)
 
 **Files:**
+
 - Create: `proxy/cosi-mock.js`
 - Create: `proxy/cosi-mock.test.js`
 
@@ -49,9 +50,7 @@ describe('runMockReview', () => {
   });
 
   it('returns findings with correct field types when present', async () => {
-    const results = await Promise.all(
-      Array.from({ length: 20 }, () => runMockReview())
-    );
+    const results = await Promise.all(Array.from({ length: 20 }, () => runMockReview()));
     const withFindings = results.filter((r) => r.findings.length > 0);
     assert.ok(withFindings.length > 0, 'Expected at least one result with findings after 20 calls');
 
@@ -89,7 +88,8 @@ const SCENARIOS = [
           title: 'Hover-State für primären Button fehlt',
           file: 'src/components/button/button.styles.scss',
           line: 42,
-          detail: 'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.',
+          detail:
+            'Laut AK muss der primäre Button einen sichtbaren Hover-State haben. Die aktuelle Implementierung definiert keinen :hover-Selektor.',
           suggestion: 'Einen :hover-Selektor mit leicht abgedunkelter Hintergrundfarbe ergänzen.',
         },
         {
@@ -98,8 +98,10 @@ const SCENARIOS = [
           title: 'Typ-Assertion statt Type Guard',
           file: 'src/components/button/button.ts',
           line: 87,
-          detail: 'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung. Ein Type Guard wäre sicherer und erkennt ungültige Werte zur Laufzeit.',
-          suggestion: 'Einen Type Guard `isButtonVariant()` implementieren und vor dem Zugriff prüfen.',
+          detail:
+            'Die Typ-Assertion `as ButtonVariant` umgeht die Typprüfung. Ein Type Guard wäre sicherer und erkennt ungültige Werte zur Laufzeit.',
+          suggestion:
+            'Einen Type Guard `isButtonVariant()` implementieren und vor dem Zugriff prüfen.',
         },
         {
           severity: 'minor',
@@ -107,7 +109,8 @@ const SCENARIOS = [
           title: 'Doppelte Berechnung in render()',
           file: 'src/components/button/button.ts',
           line: 112,
-          detail: 'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet, obwohl sich die Inputs nicht geändert haben.',
+          detail:
+            'Die CSS-Klasse wird bei jedem Render-Zyklus neu berechnet, obwohl sich die Inputs nicht geändert haben.',
           suggestion: 'Berechnung in ein `willUpdate()` mit Dirty-Check verschieben.',
         },
       ],
@@ -133,8 +136,10 @@ const SCENARIOS = [
           title: 'Event-Listener wird nicht aufgeräumt',
           file: 'src/components/tooltip/tooltip.ts',
           line: 34,
-          detail: 'Der `mouseenter`-Listener wird in `connectedCallback` registriert, aber in `disconnectedCallback` nicht entfernt. Das führt zu Memory Leaks bei häufigem Mount/Unmount.',
-          suggestion: 'Listener-Referenz speichern und in `disconnectedCallback` via `removeEventListener` aufräumen.',
+          detail:
+            'Der `mouseenter`-Listener wird in `connectedCallback` registriert, aber in `disconnectedCallback` nicht entfernt. Das führt zu Memory Leaks bei häufigem Mount/Unmount.',
+          suggestion:
+            'Listener-Referenz speichern und in `disconnectedCallback` via `removeEventListener` aufräumen.',
         },
         {
           severity: 'minor',
@@ -142,7 +147,8 @@ const SCENARIOS = [
           title: 'Unnötiger Nullcheck',
           file: 'src/components/tooltip/tooltip.ts',
           line: 58,
-          detail: 'Die Property `content` ist als `@property()` deklariert und hat einen Default-Wert. Der Nullcheck in Zeile 58 greift nie.',
+          detail:
+            'Die Property `content` ist als `@property()` deklariert und hat einen Default-Wert. Der Nullcheck in Zeile 58 greift nie.',
           suggestion: 'Nullcheck entfernen, da `content` immer definiert ist.',
         },
       ],
@@ -160,7 +166,8 @@ const SCENARIOS = [
           title: 'Shadow DOM Styling Leak',
           file: 'src/components/card/card.styles.scss',
           line: 15,
-          detail: 'Der `:host` Selektor fehlt. Styles können in den umgebenden DOM leaken wenn die Komponente ohne Shadow DOM genutzt wird.',
+          detail:
+            'Der `:host` Selektor fehlt. Styles können in den umgebenden DOM leaken wenn die Komponente ohne Shadow DOM genutzt wird.',
           suggestion: 'Alle Top-Level-Styles in `:host { }` wrappen.',
         },
       ],
@@ -205,6 +212,7 @@ git commit -m "feat(cosi): add mock review module with 4 scenarios"
 ### Task 2: Wire mock into endpoint (`proxy/index.js`)
 
 **Files:**
+
 - Modify: `proxy/index.js:8,17-19,26-38`
 
 - [ ] **Step 1: Add import**
@@ -262,9 +270,7 @@ app.post('/api/cosi/review', express.json({ limit: '2mb' }), async (req, res) =>
     return res.status(400).json({ error: 'diff is required and must be a string' });
   }
   try {
-    const result = COSI_API_KEY
-      ? await runReview(diff, jiraTicket || null)
-      : await runMockReview();
+    const result = COSI_API_KEY ? await runReview(diff, jiraTicket || null) : await runMockReview();
     res.json(result);
   } catch (err) {
     console.error('[CoSi Review] Error:', err);

@@ -15,6 +15,7 @@
 ### Task 1: Extend Settings Model
 
 **Files:**
+
 - Modify: `src/app/settings/settings.model.ts`
 
 - [ ] **Step 1: Add new fields to `OrbitSettings` interface**
@@ -49,6 +50,7 @@ git commit -m "feat(settings): add enabledAgents and projectRules to aiReviews c
 ### Task 2: Convert `SHARED_CONSTRAINTS` to `buildSharedConstraints()`
 
 **Files:**
+
 - Modify: `server/agents/agent-definition.js`
 
 - [ ] **Step 1: Replace `SHARED_CONSTRAINTS` constant with `buildSharedConstraints` function**
@@ -85,6 +87,7 @@ module.exports = { buildSharedConstraints };
 ```
 
 Key changes vs. the old `SHARED_CONSTRAINTS`:
+
 - Removed: `"for a Design System built with TypeScript, Lit (Web Components), and SCSS"` → now just `"a pull request"`
 - Removed: entire `PROJECT CONTEXT AND RULES` block (Slot-Konvention)
 - Added: conditional `projectRules` injection
@@ -120,6 +123,7 @@ git commit -m "refactor(agents): convert SHARED_CONSTRAINTS to buildSharedConstr
 ### Task 3: Update Agent Definitions to use `buildSystemPrompt`
 
 **Files:**
+
 - Modify: `server/agents/code-quality.js`
 - Modify: `server/agents/ak-abgleich.js`
 - Modify: `server/agents/accessibility.js`
@@ -127,6 +131,7 @@ git commit -m "refactor(agents): convert SHARED_CONSTRAINTS to buildSharedConstr
 - [ ] **Step 1: Update code-quality agent**
 
 In `server/agents/code-quality.js`:
+
 - Change import from `SHARED_CONSTRAINTS` to `buildSharedConstraints`
 - Replace the `const SYSTEM_PROMPT = ...` with a `buildSystemPrompt(projectRules)` function
 - Replace `systemPrompt: SYSTEM_PROMPT` property with `buildSystemPrompt`
@@ -187,6 +192,7 @@ const codeQualityAgent = {
 - [ ] **Step 2: Update ak-abgleich agent**
 
 In `server/agents/ak-abgleich.js`:
+
 - Change import from `SHARED_CONSTRAINTS` to `buildSharedConstraints`
 - Replace `const SYSTEM_PROMPT = ...` with a `buildSystemPrompt(projectRules)` function (same pattern)
 - Replace `systemPrompt: SYSTEM_PROMPT` with `buildSystemPrompt,`
@@ -207,6 +213,7 @@ The ak-abgleich prompt content is already generic — no project-specific text t
 - [ ] **Step 3: Update accessibility agent**
 
 In `server/agents/accessibility.js`:
+
 - Change import from `SHARED_CONSTRAINTS` to `buildSharedConstraints`
 - Replace `const SYSTEM_PROMPT = ...` with a `buildSystemPrompt(projectRules)` function
 - Replace `systemPrompt: SYSTEM_PROMPT` with `buildSystemPrompt,`
@@ -237,12 +244,14 @@ git commit -m "refactor(agents): switch all agents to buildSystemPrompt(projectR
 ### Task 4: Update Orchestrator and Route
 
 **Files:**
+
 - Modify: `server/ai.js`
 - Modify: `server/routes/ai-routes.js`
 
 - [ ] **Step 1: Update `ai.js` — consolidator system prompt**
 
 In `server/ai.js`:
+
 - Change import from `SHARED_CONSTRAINTS` to `buildSharedConstraints`
 - Change `SYSTEM_PROMPTS.consolidator` from a static string to a function
 
@@ -280,12 +289,12 @@ async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, proj
 Replace the agent filtering logic:
 
 ```javascript
-const enabledFromSettings = AGENT_REGISTRY.filter(a => enabledAgents.includes(a.id));
+const enabledFromSettings = AGENT_REGISTRY.filter((a) => enabledAgents.includes(a.id));
 const applicableAgents = enabledFromSettings.filter(
-  a => !a.isApplicable || a.isApplicable(jiraTicket)
+  (a) => !a.isApplicable || a.isApplicable(jiraTicket),
 );
 
-const skipped = enabledFromSettings.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+const skipped = enabledFromSettings.filter((a) => a.isApplicable && !a.isApplicable(jiraTicket));
 ```
 
 - [ ] **Step 3: Pass `projectRules` to agents and consolidator**
@@ -346,6 +355,7 @@ git commit -m "feat(ai): filter agents by enabledAgents and inject projectRules 
 ### Task 5: Update Tests
 
 **Files:**
+
 - Modify: `server/ai.test.js`
 
 - [ ] **Step 1: Update existing tests to pass `enabledAgents` and `projectRules`**
@@ -355,11 +365,16 @@ All `runReview` calls in tests need the new parameters. Update each call:
 Test "emits agent:start, agent:done for all agents and consolidator events":
 
 ```javascript
-await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
-  vertexAi: TEST_VERTEX_AI,
-  enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
-  projectRules: '',
-});
+await runReview(
+  'diff content',
+  { key: 'DS-1', summary: 'Test', description: 'AK: something' },
+  emit,
+  {
+    vertexAi: TEST_VERTEX_AI,
+    enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+    projectRules: '',
+  },
+);
 ```
 
 Test "emits warning and skips agent 1 when no jira ticket":
@@ -385,11 +400,16 @@ await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'de
 Test "emits done with empty result when no findings and skips consolidator":
 
 ```javascript
-await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
-  vertexAi: TEST_VERTEX_AI,
-  enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
-  projectRules: '',
-});
+await runReview(
+  'diff content',
+  { key: 'DS-1', summary: 'Test', description: 'AK: something' },
+  emit,
+  {
+    vertexAi: TEST_VERTEX_AI,
+    enabledAgents: ['ak-abgleich', 'code-quality', 'accessibility'],
+    projectRules: '',
+  },
+);
 ```
 
 - [ ] **Step 2: Add test for enabledAgents filtering**
@@ -405,9 +425,10 @@ it('only runs agents listed in enabledAgents', async () => {
     callCount++;
     return Promise.resolve({
       ok: true,
-      json: () => Promise.resolve({
-        candidates: [{ content: { parts: [{ text: JSON.stringify(codeQualityResult) }] } }],
-      }),
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(codeQualityResult) }] } }],
+        }),
     });
   });
 
@@ -415,17 +436,22 @@ it('only runs agents listed in enabledAgents', async () => {
   const events = [];
   const emit = (type, data) => events.push({ type, data });
 
-  await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit, {
-    vertexAi: TEST_VERTEX_AI,
-    enabledAgents: ['code-quality'],
-    projectRules: '',
-  });
+  await runReview(
+    'diff content',
+    { key: 'DS-1', summary: 'Test', description: 'AK: something' },
+    emit,
+    {
+      vertexAi: TEST_VERTEX_AI,
+      enabledAgents: ['code-quality'],
+      projectRules: '',
+    },
+  );
 
-  const agentStarts = events.filter(e => e.type === 'agent:start');
+  const agentStarts = events.filter((e) => e.type === 'agent:start');
   assert.equal(agentStarts.length, 1);
   assert.equal(agentStarts[0].data.agent, 'code-quality');
 
-  assert.ok(!events.some(e => e.type === 'warning'));
+  assert.ok(!events.some((e) => e.type === 'warning'));
 
   assert.equal(callCount, 1);
 });
@@ -441,10 +467,12 @@ it('passes projectRules through buildSystemPrompt to system instruction', async 
     candidates: [{ content: { parts: [{ text: '{"findings": []}' }] } }],
   };
 
-  const fetchMock = mock.fn(() => Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve(mockResponse),
-  }));
+  const fetchMock = mock.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(mockResponse),
+    }),
+  );
   mock.method(global, 'fetch', fetchMock);
 
   const { runReview } = freshRequire();
@@ -480,6 +508,7 @@ git commit -m "test(ai): update tests for enabledAgents filtering and projectRul
 ### Task 6: Settings UI — Agent Toggles and Project Rules Textarea
 
 **Files:**
+
 - Modify: `src/app/settings/view-settings/view-settings.ts`
 - Modify: `src/app/settings/view-settings/view-settings.html`
 
@@ -525,52 +554,70 @@ toggleAgent(agentId: string, enabled: boolean): void {
 In `src/app/settings/view-settings/view-settings.html`, replace the entire `<!-- KI-gestützte Reviews -->` card (from `<div data-section="ai-reviews"` to its closing `</div>`) with:
 
 ```html
-<div data-section="ai-reviews" id="section-ai-reviews"
+<div
+  data-section="ai-reviews"
+  id="section-ai-reviews"
   class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4 transition-opacity"
-  [class.opacity-50]="!draft().features.aiReviews.enabled">
+  [class.opacity-50]="!draft().features.aiReviews.enabled"
+>
   <div class="flex items-center justify-between">
     <h4 class="font-bold text-[var(--color-text-heading)]">KI-gestützte Reviews</h4>
     <label class="relative inline-flex items-center cursor-pointer">
-      <input type="checkbox" class="sr-only peer"
+      <input
+        type="checkbox"
+        class="sr-only peer"
         [checked]="draft().features.aiReviews.enabled"
-        (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)">
-      <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+        (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)"
+      />
+      <div
+        class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
         after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-        after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-      </div>
+        after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+      ></div>
     </label>
   </div>
 
   @if (needsVertexWarning()) {
-    <p class="mt-3 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2">
-      Benötigt Vertex AI Proxy-Konfiguration
-    </p>
+  <p
+    class="mt-3 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2"
+  >
+    Benötigt Vertex AI Proxy-Konfiguration
+  </p>
   }
 
   <div [class.pointer-events-none]="!draft().features.aiReviews.enabled" class="mt-4">
     <label class="block text-sm text-[var(--color-text-body)] mb-3">Review-Agenten</label>
 
     @for (entry of agentDescriptions | keyvalue; track entry.key) {
-      <label class="flex items-start gap-3 cursor-pointer mb-3">
-        <input type="checkbox" class="mt-0.5 accent-violet-500"
-          [checked]="draft().features.aiReviews.enabledAgents.includes(entry.key)"
-          (change)="toggleAgent(entry.key, $any($event.target).checked)">
-        <div>
-          <span class="text-sm font-medium text-[var(--color-text-heading)]">{{ entry.value.label }}</span>
-          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ entry.value.description }}</p>
-        </div>
-      </label>
+    <label class="flex items-start gap-3 cursor-pointer mb-3">
+      <input
+        type="checkbox"
+        class="mt-0.5 accent-violet-500"
+        [checked]="draft().features.aiReviews.enabledAgents.includes(entry.key)"
+        (change)="toggleAgent(entry.key, $any($event.target).checked)"
+      />
+      <div>
+        <span class="text-sm font-medium text-[var(--color-text-heading)]"
+          >{{ entry.value.label }}</span
+        >
+        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ entry.value.description }}</p>
+      </div>
+    </label>
     }
 
     <div class="mt-4">
       <label class="block text-sm text-[var(--color-text-body)] mb-1">Projektregeln</label>
-      <p class="text-xs text-[var(--color-text-muted)] mb-2">Diese Anweisungen werden allen aktiven Review-Agenten mitgegeben. Beschreibe hier euren Tech-Stack, Coding-Konventionen und worauf beim Review besonders geachtet werden soll.</p>
+      <p class="text-xs text-[var(--color-text-muted)] mb-2">
+        Diese Anweisungen werden allen aktiven Review-Agenten mitgegeben. Beschreibe hier euren
+        Tech-Stack, Coding-Konventionen und worauf beim Review besonders geachtet werden soll.
+      </p>
       <textarea
         class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 resize-none"
         style="height: 120px"
         placeholder="z.B. Java 21 mit Spring Boot 3. Wir nutzen Hexagonale Architektur mit Ports & Adapters. REST-APIs folgen unseren OpenAPI-Specs. Tests mit JUnit 5 und Mockito."
         [value]="draft().features.aiReviews.projectRules"
-        (input)="updateDraft(d => d.features.aiReviews.projectRules = $any($event.target).value)">
+        (input)="updateDraft(d => d.features.aiReviews.projectRules = $any($event.target).value)"
+      >
       </textarea>
     </div>
   </div>
@@ -614,6 +661,7 @@ git commit -m "feat(settings): add agent toggles and project rules textarea to A
 ### Task 7: Settings Service — Deep Merge for Nested `aiReviews`
 
 **Files:**
+
 - Modify: `src/app/settings/settings.service.ts`
 
 The current `load()` does a shallow spread: `settings.features = { ...defaults.features, ...settings.features }`. This preserves the top-level `aiReviews` object from stored settings but does NOT merge missing fields within it. If a user has existing settings saved without `enabledAgents`/`projectRules`, those fields will be `undefined`.

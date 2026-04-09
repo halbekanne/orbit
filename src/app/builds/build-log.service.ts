@@ -39,26 +39,28 @@ export class BuildLogService {
     this._isStreaming.set(true);
 
     this.pollingTimer = setInterval(() => {
-      this.http.get(`${this.currentPath}/logText/progressiveText`, {
-        params: { start: String(this.currentOffset) },
-        responseType: 'text',
-        observe: 'response',
-      }).subscribe({
-        next: (response) => {
-          const newText = response.body ?? '';
-          if (newText.length > 0) {
-            this._logText.update(current => current + newText);
-          }
-          const textSize = response.headers.get('X-Text-Size');
-          if (textSize) this.currentOffset = parseInt(textSize, 10);
+      this.http
+        .get(`${this.currentPath}/logText/progressiveText`, {
+          params: { start: String(this.currentOffset) },
+          responseType: 'text',
+          observe: 'response',
+        })
+        .subscribe({
+          next: (response) => {
+            const newText = response.body ?? '';
+            if (newText.length > 0) {
+              this._logText.update((current) => current + newText);
+            }
+            const textSize = response.headers.get('X-Text-Size');
+            if (textSize) this.currentOffset = parseInt(textSize, 10);
 
-          const moreData = response.headers.get('X-More-Data');
-          if (moreData !== 'true') {
-            this.stopStreaming();
-          }
-        },
-        error: () => this._error.set(true),
-      });
+            const moreData = response.headers.get('X-More-Data');
+            if (moreData !== 'true') {
+              this.stopStreaming();
+            }
+          },
+          error: () => this._error.set(true),
+        });
     }, 5000);
   }
 

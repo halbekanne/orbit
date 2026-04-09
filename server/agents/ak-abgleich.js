@@ -33,33 +33,56 @@ SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. On
 }
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import('./agent-definition').AgentDefinition} */
@@ -70,7 +93,9 @@ module.exports = {
   responseSchema: RESPONSE_SCHEMA,
   temperature: 0.2,
   thinkingBudget: 16384,
-  isApplicable(jiraTicket) { return !!jiraTicket; },
+  isApplicable(jiraTicket) {
+    return !!jiraTicket;
+  },
   skipMessage: 'Kein Jira-Ticket verknüpft — nur Code-Qualität geprüft.',
   buildUserPrompt(diff, jiraTicket) {
     return `<jira_ticket>

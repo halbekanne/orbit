@@ -42,10 +42,7 @@ describe('App', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [
-        provideRouter([]),
-        { provide: SettingsService, useValue: mockSettingsService },
-      ],
+      providers: [provideRouter([]), { provide: SettingsService, useValue: mockSettingsService }],
     }).compileComponents();
   });
 

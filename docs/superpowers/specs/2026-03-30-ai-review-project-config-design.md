@@ -19,6 +19,7 @@ aiReviews: {
 ```
 
 **Defaults** (in `createDefaultSettings()`):
+
 - `enabledAgents`: `['code-quality', 'ak-abgleich']`
 - `projectRules`: `''`
 
@@ -29,6 +30,7 @@ aiReviews: {
 #### `SHARED_CONSTRAINTS` (`server/agents/agent-definition.js`)
 
 Aktueller Inhalt entfernen:
+
 - `"You are reviewing a pull request for a Design System built with TypeScript, Lit (Web Components), and SCSS."`
 - Den gesamten `PROJECT CONTEXT AND RULES`-Abschnitt (Slot-Konvention etc.)
 
@@ -94,9 +96,11 @@ async function runReview(diff, jiraTicket, emit, { vertexAi, enabledAgents, proj
 2. `isApplicable()`-Guard: Wie bisher — technische Voraussetzung (z.B. Jira-Ticket vorhanden). Erzeugt weiterhin `skipMessage`-Warnung.
 
 ```javascript
-const enabledFromSettings = AGENT_REGISTRY.filter(a => enabledAgents.includes(a.id));
-const applicableAgents = enabledFromSettings.filter(a => !a.isApplicable || a.isApplicable(jiraTicket));
-const skipped = enabledFromSettings.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+const enabledFromSettings = AGENT_REGISTRY.filter((a) => enabledAgents.includes(a.id));
+const applicableAgents = enabledFromSettings.filter(
+  (a) => !a.isApplicable || a.isApplicable(jiraTicket),
+);
+const skipped = enabledFromSettings.filter((a) => a.isApplicable && !a.isApplicable(jiraTicket));
 ```
 
 **`projectRules` Weitergabe:**
@@ -159,7 +163,7 @@ readonly agentDescriptions: Record<string, { label: string; description: string 
 
 ```html
 <label class="flex items-start gap-3 cursor-pointer">
-  <input type="checkbox" ...>
+  <input type="checkbox" ... />
   <div>
     <span class="font-medium">Code-Qualität</span>
     <p class="text-xs text-muted">Prüft auf Bugs, Logikfehler, Lesbarkeit ...</p>
@@ -178,17 +182,17 @@ Direkt unter den Agenten-Checkboxen, ohne eigene Untersektion.
 
 ### 6. Betroffene Dateien (Zusammenfassung)
 
-| Datei | Änderung |
-|---|---|
-| `src/app/settings/settings.model.ts` | `enabledAgents` + `projectRules` zum Interface und Defaults |
-| `server/agents/agent-definition.js` | `SHARED_CONSTRAINTS` → `buildSharedConstraints(projectRules)` |
-| `server/agents/code-quality.js` | Projektspezifisches entfernen, `buildSystemPrompt()` statt `systemPrompt` |
-| `server/agents/accessibility.js` | Design-System-Spezifisches entfernen, `buildSystemPrompt()` statt `systemPrompt` |
-| `server/agents/ak-abgleich.js` | `buildSystemPrompt()` statt `systemPrompt` |
-| `server/ai.js` | `runReview()` Signatur erweitern, Agent-Filterung, `projectRules` durchreichen, Consolidator anpassen |
-| `server/routes/ai-routes.js` | `enabledAgents` + `projectRules` aus Settings lesen |
-| `src/app/settings/view-settings/view-settings.html` | Agenten-Checkboxen + Textarea |
-| `src/app/settings/view-settings/view-settings.ts` | `agentDescriptions`, Agenten-Toggle-Logik |
+| Datei                                               | Änderung                                                                                              |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `src/app/settings/settings.model.ts`                | `enabledAgents` + `projectRules` zum Interface und Defaults                                           |
+| `server/agents/agent-definition.js`                 | `SHARED_CONSTRAINTS` → `buildSharedConstraints(projectRules)`                                         |
+| `server/agents/code-quality.js`                     | Projektspezifisches entfernen, `buildSystemPrompt()` statt `systemPrompt`                             |
+| `server/agents/accessibility.js`                    | Design-System-Spezifisches entfernen, `buildSystemPrompt()` statt `systemPrompt`                      |
+| `server/agents/ak-abgleich.js`                      | `buildSystemPrompt()` statt `systemPrompt`                                                            |
+| `server/ai.js`                                      | `runReview()` Signatur erweitern, Agent-Filterung, `projectRules` durchreichen, Consolidator anpassen |
+| `server/routes/ai-routes.js`                        | `enabledAgents` + `projectRules` aus Settings lesen                                                   |
+| `src/app/settings/view-settings/view-settings.html` | Agenten-Checkboxen + Textarea                                                                         |
+| `src/app/settings/view-settings/view-settings.ts`   | `agentDescriptions`, Agenten-Toggle-Logik                                                             |
 
 ## Nicht im Scope
 

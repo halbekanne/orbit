@@ -12,24 +12,25 @@
 
 ## File Structure
 
-| File | Role |
-|------|------|
-| Create: `src/app/shared/data-refresh.service.ts` | Central refresh orchestration — polling, visibility, retry, staleness |
-| Create: `src/app/shared/data-refresh.service.spec.ts` | Tests for refresh service |
-| Create: `src/app/shared/sync-bar/sync-bar.ts` | Bottom bar component with timestamp + sync button |
-| Create: `src/app/shared/sync-bar/sync-bar.html` | Template for sync bar |
-| Create: `src/app/shared/sync-bar/sync-bar.spec.ts` | Tests for sync bar component |
-| Modify: `src/app/shared/workspace.service.ts` | Register sources with refresh service instead of direct fetch |
-| Modify: `src/app/shared/workspace.service.spec.ts` | Update tests for new init pattern |
-| Modify: `src/app/bitbucket/bitbucket.service.ts` | Make `loadAll()` return Observable; skip loading state on re-fetch |
-| Modify: `src/app/shared/navigator/navigator.html` | Add sync bar + "Erneut versuchen" links |
-| Modify: `src/app/shared/navigator/navigator.ts` | Import sync bar, inject refresh service for retry links |
+| File                                                  | Role                                                                  |
+| ----------------------------------------------------- | --------------------------------------------------------------------- |
+| Create: `src/app/shared/data-refresh.service.ts`      | Central refresh orchestration — polling, visibility, retry, staleness |
+| Create: `src/app/shared/data-refresh.service.spec.ts` | Tests for refresh service                                             |
+| Create: `src/app/shared/sync-bar/sync-bar.ts`         | Bottom bar component with timestamp + sync button                     |
+| Create: `src/app/shared/sync-bar/sync-bar.html`       | Template for sync bar                                                 |
+| Create: `src/app/shared/sync-bar/sync-bar.spec.ts`    | Tests for sync bar component                                          |
+| Modify: `src/app/shared/workspace.service.ts`         | Register sources with refresh service instead of direct fetch         |
+| Modify: `src/app/shared/workspace.service.spec.ts`    | Update tests for new init pattern                                     |
+| Modify: `src/app/bitbucket/bitbucket.service.ts`      | Make `loadAll()` return Observable; skip loading state on re-fetch    |
+| Modify: `src/app/shared/navigator/navigator.html`     | Add sync bar + "Erneut versuchen" links                               |
+| Modify: `src/app/shared/navigator/navigator.ts`       | Import sync bar, inject refresh service for retry links               |
 
 ---
 
 ### Task 1: DataRefreshService — Core with Registration and refreshAll()
 
 **Files:**
+
 - Create: `src/app/shared/data-refresh.service.ts`
 - Create: `src/app/shared/data-refresh.service.spec.ts`
 
@@ -54,8 +55,14 @@ describe('DataRefreshService', () => {
   it('calls registered fetch functions on refreshAll with force', () => {
     let jiraCalled = false;
     let bbCalled = false;
-    service.register('jira', () => { jiraCalled = true; return of(undefined); });
-    service.register('bitbucket', () => { bbCalled = true; return of(undefined); });
+    service.register('jira', () => {
+      jiraCalled = true;
+      return of(undefined);
+    });
+    service.register('bitbucket', () => {
+      bbCalled = true;
+      return of(undefined);
+    });
 
     service.refreshAll(true);
 
@@ -113,7 +120,10 @@ describe('DataRefreshService', () => {
   it('ignores refreshAll while already refreshing', () => {
     let callCount = 0;
     const subject = new Subject<void>();
-    service.register('jira', () => { callCount++; return subject.asObservable(); });
+    service.register('jira', () => {
+      callCount++;
+      return subject.asObservable();
+    });
 
     service.refreshAll(true);
     service.refreshAll(true);
@@ -308,6 +318,7 @@ git commit -m "feat: add DataRefreshService with registration, refreshAll, and r
 ### Task 2: DataRefreshService — Polling and Visibility Triggers
 
 **Files:**
+
 - Modify: `src/app/shared/data-refresh.service.ts`
 - Modify: `src/app/shared/data-refresh.service.spec.ts`
 
@@ -333,7 +344,10 @@ describe('DataRefreshService — polling', () => {
 
   it('polls at REFRESH_INTERVAL_MS', () => {
     let callCount = 0;
-    service.register('jira', () => { callCount++; return of(undefined); });
+    service.register('jira', () => {
+      callCount++;
+      return of(undefined);
+    });
 
     service.startPolling();
     expect(callCount).toBe(0);
@@ -347,7 +361,10 @@ describe('DataRefreshService — polling', () => {
 
   it('resetPollingTimer delays next poll', () => {
     let callCount = 0;
-    service.register('jira', () => { callCount++; return of(undefined); });
+    service.register('jira', () => {
+      callCount++;
+      return of(undefined);
+    });
 
     service.startPolling();
     vi.advanceTimersByTime(REFRESH_INTERVAL_MS / 2);
@@ -376,7 +393,10 @@ describe('DataRefreshService — visibility', () => {
 
   it('refreshes stale sources on visibility regain', () => {
     let callCount = 0;
-    service.register('jira', () => { callCount++; return of(undefined); });
+    service.register('jira', () => {
+      callCount++;
+      return of(undefined);
+    });
 
     service.refreshAll(true);
     callCount = 0;
@@ -385,9 +405,12 @@ describe('DataRefreshService — visibility', () => {
     expect(state().lastFetchTime).not.toBeNull();
 
     // Simulate stale data by moving lastFetchTime back
-    (service as any).sources.get('jira')!.state.update(
-      (s: DataSourceState) => ({ ...s, lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000 }),
-    );
+    (service as any).sources
+      .get('jira')!
+      .state.update((s: DataSourceState) => ({
+        ...s,
+        lastFetchTime: Date.now() - REFRESH_INTERVAL_MS - 1000,
+      }));
 
     service.onVisibilityRegained();
     expect(callCount).toBe(1);
@@ -395,7 +418,10 @@ describe('DataRefreshService — visibility', () => {
 
   it('does not refresh fresh sources on visibility regain', () => {
     let callCount = 0;
-    service.register('jira', () => { callCount++; return of(undefined); });
+    service.register('jira', () => {
+      callCount++;
+      return of(undefined);
+    });
 
     service.refreshAll(true);
     callCount = 0;
@@ -495,6 +521,7 @@ git commit -m "feat: add polling and visibility-regain triggers to DataRefreshSe
 ### Task 3: Modify BitbucketService — Return Observable from loadAll, Skip Loading on Re-fetch
 
 **Files:**
+
 - Modify: `src/app/bitbucket/bitbucket.service.ts`
 - Modify: `src/app/bitbucket/bitbucket.service.spec.ts` (if exists, update affected tests)
 
@@ -660,6 +687,7 @@ git commit -m "refactor: make BitbucketService.loadAll return Observable and ski
 ### Task 4: Wrap JiraService Fetch for Refresh Integration
 
 **Files:**
+
 - Modify: `src/app/jira/jira.service.ts`
 
 The `JiraService.getAssignedActiveTickets()` already returns an `Observable<JiraTicket[]>`, which is exactly what the refresh service needs. However, we need `WorkspaceService` to have a callable method that re-triggers the fetch. Currently the tickets observable is created once via `toSignal`. We need to add a method that can be called repeatedly.
@@ -732,6 +760,7 @@ git commit -m "feat: add loadTickets method and signal-based state to JiraServic
 ### Task 5: Rewire WorkspaceService to Use DataRefreshService
 
 **Files:**
+
 - Modify: `src/app/shared/workspace.service.ts`
 - Modify: `src/app/shared/workspace.service.spec.ts`
 
@@ -785,7 +814,9 @@ describe('WorkspaceService', () => {
           provide: DataRefreshService,
           useValue: {
             register: (name: string, fn: () => unknown) => registeredSources.set(name, fn),
-            refreshAll: (force: boolean) => { refreshAllCalled = true; },
+            refreshAll: (force: boolean) => {
+              refreshAllCalled = true;
+            },
             startPolling: () => {},
             startVisibilityListener: () => {},
           },
@@ -940,6 +971,7 @@ git commit -m "refactor: rewire WorkspaceService to use DataRefreshService for d
 ### Task 6: SyncBarComponent
 
 **Files:**
+
 - Create: `src/app/shared/sync-bar/sync-bar.ts`
 - Create: `src/app/shared/sync-bar/sync-bar.html`
 - Create: `src/app/shared/sync-bar/sync-bar.spec.ts`
@@ -1034,26 +1066,11 @@ Expected: FAIL — SyncBarComponent does not exist
 <!-- src/app/shared/sync-bar/sync-bar.html -->
 <div class="flex items-center justify-between">
   <span class="text-[10px] text-[var(--color-text-muted)] truncate">
-    @switch (refreshService.globalStatus()) {
-      @case ('refreshing') {
-        Aktualisiere…
-      }
-      @case ('retrying') {
-        @if (refreshService.retryInfo(); as info) {
-          Erneuter Versuch {{ info.attempt }}/{{ info.maxAttempts }}…
-        }
-      }
-      @case ('error') {
-        Aktualisierung fehlgeschlagen
-      }
-      @default {
-        @if (refreshService.lastGlobalFetchTime(); as time) {
-          Zuletzt aktualisiert: {{ formattedTime() }}
-        } @else {
-          Noch nicht aktualisiert
-        }
-      }
-    }
+    @switch (refreshService.globalStatus()) { @case ('refreshing') { Aktualisiere… } @case
+    ('retrying') { @if (refreshService.retryInfo(); as info) { Erneuter Versuch {{ info.attempt
+    }}/{{ info.maxAttempts }}… } } @case ('error') { Aktualisierung fehlgeschlagen } @default { @if
+    (refreshService.lastGlobalFetchTime(); as time) { Zuletzt aktualisiert: {{ formattedTime() }} }
+    @else { Noch nicht aktualisiert } } }
   </span>
 
   <button
@@ -1063,7 +1080,8 @@ Expected: FAIL — SyncBarComponent does not exist
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="12" height="12"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -1073,8 +1091,8 @@ Expected: FAIL — SyncBarComponent does not exist
       aria-hidden="true"
       [class.animate-spin]="refreshService.isRefreshing()"
     >
-      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-      <polyline points="21 3 21 9 15 9"/>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+      <polyline points="21 3 21 9 15 9" />
     </svg>
     Sync
   </button>
@@ -1129,6 +1147,7 @@ git commit -m "feat: add SyncBarComponent with timestamp display and manual sync
 ### Task 7: Integrate SyncBar into Navigator and Add "Erneut versuchen" Links
 
 **Files:**
+
 - Modify: `src/app/shared/navigator/navigator.html`
 - Modify: `src/app/shared/navigator/navigator.ts`
 
@@ -1175,33 +1194,35 @@ Replace the closing `</div>` and `</nav>` at the end of the file (lines 304-305)
 In `src/app/shared/navigator/navigator.html`, replace the tickets error message (line 83):
 
 ```html
-        } @else if (data.ticketsError()) {
-          <div class="px-1 py-2" role="alert">
-            <p class="text-xs text-[var(--color-danger-solid)]">Tickets konnten nicht geladen werden.</p>
-            <button
-              type="button"
-              class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-              (click)="retrySource('jira')"
-            >
-              Erneut versuchen
-            </button>
-          </div>
+} @else if (data.ticketsError()) {
+<div class="px-1 py-2" role="alert">
+  <p class="text-xs text-[var(--color-danger-solid)]">Tickets konnten nicht geladen werden.</p>
+  <button
+    type="button"
+    class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+    (click)="retrySource('jira')"
+  >
+    Erneut versuchen
+  </button>
+</div>
 ```
 
 Replace the PRs error message (line 134):
 
 ```html
-        } @else if (data.pullRequestsError()) {
-          <div class="px-1 py-2" role="alert">
-            <p class="text-xs text-[var(--color-danger-solid)]">Pull Requests konnten nicht geladen werden.</p>
-            <button
-              type="button"
-              class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-              (click)="retrySource('bitbucket')"
-            >
-              Erneut versuchen
-            </button>
-          </div>
+} @else if (data.pullRequestsError()) {
+<div class="px-1 py-2" role="alert">
+  <p class="text-xs text-[var(--color-danger-solid)]">
+    Pull Requests konnten nicht geladen werden.
+  </p>
+  <button
+    type="button"
+    class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+    (click)="retrySource('bitbucket')"
+  >
+    Erneut versuchen
+  </button>
+</div>
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
@@ -1226,6 +1247,7 @@ git commit -m "feat: integrate SyncBar into navigator and add retry links to err
 ### Task 8: Final Integration Test and Cleanup
 
 **Files:**
+
 - All modified files
 - Build verification
 
@@ -1242,6 +1264,7 @@ Expected: Build succeeds with no errors
 - [ ] **Step 3: Manual verification checklist**
 
 Start the app with `npm start` and verify:
+
 1. App loads — tickets and PRs appear as before
 2. Sync bar appears at the bottom of the navigator with timestamp
 3. Clicking "Sync" triggers a refresh (icon spins, data reloads)

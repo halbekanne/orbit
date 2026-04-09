@@ -18,14 +18,14 @@ Orbit is the antidote: instant, calm, and low-noise. Everything you need to stay
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Angular 21 |
-| Language | TypeScript 5.9 |
-| Styling | Tailwind CSS 4 |
-| State | Angular Signals |
-| Testing | Vitest + jsdom |
-| Formatting | Prettier |
+| Layer      | Technology      |
+| ---------- | --------------- |
+| Framework  | Angular 21      |
+| Language   | TypeScript 5.9  |
+| Styling    | Tailwind CSS 4  |
+| State      | Angular Signals |
+| Testing    | Vitest + jsdom  |
+| Formatting | Prettier        |
 
 ---
 

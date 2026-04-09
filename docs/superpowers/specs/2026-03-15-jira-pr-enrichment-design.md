@@ -24,6 +24,7 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 ### Card structure
 
 **Header** (always visible, tinted `#f0f3ff` background):
+
 - Row 1: issue type icon-badge · monospace key · status pill · "In Jira öffnen" button (right-aligned)
 - Row 2: summary (bold, full text, no truncation)
 - Row 3: "Zugewiesen" label + avatar initials (computed from display name) + assignee display name
@@ -31,11 +32,13 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 **Assignee display:** `JiraTicket.assignee` is a plain `string` (the display name). Avatar initials are derived by taking the first letter of each word. When assignee is unassigned, render the label and the text "Nicht zugeordnet" with no avatar. Note: the existing `JiraService` maps missing assignees to `'Unbeauftragt'` — this must be updated to `'Nicht zugeordnet'` as part of this feature.
 
 **Body** (white background):
+
 - Full Jira ticket description, rendered via the existing `JiraMarkupPipe`
 - No truncation, no scroll limit — rendered in full
 - If description is empty, the body section does not render at all — no empty box
 
 **Issue type badges** match the existing `TicketCardComponent` style exactly:
+
 - Bug → red (`bg-red-50 text-red-600 border-red-200`)
 - User Story → green (`bg-emerald-50 text-emerald-700 border-emerald-200`)
 - Epic → violet (`bg-violet-50 text-violet-700 border-violet-200`)
@@ -47,12 +50,12 @@ The Jira card is inserted in `PrDetailComponent` between the metadata row and th
 
 The component input uses string literals rather than `null` for all non-data states to avoid JS `null` ambiguity:
 
-| State | Trigger | Display |
-|---|---|---|
-| `'loading'` | Key found, fetch in flight | Skeleton placeholders for key, status, summary |
-| `JiraTicket` | Fetch succeeded | Full card as described above |
-| `'no-ticket'` | No key detected in branch name or title | Muted placeholder: "Kein Jira-Ticket gefunden" |
-| `'error'` | Key found, fetch failed (network error, 404, permissions) | Error state: "Ticket konnte nicht geladen werden" — visually distinct from `'no-ticket'` |
+| State         | Trigger                                                   | Display                                                                                  |
+| ------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `'loading'`   | Key found, fetch in flight                                | Skeleton placeholders for key, status, summary                                           |
+| `JiraTicket`  | Fetch succeeded                                           | Full card as described above                                                             |
+| `'no-ticket'` | No key detected in branch name or title                   | Muted placeholder: "Kein Jira-Ticket gefunden"                                           |
+| `'error'`     | Key found, fetch failed (network error, 404, permissions) | Error state: "Ticket konnte nicht geladen werden" — visually distinct from `'no-ticket'` |
 
 The `'no-ticket'` and `'error'` states are intentionally different. `'no-ticket'` means no ticket was linked. `'error'` means a ticket was linked but could not be loaded — a useful signal that a reload may help.
 
@@ -126,13 +129,13 @@ User selects PR
 
 ## Edge Cases
 
-| Case | Behaviour |
-|---|---|
-| PR switches while fetch in flight | `switchMap` cancels the previous request automatically; new fetch starts for the new PR |
-| Key regex matches non-existent ticket (e.g. `TEST-1-local`) | Jira returns 404 → `'error'` state |
-| Jira ticket description is empty | Body section does not render; no empty box |
-| Jira ticket fetch fails (network / permissions) | `'error'` state — distinct from `'no-ticket'` |
-| Assignee is unassigned | Render "Nicht zugeordnet" with no avatar |
+| Case                                                        | Behaviour                                                                               |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| PR switches while fetch in flight                           | `switchMap` cancels the previous request automatically; new fetch starts for the new PR |
+| Key regex matches non-existent ticket (e.g. `TEST-1-local`) | Jira returns 404 → `'error'` state                                                      |
+| Jira ticket description is empty                            | Body section does not render; no empty box                                              |
+| Jira ticket fetch fails (network / permissions)             | `'error'` state — distinct from `'no-ticket'`                                           |
+| Assignee is unassigned                                      | Render "Nicht zugeordnet" with no avatar                                                |
 
 ---
 

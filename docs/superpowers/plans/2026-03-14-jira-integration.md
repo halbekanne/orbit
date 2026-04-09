@@ -17,6 +17,7 @@
 ### Task 1: Install dependencies and update npm scripts
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install new dependencies**
@@ -64,6 +65,7 @@ git commit -m "chore: Add Express, concurrently, dotenv, cors, http-proxy-middle
 ### Task 2: Create .env files and update .gitignore
 
 **Files:**
+
 - Create: `.env.example`
 - Create: `.env`
 - Modify: `.gitignore`
@@ -102,6 +104,7 @@ git commit -m "chore: Add .env.example and ensure .env is gitignored"
 ### Task 3: Generate Angular environments
 
 **Files:**
+
 - Create: `src/environments/environment.ts`
 - Create: `src/environments/environment.development.ts`
 - Modify: `angular.json`
@@ -159,6 +162,7 @@ git commit -m "chore: Add Angular environment files for proxy URL configuration"
 ### Task 4: Create mock Jira server
 
 **Files:**
+
 - Create: `mock-server/index.js`
 
 - [ ] **Step 1: Create `mock-server/index.js`**
@@ -199,7 +203,8 @@ const mockIssues = [
     self: `http://localhost:${PORT}/rest/api/2/issue/10001`,
     fields: {
       summary: 'Frontend-Integration: Neues Kunden-Dashboard',
-      description: 'Implementierung des neuen Kunden-Dashboards gemäß Figma-Design. Anbindung an die bestehende REST-API für Vertragsdaten.\n\nAkzeptanzkriterien:\n- Dashboard lädt in unter 2 Sekunden\n- Alle Vertragsdaten werden korrekt angezeigt',
+      description:
+        'Implementierung des neuen Kunden-Dashboards gemäß Figma-Design. Anbindung an die bestehende REST-API für Vertragsdaten.\n\nAkzeptanzkriterien:\n- Dashboard lädt in unter 2 Sekunden\n- Alle Vertragsdaten werden korrekt angezeigt',
       issuetype: { id: '3', name: 'Task', subtask: false },
       project: { id: '10000', key: 'VERS', name: 'Versicherung Frontend' },
       status: {
@@ -229,14 +234,18 @@ const mockIssues = [
         timeSpentSeconds: 86400,
       },
       comment: {
-        startAt: 0, maxResults: 10, total: 1,
-        comments: [{
-          id: '20001',
-          author: makeUser('sarah.k', 'Sarah K.', 'sarah@example.com'),
-          body: 'Bitte das Figma-Design nochmal prüfen.',
-          created: '2026-03-12T10:00:00.000+0100',
-          updated: '2026-03-12T10:00:00.000+0100',
-        }],
+        startAt: 0,
+        maxResults: 10,
+        total: 1,
+        comments: [
+          {
+            id: '20001',
+            author: makeUser('sarah.k', 'Sarah K.', 'sarah@example.com'),
+            body: 'Bitte das Figma-Design nochmal prüfen.',
+            created: '2026-03-12T10:00:00.000+0100',
+            updated: '2026-03-12T10:00:00.000+0100',
+          },
+        ],
       },
       attachment: [],
       subtasks: [],
@@ -244,7 +253,14 @@ const mockIssues = [
       parent: null,
       watches: { self: '', watchCount: 1, isWatching: true },
       votes: { self: '', votes: 0, hasVoted: false },
-      customfield_10020: { id: 1, name: 'Sprint 42', state: 'active', startDate: '2026-03-07', endDate: '2026-03-20', completeDate: null },
+      customfield_10020: {
+        id: 1,
+        name: 'Sprint 42',
+        state: 'active',
+        startDate: '2026-03-07',
+        endDate: '2026-03-20',
+        completeDate: null,
+      },
       customfield_10014: null,
       customfield_10016: 5,
     },
@@ -255,7 +271,8 @@ const mockIssues = [
     self: `http://localhost:${PORT}/rest/api/2/issue/10002`,
     fields: {
       summary: 'API-Anbindung: Schadensmeldung Formular',
-      description: 'REST-API Integration für das Schadensmeldungs-Formular.\n\nEndpoints:\n- POST /api/v2/claims\n- GET /api/v2/claims/{id}/status',
+      description:
+        'REST-API Integration für das Schadensmeldungs-Formular.\n\nEndpoints:\n- POST /api/v2/claims\n- GET /api/v2/claims/{id}/status',
       issuetype: { id: '72', name: 'Story', subtask: false },
       project: { id: '10000', key: 'VERS', name: 'Versicherung Frontend' },
       status: {
@@ -291,13 +308,30 @@ const mockIssues = [
         {
           id: '30001',
           type: { id: '10000', name: 'Blocks', inward: 'is blocked by', outward: 'blocks' },
-          outwardIssue: { id: '10005', key: 'VERS-2823', self: '', fields: { summary: 'Unit Tests: PolicyService Coverage erhöhen', status: { name: 'In Progress' }, priority: { name: 'Medium' }, issuetype: { name: 'Task' } } },
+          outwardIssue: {
+            id: '10005',
+            key: 'VERS-2823',
+            self: '',
+            fields: {
+              summary: 'Unit Tests: PolicyService Coverage erhöhen',
+              status: { name: 'In Progress' },
+              priority: { name: 'Medium' },
+              issuetype: { name: 'Task' },
+            },
+          },
         },
       ],
       parent: null,
       watches: { self: '', watchCount: 2, isWatching: true },
       votes: { self: '', votes: 1, hasVoted: false },
-      customfield_10020: { id: 1, name: 'Sprint 42', state: 'active', startDate: '2026-03-07', endDate: '2026-03-20', completeDate: null },
+      customfield_10020: {
+        id: 1,
+        name: 'Sprint 42',
+        state: 'active',
+        startDate: '2026-03-07',
+        endDate: '2026-03-20',
+        completeDate: null,
+      },
       customfield_10014: 'VERS-2790',
       customfield_10016: 8,
     },
@@ -308,7 +342,8 @@ const mockIssues = [
     self: `http://localhost:${PORT}/rest/api/2/issue/10003`,
     fields: {
       summary: 'Bug: Login-Fehler bei SSO-Weiterleitung',
-      description: 'Nach dem SSO-Login über Azure AD werden Nutzer nicht korrekt weitergeleitet.\n\nReproduktion:\n1. Session ablaufen lassen\n2. Auf geschützte Seite navigieren\n3. SSO-Login durchführen\n4. → Redirect-Loop tritt auf',
+      description:
+        'Nach dem SSO-Login über Azure AD werden Nutzer nicht korrekt weitergeleitet.\n\nReproduktion:\n1. Session ablaufen lassen\n2. Auf geschützte Seite navigieren\n3. SSO-Login durchführen\n4. → Redirect-Loop tritt auf',
       issuetype: { id: '1', name: 'Bug', subtask: false },
       project: { id: '10000', key: 'VERS', name: 'Versicherung Frontend' },
       status: {
@@ -338,7 +373,9 @@ const mockIssues = [
         timeSpentSeconds: 28800,
       },
       comment: {
-        startAt: 0, maxResults: 10, total: 2,
+        startAt: 0,
+        maxResults: 10,
+        total: 2,
         comments: [
           {
             id: '20002',
@@ -357,14 +394,28 @@ const mockIssues = [
         ],
       },
       attachment: [
-        { id: '40001', filename: 'screenshot-loop.png', size: 145000, mimeType: 'image/png', created: '2026-03-06T09:05:00.000+0100', author: makeUser('anna.l', 'Anna L.', 'anna@example.com') },
+        {
+          id: '40001',
+          filename: 'screenshot-loop.png',
+          size: 145000,
+          mimeType: 'image/png',
+          created: '2026-03-06T09:05:00.000+0100',
+          author: makeUser('anna.l', 'Anna L.', 'anna@example.com'),
+        },
       ],
       subtasks: [],
       issuelinks: [],
       parent: null,
       watches: { self: '', watchCount: 4, isWatching: true },
       votes: { self: '', votes: 2, hasVoted: false },
-      customfield_10020: { id: 1, name: 'Sprint 42', state: 'active', startDate: '2026-03-07', endDate: '2026-03-20', completeDate: null },
+      customfield_10020: {
+        id: 1,
+        name: 'Sprint 42',
+        state: 'active',
+        startDate: '2026-03-07',
+        endDate: '2026-03-20',
+        completeDate: null,
+      },
       customfield_10014: null,
       customfield_10016: 2,
     },
@@ -375,7 +426,8 @@ const mockIssues = [
     self: `http://localhost:${PORT}/rest/api/2/issue/10004`,
     fields: {
       summary: 'Refactoring: Angular 21 Migration',
-      description: 'Schrittweise Migration auf Angular 21.\n\nFortschritt:\n- ✓ Core-Module migriert\n- ✓ Routing auf neue API umgestellt\n- → Komponenten-Migration läuft',
+      description:
+        'Schrittweise Migration auf Angular 21.\n\nFortschritt:\n- ✓ Core-Module migriert\n- ✓ Routing auf neue API umgestellt\n- → Komponenten-Migration läuft',
       issuetype: { id: '3', name: 'Task', subtask: false },
       project: { id: '10000', key: 'VERS', name: 'Versicherung Frontend' },
       status: {
@@ -407,14 +459,41 @@ const mockIssues = [
       comment: { startAt: 0, maxResults: 10, total: 0, comments: [] },
       attachment: [],
       subtasks: [
-        { id: '10041', key: 'VERS-2757', self: '', fields: { summary: 'Migrate AuthModule', status: { name: 'Done' }, priority: { name: 'Low' }, issuetype: { name: 'Sub-task' } } },
-        { id: '10042', key: 'VERS-2758', self: '', fields: { summary: 'Migrate SharedModule', status: { name: 'In Progress' }, priority: { name: 'Low' }, issuetype: { name: 'Sub-task' } } },
+        {
+          id: '10041',
+          key: 'VERS-2757',
+          self: '',
+          fields: {
+            summary: 'Migrate AuthModule',
+            status: { name: 'Done' },
+            priority: { name: 'Low' },
+            issuetype: { name: 'Sub-task' },
+          },
+        },
+        {
+          id: '10042',
+          key: 'VERS-2758',
+          self: '',
+          fields: {
+            summary: 'Migrate SharedModule',
+            status: { name: 'In Progress' },
+            priority: { name: 'Low' },
+            issuetype: { name: 'Sub-task' },
+          },
+        },
       ],
       issuelinks: [],
       parent: null,
       watches: { self: '', watchCount: 1, isWatching: true },
       votes: { self: '', votes: 0, hasVoted: false },
-      customfield_10020: { id: 2, name: 'Sprint 43', state: 'future', startDate: '2026-03-21', endDate: '2026-04-03', completeDate: null },
+      customfield_10020: {
+        id: 2,
+        name: 'Sprint 43',
+        state: 'future',
+        startDate: '2026-03-21',
+        endDate: '2026-04-03',
+        completeDate: null,
+      },
       customfield_10014: 'VERS-2700',
       customfield_10016: 13,
     },
@@ -425,7 +504,8 @@ const mockIssues = [
     self: `http://localhost:${PORT}/rest/api/2/issue/10005`,
     fields: {
       summary: 'Unit Tests: PolicyService Coverage erhöhen',
-      description: 'Test-Coverage für den PolicyService von aktuell 42% auf mindestens 80% erhöhen.',
+      description:
+        'Test-Coverage für den PolicyService von aktuell 42% auf mindestens 80% erhöhen.',
       issuetype: { id: '3', name: 'Task', subtask: false },
       project: { id: '10000', key: 'VERS', name: 'Versicherung Frontend' },
       status: {
@@ -461,7 +541,14 @@ const mockIssues = [
       parent: null,
       watches: { self: '', watchCount: 1, isWatching: true },
       votes: { self: '', votes: 0, hasVoted: false },
-      customfield_10020: { id: 1, name: 'Sprint 42', state: 'active', startDate: '2026-03-07', endDate: '2026-03-20', completeDate: null },
+      customfield_10020: {
+        id: 1,
+        name: 'Sprint 42',
+        state: 'active',
+        startDate: '2026-03-07',
+        endDate: '2026-03-20',
+        completeDate: null,
+      },
       customfield_10014: null,
       customfield_10016: 3,
     },
@@ -510,6 +597,7 @@ git commit -m "feat: Add mock Jira server with full issue field set"
 ### Task 5: Create Express proxy
 
 **Files:**
+
 - Create: `proxy/index.js`
 
 - [ ] **Step 1: Create `proxy/index.js`**
@@ -578,6 +666,7 @@ git commit -m "feat: Add Express proxy server with PAT auth injection"
 ### Task 6: Update JiraTicket model
 
 **Files:**
+
 - Modify: `src/app/models/work-item.model.ts`
 
 - [ ] **Step 1: Remove `overdue` from the `JiraTicket` interface**
@@ -641,6 +730,7 @@ git commit -m "refactor: Remove overdue field from JiraTicket model"
 ### Task 7: Update app.config.ts
 
 **Files:**
+
 - Modify: `src/app/app.config.ts`
 
 - [ ] **Step 1: Add `provideHttpClient(withFetch())`**
@@ -659,7 +749,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withFetch()),
-  ]
+  ],
 };
 ```
 
@@ -683,6 +773,7 @@ git commit -m "feat: Configure HttpClient with withFetch for zoneless compatibil
 ### Task 8: Create JiraService (TDD)
 
 **Files:**
+
 - Create: `src/app/services/jira.service.spec.ts`
 - Create: `src/app/services/jira.service.ts`
 
@@ -703,10 +794,7 @@ describe('JiraService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(withFetch()),
-        provideHttpClientTesting(),
-      ],
+      providers: [provideHttpClient(withFetch()), provideHttpClientTesting()],
     });
     service = TestBed.inject(JiraService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -716,71 +804,83 @@ describe('JiraService', () => {
 
   it('sends request with JQL containing currentUser()', () => {
     service.getAssignedActiveTickets().subscribe();
-    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
+    const req = httpMock.expectOne((r) => r.url.includes('/rest/api/2/search'));
     expect(req.request.params.get('jql')).toContain('currentUser()');
     req.flush({ issues: [] });
   });
 
   it('maps a Jira issue response to a JiraTicket', () => {
     let result: JiraTicket[] | undefined;
-    service.getAssignedActiveTickets().subscribe(tickets => (result = tickets));
+    service.getAssignedActiveTickets().subscribe((tickets) => (result = tickets));
 
-    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
+    const req = httpMock.expectOne((r) => r.url.includes('/rest/api/2/search'));
     req.flush({
-      issues: [{
-        id: '10001',
-        key: 'VERS-1',
-        self: 'http://localhost:6202/rest/api/2/issue/10001',
-        fields: {
-          summary: 'Test Issue',
-          status: { name: 'In Progress', statusCategory: { key: 'indeterminate', name: 'In Progress' } },
-          priority: { name: 'High' },
-          assignee: { displayName: 'Dominik M.', name: 'dominik' },
-          reporter: { displayName: 'Sarah K.' },
-          description: 'Test description',
-          duedate: '2026-03-20',
-          updated: '2026-03-13T09:15:00.000+0000',
+      issues: [
+        {
+          id: '10001',
+          key: 'VERS-1',
+          self: 'http://localhost:6202/rest/api/2/issue/10001',
+          fields: {
+            summary: 'Test Issue',
+            status: {
+              name: 'In Progress',
+              statusCategory: { key: 'indeterminate', name: 'In Progress' },
+            },
+            priority: { name: 'High' },
+            assignee: { displayName: 'Dominik M.', name: 'dominik' },
+            reporter: { displayName: 'Sarah K.' },
+            description: 'Test description',
+            duedate: '2026-03-20',
+            updated: '2026-03-13T09:15:00.000+0000',
+          },
         },
-      }],
+      ],
     });
 
-    expect(result).toEqual([{
-      type: 'ticket',
-      id: '10001',
-      key: 'VERS-1',
-      summary: 'Test Issue',
-      status: 'In Progress',
-      priority: 'High',
-      assignee: 'Dominik M.',
-      reporter: 'Sarah K.',
-      description: 'Test description',
-      dueDate: '2026-03-20',
-      updatedAt: '2026-03-13T09:15:00.000+0000',
-      url: 'http://localhost:6202/browse/VERS-1',
-    }]);
+    expect(result).toEqual([
+      {
+        type: 'ticket',
+        id: '10001',
+        key: 'VERS-1',
+        summary: 'Test Issue',
+        status: 'In Progress',
+        priority: 'High',
+        assignee: 'Dominik M.',
+        reporter: 'Sarah K.',
+        description: 'Test description',
+        dueDate: '2026-03-20',
+        updatedAt: '2026-03-13T09:15:00.000+0000',
+        url: 'http://localhost:6202/browse/VERS-1',
+      },
+    ]);
   });
 
   it('maps null priority to Medium and null assignee to fallback string', () => {
     let result: JiraTicket[] | undefined;
-    service.getAssignedActiveTickets().subscribe(tickets => (result = tickets));
+    service.getAssignedActiveTickets().subscribe((tickets) => (result = tickets));
 
-    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
+    const req = httpMock.expectOne((r) => r.url.includes('/rest/api/2/search'));
     req.flush({
-      issues: [{
-        id: '10002',
-        key: 'VERS-2',
-        self: 'http://localhost:6202/rest/api/2/issue/10002',
-        fields: {
-          summary: 'No Priority',
-          status: { name: 'In Review', statusCategory: { key: 'indeterminate', name: 'In Progress' } },
-          priority: null,
-          assignee: null,
-          reporter: null,
-          description: null,
-          duedate: null,
-          updated: '2026-03-13T09:15:00.000+0000',
+      issues: [
+        {
+          id: '10002',
+          key: 'VERS-2',
+          self: 'http://localhost:6202/rest/api/2/issue/10002',
+          fields: {
+            summary: 'No Priority',
+            status: {
+              name: 'In Review',
+              statusCategory: { key: 'indeterminate', name: 'In Progress' },
+            },
+            priority: null,
+            assignee: null,
+            reporter: null,
+            description: null,
+            duedate: null,
+            updated: '2026-03-13T09:15:00.000+0000',
+          },
         },
-      }],
+      ],
     });
 
     expect(result![0].priority).toBe('Medium');
@@ -791,18 +891,46 @@ describe('JiraService', () => {
 
   it('maps Highest priority to High and Lowest to Low', () => {
     let result: JiraTicket[] | undefined;
-    service.getAssignedActiveTickets().subscribe(tickets => (result = tickets));
+    service.getAssignedActiveTickets().subscribe((tickets) => (result = tickets));
 
-    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
+    const req = httpMock.expectOne((r) => r.url.includes('/rest/api/2/search'));
     req.flush({
       issues: [
         {
-          id: '1', key: 'A-1', self: 'http://localhost:6202/rest/api/2/issue/1',
-          fields: { summary: 'A', status: { name: 'In Progress', statusCategory: { key: 'indeterminate', name: 'In Progress' } }, priority: { name: 'Highest' }, assignee: null, reporter: null, description: null, duedate: null, updated: '2026-03-13T00:00:00.000+0000' },
+          id: '1',
+          key: 'A-1',
+          self: 'http://localhost:6202/rest/api/2/issue/1',
+          fields: {
+            summary: 'A',
+            status: {
+              name: 'In Progress',
+              statusCategory: { key: 'indeterminate', name: 'In Progress' },
+            },
+            priority: { name: 'Highest' },
+            assignee: null,
+            reporter: null,
+            description: null,
+            duedate: null,
+            updated: '2026-03-13T00:00:00.000+0000',
+          },
         },
         {
-          id: '2', key: 'A-2', self: 'http://localhost:6202/rest/api/2/issue/2',
-          fields: { summary: 'B', status: { name: 'In Progress', statusCategory: { key: 'indeterminate', name: 'In Progress' } }, priority: { name: 'Lowest' }, assignee: null, reporter: null, description: null, duedate: null, updated: '2026-03-13T00:00:00.000+0000' },
+          id: '2',
+          key: 'A-2',
+          self: 'http://localhost:6202/rest/api/2/issue/2',
+          fields: {
+            summary: 'B',
+            status: {
+              name: 'In Progress',
+              statusCategory: { key: 'indeterminate', name: 'In Progress' },
+            },
+            priority: { name: 'Lowest' },
+            assignee: null,
+            reporter: null,
+            description: null,
+            duedate: null,
+            updated: '2026-03-13T00:00:00.000+0000',
+          },
         },
       ],
     });
@@ -813,8 +941,8 @@ describe('JiraService', () => {
 
   it('propagates HTTP errors to the caller', () => {
     let error: unknown;
-    service.getAssignedActiveTickets().subscribe({ error: e => (error = e) });
-    const req = httpMock.expectOne(r => r.url.includes('/rest/api/2/search'));
+    service.getAssignedActiveTickets().subscribe({ error: (e) => (error = e) });
+    const req = httpMock.expectOne((r) => r.url.includes('/rest/api/2/search'));
     req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
     expect(error).toBeTruthy();
   });
@@ -881,7 +1009,7 @@ export class JiraService {
 
     return this.http
       .get<JiraSearchResponse>(`${this.baseUrl}/search`, { params })
-      .pipe(map(response => response.issues.map(issue => this.mapIssue(issue))));
+      .pipe(map((response) => response.issues.map((issue) => this.mapIssue(issue))));
   }
 
   private mapIssue(issue: JiraIssueRaw): JiraTicket {
@@ -924,6 +1052,7 @@ git commit -m "feat: Add JiraService with HTTP mapping and tests"
 ### Task 9: Update WorkDataService (TDD)
 
 **Files:**
+
 - Create: `src/app/services/work-data.service.spec.ts`
 - Modify: `src/app/services/work-data.service.ts`
 
@@ -1016,7 +1145,7 @@ export class WorkDataService {
 
   private readonly tickets$ = this.jira.getAssignedActiveTickets().pipe(
     tap(() => this.ticketsLoading.set(false)),
-    catchError(err => {
+    catchError((err) => {
       console.error('Failed to load Jira tickets:', err);
       this.ticketsError.set(true);
       this.ticketsLoading.set(false);
@@ -1038,7 +1167,8 @@ export class WorkDataService {
       commentCount: 2,
       updatedAt: '2026-03-13T10:30:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/412',
-      description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
+      description:
+        'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
     },
     {
       type: 'pr',
@@ -1051,7 +1181,8 @@ export class WorkDataService {
       commentCount: 0,
       updatedAt: '2026-03-13T08:45:00',
       url: 'https://bitbucket.example.com/projects/VF/repos/versicherung-frontend/pull-requests/415',
-      description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
+      description:
+        'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
     },
     {
       type: 'pr',
@@ -1086,7 +1217,8 @@ export class WorkDataService {
       type: 'todo',
       id: 'td1',
       title: 'Standup-Notizen vorbereiten',
-      description: 'Kurze Zusammenfassung der gestrigen Arbeit und heutige Ziele für das Team-Standup um 09:30 Uhr.',
+      description:
+        'Kurze Zusammenfassung der gestrigen Arbeit und heutige Ziele für das Team-Standup um 09:30 Uhr.',
       done: false,
       createdAt: '2026-03-13T07:00:00',
     },
@@ -1102,7 +1234,8 @@ export class WorkDataService {
       type: 'todo',
       id: 'td3',
       title: 'API-Spec mit Thomas abstimmen',
-      description: 'Offene Fragen zur Schadensmeldungs-API klären: Fehler-Codes, Rate-Limiting, Auth-Header Format.',
+      description:
+        'Offene Fragen zur Schadensmeldungs-API klären: Fehler-Codes, Rate-Limiting, Auth-Header Format.',
       done: false,
       createdAt: '2026-03-12T10:00:00',
     },
@@ -1120,8 +1253,10 @@ export class WorkDataService {
   readonly lastAddedId = signal<string | null>(null);
   private highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly pendingTodoCount = computed(() => this.todos().filter(t => !t.done).length);
-  readonly awaitingReviewCount = computed(() => this.pullRequests().filter(pr => pr.status === 'Awaiting Review').length);
+  readonly pendingTodoCount = computed(() => this.todos().filter((t) => !t.done).length);
+  readonly awaitingReviewCount = computed(
+    () => this.pullRequests().filter((pr) => pr.status === 'Awaiting Review').length,
+  );
 
   select(item: WorkItem): void {
     this.selectedItem.set(item);
@@ -1136,17 +1271,15 @@ export class WorkDataService {
       done: false,
       createdAt: new Date().toISOString(),
     };
-    this.todos.update(todos => [todo, ...todos]);
+    this.todos.update((todos) => [todo, ...todos]);
     if (this.highlightTimer !== null) clearTimeout(this.highlightTimer);
     this.lastAddedId.set(todo.id);
     this.highlightTimer = setTimeout(() => this.lastAddedId.set(null), 500);
   }
 
   toggleTodo(id: string): void {
-    this.todos.update(todos =>
-      todos.map(t => t.id === id ? { ...t, done: !t.done } : t)
-    );
-    const updated = this.todos().find(t => t.id === id);
+    this.todos.update((todos) => todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+    const updated = this.todos().find((t) => t.id === id);
     if (updated && this.selectedItem()?.id === id) {
       this.selectedItem.set(updated);
     }
@@ -1186,9 +1319,7 @@ describe('NavigatorComponent – collapse logic', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [NavigatorComponent],
-      providers: [
-        { provide: WorkDataService, useValue: mockWorkDataService },
-      ],
+      providers: [{ provide: WorkDataService, useValue: mockWorkDataService }],
     }).compileComponents();
   });
 
@@ -1205,7 +1336,7 @@ describe('NavigatorComponent – collapse logic', () => {
   it('reads initial collapsed state from localStorage', () => {
     localStorage.setItem(
       'orbit.navigator.collapsed',
-      JSON.stringify({ tickets: true, prs: false, todos: true })
+      JSON.stringify({ tickets: true, prs: false, todos: true }),
     );
     const fixture = TestBed.createComponent(NavigatorComponent);
     const comp = fixture.componentInstance;
@@ -1288,6 +1419,7 @@ git commit -m "feat: Wire WorkDataService to JiraService with loading and error 
 ### Task 10: Fix ticket-card — compute overdue locally
 
 **Files:**
+
 - Modify: `src/app/components/ticket-card/ticket-card.ts`
 
 - [ ] **Step 1: Replace `ticket().overdue` with a `computed()` signal**
@@ -1305,20 +1437,28 @@ import { JiraTicket } from '../../models/work-item.model';
     <button
       type="button"
       class="group w-full text-left rounded-lg border px-3 py-2.5 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      [class]="selected()
-        ? 'bg-indigo-50 border-indigo-300 shadow-sm'
-        : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm'"
+      [class]="
+        selected()
+          ? 'bg-indigo-50 border-indigo-300 shadow-sm'
+          : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm'
+      "
       (click)="select.emit(ticket())"
       [attr.aria-pressed]="selected()"
       [attr.aria-label]="ticket().key + ': ' + ticket().summary"
     >
       <div class="flex items-start justify-between gap-2">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="font-mono text-xs font-semibold tracking-wide" [class]="selected() ? 'text-indigo-600' : 'text-stone-400'">
+          <span
+            class="font-mono text-xs font-semibold tracking-wide"
+            [class]="selected() ? 'text-indigo-600' : 'text-stone-400'"
+          >
             {{ ticket().key }}
           </span>
           @if (isOverdue()) {
-            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700">Überfällig</span>
+            <span
+              class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-700"
+              >Überfällig</span
+            >
           }
         </div>
         <a
@@ -1329,17 +1469,40 @@ import { JiraTicket } from '../../models/work-item.model';
           [attr.aria-label]="'Öffne ' + ticket().key + ' in Jira'"
           (click)="$event.stopPropagation()"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          </svg>
         </a>
       </div>
 
-      <p class="mt-1 text-sm font-medium leading-snug text-stone-800 line-clamp-2">{{ ticket().summary }}</p>
+      <p class="mt-1 text-sm font-medium leading-snug text-stone-800 line-clamp-2">
+        {{ ticket().summary }}
+      </p>
 
       <div class="mt-2 flex items-center gap-2 flex-wrap">
-        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium" [class]="statusClass()">
+        <span
+          class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium"
+          [class]="statusClass()"
+        >
           {{ ticket().status }}
         </span>
-        <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium" [class]="priorityClass()">
+        <span
+          class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium"
+          [class]="priorityClass()"
+        >
           {{ ticket().priority }}
         </span>
       </div>
@@ -1360,7 +1523,7 @@ export class TicketCardComponent {
     const map: Record<string, string> = {
       'In Progress': 'bg-blue-100 text-blue-700',
       'In Review': 'bg-purple-100 text-purple-700',
-      'Done': 'bg-emerald-100 text-emerald-700',
+      Done: 'bg-emerald-100 text-emerald-700',
       'To Do': 'bg-stone-100 text-stone-600',
     };
     return map[this.ticket().status] ?? 'bg-stone-100 text-stone-600';
@@ -1368,9 +1531,9 @@ export class TicketCardComponent {
 
   priorityClass() {
     const map: Record<string, string> = {
-      'High': 'bg-red-100 text-red-700',
-      'Medium': 'bg-amber-100 text-amber-700',
-      'Low': 'bg-stone-100 text-stone-500',
+      High: 'bg-red-100 text-red-700',
+      Medium: 'bg-amber-100 text-amber-700',
+      Low: 'bg-stone-100 text-stone-500',
     };
     return map[this.ticket().priority] ?? 'bg-stone-100 text-stone-500';
   }
@@ -1397,6 +1560,7 @@ git commit -m "refactor: Compute overdue from dueDate in ticket-card instead of 
 ### Task 11: Add loading and error states to navigator
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.html`
 
 - [ ] **Step 1: Add loading and error states to the tickets section**
@@ -1404,25 +1568,25 @@ git commit -m "refactor: Compute overdue from dueDate in ticket-card instead of 
 In `src/app/components/navigator/navigator.html`, find the `<div id="navigator-tickets-content" ...>` block and replace it with:
 
 ```html
-      <div id="navigator-tickets-content" [hidden]="ticketsCollapsed()">
-        @if (data.ticketsLoading()) {
-          <p class="px-1 py-2 text-xs text-stone-400" aria-live="polite">Tickets werden geladen…</p>
-        } @else if (data.ticketsError()) {
-          <p class="px-1 py-2 text-xs text-red-500" role="alert">Tickets konnten nicht geladen werden.</p>
-        } @else {
-          <ul class="space-y-1.5" role="list">
-            @for (ticket of data.tickets(); track ticket.id) {
-              <li>
-                <app-ticket-card
-                  [ticket]="ticket"
-                  [selected]="isSelected(ticket)"
-                  (select)="selectItem($event)"
-                />
-              </li>
-            }
-          </ul>
-        }
-      </div>
+<div id="navigator-tickets-content" [hidden]="ticketsCollapsed()">
+  @if (data.ticketsLoading()) {
+  <p class="px-1 py-2 text-xs text-stone-400" aria-live="polite">Tickets werden geladen…</p>
+  } @else if (data.ticketsError()) {
+  <p class="px-1 py-2 text-xs text-red-500" role="alert">Tickets konnten nicht geladen werden.</p>
+  } @else {
+  <ul class="space-y-1.5" role="list">
+    @for (ticket of data.tickets(); track ticket.id) {
+    <li>
+      <app-ticket-card
+        [ticket]="ticket"
+        [selected]="isSelected(ticket)"
+        (select)="selectItem($event)"
+      />
+    </li>
+    }
+  </ul>
+  }
+</div>
 ```
 
 - [ ] **Step 2: Run tests**
@@ -1457,6 +1621,7 @@ Expected: terminal shows three concurrent processes starting on ports 6200, 6201
 Navigate to `http://localhost:6200`.
 
 Expected:
+
 - Navigator shows "Tickets werden geladen…" briefly
 - Then shows 5 tickets loaded from the mock server via the proxy
 - Tickets include VERS-2847, VERS-2801, VERS-2799, VERS-2756, VERS-2823

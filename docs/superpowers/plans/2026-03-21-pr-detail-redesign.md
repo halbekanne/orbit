@@ -19,6 +19,7 @@ This chunk restructures pr-detail.ts from flat sections to: enriched sticky head
 ### Task 1: Restructure pr-detail.ts header
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 
 - [ ] **Step 1: Rewrite the header template**
@@ -27,34 +28,61 @@ Replace the entire template (lines 47-188) in pr-detail.ts. The new template str
 
 ```html
 <article [attr.aria-label]="'PR: ' + pr().title">
-
   @if (pr().isDraft) {
-    <div class="bg-amber-50 border-b border-amber-200" role="status">
-      <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span class="text-sm font-medium text-amber-700">Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span>
-      </div>
+  <div class="bg-amber-50 border-b border-amber-200" role="status">
+    <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
+      <svg
+        class="w-4 h-4 text-amber-500 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <span class="text-sm font-medium text-amber-700"
+        >Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span
+      >
     </div>
+  </div>
   }
 
   <header class="sticky top-0 z-10 bg-white border-b border-stone-200 shadow-sm">
     <div class="max-w-2xl mx-auto relative">
-      <div class="absolute left-0 top-0 bottom-0 w-[3px]" [class]="stripeClass()" aria-hidden="true"></div>
+      <div
+        class="absolute left-0 top-0 bottom-0 w-[3px]"
+        [class]="stripeClass()"
+        aria-hidden="true"
+      ></div>
 
       <div class="px-6 pt-5 pb-4 pl-7">
         <!-- Row 1: Repo + Status -->
         <div class="flex items-center gap-2 mb-2 flex-wrap">
-          <span class="font-mono text-xs font-semibold text-stone-400 tracking-wide">{{ pr().fromRef.repository.slug }}</span>
+          <span class="font-mono text-xs font-semibold text-stone-400 tracking-wide"
+            >{{ pr().fromRef.repository.slug }}</span
+          >
           <span class="text-stone-300" aria-hidden="true">&middot;</span>
           <span
             class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border"
             [class]="statusBadgeClass()"
           >
-            <span class="w-1.5 h-1.5 rounded-full" [class]="statusDotClass()" aria-hidden="true"></span>
+            <span
+              class="w-1.5 h-1.5 rounded-full"
+              [class]="statusDotClass()"
+              aria-hidden="true"
+            ></span>
             {{ pr().myReviewStatus }}
           </span>
           @if (pr().isDraft) {
-            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">Entwurf</span>
+          <span
+            class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide"
+            >Entwurf</span
+          >
           }
         </div>
 
@@ -63,42 +91,89 @@ Replace the entire template (lines 47-188) in pr-detail.ts. The new template str
 
         <!-- Row 3: Author + Dates -->
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-stone-200 text-stone-600 text-[9px] font-bold shrink-0" aria-hidden="true">{{ authorInitials() }}</span>
+          <span
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-stone-200 text-stone-600 text-[9px] font-bold shrink-0"
+            aria-hidden="true"
+            >{{ authorInitials() }}</span
+          >
           <p class="text-sm text-stone-400">
             von <span class="text-stone-500 font-medium">{{ pr().author.user.displayName }}</span>
-            <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>erstellt {{ pr().createdDate | date:'dd.MM.yyyy' }}
-            <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>geändert {{ pr().updatedDate | date:'dd.MM.yyyy' }}
+            <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>erstellt {{
+            pr().createdDate | date:'dd.MM.yyyy' }}
+            <span class="text-stone-300 mx-1" aria-hidden="true">&middot;</span>geändert {{
+            pr().updatedDate | date:'dd.MM.yyyy' }}
           </p>
         </div>
 
         <!-- Row 4: Branch Info (moved from separate section) -->
         <div class="flex items-center gap-2 mt-3 flex-wrap">
           <span class="text-sm text-stone-400 font-medium shrink-0">von</span>
-          <code class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 break-all">{{ pr().fromRef.displayId }}</code>
-          <svg class="w-3.5 h-3.5 text-stone-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14m-4-4 4 4-4 4"/></svg>
+          <code
+            class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5 break-all"
+            >{{ pr().fromRef.displayId }}</code
+          >
+          <svg
+            class="w-3.5 h-3.5 text-stone-300 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14m-4-4 4 4-4 4" />
+          </svg>
           @if (isNonDefaultTarget()) {
-            <code class="font-mono text-[13px] text-amber-700 font-semibold bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5">{{ pr().toRef.displayId }}</code>
+          <code
+            class="font-mono text-[13px] text-amber-700 font-semibold bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5"
+            >{{ pr().toRef.displayId }}</code
+          >
           } @else {
-            <code class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5">{{ pr().toRef.displayId }}</code>
+          <code
+            class="font-mono text-[13px] text-stone-600 bg-stone-50 border border-stone-200 rounded px-1.5 py-0.5"
+            >{{ pr().toRef.displayId }}</code
+          >
           }
         </div>
 
         <!-- Row 5: Comments + Tasks (moved from separate section) -->
         @if (pr().commentCount > 0 || pr().openTaskCount > 0) {
-          <div class="flex items-center gap-4 mt-2.5">
-            @if (pr().commentCount > 0) {
-              <div class="flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <span class="text-sm text-stone-500">{{ pr().commentCount }} Kommentar{{ pr().commentCount === 1 ? '' : 'e' }}</span>
-              </div>
-            }
-            @if (pr().openTaskCount > 0) {
-              <div class="flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                <span class="text-sm text-amber-700 font-medium">{{ pr().openTaskCount }} offene{{ pr().openTaskCount === 1 ? 'r Task' : ' Tasks' }}</span>
-              </div>
-            }
+        <div class="flex items-center gap-4 mt-2.5">
+          @if (pr().commentCount > 0) {
+          <div class="flex items-center gap-1.5">
+            <svg
+              class="w-3.5 h-3.5 text-stone-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span class="text-sm text-stone-500"
+              >{{ pr().commentCount }} Kommentar{{ pr().commentCount === 1 ? '' : 'e' }}</span
+            >
           </div>
+          } @if (pr().openTaskCount > 0) {
+          <div class="flex items-center gap-1.5">
+            <svg
+              class="w-3.5 h-3.5 text-amber-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+            <span class="text-sm text-amber-700 font-medium"
+              >{{ pr().openTaskCount }} offene{{ pr().openTaskCount === 1 ? 'r Task' : ' Tasks'
+              }}</span
+            >
+          </div>
+          }
+        </div>
         }
       </div>
     </div>
@@ -114,18 +189,40 @@ Replace the entire template (lines 47-188) in pr-detail.ts. The new template str
         (click)="jiraExpanded.set(!jiraExpanded())"
         [attr.aria-expanded]="jiraExpanded()"
       >
-        <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="jiraExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-        <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/></svg>
-        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Jira-Ticket</span>
+        <svg
+          class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150"
+          [class.rotate-90]="jiraExpanded()"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M4 2l4 4-4 4" />
+        </svg>
+        <svg
+          class="w-4 h-4 text-stone-400 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M7 7h10M7 12h10M7 17h6" />
+        </svg>
+        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider"
+          >Jira-Ticket</span
+        >
         @if (resolvedJiraTicket(); as ticket) {
-          <span class="font-mono text-xs text-indigo-600 font-semibold">{{ ticket.key }}</span>
-          <span class="text-xs text-stone-400">— {{ ticket.status }}</span>
+        <span class="font-mono text-xs text-indigo-600 font-semibold">{{ ticket.key }}</span>
+        <span class="text-xs text-stone-400">— {{ ticket.status }}</span>
         }
       </button>
       @if (jiraExpanded()) {
-        <div class="border-t border-stone-100 px-6 py-4">
-          <app-jira-pr-card [ticket]="jiraTicket()" />
-        </div>
+      <div class="border-t border-stone-100 px-6 py-4">
+        <app-jira-pr-card [ticket]="jiraTicket()" />
+      </div>
       }
     </div>
 
@@ -137,18 +234,43 @@ Replace the entire template (lines 47-188) in pr-detail.ts. The new template str
         (click)="descExpanded.set(!descExpanded())"
         [attr.aria-expanded]="descExpanded()"
       >
-        <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="descExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-        <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
-        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Beschreibung</span>
+        <svg
+          class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150"
+          [class.rotate-90]="descExpanded()"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M4 2l4 4-4 4" />
+        </svg>
+        <svg
+          class="w-4 h-4 text-stone-400 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" />
+          <path d="M16 13H8" />
+          <path d="M16 17H8" />
+          <path d="M10 9H8" />
+        </svg>
+        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider"
+          >Beschreibung</span
+        >
       </button>
       @if (descExpanded()) {
-        <div class="border-t border-stone-100 px-6 pb-5 pt-4">
-          @if (pr().description) {
-            <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
-          } @else {
-            <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
-          }
-        </div>
+      <div class="border-t border-stone-100 px-6 pb-5 pt-4">
+        @if (pr().description) {
+        <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
+        } @else {
+        <p class="text-sm text-stone-400 italic">Keine Beschreibung vorhanden.</p>
+        }
+      </div>
       }
     </div>
 
@@ -163,25 +285,49 @@ Replace the entire template (lines 47-188) in pr-detail.ts. The new template str
         (click)="diffExpanded.set(!diffExpanded())"
         [attr.aria-expanded]="diffExpanded()"
       >
-        <svg class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150" [class.rotate-90]="diffExpanded()" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
-        <svg class="w-4 h-4 text-stone-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
-        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider">Änderungen</span>
+        <svg
+          class="w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-150"
+          [class.rotate-90]="diffExpanded()"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M4 2l4 4-4 4" />
+        </svg>
+        <svg
+          class="w-4 h-4 text-stone-400 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
+          <path d="M15 3v4a2 2 0 0 0 2 2h4" />
+        </svg>
+        <span class="text-xs font-semibold text-stone-400 uppercase tracking-wider"
+          >Änderungen</span
+        >
         @if (diffFileCount() > 0) {
-          <span class="text-xs text-stone-400">{{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}</span>
+        <span class="text-xs text-stone-400"
+          >{{ diffFileCount() }} {{ diffFileCount() === 1 ? 'Datei' : 'Dateien' }}</span
+        >
         }
       </button>
       @if (diffExpanded()) {
-        <div class="border-t border-stone-100 px-6 py-4">
-          @if (diffData() === 'loading') {
-            <p class="text-sm text-stone-400 italic">Änderungen laden...</p>
-          } @else if (diffData() === 'error') {
-            <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
-          } @else if (diffFileCount() === 0) {
-            <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
-          } @else {
-            <div #diffContainer class="overflow-x-auto rounded border border-stone-200"></div>
-          }
-        </div>
+      <div class="border-t border-stone-100 px-6 py-4">
+        @if (diffData() === 'loading') {
+        <p class="text-sm text-stone-400 italic">Änderungen laden...</p>
+        } @else if (diffData() === 'error') {
+        <p class="text-sm text-stone-400 italic">Änderungen konnten nicht geladen werden.</p>
+        } @else if (diffFileCount() === 0) {
+        <p class="text-sm text-stone-400 italic">Keine Änderungen vorhanden.</p>
+        } @else {
+        <div #diffContainer class="overflow-x-auto rounded border border-stone-200"></div>
+        }
+      </div>
       }
     </div>
 
@@ -215,7 +361,7 @@ statusDotClass = computed((): string => {
     'Awaiting Review': 'bg-indigo-400',
     'Needs Re-review': 'bg-amber-500',
     'Changes Requested': 'bg-stone-300',
-    'Approved': 'bg-emerald-500',
+    Approved: 'bg-emerald-500',
     'Approved by Others': 'bg-stone-300',
   };
   return map[this.pr().myReviewStatus] ?? 'bg-stone-300';
@@ -234,6 +380,7 @@ Expected: Some existing tests may need updating since the template changed. Fix 
 - [ ] **Step 4: Update pr-detail tests**
 
 In `src/app/components/pr-detail/pr-detail.spec.ts`, these specific tests will break:
+
 - **`'Änderungen anzeigen (1 Datei)'` text assertion** — the new card header shows file count inline, not as button text. Update to check for `'1 Datei'` in the card header.
 - **`querySelector('button[aria-controls="pr-diff-content"]')` selector** — removed. Use `querySelector('button[aria-expanded]')` within the Änderungen card instead, or find the button by its text content.
 - **`querySelector('#pr-diff-content')` selector** — removed. Check for `diffContainer` via `querySelector('.overflow-x-auto')` inside the card.
@@ -256,6 +403,7 @@ This chunk rewrites the review-findings component to be a self-contained card wi
 ### Task 2: Add animations to global styles
 
 **Files:**
+
 - Modify: `src/styles.css`
 
 - [ ] **Step 1: Add KI-Review animations to styles.css**
@@ -265,45 +413,94 @@ Append after the existing jira-markup styles at the end of `src/styles.css`:
 ```css
 /* ── KI-Review animations ────────────────────────────────────────── */
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 @keyframes orbit-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.15; }
-  50% { transform: scale(1.08); opacity: 0.25; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.25;
+  }
 }
 
 @keyframes thinking-dots {
-  0%, 20% { opacity: 0.3; }
-  50% { opacity: 1; }
-  80%, 100% { opacity: 0.3; }
+  0%,
+  20% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes shimmer-slide {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes check-draw {
-  0% { stroke-dashoffset: 20; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes blink-colon {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0.3; }
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes pop-in {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-up {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cta-shimmer {
@@ -314,11 +511,18 @@ Append after the existing jira-markup styles at the end of `src/styles.css`:
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 70%
+  );
   animation: shimmer-slide 3s ease-in-out infinite;
 }
 
-.pulse-dot { position: relative; }
+.pulse-dot {
+  position: relative;
+}
 .pulse-dot::after {
   content: '';
   position: absolute;
@@ -329,14 +533,28 @@ Append after the existing jira-markup styles at the end of `src/styles.css`:
   animation: pulse-ring 1.5s ease-out infinite;
 }
 
-.thinking-dot:nth-child(1) { animation: thinking-dots 1.4s ease-in-out infinite 0s; }
-.thinking-dot:nth-child(2) { animation: thinking-dots 1.4s ease-in-out infinite 0.2s; }
-.thinking-dot:nth-child(3) { animation: thinking-dots 1.4s ease-in-out infinite 0.4s; }
+.thinking-dot:nth-child(1) {
+  animation: thinking-dots 1.4s ease-in-out infinite 0s;
+}
+.thinking-dot:nth-child(2) {
+  animation: thinking-dots 1.4s ease-in-out infinite 0.2s;
+}
+.thinking-dot:nth-child(3) {
+  animation: thinking-dots 1.4s ease-in-out infinite 0.4s;
+}
 
-.orbit-breathe { animation: orbit-breathe 3s ease-in-out infinite; }
-.slide-in { animation: slide-in-up 0.3s ease-out both; }
-.timer-colon { animation: blink-colon 1s step-end infinite; }
-.pop-in { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.orbit-breathe {
+  animation: orbit-breathe 3s ease-in-out infinite;
+}
+.slide-in {
+  animation: slide-in-up 0.3s ease-out both;
+}
+.timer-colon {
+  animation: blink-colon 1s step-end infinite;
+}
+.pop-in {
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
 .check-animated path {
   stroke-dasharray: 20;
   stroke-dashoffset: 0;
@@ -353,11 +571,13 @@ style: add KI-Review animations to global styles
 ### Task 3: Rewrite review-findings component
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.ts`
 
 This is the largest change. The component becomes a self-contained card that handles all 5 states. It absorbs pipeline rendering (no longer delegates to review-pipeline as a separate section — though it can still use it as a child for the collapsible pipeline details in the done state).
 
 Key changes to the template:
+
 1. Wrap everything in the card shell (`bg-white rounded-xl border shadow-sm`)
 2. Card header shows: chevron + icon + "KI-REVIEW" + state-specific content (idle text / running indicator / severity pills / error badge)
 3. **Idle state**: CTA with orbit illustration + "Review starten" button with shimmer
@@ -367,6 +587,7 @@ Key changes to the template:
 7. **Error state**: Friendly error with retry button
 
 Key changes to the TypeScript:
+
 1. Add `sectionExpanded = signal(true)` for card toggle
 2. Add `triggerReview` output (or inject CosiReviewService directly)
 3. Add computed for severity counts (for the header pills)
@@ -462,6 +683,7 @@ Replace the entire template with the new card-based layout implementing all 5 st
   5. `review === 'idle'` → CTA with "Review starten" (this is the default card body when section is open and no review has run)
 
 Typography fixes applied everywhere:
+
 - Finding detail text: `text-sm` (14px) not `text-xs`
 - Code snippets: `bg-stone-50 border border-stone-200 text-stone-700` (warm light) not `bg-stone-900 text-stone-100` (dark)
 - Finding suggestion text: `text-sm` not `text-xs`
@@ -473,6 +695,7 @@ Typography fixes applied everywhere:
 
 Run: `cd /Users/dominik/dev/other/orbit && npx ng test --no-watch`
 Update `review-findings.spec.ts` — these specific tests will break:
+
 - **`'does not render when idle'`** — WRONG for new design. Idle now renders the CTA card. Change to: `'shows CTA when idle'` and assert the "Review starten" button exists.
 - **`'shows loading state'` / `'KI-Review läuft'`** — the running state no longer shows this text. Assert the progress bar and "Analyse läuft..." text instead.
 - **`'Review konnte nicht durchgeführt werden'`** — the error state now shows `'Review konnte nicht durchgeführt werden'` (title) + retry button. Update to assert the retry button exists.
@@ -488,9 +711,11 @@ feat(review-findings): redesign as self-contained card with 5 states
 ### Task 4: Update review-pipeline component
 
 **Files:**
+
 - Modify: `src/app/components/review-pipeline/review-pipeline.ts`
 
 The pipeline component is now rendered INSIDE the review-findings card as a collapsible details section, not as its own bordered section. It needs to:
+
 1. Remove its own `border-b border-stone-100` section wrapper and `max-w-2xl mx-auto px-6 py-5` padding (parent handles this now)
 2. Merge the debug view pattern: single "Details anzeigen" toggle per agent instead of separate "Denkprozess"/"JSON" toggles
 3. Add agent task descriptions
@@ -499,11 +724,12 @@ The pipeline component is now rendered INSIDE the review-findings card as a coll
 - [ ] **Step 1: Simplify the template wrapper**
 
 Remove the outer `<section>` with borders and padding. The component now renders just:
+
 ```html
 <div class="border-b border-stone-100">
-  <button ...> <!-- pipeline toggle header --> </button>
+  <button ...><!-- pipeline toggle header --></button>
   @if (sectionOpen()) {
-    <div ...> <!-- pipeline content --> </div>
+  <div ...><!-- pipeline content --></div>
   }
 </div>
 ```
@@ -514,39 +740,60 @@ For each agent, replace the separate "Denkprozess anzeigen" and "JSON anzeigen" 
 
 ```html
 @if (agent.thoughts || agent.rawResponse != null) {
-  <div class="mt-1.5">
-    <button
-      type="button"
-      class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
-      (click)="toggleAgentDetails(agent.agent)"
+<div class="mt-1.5">
+  <button
+    type="button"
+    class="text-[11px] text-stone-400 font-medium cursor-pointer hover:text-stone-600 inline-flex items-center gap-1"
+    (click)="toggleAgentDetails(agent.agent)"
+  >
+    <svg
+      class="w-3 h-3 transition-transform duration-150"
+      [class.rotate-90]="isAgentDetailsOpen(agent.agent)"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
     >
-      <svg class="w-3 h-3 transition-transform duration-150" [class.rotate-90]="isAgentDetailsOpen(agent.agent)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2l4 4-4 4"/></svg>
-      Details anzeigen
-    </button>
-    @if (isAgentDetailsOpen(agent.agent)) {
-      <div class="mt-2 space-y-2">
-        @if (agent.thoughts) {
-          <div>
-            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Denkprozess</span>
-            <pre class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed">{{ agent.thoughts }}</pre>
-          </div>
-        }
-        @if (agent.rawResponse != null) {
-          <div>
-            <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">JSON-Antwort</span>
-            <!-- Exception: JSON debug view stays dark to visually distinguish raw debug data from content -->
-            <pre class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48">{{ agent.rawResponse | json }}</pre>
-          </div>
-        }
-      </div>
+      <path d="M4 2l4 4-4 4" />
+    </svg>
+    Details anzeigen
+  </button>
+  @if (isAgentDetailsOpen(agent.agent)) {
+  <div class="mt-2 space-y-2">
+    @if (agent.thoughts) {
+    <div>
+      <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider"
+        >Denkprozess</span
+      >
+      <pre
+        class="mt-1 bg-stone-50 border border-stone-200 text-stone-600 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48 whitespace-pre-wrap leading-relaxed"
+      >
+{{ agent.thoughts }}</pre
+      >
+    </div>
+    } @if (agent.rawResponse != null) {
+    <div>
+      <span class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider"
+        >JSON-Antwort</span
+      >
+      <!-- Exception: JSON debug view stays dark to visually distinguish raw debug data from content -->
+      <pre
+        class="mt-1 bg-stone-900 text-stone-300 font-mono text-[11px] p-3 rounded-md overflow-x-auto max-h-48"
+      >
+{{ agent.rawResponse | json }}</pre
+      >
+    </div>
     }
   </div>
+  }
+</div>
 }
 ```
 
 - [ ] **Step 3: Merge toggle state — replace separate Sets with single openAgentDetails Set**
 
 In the TypeScript class, replace `openAgentThoughts` and `openAgentJsons` with single:
+
 ```typescript
 private readonly openAgentDetails = signal<Set<string>>(new Set());
 
@@ -609,42 +856,58 @@ This chunk fixes code block styling consistency (warm light everywhere), updates
 ### Task 5: Fix code snippet styling in review findings
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.ts`
 
 - [ ] **Step 1: Change code snippet classes**
 
 In the findings template, change the code snippet `<pre>` from:
+
 ```
 bg-stone-900 text-stone-100
 ```
+
 to:
+
 ```
 bg-stone-50 border border-stone-200 text-stone-700
 ```
 
 Full line should be:
+
 ```html
-<pre class="font-mono text-[13px] bg-stone-50 border border-stone-200 text-stone-700 rounded-md px-3 py-2 mb-2 overflow-x-auto whitespace-pre-wrap">{{ finding.codeSnippet }}</pre>
+<pre
+  class="font-mono text-[13px] bg-stone-50 border border-stone-200 text-stone-700 rounded-md px-3 py-2 mb-2 overflow-x-auto whitespace-pre-wrap"
+>
+{{ finding.codeSnippet }}</pre
+>
 ```
 
 - [ ] **Step 2: Increase finding text sizes**
 
 Change finding detail container from `text-xs` to `text-sm`:
+
 ```html
-<div class="bg-stone-50 rounded px-3 py-2 text-sm text-stone-600 leading-relaxed" [innerHTML]="finding.detail | inlineCode"></div>
+<div
+  class="bg-stone-50 rounded px-3 py-2 text-sm text-stone-600 leading-relaxed"
+  [innerHTML]="finding.detail | inlineCode"
+></div>
 ```
 
 Change suggestion text from `text-xs` to `text-sm`:
+
 ```html
-<div class="mt-1.5 text-sm text-stone-600">
+<div class="mt-1.5 text-sm text-stone-600"></div>
 ```
 
 Change severity badges from `text-[10px]` to `text-[11px]`:
+
 ```html
-<span class="text-[11px] px-2 py-0.5 rounded border font-semibold" ...>
+<span class="text-[11px] px-2 py-0.5 rounded border font-semibold" ...></span>
 ```
 
 Add `pr-2` to line number:
+
 ```html
 <span class="font-mono text-xs text-stone-400 ml-auto pr-2">Zeile {{ finding.line }}</span>
 ```
@@ -652,13 +915,17 @@ Add `pr-2` to line number:
 - [ ] **Step 3: Fix file path truncation**
 
 Change file path from `text-ellipsis overflow-hidden whitespace-nowrap` to `break-all leading-snug`:
+
 ```html
-<span class="font-mono text-sm text-stone-700 min-w-0 break-all leading-snug">{{ group.file }}</span>
+<span class="font-mono text-sm text-stone-700 min-w-0 break-all leading-snug"
+  >{{ group.file }}</span
+>
 ```
 
 - [ ] **Step 4: Add subtle background tint per severity on findings**
 
 Add severity-specific background to finding stripes:
+
 ```typescript
 findingStripeClass(severity: string): string {
   switch (severity) {
@@ -683,6 +950,7 @@ fix(review-findings): consistent warm-light code blocks, readable typography, fu
 ### Task 6: Wire up review trigger from idle CTA
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.ts`
 
 - [ ] **Step 1: Inject CosiReviewService and wire CTA button**
@@ -696,6 +964,7 @@ private readonly cosiReview = inject(CosiReviewService);
 In the idle CTA button: `(click)="cosiReview.triggerReview()"`.
 
 The button should be disabled when `!cosiReview.canReview()`:
+
 ```html
 <button
   [disabled]="!cosiReview.canReview()"
@@ -703,7 +972,7 @@ The button should be disabled when `!cosiReview.canReview()`:
   class="..."
   [class.opacity-50]="!cosiReview.canReview()"
   [class.cursor-not-allowed]="!cosiReview.canReview()"
->
+></button>
 ```
 
 - [ ] **Step 2: Commit**
@@ -715,18 +984,25 @@ feat(review-findings): wire up review trigger from idle CTA
 ### Task 7: Final visual polish
 
 **Files:**
+
 - Modify: `src/styles.css`
 
 - [ ] **Step 1: Update Jira noformat to warm light theme**
 
 Change `.jira-markup .jira-noformat` from dark to warm light to match the rest:
+
 ```css
 .jira-markup .jira-noformat {
-  background: rgb(250 250 249); color: rgb(68 64 60);
+  background: rgb(250 250 249);
+  color: rgb(68 64 60);
   border: 1px solid rgb(231 229 228);
-  border-radius: 0.5rem; padding: 0.875rem 1rem; overflow-x: auto;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
-  font-size: 0.8125rem; line-height: 1.6; margin: 0.75rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: 0.75rem 0;
 }
 ```
 
@@ -739,6 +1015,7 @@ Expected: ALL PASS
 
 Run: `cd /Users/dominik/dev/other/orbit && npx ng serve`
 Open browser and verify:
+
 1. Header shows branch info, comments/tasks integrated
 2. Cards have `space-y-3` gaps, rounded-xl borders
 3. Jira + Änderungen cards start collapsed, Beschreibung + KI-Review start open

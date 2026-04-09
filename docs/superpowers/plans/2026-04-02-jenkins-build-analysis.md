@@ -38,6 +38,7 @@
 ### Task 1: Add TypeScript Interfaces
 
 **Files:**
+
 - Modify: `src/app/builds/jenkins.model.ts`
 
 - [ ] **Step 1: Add BuildAnalysisResult and BuildAnalysisRequest interfaces**
@@ -90,6 +91,7 @@ git commit -m "feat(builds): add build analysis interfaces"
 ### Task 2: Server — Build Analysis Orchestration
 
 **Files:**
+
 - Create: `server/build-analysis.js`
 
 - [ ] **Step 1: Create build-analysis.js**
@@ -155,7 +157,9 @@ function buildUserPrompt(jenkinsfile, stageName, stageLog) {
 }
 
 function parseRepoMapping(configXml) {
-  const browserUrlMatch = configXml.match(/<browser class="[^"]*BitbucketServer">\s*<url>([^<]+)<\/url>/);
+  const browserUrlMatch = configXml.match(
+    /<browser class="[^"]*BitbucketServer">\s*<url>([^<]+)<\/url>/,
+  );
   const scriptPathMatch = configXml.match(/<scriptPath>([^<]+)<\/scriptPath>/);
 
   if (!browserUrlMatch) return null;
@@ -216,7 +220,7 @@ async function fetchJenkinsfile(mapping, branch, { getSettings }) {
     if (!response.ok) return null;
     const data = await response.json();
     if (data.lines) {
-      return data.lines.map(l => l.text).join('\n');
+      return data.lines.map((l) => l.text).join('\n');
     }
     return null;
   } catch {
@@ -237,12 +241,17 @@ async function runBuildAnalysis({ jobPath, branch, failedStage, stageLog }, { ge
   const systemPrompt = buildSystemPrompt(!!jenkinsfile);
   const userPrompt = buildUserPrompt(jenkinsfile, failedStage.name, stageLog);
 
-  const { result } = await callAi(userPrompt, systemPrompt, {
-    temperature: 0.2,
-    maxOutputTokens: 8192,
-    thinkingConfig: { thinkingBudget: 8192, includeThoughts: false },
-    responseSchema: BUILD_ANALYSIS_SCHEMA,
-  }, { vertexAi });
+  const { result } = await callAi(
+    userPrompt,
+    systemPrompt,
+    {
+      temperature: 0.2,
+      maxOutputTokens: 8192,
+      thinkingConfig: { thinkingBudget: 8192, includeThoughts: false },
+      responseSchema: BUILD_ANALYSIS_SCHEMA,
+    },
+    { vertexAi },
+  );
 
   return {
     ...result,
@@ -270,6 +279,7 @@ git commit -m "feat(server): add build analysis orchestration with config.xml pa
 ### Task 3: Server — Build Analysis Route
 
 **Files:**
+
 - Create: `server/routes/build-analysis-routes.js`
 - Modify: `server/index.js`
 
@@ -286,7 +296,9 @@ function createBuildAnalysisRoutes({ getSettings }) {
   router.post('/api/ai/build-analysis', json({ limit: '2mb' }), async (req, res) => {
     const { jobPath, branch, buildNumber, failedStage, stageLog } = req.body;
     if (!jobPath || !branch || !buildNumber || !failedStage || !stageLog) {
-      return res.status(400).json({ error: 'jobPath, branch, buildNumber, failedStage and stageLog are required' });
+      return res
+        .status(400)
+        .json({ error: 'jobPath, branch, buildNumber, failedStage and stageLog are required' });
     }
 
     try {
@@ -342,6 +354,7 @@ git commit -m "feat(server): add build analysis route POST /api/ai/build-analysi
 ### Task 4: Mock — Build Analysis Scenarios
 
 **Files:**
+
 - Modify: `server/ai-mock.js`
 - Modify: `mock-server/jenkins.js`
 - Modify: `mock-server/bitbucket.js`
@@ -353,29 +366,37 @@ Add at the end of the file, before the final `module.exports`:
 ```javascript
 const BUILD_ANALYSIS_SCENARIOS = [
   {
-    cause: 'npm-Dependency @angular/core@19.2.0 nicht auflösbar — Version existiert nicht in der Registry.',
-    solution: 'Korrigiere die Version in package.json auf 19.1.4 und generiere package-lock.json neu mit npm install.',
+    cause:
+      'npm-Dependency @angular/core@19.2.0 nicht auflösbar — Version existiert nicht in der Registry.',
+    solution:
+      'Korrigiere die Version in package.json auf 19.1.4 und generiere package-lock.json neu mit npm install.',
     evidence: {
       source: 'stage-log',
-      snippet: '[10:23:15] npm ERR! ERESOLVE could not resolve\nnpm ERR! Found: @angular/core@19.2.0\nnpm ERR! No matching version found for @angular/core@19.2.0',
+      snippet:
+        '[10:23:15] npm ERR! ERESOLVE could not resolve\nnpm ERR! Found: @angular/core@19.2.0\nnpm ERR! No matching version found for @angular/core@19.2.0',
     },
     jenkinsfileAvailable: true,
   },
   {
-    cause: 'Unit-Test LoginComponent fehlgeschlagen — erwarteter Redirect zu /dashboard, tatsächlich /home.',
-    solution: 'Passe den erwarteten Redirect-Pfad im Test login.component.spec.ts auf /home an, oder korrigiere die Route in app.routes.ts.',
+    cause:
+      'Unit-Test LoginComponent fehlgeschlagen — erwarteter Redirect zu /dashboard, tatsächlich /home.',
+    solution:
+      'Passe den erwarteten Redirect-Pfad im Test login.component.spec.ts auf /home an, oder korrigiere die Route in app.routes.ts.',
     evidence: {
       source: 'stage-log',
-      snippet: 'FAILED LoginComponent > should redirect after login\n  Expected: "/dashboard"\n  Received: "/home"',
+      snippet:
+        'FAILED LoginComponent > should redirect after login\n  Expected: "/dashboard"\n  Received: "/home"',
     },
     jenkinsfileAvailable: true,
   },
   {
-    cause: 'Deploy-Server test-server-03.internal:8443 nicht erreichbar — Connection refused nach 3 Versuchen.',
+    cause:
+      'Deploy-Server test-server-03.internal:8443 nicht erreichbar — Connection refused nach 3 Versuchen.',
     solution: 'Prüfe ob test-server-03 läuft und Port 8443 offen ist. Starte den Build danach neu.',
     evidence: {
       source: 'stage-log',
-      snippet: '[14:24:23] ERROR: Connection refused: test-server-03.internal:8443\n[14:24:23] ERROR: Deploy failed after 3 retries',
+      snippet:
+        '[14:24:23] ERROR: Connection refused: test-server-03.internal:8443\n[14:24:23] ERROR: Deploy failed after 3 retries',
     },
     jenkinsfileAvailable: false,
   },
@@ -383,7 +404,8 @@ const BUILD_ANALYSIS_SCENARIOS = [
 
 async function runMockBuildAnalysis() {
   await delay(1500, 2500);
-  const scenario = BUILD_ANALYSIS_SCENARIOS[Math.floor(Math.random() * BUILD_ANALYSIS_SCENARIOS.length)];
+  const scenario =
+    BUILD_ANALYSIS_SCENARIOS[Math.floor(Math.random() * BUILD_ANALYSIS_SCENARIOS.length)];
   return { ...scenario };
 }
 ```
@@ -490,6 +512,7 @@ git commit -m "feat(mocks): add build analysis mock scenarios and Jenkins/Bitbuc
 ### Task 5: Frontend — BuildAnalysisService
 
 **Files:**
+
 - Create: `src/app/builds/build-analysis.service.ts`
 
 - [ ] **Step 1: Create the service**
@@ -566,6 +589,7 @@ git commit -m "feat(builds): add BuildAnalysisService with cache and state manag
 ### Task 6: Frontend — BuildAnalysisComponent
 
 **Files:**
+
 - Create: `src/app/builds/build-analysis/build-analysis.ts`
 
 - [ ] **Step 1: Create the component**
@@ -584,56 +608,105 @@ import { BadgeComponent } from '../../shared/badge/badge';
   template: `
     @switch (analysisService.state().status) {
       @case ('not-configured') {
-        <div class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5">
+        <div
+          class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5"
+        >
           <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Analyse</span>
+            <span
+              class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+              >KI-Analyse</span
+            >
             <orbit-badge color="primary" size="sm">Beta</orbit-badge>
           </div>
-          <p class="text-sm text-[var(--color-text-muted)] mb-3">Vertex AI ist nicht konfiguriert.</p>
+          <p class="text-sm text-[var(--color-text-muted)] mb-3">
+            Vertex AI ist nicht konfiguriert.
+          </p>
           <button
             type="button"
             class="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-all bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)] hover:shadow-sm active:scale-[0.97]"
-            (click)="openSettings()">
+            (click)="openSettings()"
+          >
             Einstellungen öffnen
           </button>
         </div>
       }
       @case ('loading') {
-        <div class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5">
+        <div
+          class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5"
+        >
           <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Analyse</span>
+            <span
+              class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+              >KI-Analyse</span
+            >
             <orbit-badge color="primary" size="sm">Beta</orbit-badge>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-[var(--color-primary-solid)] animate-pulse"></span>
-            <span class="text-sm text-[var(--color-text-muted)]">Fehlerursache wird analysiert…</span>
+            <span class="text-sm text-[var(--color-text-muted)]"
+              >Fehlerursache wird analysiert…</span
+            >
           </div>
         </div>
       }
       @case ('result') {
-        <div class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] overflow-hidden">
-          <div class="flex items-center gap-2 px-5 py-3 border-b border-[var(--color-border-subtle)]">
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Analyse</span>
+        <div
+          class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-5 py-3 border-b border-[var(--color-border-subtle)]"
+          >
+            <span
+              class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+              >KI-Analyse</span
+            >
             <orbit-badge color="primary" size="sm">Beta</orbit-badge>
           </div>
           <div class="px-5 py-4 space-y-4">
             <div>
-              <h4 class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1">Ursache</h4>
-              <p class="text-sm text-[var(--color-text-body)] leading-relaxed">{{ result().cause }}</p>
+              <h4
+                class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1"
+              >
+                Ursache
+              </h4>
+              <p class="text-sm text-[var(--color-text-body)] leading-relaxed">
+                {{ result().cause }}
+              </p>
             </div>
             <div>
-              <h4 class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1">Lösung</h4>
-              <p class="text-sm text-[var(--color-text-body)] leading-relaxed">{{ result().solution }}</p>
+              <h4
+                class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1"
+              >
+                Lösung
+              </h4>
+              <p class="text-sm text-[var(--color-text-body)] leading-relaxed">
+                {{ result().solution }}
+              </p>
             </div>
             <div>
-              <h4 class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1">Betroffene Stelle</h4>
-              <div class="rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-danger-border)] border-l-4 border-l-[var(--color-danger-solid)] overflow-hidden">
-                <div class="p-3 text-xs font-mono text-[var(--color-text-body)] whitespace-pre-wrap leading-5">{{ result().evidence.snippet }}</div>
+              <h4
+                class="text-xs font-semibold text-[var(--color-text-heading)] uppercase tracking-wider mb-1"
+              >
+                Betroffene Stelle
+              </h4>
+              <div
+                class="rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-danger-border)] border-l-4 border-l-[var(--color-danger-solid)] overflow-hidden"
+              >
+                <div
+                  class="p-3 text-xs font-mono text-[var(--color-text-body)] whitespace-pre-wrap leading-5"
+                >
+                  {{ result().evidence.snippet }}
+                </div>
               </div>
-              <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block">Quelle: {{ result().evidence.source === 'stage-log' ? 'Stage-Log' : 'Jenkinsfile' }}</span>
+              <span class="text-[10px] text-[var(--color-text-muted)] mt-1 block"
+                >Quelle:
+                {{ result().evidence.source === 'stage-log' ? 'Stage-Log' : 'Jenkinsfile' }}</span
+              >
             </div>
           </div>
-          <div class="flex items-center justify-between px-5 py-2.5 border-t border-[var(--color-border-subtle)]">
+          <div
+            class="flex items-center justify-between px-5 py-2.5 border-t border-[var(--color-border-subtle)]"
+          >
             <span class="text-[10px] text-[var(--color-text-muted)]">
               @if (!result().jenkinsfileAvailable) {
                 Analyse ohne Jenkinsfile-Kontext
@@ -644,23 +717,30 @@ import { BadgeComponent } from '../../shared/badge/badge';
             <button
               type="button"
               class="px-2 py-0.5 rounded text-[10px] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)] cursor-pointer hover:text-[var(--color-text-heading)] transition-colors"
-              (click)="onReanalyze()">
+              (click)="onReanalyze()"
+            >
               ↻ Neu analysieren
             </button>
           </div>
         </div>
       }
       @case ('error') {
-        <div class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5">
+        <div
+          class="rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-5"
+        >
           <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">KI-Analyse</span>
+            <span
+              class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+              >KI-Analyse</span
+            >
             <orbit-badge color="primary" size="sm">Beta</orbit-badge>
           </div>
           <p class="text-sm text-[var(--color-danger-text)] mb-3">{{ errorMessage() }}</p>
           <button
             type="button"
             class="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-all bg-[var(--color-bg-surface)] border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:border-[var(--color-border-default)] hover:shadow-sm active:scale-[0.97]"
-            (click)="onReanalyze()">
+            (click)="onReanalyze()"
+          >
             Erneut versuchen
           </button>
         </div>
@@ -706,6 +786,7 @@ git commit -m "feat(builds): add BuildAnalysisComponent with all UI states"
 ### Task 7: Frontend — Integrate into BuildDetailComponent
 
 **Files:**
+
 - Modify: `src/app/builds/build-detail/build-detail.ts`
 - Modify: `src/app/builds/build-detail/build-detail.html`
 
@@ -792,7 +873,7 @@ Insert the build analysis component in the overview tab, between the description
 
 ```html
 @if (analysisRequest(); as req) {
-  <app-build-analysis [request]="req" />
+<app-build-analysis [request]="req" />
 }
 ```
 
@@ -813,6 +894,7 @@ git commit -m "feat(builds): integrate build analysis into build detail view"
 ### Task 8: Unit Tests
 
 **Files:**
+
 - Create: `src/app/builds/build-analysis.service.spec.ts`
 - Create: `server/build-analysis.spec.js`
 
@@ -913,10 +995,12 @@ describe('BuildAnalysisService', () => {
     });
 
     service.analyze(mockRequest);
-    httpMock.expectOne('http://localhost:6201/api/ai/build-analysis').flush(
-      { error: 'Vertex AI nicht erreichbar' },
-      { status: 500, statusText: 'Internal Server Error' },
-    );
+    httpMock
+      .expectOne('http://localhost:6201/api/ai/build-analysis')
+      .flush(
+        { error: 'Vertex AI nicht erreichbar' },
+        { status: 500, statusText: 'Internal Server Error' },
+      );
     TestBed.tick();
 
     const state = service.state();
@@ -1001,6 +1085,7 @@ git commit -m "test(builds): add unit tests for BuildAnalysisService and parseRe
 - [ ] **Step 1: Start all services**
 
 Run in separate terminals or background:
+
 ```bash
 node mock-server/jenkins.js &
 node mock-server/bitbucket.js &
@@ -1027,6 +1112,7 @@ Expected: JSON with `cause`, `solution`, `evidence` fields
 
 Open http://localhost:6200 → Builds → Click on a failed build (red status).
 Verify:
+
 1. KI-Analyse section appears in Overview tab with loading animation
 2. After ~2s, analysis result shows: Ursache, Lösung, Betroffene Stelle
 3. "Neu analysieren" button works

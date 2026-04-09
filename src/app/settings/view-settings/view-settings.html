@@ -1,6 +1,10 @@
 <!-- Left column — Section Navigation -->
-<nav class="sticky top-0 shrink-0 w-56 h-full py-8 pl-8 pr-4 overflow-y-auto border-r border-[var(--color-border-subtle)]">
-  <h2 class="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-6">Einstellungen</h2>
+<nav
+  class="sticky top-0 shrink-0 w-56 h-full py-8 pl-8 pr-4 overflow-y-auto border-r border-[var(--color-border-subtle)]"
+>
+  <h2 class="text-xs uppercase tracking-wider text-[var(--color-text-muted)] font-semibold mb-6">
+    Einstellungen
+  </h2>
 
   @for (section of sections; track section.id) {
     <div class="mb-4">
@@ -10,10 +14,13 @@
         [class.text-violet-400]="activeSection() === section.id"
         [class.text-[var(--color-text-body)]]="activeSection() !== section.id"
         [class.hover:text-[var(--color-text-heading)]]="activeSection() !== section.id"
-        (click)="scrollTo(section.id)">
-        <span class="w-0.5 h-4 rounded-full shrink-0 transition-colors"
+        (click)="scrollTo(section.id)"
+      >
+        <span
+          class="w-0.5 h-4 rounded-full shrink-0 transition-colors"
           [class.bg-violet-400]="activeSection() === section.id"
-          [class.bg-transparent]="activeSection() !== section.id"></span>
+          [class.bg-transparent]="activeSection() !== section.id"
+        ></span>
         {{ section.label }}
       </button>
 
@@ -24,7 +31,8 @@
           [class.text-violet-400]="activeSection() === child.id"
           [class.text-[var(--color-text-muted)]]="activeSection() !== child.id"
           [class.hover:text-[var(--color-text-body)]]="activeSection() !== child.id"
-          (click)="scrollTo(child.id)">
+          (click)="scrollTo(child.id)"
+        >
           <span class="mr-1.5 text-[var(--color-text-muted)]">›</span>{{ child.label }}
         </button>
       }
@@ -36,14 +44,17 @@
 <div class="flex-1 flex flex-col overflow-hidden">
   <div class="flex-1 overflow-y-auto py-8 px-8" (scroll)="onContentScroll($event)">
     <div class="max-w-2xl">
-
       <!-- Section: Verbindungen -->
       <section data-section="verbindungen" id="section-verbindungen" class="mb-12">
         <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Verbindungen</h3>
         <p class="text-sm text-[var(--color-text-muted)] mb-5">Zugangsdaten für externe Dienste</p>
 
         <!-- Jira -->
-        <div data-section="jira" id="section-jira" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+        <div
+          data-section="jira"
+          id="section-jira"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4"
+        >
           <h4 class="font-bold text-[var(--color-text-heading)] mb-4">Jira</h4>
 
           <div class="mb-4">
@@ -55,7 +66,8 @@
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               placeholder="https://jira.example.com"
               [value]="draft().connections.jira.baseUrl"
-              (input)="updateDraft(d => d.connections.jira.baseUrl = $any($event.target).value)">
+              (input)="updateDraft(d => d.connections.jira.baseUrl = $any($event.target).value)"
+            />
           </div>
 
           <div>
@@ -67,20 +79,28 @@
                 [type]="showJiraToken() ? 'text' : 'password'"
                 class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
                 [value]="draft().connections.jira.apiKey"
-                (input)="updateDraft(d => d.connections.jira.apiKey = $any($event.target).value)">
+                (input)="updateDraft(d => d.connections.jira.apiKey = $any($event.target).value)"
+              />
               <button
                 type="button"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
-                (click)="showJiraToken.set(!showJiraToken())">
+                (click)="showJiraToken.set(!showJiraToken())"
+              >
                 {{ showJiraToken() ? 'Verbergen' : 'Anzeigen' }}
               </button>
             </div>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Erstelle einen Token in deinen Jira-Profileinstellungen</p>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">
+              Erstelle einen Token in deinen Jira-Profileinstellungen
+            </p>
           </div>
         </div>
 
         <!-- Bitbucket -->
-        <div data-section="bitbucket" id="section-bitbucket" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+        <div
+          data-section="bitbucket"
+          id="section-bitbucket"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4"
+        >
           <h4 class="font-bold text-[var(--color-text-heading)] mb-4">Bitbucket</h4>
 
           <div class="mb-4">
@@ -92,7 +112,8 @@
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               placeholder="https://bitbucket.example.com"
               [value]="draft().connections.bitbucket.baseUrl"
-              (input)="updateDraft(d => d.connections.bitbucket.baseUrl = $any($event.target).value)">
+              (input)="updateDraft(d => d.connections.bitbucket.baseUrl = $any($event.target).value)"
+            />
           </div>
 
           <div class="mb-4">
@@ -104,11 +125,13 @@
                 [type]="showBitbucketToken() ? 'text' : 'password'"
                 class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
                 [value]="draft().connections.bitbucket.apiKey"
-                (input)="updateDraft(d => d.connections.bitbucket.apiKey = $any($event.target).value)">
+                (input)="updateDraft(d => d.connections.bitbucket.apiKey = $any($event.target).value)"
+              />
               <button
                 type="button"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
-                (click)="showBitbucketToken.set(!showBitbucketToken())">
+                (click)="showBitbucketToken.set(!showBitbucketToken())"
+              >
                 {{ showBitbucketToken() ? 'Verbergen' : 'Anzeigen' }}
               </button>
             </div>
@@ -122,16 +145,26 @@
               type="text"
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               [value]="draft().connections.bitbucket.userSlug"
-              (input)="updateDraft(d => d.connections.bitbucket.userSlug = $any($event.target).value)">
-            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Dein Bitbucket-Benutzername, zu finden in deinem Profil</p>
+              (input)="updateDraft(d => d.connections.bitbucket.userSlug = $any($event.target).value)"
+            />
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">
+              Dein Bitbucket-Benutzername, zu finden in deinem Profil
+            </p>
           </div>
         </div>
 
         <!-- Jenkins -->
-        <div data-section="jenkins" id="section-jenkins" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+        <div
+          data-section="jenkins"
+          id="section-jenkins"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4"
+        >
           <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-[var(--color-text-heading)]">Jenkins</h4>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
+            <span
+              class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
+              >Optional</span
+            >
           </div>
 
           <div class="mb-4">
@@ -141,7 +174,8 @@
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               placeholder="https://jenkins.example.com"
               [value]="draft().connections.jenkins.baseUrl"
-              (input)="updateDraft(d => d.connections.jenkins.baseUrl = $any($event.target).value)">
+              (input)="updateDraft(d => d.connections.jenkins.baseUrl = $any($event.target).value)"
+            />
           </div>
 
           <div class="mb-4">
@@ -150,7 +184,8 @@
               type="text"
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               [value]="draft().connections.jenkins.username"
-              (input)="updateDraft(d => d.connections.jenkins.username = $any($event.target).value)">
+              (input)="updateDraft(d => d.connections.jenkins.username = $any($event.target).value)"
+            />
           </div>
 
           <div class="mb-4">
@@ -160,15 +195,20 @@
                 [type]="showJenkinsToken() ? 'text' : 'password'"
                 class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
                 [value]="draft().connections.jenkins.apiToken"
-                (input)="updateDraft(d => d.connections.jenkins.apiToken = $any($event.target).value)">
+                (input)="updateDraft(d => d.connections.jenkins.apiToken = $any($event.target).value)"
+              />
               <button
                 type="button"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
-                (click)="showJenkinsToken.set(!showJenkinsToken())">
+                (click)="showJenkinsToken.set(!showJenkinsToken())"
+              >
                 {{ showJenkinsToken() ? 'Verbergen' : 'Anzeigen' }}
               </button>
             </div>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Erstelle einen Token in deinen Jenkins-Benutzereinstellungen unter Konfigurieren → API Token</p>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">
+              Erstelle einen Token in deinen Jenkins-Benutzereinstellungen unter Konfigurieren → API
+              Token
+            </p>
           </div>
 
           <div class="border-t border-[var(--color-border-subtle)] pt-4">
@@ -181,17 +221,20 @@
                   class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   placeholder="Anzeigename"
                   [value]="job.displayName"
-                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].displayName = $any($event.target).value)">
+                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].displayName = $any($event.target).value)"
+                />
                 <input
                   type="text"
                   class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm font-mono placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   placeholder="job/my-project"
                   [value]="job.jobPath"
-                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].jobPath = $any($event.target).value)">
+                  (input)="updateDraft(d => d.connections.jenkins.jobs[$index].jobPath = $any($event.target).value)"
+                />
                 <button
                   type="button"
                   class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
-                  (click)="removeJenkinsJob($index)">
+                  (click)="removeJenkinsJob($index)"
+                >
                   &times;
                 </button>
               </div>
@@ -200,17 +243,25 @@
             <button
               type="button"
               class="text-sm text-[var(--color-primary-text)] hover:underline cursor-pointer"
-              (click)="addJenkinsJob()">
+              (click)="addJenkinsJob()"
+            >
               + Job hinzufügen
             </button>
           </div>
         </div>
 
         <!-- Vertex AI Proxy -->
-        <div data-section="vertex-ai" id="section-vertex-ai" class="bg-[var(--color-bg-card)] rounded-xl p-5">
+        <div
+          data-section="vertex-ai"
+          id="section-vertex-ai"
+          class="bg-[var(--color-bg-card)] rounded-xl p-5"
+        >
           <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-[var(--color-text-heading)]">Vertex AI Proxy</h4>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
+            <span
+              class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
+              >Optional</span
+            >
           </div>
 
           <div class="mb-4">
@@ -220,8 +271,12 @@
               class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
               placeholder="https://example.com/v1/models/.../gemini-2.5-flash"
               [value]="draft().connections.vertexAi.url"
-              (input)="updateDraft(d => d.connections.vertexAi.url = $any($event.target).value)">
-            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch angehängt.</p>
+              (input)="updateDraft(d => d.connections.vertexAi.url = $any($event.target).value)"
+            />
+            <p class="text-xs text-[var(--color-text-muted)] mt-1.5">
+              Vollständige URL bis zum Modellnamen. Die Methode (:generateContent) wird automatisch
+              angehängt.
+            </p>
           </div>
 
           <div>
@@ -234,17 +289,20 @@
                   class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   placeholder="Name"
                   [value]="header.name"
-                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].name = $any($event.target).value)">
+                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].name = $any($event.target).value)"
+                />
                 <input
                   type="password"
                   class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   placeholder="Wert"
                   [value]="header.value"
-                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].value = $any($event.target).value)">
+                  (input)="updateDraft(d => d.connections.vertexAi.customHeaders[$index].value = $any($event.target).value)"
+                />
                 <button
                   type="button"
                   class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
-                  (click)="removeCustomHeader($index)">
+                  (click)="removeCustomHeader($index)"
+                >
                   &times;
                 </button>
               </div>
@@ -253,7 +311,8 @@
             <button
               type="button"
               class="text-sm text-[var(--color-primary-text)] hover:underline cursor-pointer"
-              (click)="addCustomHeader()">
+              (click)="addCustomHeader()"
+            >
               + Header hinzufügen
             </button>
           </div>
@@ -263,66 +322,86 @@
       <!-- Section: Funktionen -->
       <section data-section="funktionen" id="section-funktionen" class="mb-12">
         <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Funktionen</h3>
-        <p class="text-sm text-[var(--color-text-muted)] mb-5">Aktiviere oder deaktiviere einzelne Module</p>
+        <p class="text-sm text-[var(--color-text-muted)] mb-5">
+          Aktiviere oder deaktiviere einzelne Module
+        </p>
 
         <!-- Pomodoro-Timer -->
-        <div data-section="pomodoro" id="section-pomodoro"
+        <div
+          data-section="pomodoro"
+          id="section-pomodoro"
           class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4 transition-opacity"
-          [class.opacity-50]="!draft().features.pomodoro.enabled">
+          [class.opacity-50]="!draft().features.pomodoro.enabled"
+        >
           <div class="flex items-center justify-between mb-4">
             <h4 class="font-bold text-[var(--color-text-heading)]">Pomodoro-Timer</h4>
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" class="sr-only peer"
+              <input
+                type="checkbox"
+                class="sr-only peer"
                 [checked]="draft().features.pomodoro.enabled"
-                (change)="updateDraft(d => d.features.pomodoro.enabled = $any($event.target).checked)">
-              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-              </div>
+                (change)="updateDraft(d => d.features.pomodoro.enabled = $any($event.target).checked)"
+              />
+              <div
+                class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+              ></div>
             </label>
           </div>
 
           <div [class.pointer-events-none]="!draft().features.pomodoro.enabled">
             <div class="flex gap-4">
               <div class="flex-1">
-                <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Fokus-Dauer (Min.)</label>
+                <label class="block text-sm text-[var(--color-text-body)] mb-1.5"
+                  >Fokus-Dauer (Min.)</label
+                >
                 <input
                   type="number"
                   class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   [value]="draft().features.pomodoro.focusMinutes"
-                  (input)="updateDraft(d => d.features.pomodoro.focusMinutes = +$any($event.target).value)">
+                  (input)="updateDraft(d => d.features.pomodoro.focusMinutes = +$any($event.target).value)"
+                />
               </div>
               <div class="flex-1">
-                <label class="block text-sm text-[var(--color-text-body)] mb-1.5">Pausen-Dauer (Min.)</label>
+                <label class="block text-sm text-[var(--color-text-body)] mb-1.5"
+                  >Pausen-Dauer (Min.)</label
+                >
                 <input
                   type="number"
                   class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
                   [value]="draft().features.pomodoro.breakMinutes"
-                  (input)="updateDraft(d => d.features.pomodoro.breakMinutes = +$any($event.target).value)">
+                  (input)="updateDraft(d => d.features.pomodoro.breakMinutes = +$any($event.target).value)"
+                />
               </div>
             </div>
           </div>
         </div>
 
         <!-- KI-gestützte Reviews -->
-        <div data-section="ai-reviews" id="section-ai-reviews"
+        <div
+          data-section="ai-reviews"
+          id="section-ai-reviews"
           class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4 transition-opacity"
-          [class.opacity-50]="!draft().features.aiReviews.enabled">
+          [class.opacity-50]="!draft().features.aiReviews.enabled"
+        >
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-[var(--color-text-heading)]">KI-gestützte Reviews</h4>
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" class="sr-only peer"
+              <input
+                type="checkbox"
+                class="sr-only peer"
                 [checked]="draft().features.aiReviews.enabled"
-                (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)">
-              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-              </div>
+                (change)="updateDraft(d => d.features.aiReviews.enabled = $any($event.target).checked)"
+              />
+              <div
+                class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+              ></div>
             </label>
           </div>
 
           @if (needsVertexWarning()) {
-            <p class="mt-3 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2">
+            <p
+              class="mt-3 text-xs text-[var(--color-signal-text)] bg-[var(--color-signal-bg)] border border-[var(--color-signal-border)] rounded-lg px-3 py-2"
+            >
               Benötigt Vertex AI Proxy-Konfiguration
             </p>
           }
@@ -332,44 +411,61 @@
 
             @for (entry of agentDescriptions | keyvalue; track entry.key) {
               <label class="flex items-start gap-3 cursor-pointer mb-3">
-                <input type="checkbox" class="mt-1.5 accent-violet-500"
+                <input
+                  type="checkbox"
+                  class="mt-1.5 accent-violet-500"
                   [checked]="draft().features.aiReviews.enabledAgents.includes(entry.key)"
-                  (change)="toggleAgent(entry.key, $any($event.target).checked)">
+                  (change)="toggleAgent(entry.key, $any($event.target).checked)"
+                />
                 <div>
-                  <span class="text-sm font-medium text-[var(--color-text-heading)]">{{ entry.value.label }}</span>
-                  <p class="text-xs text-[var(--color-text-muted)] mt-0.5">{{ entry.value.description }}</p>
+                  <span class="text-sm font-medium text-[var(--color-text-heading)]">{{
+                    entry.value.label
+                  }}</span>
+                  <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    {{ entry.value.description }}
+                  </p>
                 </div>
               </label>
             }
 
             <div class="mt-4">
               <label class="block text-sm text-[var(--color-text-body)] mb-1">Projektregeln</label>
-              <p class="text-xs text-[var(--color-text-muted)] mb-2">Diese Anweisungen werden allen aktiven Review-Agenten mitgegeben. Beschreibe hier euren Tech-Stack, Coding-Konventionen und worauf beim Review besonders geachtet werden soll.</p>
+              <p class="text-xs text-[var(--color-text-muted)] mb-2">
+                Diese Anweisungen werden allen aktiven Review-Agenten mitgegeben. Beschreibe hier
+                euren Tech-Stack, Coding-Konventionen und worauf beim Review besonders geachtet
+                werden soll.
+              </p>
               <textarea
                 class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 resize-none"
                 style="height: 120px"
                 placeholder="z.B. Java 21 mit Spring Boot 3. Wir nutzen Hexagonale Architektur mit Ports & Adapters. REST-APIs folgen unseren OpenAPI-Specs. Tests mit JUnit 5 und Mockito."
                 [value]="draft().features.aiReviews.projectRules"
-                (input)="updateDraft(d => d.features.aiReviews.projectRules = $any($event.target).value)">
+                (input)="updateDraft(d => d.features.aiReviews.projectRules = $any($event.target).value)"
+              >
               </textarea>
             </div>
           </div>
         </div>
 
         <!-- Tageskalender -->
-        <div data-section="kalender" id="section-kalender"
+        <div
+          data-section="kalender"
+          id="section-kalender"
           class="bg-[var(--color-bg-card)] rounded-xl p-5 transition-opacity"
-          [class.opacity-50]="!draft().features.dayCalendar.enabled">
+          [class.opacity-50]="!draft().features.dayCalendar.enabled"
+        >
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-[var(--color-text-heading)]">Tageskalender</h4>
             <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" class="sr-only peer"
+              <input
+                type="checkbox"
+                class="sr-only peer"
                 [checked]="draft().features.dayCalendar.enabled"
-                (change)="updateDraft(d => d.features.dayCalendar.enabled = $any($event.target).checked)">
-              <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
-                after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-                after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-              </div>
+                (change)="updateDraft(d => d.features.dayCalendar.enabled = $any($event.target).checked)"
+              />
+              <div
+                class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+              ></div>
             </label>
           </div>
         </div>
@@ -386,10 +482,13 @@
             <button
               type="button"
               class="flex flex-col items-center gap-2 cursor-pointer"
-              (click)="setTheme('light')">
-              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
+              (click)="setTheme('light')"
+            >
+              <div
+                class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
                 [class.border-violet-400]="draft().appearance.theme === 'light'"
-                [class.border-transparent]="draft().appearance.theme !== 'light'">
+                [class.border-transparent]="draft().appearance.theme !== 'light'"
+              >
                 <div class="w-3 h-full bg-stone-200"></div>
                 <div class="flex-1 bg-stone-100 flex flex-col p-1.5 gap-1">
                   <div class="h-1 w-full rounded-full bg-stone-300"></div>
@@ -404,10 +503,13 @@
             <button
               type="button"
               class="flex flex-col items-center gap-2 cursor-pointer"
-              (click)="setTheme('dark')">
-              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
+              (click)="setTheme('dark')"
+            >
+              <div
+                class="w-24 h-14 rounded-lg border-2 overflow-hidden flex transition-colors"
                 [class.border-violet-400]="draft().appearance.theme === 'dark'"
-                [class.border-transparent]="draft().appearance.theme !== 'dark'">
+                [class.border-transparent]="draft().appearance.theme !== 'dark'"
+              >
                 <div class="w-3 h-full bg-stone-800"></div>
                 <div class="flex-1 bg-stone-900 flex flex-col p-1.5 gap-1">
                   <div class="h-1 w-full rounded-full bg-stone-700"></div>
@@ -422,12 +524,18 @@
             <button
               type="button"
               class="flex flex-col items-center gap-2 cursor-pointer"
-              (click)="setTheme('system')">
-              <div class="w-24 h-14 rounded-lg border-2 overflow-hidden transition-colors relative"
+              (click)="setTheme('system')"
+            >
+              <div
+                class="w-24 h-14 rounded-lg border-2 overflow-hidden transition-colors relative"
                 [class.border-violet-400]="draft().appearance.theme === 'system'"
-                [class.border-transparent]="draft().appearance.theme !== 'system'">
+                [class.border-transparent]="draft().appearance.theme !== 'system'"
+              >
                 <div class="absolute inset-0 bg-stone-100"></div>
-                <div class="absolute inset-0 bg-stone-900" style="clip-path: polygon(100% 0, 100% 100%, 0 100%)"></div>
+                <div
+                  class="absolute inset-0 bg-stone-900"
+                  style="clip-path: polygon(100% 0, 100% 100%, 0 100%)"
+                ></div>
               </div>
               <span class="text-xs text-[var(--color-text-body)]">System</span>
             </button>
@@ -436,10 +544,8 @@
       </section>
 
       <!-- Section: Experimentelle Funktionen -->
-      <app-experiment-section
-        (experimentChanged)="updateExperiment($event.id, $event.value)">
+      <app-experiment-section (experimentChanged)="updateExperiment($event.id, $event.value)">
       </app-experiment-section>
-
     </div>
   </div>
 
@@ -450,7 +556,8 @@
         <button
           type="button"
           class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:text-[var(--color-text-heading)] transition-colors cursor-pointer"
-          (click)="discard()">
+          (click)="discard()"
+        >
           Verwerfen
         </button>
       }
@@ -465,12 +572,21 @@
         [class.cursor-not-allowed]="!canSave()"
         [class.cursor-pointer]="canSave()"
         [disabled]="!canSave()"
-        (click)="save()">
+        (click)="save()"
+      >
         @switch (saveState()) {
-          @case ('idle') { Speichern }
-          @case ('saving') { Speichern... }
-          @case ('saved') { Gespeichert &#x2713; }
-          @case ('error') { Fehler }
+          @case ('idle') {
+            Speichern
+          }
+          @case ('saving') {
+            Speichern...
+          }
+          @case ('saved') {
+            Gespeichert &#x2713;
+          }
+          @case ('error') {
+            Fehler
+          }
         }
       </button>
     </div>
@@ -479,13 +595,33 @@
 
 @if (showNavigationDialog()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-    <div class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-xl p-6 max-w-sm shadow-xl">
+    <div
+      class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-xl p-6 max-w-sm shadow-xl"
+    >
       <h3 class="text-[var(--color-text-heading)] font-semibold mb-2">Ungespeicherte Änderungen</h3>
-      <p class="text-[var(--color-text-secondary)] text-sm mb-5">Du hast ungespeicherte Änderungen in den Einstellungen. Möchtest du speichern oder verwerfen?</p>
+      <p class="text-[var(--color-text-secondary)] text-sm mb-5">
+        Du hast ungespeicherte Änderungen in den Einstellungen. Möchtest du speichern oder
+        verwerfen?
+      </p>
       <div class="flex gap-2 justify-end">
-        <button (click)="onNavigationCancel()" class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer">Abbrechen</button>
-        <button (click)="onNavigationDiscard()" class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer">Verwerfen</button>
-        <button (click)="onNavigationSave()" class="px-4 py-2 text-sm rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors cursor-pointer">Speichern</button>
+        <button
+          (click)="onNavigationCancel()"
+          class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer"
+        >
+          Abbrechen
+        </button>
+        <button
+          (click)="onNavigationDiscard()"
+          class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors cursor-pointer"
+        >
+          Verwerfen
+        </button>
+        <button
+          (click)="onNavigationSave()"
+          class="px-4 py-2 text-sm rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors cursor-pointer"
+        >
+          Speichern
+        </button>
       </div>
     </div>
   </div>

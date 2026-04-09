@@ -20,21 +20,28 @@ function createProxyRoutes({ getSettings }) {
     next();
   };
 
-  router.get('/bitbucket/diffstat/:projectKey/:repoSlug/:prId', requireSettings, async (req, res) => {
-    const s = getSettings();
-    const { projectKey, repoSlug, prId } = req.params;
-    const url = `${s.connections.bitbucket.baseUrl}/rest/api/latest/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}.diff`;
-    try {
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${s.connections.bitbucket.apiKey}` },
-      });
-      if (!response.ok) return res.status(response.status).json({ error: `Bitbucket responded with ${response.status}` });
-      const diffText = await response.text();
-      res.json(parseDiffStats(diffText));
-    } catch (err) {
-      res.status(502).json({ error: 'Failed to fetch diff from Bitbucket' });
-    }
-  });
+  router.get(
+    '/bitbucket/diffstat/:projectKey/:repoSlug/:prId',
+    requireSettings,
+    async (req, res) => {
+      const s = getSettings();
+      const { projectKey, repoSlug, prId } = req.params;
+      const url = `${s.connections.bitbucket.baseUrl}/rest/api/latest/projects/${projectKey}/repos/${repoSlug}/pull-requests/${prId}.diff`;
+      try {
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${s.connections.bitbucket.apiKey}` },
+        });
+        if (!response.ok)
+          return res
+            .status(response.status)
+            .json({ error: `Bitbucket responded with ${response.status}` });
+        const diffText = await response.text();
+        res.json(parseDiffStats(diffText));
+      } catch (err) {
+        res.status(502).json({ error: 'Failed to fetch diff from Bitbucket' });
+      }
+    },
+  );
 
   router.use('/jira', requireSettings, (req, res, next) => {
     const s = getSettings();

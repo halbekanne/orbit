@@ -42,10 +42,10 @@ orbit/
 
 ## 3. Ports
 
-| Process | Port |
-|---|---|
-| Angular (Orbit) | 6200 |
-| Express Proxy | 6201 |
+| Process          | Port |
+| ---------------- | ---- |
+| Angular (Orbit)  | 6200 |
+| Express Proxy    | 6201 |
 | Mock Jira Server | 6202 |
 
 Chosen to avoid clashes with common dev ports (3000, 4200, 5173, 8080, etc.).
@@ -90,6 +90,7 @@ The mock data is the existing five hardcoded tickets from `WorkDataService`, rep
 Plain Node.js + Express + `http-proxy-middleware`. ~25 lines.
 
 **Behaviour:**
+
 - Forwards all `GET /rest/**` requests to `${JIRA_BASE_URL}/rest/**`
 - Injects `Authorization: Bearer ${JIRA_API_KEY}` on every forwarded request
 - Enables CORS for `http://localhost:6200`
@@ -98,12 +99,14 @@ Plain Node.js + Express + `http-proxy-middleware`. ~25 lines.
 No business logic. No data transformation. The proxy is transparent.
 
 ### `.env` (not committed — must be listed in `.gitignore`)
+
 ```
 JIRA_BASE_URL=http://localhost:6202
 JIRA_API_KEY=your-personal-access-token-here
 ```
 
 ### `.env.example` (committed)
+
 ```
 JIRA_BASE_URL=https://jira.yourcompany.com
 JIRA_API_KEY=your-personal-access-token-here
@@ -187,13 +190,13 @@ True production deployment (e.g. `ng build` + static hosting) is **out of scope*
 
 ## 8. Error Handling
 
-| Layer | Behaviour |
-|---|---|
-| Proxy startup | Exits with clear message if env vars missing |
-| `JiraService` | Re-throws error after logging; does not own state |
+| Layer             | Behaviour                                                                  |
+| ----------------- | -------------------------------------------------------------------------- |
+| Proxy startup     | Exits with clear message if env vars missing                               |
+| `JiraService`     | Re-throws error after logging; does not own state                          |
 | `WorkDataService` | Catches error from `JiraService` observable, sets `ticketsError` to `true` |
-| UI | Shows "Tickets konnten nicht geladen werden" when `ticketsError` is true |
-| Loading | `ticketsLoading` is `true` until the observable completes or errors |
+| UI                | Shows "Tickets konnten nicht geladen werden" when `ticketsError` is true   |
+| Loading           | `ticketsLoading` is `true` until the observable completes or errors        |
 
 No retries, no complex recovery. App degrades gracefully — PRs and todos remain functional when Jira is unreachable.
 

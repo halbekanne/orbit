@@ -115,7 +115,12 @@ import { LucideFileText, LucideSquareCheck } from '@lucide/angular';
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Notizen" [expanded]="true">
-          <svg lucideFileText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
+          <svg
+            lucideFileText
+            sectionIcon
+            class="text-[var(--color-text-muted)] shrink-0"
+            [size]="16"
+          ></svg>
           @if (editingDescription()) {
             <textarea
               class="text-sm text-[var(--color-text-body)] leading-relaxed w-full bg-transparent border border-[var(--color-primary-solid)] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] min-h-[200px] resize-none"
@@ -148,7 +153,12 @@ import { LucideFileText, LucideSquareCheck } from '@lucide/angular';
         </app-collapsible-section>
 
         <app-collapsible-section label="Teilaufgaben" [expanded]="true">
-          <svg lucideSquareCheck sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
+          <svg
+            lucideSquareCheck
+            sectionIcon
+            class="text-[var(--color-text-muted)] shrink-0"
+            [size]="16"
+          ></svg>
           <ng-container sectionMeta>
             <span class="text-xs text-[var(--color-text-muted)]">{{
               subtaskCounter(idea().subtasks ?? [])

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JenkinsService } from '../jenkins.service';
 import { BranchBuild, JenkinsParameterDefinition } from '../jenkins.model';
@@ -8,7 +16,9 @@ import { BranchBuild, JenkinsParameterDefinition } from '../jenkins.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './restart-dialog.html',
-  host: { class: 'fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm' },
+  host: {
+    class: 'fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm',
+  },
 })
 export class RestartDialogComponent implements OnInit {
   private readonly jenkins = inject(JenkinsService);
@@ -38,7 +48,7 @@ export class RestartDialogComponent implements OnInit {
   }
 
   protected updateValue(name: string, value: string): void {
-    this.values.update(v => ({ ...v, [name]: value }));
+    this.values.update((v) => ({ ...v, [name]: value }));
   }
 
   protected onSubmit(): void {

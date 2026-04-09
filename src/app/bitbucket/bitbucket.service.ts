@@ -215,9 +215,7 @@ export class BitbucketService {
       switchMap(([reviewerPrs, authoredPrs]) => {
         const enrichments: Observable<unknown>[] = [];
 
-        const needsWorkPrs = reviewerPrs.filter(
-          (pr) => pr.myReviewStatus === 'Changes Requested',
-        );
+        const needsWorkPrs = reviewerPrs.filter((pr) => pr.myReviewStatus === 'Changes Requested');
         if (needsWorkPrs.length > 0) {
           enrichments.push(
             forkJoin(

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  untracked,
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
@@ -47,7 +55,7 @@ export class ViewBuildsComponent implements OnInit {
       const key = this.pendingKey;
       if (!key || branches.length === 0) return;
       untracked(() => {
-        const branch = branches.find(b => `${b.jobDisplayName}/${b.branchName}` === key);
+        const branch = branches.find((b) => `${b.jobDisplayName}/${b.branchName}` === key);
         if (branch) {
           this.pendingKey = null;
           this.selectBranch(branch);
@@ -87,7 +95,7 @@ export class ViewBuildsComponent implements OnInit {
     const key = `${jobName}/${branchName}`;
 
     const branches = this.jenkins.branches();
-    const branch = branches.find(b => `${b.jobDisplayName}/${b.branchName}` === key);
+    const branch = branches.find((b) => `${b.jobDisplayName}/${b.branchName}` === key);
     if (branch) {
       this.selectBranch(branch);
     } else {

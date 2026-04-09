@@ -54,11 +54,11 @@ orbit/
 
 ## 3. Ports
 
-| Process | Port |
-|---|---|
-| Angular (Orbit) | 6200 |
-| Express Proxy | 6201 |
-| Mock Jira Server | 6202 |
+| Process               | Port |
+| --------------------- | ---- |
+| Angular (Orbit)       | 6200 |
+| Express Proxy         | 6201 |
+| Mock Jira Server      | 6202 |
 | Mock Bitbucket Server | 6203 |
 
 ---
@@ -75,6 +75,7 @@ The current `pathFilter: '/rest'` approach is replaced entirely. The new proxy u
 CORS remains restricted to `http://localhost:6200`.
 
 ### `.env` (not committed)
+
 ```
 JIRA_BASE_URL=http://localhost:6202
 JIRA_API_KEY=your-jira-pat
@@ -83,6 +84,7 @@ BITBUCKET_API_KEY=your-bitbucket-pat
 ```
 
 ### `.env.example` (committed)
+
 ```
 JIRA_BASE_URL=https://jira.yourcompany.com
 JIRA_API_KEY=your-jira-personal-access-token
@@ -107,6 +109,7 @@ Ignores all query parameters. Returns a fixed list of open PRs in full Bitbucket
 ### Response Shape
 
 Each PR in `values` contains:
+
 - **Identity:** `id` (number), `title`, `description`, `state` (`OPEN`), `open`, `closed`, `locked`
 - **Dates:** `createdDate`, `updatedDate` (Unix timestamps in ms)
 - **Refs:** `fromRef` and `toRef` — each with `id` (full ref), `displayId` (branch name), `latestCommit`, and a nested `repository` (`id` (number), `slug`, `name`, `project.key`, `project.name`, browse URL via `links.self[0].href`)
@@ -135,7 +138,7 @@ export interface PrUser {
   slug: string;
   active: boolean;
   type: string;
-  profileUrl: string;   // mapped from user.links.self[0].href in the raw API response
+  profileUrl: string; // mapped from user.links.self[0].href in the raw API response
 }
 
 export interface PrRepository {
@@ -144,7 +147,7 @@ export interface PrRepository {
   name: string;
   projectKey: string;
   projectName: string;
-  browseUrl: string;    // mapped from repository.links.self[0].href in the raw API response
+  browseUrl: string; // mapped from repository.links.self[0].href in the raw API response
 }
 
 export interface PrRef {
@@ -218,6 +221,7 @@ export class BitbucketService {
 ```
 
 Raw interfaces (private to the file, same pattern as `jira.service.ts`). `profileUrl` and `browseUrl` are derived in `mapPr` from the nested `links.self[0].href` fields on user and repository objects respectively in the raw response:
+
 - `BitbucketUserRaw` — `/myself` response shape; must include `slug: string` at the top level (the `/myself` endpoint returns a flat user object, not a participant wrapper), plus `links.self[0].href`
 - `BitbucketPrRepositoryRaw` — includes `id`, `slug`, `name`, `project.key`, `project.name`, `links.self[0].href`
 - `BitbucketPrRefRaw`, `BitbucketPrParticipantRaw`
@@ -268,14 +272,14 @@ The UI shows a loading state while `pullRequestsLoading` is `true` and an error 
 
 **Template bindings:**
 
-| Old field | New field | Component |
-|---|---|---|
-| `pr.repo` | `pr.fromRef.repository.slug` | both |
-| `pr.branch` | `pr.fromRef.displayId` | both |
-| `pr.author` | `pr.author.user.displayName` | both |
-| `pr.status` | `pr.myReviewStatus` | both |
-| `pr.updatedAt` | `pr.updatedDate` (timestamp ms, formatted via `DatePipe`) | `pr-detail` only |
-| `pr.id` (string) | `pr.id` (number) | both |
+| Old field        | New field                                                 | Component        |
+| ---------------- | --------------------------------------------------------- | ---------------- |
+| `pr.repo`        | `pr.fromRef.repository.slug`                              | both             |
+| `pr.branch`      | `pr.fromRef.displayId`                                    | both             |
+| `pr.author`      | `pr.author.user.displayName`                              | both             |
+| `pr.status`      | `pr.myReviewStatus`                                       | both             |
+| `pr.updatedAt`   | `pr.updatedDate` (timestamp ms, formatted via `DatePipe`) | `pr-detail` only |
+| `pr.id` (string) | `pr.id` (number)                                          | both             |
 
 **Method bodies:** Both `pr-card` and `pr-detail` contain a `statusClass()` method that reads `this.pr().status`. This must be updated to `this.pr().myReviewStatus` in both files — the template binding change alone is not sufficient.
 
@@ -286,6 +290,7 @@ The UI shows a loading state while `pullRequestsLoading` is `true` and an error 
 ## 11. Smoke Test Update (`smoke-test/index.js`)
 
 The smoke test spawns mock and proxy processes and asserts against them. Three changes are required:
+
 1. The spawned mock process changes from `node mock-server/index.js` to `node mock-server/jira.js`.
 2. The env vars passed to the proxy process must include all four vars: `JIRA_BASE_URL`, `JIRA_API_KEY`, `BITBUCKET_BASE_URL` (set to `http://localhost:6203`), and `BITBUCKET_API_KEY`.
 3. The existing Jira assertion URL changes from `/rest/api/2/search` to `/jira/rest/api/2/search`.
@@ -314,13 +319,13 @@ The old `"mock": "node mock-server/index.js"` script is removed.
 
 ## 13. Error Handling
 
-| Layer | Behaviour |
-|---|---|
-| Proxy startup | Exits with clear message if any of the four env vars are missing |
-| `BitbucketService` | Re-throws after logging; does not own state |
-| `WorkDataService` | Catches error, sets `pullRequestsError` to `true` |
-| UI | Shows "Pull Requests konnten nicht geladen werden" when `pullRequestsError` is `true` |
-| Loading | `pullRequestsLoading` is `true` until the observable completes or errors |
+| Layer              | Behaviour                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| Proxy startup      | Exits with clear message if any of the four env vars are missing                      |
+| `BitbucketService` | Re-throws after logging; does not own state                                           |
+| `WorkDataService`  | Catches error, sets `pullRequestsError` to `true`                                     |
+| UI                 | Shows "Pull Requests konnten nicht geladen werden" when `pullRequestsError` is `true` |
+| Loading            | `pullRequestsLoading` is `true` until the observable completes or errors              |
 
 ---
 

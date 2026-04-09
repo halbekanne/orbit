@@ -18,38 +18,38 @@
 
 ### New files
 
-| File | Responsibility |
-|------|---------------|
-| `src/app/builds/jenkins.model.ts` | TypeScript interfaces for all Jenkins API responses |
-| `src/app/builds/jenkins.service.ts` | Branch/build fetching, trigger, stop, PR matching |
-| `src/app/builds/build-log.service.ts` | Console log loading + progressive streaming |
-| `src/app/builds/builds-sidebar/builds-sidebar.ts` | Sidebar component with branch cards grouped by job |
-| `src/app/builds/builds-sidebar/builds-sidebar.html` | Sidebar template |
-| `src/app/builds/build-detail/build-detail.ts` | Detail component with tabs (overview + log) |
-| `src/app/builds/build-detail/build-detail.html` | Detail template |
-| `src/app/builds/restart-dialog/restart-dialog.ts` | Modal with dynamic parameter form |
-| `src/app/builds/restart-dialog/restart-dialog.html` | Restart dialog template |
-| `src/app/builds/view-builds/view-builds.ts` | Top-level view (sidebar + detail, like view-arbeit) |
-| `src/app/builds/view-builds/view-builds.html` | View template |
-| `mock-server/jenkins.js` | Mock Jenkins API server on port 6204 |
+| File                                                | Responsibility                                      |
+| --------------------------------------------------- | --------------------------------------------------- |
+| `src/app/builds/jenkins.model.ts`                   | TypeScript interfaces for all Jenkins API responses |
+| `src/app/builds/jenkins.service.ts`                 | Branch/build fetching, trigger, stop, PR matching   |
+| `src/app/builds/build-log.service.ts`               | Console log loading + progressive streaming         |
+| `src/app/builds/builds-sidebar/builds-sidebar.ts`   | Sidebar component with branch cards grouped by job  |
+| `src/app/builds/builds-sidebar/builds-sidebar.html` | Sidebar template                                    |
+| `src/app/builds/build-detail/build-detail.ts`       | Detail component with tabs (overview + log)         |
+| `src/app/builds/build-detail/build-detail.html`     | Detail template                                     |
+| `src/app/builds/restart-dialog/restart-dialog.ts`   | Modal with dynamic parameter form                   |
+| `src/app/builds/restart-dialog/restart-dialog.html` | Restart dialog template                             |
+| `src/app/builds/view-builds/view-builds.ts`         | Top-level view (sidebar + detail, like view-arbeit) |
+| `src/app/builds/view-builds/view-builds.html`       | View template                                       |
+| `mock-server/jenkins.js`                            | Mock Jenkins API server on port 6204                |
 
 ### Modified files
 
-| File | Change |
-|------|--------|
-| `src/app/settings/settings.model.ts` | Add `jenkins` to `connections` |
-| `src/app/settings/settings.service.ts` | Add `jenkinsConfig` computed signal |
-| `src/app/settings/view-settings/view-settings.ts` | Add Jenkins section logic + job list management |
-| `src/app/settings/view-settings/view-settings.html` | Add Jenkins connection card + jobs UI |
-| `server/routes/proxy-routes.js` | Add `/jenkins/*` proxy route |
-| `server/routes/settings-routes.js` | Add Jenkins fields to validation |
-| `server/index.js` | Log Jenkins proxy target on startup |
-| `src/app/app.routes.ts` | Add `/builds` route |
-| `src/app/shared/app-rail/app-rail.ts` | Add "Builds" nav item |
-| `src/app/shared/sync-bar/sync-bar.ts` | Add `sources` input for selective refresh |
-| `src/app/shared/sync-bar/sync-bar.html` | Use source-specific refresh |
-| `src/app/shared/router-sync.service.ts` | Add `builds` to `activeView` |
-| `package.json` | Add `mock:jenkins` script, update `start:mock` |
+| File                                                | Change                                          |
+| --------------------------------------------------- | ----------------------------------------------- |
+| `src/app/settings/settings.model.ts`                | Add `jenkins` to `connections`                  |
+| `src/app/settings/settings.service.ts`              | Add `jenkinsConfig` computed signal             |
+| `src/app/settings/view-settings/view-settings.ts`   | Add Jenkins section logic + job list management |
+| `src/app/settings/view-settings/view-settings.html` | Add Jenkins connection card + jobs UI           |
+| `server/routes/proxy-routes.js`                     | Add `/jenkins/*` proxy route                    |
+| `server/routes/settings-routes.js`                  | Add Jenkins fields to validation                |
+| `server/index.js`                                   | Log Jenkins proxy target on startup             |
+| `src/app/app.routes.ts`                             | Add `/builds` route                             |
+| `src/app/shared/app-rail/app-rail.ts`               | Add "Builds" nav item                           |
+| `src/app/shared/sync-bar/sync-bar.ts`               | Add `sources` input for selective refresh       |
+| `src/app/shared/sync-bar/sync-bar.html`             | Use source-specific refresh                     |
+| `src/app/shared/router-sync.service.ts`             | Add `builds` to `activeView`                    |
+| `package.json`                                      | Add `mock:jenkins` script, update `start:mock`  |
 
 ---
 
@@ -58,6 +58,7 @@
 ### Task 1: Add Jenkins to settings model
 
 **Files:**
+
 - Modify: `src/app/settings/settings.model.ts`
 
 - [ ] **Step 1: Write the test**
@@ -148,6 +149,7 @@ git commit -m "feat(settings): add Jenkins connection model and defaults"
 ### Task 2: Add Jenkins proxy route to BFF
 
 **Files:**
+
 - Modify: `server/routes/proxy-routes.js`
 - Modify: `server/index.js`
 
@@ -208,6 +210,7 @@ git commit -m "feat(bff): add Jenkins proxy route with Basic Auth and header pas
 ### Task 3: Update BFF settings validation for Jenkins
 
 **Files:**
+
 - Modify: `server/routes/settings-routes.js`
 
 - [ ] **Step 1: Update validation logic**
@@ -217,7 +220,7 @@ The current `REQUIRED_FIELDS` and `isConfigured()` check Jira/Bitbucket. Jenkins
 ```javascript
 function isConfigured(settings) {
   if (!settings) return false;
-  const coreConfigured = REQUIRED_FIELDS.every(f => {
+  const coreConfigured = REQUIRED_FIELDS.every((f) => {
     const val = getNestedValue(settings, f);
     return typeof val === 'string' && val.trim().length > 0;
   });
@@ -227,7 +230,7 @@ function isConfigured(settings) {
   if (jenkins?.baseUrl?.trim()) {
     if (!jenkins.username?.trim() || !jenkins.apiToken?.trim()) return false;
     if (!Array.isArray(jenkins.jobs) || jenkins.jobs.length === 0) return false;
-    if (jenkins.jobs.some(j => !j.displayName?.trim() || !j.jobPath?.trim())) return false;
+    if (jenkins.jobs.some((j) => !j.displayName?.trim() || !j.jobPath?.trim())) return false;
   }
 
   return true;
@@ -250,6 +253,7 @@ git commit -m "feat(bff): validate Jenkins settings when baseUrl is provided"
 ### Task 4: Create Jenkins mock server
 
 **Files:**
+
 - Create: `mock-server/jenkins.js`
 - Modify: `package.json`
 
@@ -291,32 +295,80 @@ const minute = 60000;
 
 const BUILDS = {
   'frontend-app': {
-    'main': [
-      { number: 142, result: 'SUCCESS', timestamp: now - 12 * minute, duration: 245832, building: false },
-      { number: 141, result: 'FAILURE', timestamp: now - 2 * hour, duration: 89234, building: false },
+    main: [
+      {
+        number: 142,
+        result: 'SUCCESS',
+        timestamp: now - 12 * minute,
+        duration: 245832,
+        building: false,
+      },
+      {
+        number: 141,
+        result: 'FAILURE',
+        timestamp: now - 2 * hour,
+        duration: 89234,
+        building: false,
+      },
     ],
-    'develop': [
-      { number: 312, result: 'SUCCESS', timestamp: now - 3 * hour, duration: 198000, building: false },
+    develop: [
+      {
+        number: 312,
+        result: 'SUCCESS',
+        timestamp: now - 3 * hour,
+        duration: 198000,
+        building: false,
+      },
     ],
     'feature%2FORBIT-189-dashboard': [
-      { number: 45, result: 'FAILURE', timestamp: now - 1 * hour, duration: 178000, building: false },
+      {
+        number: 45,
+        result: 'FAILURE',
+        timestamp: now - 1 * hour,
+        duration: 178000,
+        building: false,
+      },
     ],
     'feature%2FORBIT-234-user-auth': [
-      { number: 47, result: 'SUCCESS', timestamp: now - 30 * minute, duration: 210000, building: false },
+      {
+        number: 47,
+        result: 'SUCCESS',
+        timestamp: now - 30 * minute,
+        duration: 210000,
+        building: false,
+      },
     ],
     'bugfix%2FORBIT-301-login-fix': [
       { number: 48, result: null, timestamp: now - 4 * minute, duration: 0, building: true },
     ],
   },
   'backend-api': {
-    'main': [
-      { number: 89, result: 'SUCCESS', timestamp: now - 2 * hour, duration: 312000, building: false },
+    main: [
+      {
+        number: 89,
+        result: 'SUCCESS',
+        timestamp: now - 2 * hour,
+        duration: 312000,
+        building: false,
+      },
     ],
-    'develop': [
-      { number: 156, result: 'SUCCESS', timestamp: now - 5 * hour, duration: 280000, building: false },
+    develop: [
+      {
+        number: 156,
+        result: 'SUCCESS',
+        timestamp: now - 5 * hour,
+        duration: 280000,
+        building: false,
+      },
     ],
     'feature%2FORBIT-210-api-cache': [
-      { number: 23, result: 'FAILURE', timestamp: now - 45 * minute, duration: 95000, building: false },
+      {
+        number: 23,
+        result: 'FAILURE',
+        timestamp: now - 45 * minute,
+        duration: 95000,
+        building: false,
+      },
     ],
   },
 };
@@ -329,49 +381,169 @@ const DESCRIPTIONS = {
 
 const STAGES = {
   142: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 12 * minute, durationMillis: 3200 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 3200, durationMillis: 120000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 123200, durationMillis: 85000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 208200, durationMillis: 37632 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute,
+      durationMillis: 3200,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 3200,
+      durationMillis: 120000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 123200,
+      durationMillis: 85000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 208200,
+      durationMillis: 37632,
+    },
   ],
   45: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 1 * hour, durationMillis: 2800 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 1 * hour + 2800, durationMillis: 95000 },
-    { id: '27', name: 'Test', status: 'FAILED', startTimeMillis: now - 1 * hour + 97800, durationMillis: 73000 },
-    { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: now - 1 * hour + 170800, durationMillis: 0 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 1 * hour,
+      durationMillis: 2800,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 1 * hour + 2800,
+      durationMillis: 95000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'FAILED',
+      startTimeMillis: now - 1 * hour + 97800,
+      durationMillis: 73000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'NOT_EXECUTED',
+      startTimeMillis: now - 1 * hour + 170800,
+      durationMillis: 0,
+    },
   ],
   48: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 4 * minute, durationMillis: 3100 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 4 * minute + 3100, durationMillis: 110000 },
-    { id: '27', name: 'Test', status: 'IN_PROGRESS', startTimeMillis: now - 4 * minute + 113100, durationMillis: 0 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 4 * minute,
+      durationMillis: 3100,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 4 * minute + 3100,
+      durationMillis: 110000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'IN_PROGRESS',
+      startTimeMillis: now - 4 * minute + 113100,
+      durationMillis: 0,
+    },
     { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: 0, durationMillis: 0 },
   ],
   23: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 45 * minute, durationMillis: 2500 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 45 * minute + 2500, durationMillis: 60000 },
-    { id: '27', name: 'Test', status: 'FAILED', startTimeMillis: now - 45 * minute + 62500, durationMillis: 32500 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 45 * minute,
+      durationMillis: 2500,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 45 * minute + 2500,
+      durationMillis: 60000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'FAILED',
+      startTimeMillis: now - 45 * minute + 62500,
+      durationMillis: 32500,
+    },
     { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: 0, durationMillis: 0 },
   ],
 };
 
 const STAGE_FLOW_NODES = {
   '27_45': [
-    { id: '28', name: 'Shell Script', status: 'SUCCESS', parameterDescription: 'npm run lint', durationMillis: 12000, parentNodes: ['27'] },
-    { id: '31', name: 'Shell Script', status: 'FAILED', parameterDescription: 'npm test', durationMillis: 73000, parentNodes: ['28'], error: { message: 'script returned exit code 1', type: 'hudson.AbortException' } },
+    {
+      id: '28',
+      name: 'Shell Script',
+      status: 'SUCCESS',
+      parameterDescription: 'npm run lint',
+      durationMillis: 12000,
+      parentNodes: ['27'],
+    },
+    {
+      id: '31',
+      name: 'Shell Script',
+      status: 'FAILED',
+      parameterDescription: 'npm test',
+      durationMillis: 73000,
+      parentNodes: ['28'],
+      error: { message: 'script returned exit code 1', type: 'hudson.AbortException' },
+    },
   ],
   '27_23': [
-    { id: '28', name: 'Shell Script', status: 'SUCCESS', parameterDescription: 'mvn compile', durationMillis: 20000, parentNodes: ['27'] },
-    { id: '31', name: 'Shell Script', status: 'FAILED', parameterDescription: 'mvn test', durationMillis: 12500, parentNodes: ['28'], error: { message: 'script returned exit code 1', type: 'hudson.AbortException' } },
+    {
+      id: '28',
+      name: 'Shell Script',
+      status: 'SUCCESS',
+      parameterDescription: 'mvn compile',
+      durationMillis: 20000,
+      parentNodes: ['27'],
+    },
+    {
+      id: '31',
+      name: 'Shell Script',
+      status: 'FAILED',
+      parameterDescription: 'mvn test',
+      durationMillis: 12500,
+      parentNodes: ['28'],
+      error: { message: 'script returned exit code 1', type: 'hudson.AbortException' },
+    },
   ],
 };
 
 const STAGE_LOGS = {
   '31_45': {
-    nodeId: '31', nodeStatus: 'FAILED', length: 842, hasMore: false,
+    nodeId: '31',
+    nodeStatus: 'FAILED',
+    length: 842,
+    hasMore: false,
     text: '<span class="pipeline-node-31">\u001b[31mFAIL\u001b[0m src/app/login.spec.ts\n  \u001b[31m● Login component › should validate email\u001b[0m\n    Expected: true\n    Received: false\n\n    at Object.&lt;anonymous&gt; (src/app/login.spec.ts:42:18)\n</span>',
   },
   '31_23': {
-    nodeId: '31', nodeStatus: 'FAILED', length: 520, hasMore: false,
+    nodeId: '31',
+    nodeStatus: 'FAILED',
+    length: 520,
+    hasMore: false,
     text: '<span class="pipeline-node-31">\u001b[31m[ERROR]\u001b[0m Tests run: 15, Failures: 2, Errors: 0\n\u001b[31mFailed tests:\u001b[0m\n  CacheServiceTest.testEviction\n  CacheServiceTest.testConcurrentAccess\n</span>',
   },
 };
@@ -452,11 +624,37 @@ added 1523 packages in 42s
 let progressiveOffset = 0;
 
 const PARAMETER_DEFINITIONS = [
-  { name: 'DEPLOY_ENV', type: 'ChoiceParameterDefinition', description: 'Target environment', defaultParameterValue: { value: 'staging' }, choices: ['staging', 'production'] },
-  { name: 'DRY_RUN', type: 'BooleanParameterDefinition', description: 'Skip actual deployment', defaultParameterValue: { value: true } },
-  { name: 'VERSION', type: 'StringParameterDefinition', description: 'Version to deploy (leave empty for latest)', defaultParameterValue: { value: '' } },
-  { name: 'RELEASE_NOTES', type: 'TextParameterDefinition', description: 'Release notes for this deployment', defaultParameterValue: { value: '' } },
-  { name: 'SECRET_KEY', type: 'PasswordParameterDefinition', description: 'Deployment secret', defaultParameterValue: { value: '' } },
+  {
+    name: 'DEPLOY_ENV',
+    type: 'ChoiceParameterDefinition',
+    description: 'Target environment',
+    defaultParameterValue: { value: 'staging' },
+    choices: ['staging', 'production'],
+  },
+  {
+    name: 'DRY_RUN',
+    type: 'BooleanParameterDefinition',
+    description: 'Skip actual deployment',
+    defaultParameterValue: { value: true },
+  },
+  {
+    name: 'VERSION',
+    type: 'StringParameterDefinition',
+    description: 'Version to deploy (leave empty for latest)',
+    defaultParameterValue: { value: '' },
+  },
+  {
+    name: 'RELEASE_NOTES',
+    type: 'TextParameterDefinition',
+    description: 'Release notes for this deployment',
+    defaultParameterValue: { value: '' },
+  },
+  {
+    name: 'SECRET_KEY',
+    type: 'PasswordParameterDefinition',
+    description: 'Deployment secret',
+    defaultParameterValue: { value: '' },
+  },
 ];
 
 function getBranch(jobName) {
@@ -469,13 +667,13 @@ function getBuilds(jobName, branchName) {
 
 function getBuild(jobName, branchName, buildNumber) {
   const builds = getBuilds(jobName, branchName);
-  return builds.find(b => b.number === buildNumber);
+  return builds.find((b) => b.number === buildNumber);
 }
 
 app.get('/job/:jobName/api/json', (req, res) => {
   const branches = getBranch(req.params.jobName);
   res.json({
-    jobs: branches.map(b => ({
+    jobs: branches.map((b) => ({
       name: b.name,
       color: b.color,
       url: `http://localhost:${PORT}/job/${req.params.jobName}/job/${b.name}/`,
@@ -496,7 +694,12 @@ app.get('/job/:jobName/job/:branch/api/json', (req, res) => {
   }
 
   if (tree.includes('builds')) {
-    res.json({ builds: builds.map(b => ({ ...b, url: `http://localhost:${PORT}/job/${jobName}/job/${branch}/${b.number}/` })) });
+    res.json({
+      builds: builds.map((b) => ({
+        ...b,
+        url: `http://localhost:${PORT}/job/${jobName}/job/${branch}/${b.number}/`,
+      })),
+    });
     return;
   }
 
@@ -509,7 +712,13 @@ app.get('/job/:jobName/job/:branch/api/json', (req, res) => {
     estimatedDuration: 240000,
     url: `http://localhost:${PORT}/job/${jobName}/job/${branch}/${build.number}/`,
     actions: [
-      { _class: 'hudson.model.ParametersAction', parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }, { name: 'DRY_RUN', value: 'false' }] },
+      {
+        _class: 'hudson.model.ParametersAction',
+        parameters: [
+          { name: 'DEPLOY_ENV', value: 'staging' },
+          { name: 'DRY_RUN', value: 'false' },
+        ],
+      },
       { _class: 'hudson.model.CauseAction' },
     ],
   });
@@ -526,7 +735,10 @@ app.get('/job/:jobName/job/:branch/:buildNumber/api/json', (req, res) => {
     estimatedDuration: 240000,
     url: `http://localhost:${PORT}/job/${jobName}/job/${branch}/${build.number}/`,
     actions: [
-      { _class: 'hudson.model.ParametersAction', parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }] },
+      {
+        _class: 'hudson.model.ParametersAction',
+        parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }],
+      },
       { _class: 'hudson.model.CauseAction' },
     ],
   });
@@ -535,10 +747,19 @@ app.get('/job/:jobName/job/:branch/:buildNumber/api/json', (req, res) => {
 app.get('/job/:jobName/job/:branch/:buildNumber/wfapi/describe', (req, res) => {
   const buildNumber = parseInt(req.params.buildNumber);
   const stages = STAGES[buildNumber];
-  if (!stages) return res.json({ id: String(buildNumber), name: `#${buildNumber}`, status: 'SUCCESS', stages: [] });
+  if (!stages)
+    return res.json({
+      id: String(buildNumber),
+      name: `#${buildNumber}`,
+      status: 'SUCCESS',
+      stages: [],
+    });
 
-  const overallStatus = stages.some(s => s.status === 'FAILED') ? 'FAILED'
-    : stages.some(s => s.status === 'IN_PROGRESS') ? 'IN_PROGRESS' : 'SUCCESS';
+  const overallStatus = stages.some((s) => s.status === 'FAILED')
+    ? 'FAILED'
+    : stages.some((s) => s.status === 'IN_PROGRESS')
+      ? 'IN_PROGRESS'
+      : 'SUCCESS';
 
   res.json({
     id: String(buildNumber),
@@ -546,23 +767,27 @@ app.get('/job/:jobName/job/:branch/:buildNumber/wfapi/describe', (req, res) => {
     status: overallStatus,
     startTimeMillis: stages[0].startTimeMillis,
     durationMillis: stages.reduce((sum, s) => sum + s.durationMillis, 0),
-    stages: stages.map(s => ({ ...s, execNode: '' })),
+    stages: stages.map((s) => ({ ...s, execNode: '' })),
   });
 });
 
-app.get('/job/:jobName/job/:branch/:buildNumber/execution/node/:nodeId/wfapi/describe', (req, res) => {
-  const { buildNumber, nodeId } = req.params;
-  const key = `${nodeId}_${buildNumber}`;
-  const flowNodes = STAGE_FLOW_NODES[key];
-  if (!flowNodes) return res.json({ id: nodeId, name: 'Unknown', status: 'SUCCESS', stageFlowNodes: [] });
+app.get(
+  '/job/:jobName/job/:branch/:buildNumber/execution/node/:nodeId/wfapi/describe',
+  (req, res) => {
+    const { buildNumber, nodeId } = req.params;
+    const key = `${nodeId}_${buildNumber}`;
+    const flowNodes = STAGE_FLOW_NODES[key];
+    if (!flowNodes)
+      return res.json({ id: nodeId, name: 'Unknown', status: 'SUCCESS', stageFlowNodes: [] });
 
-  res.json({
-    id: nodeId,
-    name: 'Test',
-    status: 'FAILED',
-    stageFlowNodes: flowNodes,
-  });
-});
+    res.json({
+      id: nodeId,
+      name: 'Test',
+      status: 'FAILED',
+      stageFlowNodes: flowNodes,
+    });
+  },
+);
 
 app.get('/job/:jobName/job/:branch/:buildNumber/execution/node/:nodeId/wfapi/log', (req, res) => {
   const { buildNumber, nodeId } = req.params;
@@ -574,7 +799,9 @@ app.get('/job/:jobName/job/:branch/:buildNumber/execution/node/:nodeId/wfapi/log
 
 app.get('/job/:jobName/job/:branch/:buildNumber/consoleText', (req, res) => {
   const buildNumber = parseInt(req.params.buildNumber);
-  const build = Object.values(BUILDS).flatMap(job => Object.values(job).flat()).find(b => b.number === buildNumber);
+  const build = Object.values(BUILDS)
+    .flatMap((job) => Object.values(job).flat())
+    .find((b) => b.number === buildNumber);
 
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   if (build?.result === 'FAILURE') {
@@ -587,7 +814,9 @@ app.get('/job/:jobName/job/:branch/:buildNumber/consoleText', (req, res) => {
 app.get('/job/:jobName/job/:branch/:buildNumber/logText/progressiveText', (req, res) => {
   const start = parseInt(req.query.start || '0');
   const buildNumber = parseInt(req.params.buildNumber);
-  const build = Object.values(BUILDS).flatMap(job => Object.values(job).flat()).find(b => b.number === buildNumber);
+  const build = Object.values(BUILDS)
+    .flatMap((job) => Object.values(job).flat())
+    .find((b) => b.number === buildNumber);
   const fullLog = build?.result === 'FAILURE' ? CONSOLE_LOG_FAILED : CONSOLE_LOG;
 
   if (start >= fullLog.length) {
@@ -652,6 +881,7 @@ git commit -m "feat: add Jenkins mock server on port 6204"
 ### Task 5: Install ansi_up dependency
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install**
@@ -682,6 +912,7 @@ git commit -m "chore: add ansi_up@6.0.6 for ANSI log rendering"
 ### Task 6: Create Jenkins model interfaces
 
 **Files:**
+
 - Create: `src/app/builds/jenkins.model.ts`
 
 - [ ] **Step 1: Create the models file**
@@ -723,7 +954,12 @@ export interface JenkinsBuildParameter {
   value: string | boolean | number;
 }
 
-export type JenkinsStageStatus = 'SUCCESS' | 'FAILED' | 'IN_PROGRESS' | 'PAUSED_PENDING_INPUT' | 'NOT_EXECUTED';
+export type JenkinsStageStatus =
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'IN_PROGRESS'
+  | 'PAUSED_PENDING_INPUT'
+  | 'NOT_EXECUTED';
 
 export interface JenkinsStage {
   id: string;
@@ -836,6 +1072,7 @@ git commit -m "feat(builds): add Jenkins API model interfaces"
 ### Task 7: Create JenkinsService
 
 **Files:**
+
 - Create: `src/app/builds/jenkins.service.ts`
 - Create: `src/app/builds/jenkins.service.spec.ts`
 
@@ -881,7 +1118,7 @@ describe('JenkinsService', () => {
   it('loads branches for configured jobs', () => {
     service.loadBranches().subscribe();
 
-    const req = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/api/json'));
+    const req = httpMock.expectOne((r) => r.url.includes('/jenkins/job/frontend-app/api/json'));
     expect(req.request.params.get('tree')).toContain('jobs[name,color,url]');
     req.flush({
       jobs: [
@@ -893,7 +1130,9 @@ describe('JenkinsService', () => {
   it('loads build detail for a branch', () => {
     service.loadBuildDetail('job/frontend-app', 'main').subscribe();
 
-    const detailReq = httpMock.expectOne(r => r.url.includes('/jenkins/job/frontend-app/job/main/api/json'));
+    const detailReq = httpMock.expectOne((r) =>
+      r.url.includes('/jenkins/job/frontend-app/job/main/api/json'),
+    );
     detailReq.flush({
       number: 142,
       result: 'SUCCESS',
@@ -906,19 +1145,21 @@ describe('JenkinsService', () => {
       actions: [],
     });
 
-    const stagesReq = httpMock.expectOne(r => r.url.includes('wfapi/describe'));
+    const stagesReq = httpMock.expectOne((r) => r.url.includes('wfapi/describe'));
     stagesReq.flush({ id: '142', name: '#142', status: 'SUCCESS', stages: [] });
   });
 
   it('triggers a build', () => {
     service.triggerBuild('job/frontend-app', 'main', {}).subscribe();
-    const req = httpMock.expectOne(r => r.url.includes('buildWithParameters') && r.method === 'POST');
+    const req = httpMock.expectOne(
+      (r) => r.url.includes('buildWithParameters') && r.method === 'POST',
+    );
     req.flush(null, { status: 201, statusText: 'Created' });
   });
 
   it('stops a build', () => {
     service.stopBuild('job/frontend-app', 'main', 142).subscribe();
-    const req = httpMock.expectOne(r => r.url.includes('/142/stop') && r.method === 'POST');
+    const req = httpMock.expectOne((r) => r.url.includes('/142/stop') && r.method === 'POST');
     req.flush(null);
   });
 });
@@ -996,11 +1237,11 @@ export class JenkinsService {
     this._error.set(false);
 
     const jobs = this.settings.jenkinsConfig().jobs;
-    const requests = jobs.map(job => this.loadJobBranches(job.jobPath, job.displayName));
+    const requests = jobs.map((job) => this.loadJobBranches(job.jobPath, job.displayName));
 
     return forkJoin(requests).pipe(
-      map(results => results.flat()),
-      tap(branches => {
+      map((results) => results.flat()),
+      tap((branches) => {
         this._branches.set(this.enrichWithPrs(branches));
         this._loading.set(false);
       }),
@@ -1015,78 +1256,125 @@ export class JenkinsService {
 
   private loadJobBranches(jobPath: string, displayName: string): Observable<BranchBuild[]> {
     const params = new HttpParams().set('tree', 'jobs[name,color,url]');
-    return this.http.get<{ jobs: JenkinsBranch[] }>(`${this.base}/${jobPath}/api/json`, { params }).pipe(
-      switchMap(response => {
-        if (response.jobs.length === 0) return of([]);
+    return this.http
+      .get<{ jobs: JenkinsBranch[] }>(`${this.base}/${jobPath}/api/json`, { params })
+      .pipe(
+        switchMap((response) => {
+          if (response.jobs.length === 0) return of([]);
 
-        const buildRequests = response.jobs.map(branch =>
-          this.loadLatestBuild(jobPath, branch.name).pipe(
-            map(build => ({
-              jobDisplayName: displayName,
-              jobPath,
-              branchName: branch.name,
-              branchColor: branch.color,
-              lastBuild: build,
-              prNumber: null,
-            } as BranchBuild)),
-          ),
-        );
+          const buildRequests = response.jobs.map((branch) =>
+            this.loadLatestBuild(jobPath, branch.name).pipe(
+              map(
+                (build) =>
+                  ({
+                    jobDisplayName: displayName,
+                    jobPath,
+                    branchName: branch.name,
+                    branchColor: branch.color,
+                    lastBuild: build,
+                    prNumber: null,
+                  }) as BranchBuild,
+              ),
+            ),
+          );
 
-        return forkJoin(buildRequests);
-      }),
-      catchError(() => of([])),
-    );
+          return forkJoin(buildRequests);
+        }),
+        catchError(() => of([])),
+      );
   }
 
   private loadLatestBuild(jobPath: string, branch: string): Observable<JenkinsBuild | null> {
-    const params = new HttpParams().set('tree', 'builds[number,result,timestamp,duration,url]{0,1}');
-    return this.http.get<{ builds: JenkinsBuild[] }>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params }).pipe(
-      map(res => res.builds?.[0] ?? null),
-      catchError(() => of(null)),
+    const params = new HttpParams().set(
+      'tree',
+      'builds[number,result,timestamp,duration,url]{0,1}',
     );
+    return this.http
+      .get<{ builds: JenkinsBuild[] }>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params })
+      .pipe(
+        map((res) => res.builds?.[0] ?? null),
+        catchError(() => of(null)),
+      );
   }
 
   private enrichWithPrs(branches: BranchBuild[]): BranchBuild[] {
     const prs = this.bitbucket.pullRequests();
     if (prs.length === 0) return branches;
 
-    return branches.map(b => {
+    return branches.map((b) => {
       const decodedBranch = decodeURIComponent(b.branchName);
-      const matchingPr = prs.find(pr => pr.fromRef.displayId === decodedBranch);
+      const matchingPr = prs.find((pr) => pr.fromRef.displayId === decodedBranch);
       return matchingPr ? { ...b, prNumber: matchingPr.prNumber } : b;
     });
   }
 
-  loadBuildDetail(jobPath: string, branch: string): Observable<{ detail: JenkinsBuildDetail; stages: JenkinsRun }> {
-    const detailParams = new HttpParams().set('tree', 'description,result,duration,timestamp,building,estimatedDuration,number,url,actions[parameters[name,value]]');
-    return this.http.get<JenkinsBuildDetail>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params: detailParams }).pipe(
-      switchMap(detail => {
-        return this.http.get<JenkinsRun>(`${this.base}/${jobPath}/job/${branch}/${detail.number}/wfapi/describe`).pipe(
-          map(stages => ({ detail, stages })),
-        );
-      }),
+  loadBuildDetail(
+    jobPath: string,
+    branch: string,
+  ): Observable<{ detail: JenkinsBuildDetail; stages: JenkinsRun }> {
+    const detailParams = new HttpParams().set(
+      'tree',
+      'description,result,duration,timestamp,building,estimatedDuration,number,url,actions[parameters[name,value]]',
+    );
+    return this.http
+      .get<JenkinsBuildDetail>(`${this.base}/${jobPath}/job/${branch}/api/json`, {
+        params: detailParams,
+      })
+      .pipe(
+        switchMap((detail) => {
+          return this.http
+            .get<JenkinsRun>(
+              `${this.base}/${jobPath}/job/${branch}/${detail.number}/wfapi/describe`,
+            )
+            .pipe(map((stages) => ({ detail, stages })));
+        }),
+      );
+  }
+
+  loadStageDetail(
+    jobPath: string,
+    branch: string,
+    buildNumber: number,
+    stageId: string,
+  ): Observable<JenkinsStageDetail> {
+    return this.http.get<JenkinsStageDetail>(
+      `${this.base}/${jobPath}/job/${branch}/${buildNumber}/execution/node/${stageId}/wfapi/describe`,
     );
   }
 
-  loadStageDetail(jobPath: string, branch: string, buildNumber: number, stageId: string): Observable<JenkinsStageDetail> {
-    return this.http.get<JenkinsStageDetail>(`${this.base}/${jobPath}/job/${branch}/${buildNumber}/execution/node/${stageId}/wfapi/describe`);
-  }
-
-  loadStageLog(jobPath: string, branch: string, buildNumber: number, nodeId: string): Observable<JenkinsStageLog> {
-    return this.http.get<JenkinsStageLog>(`${this.base}/${jobPath}/job/${branch}/${buildNumber}/execution/node/${nodeId}/wfapi/log`);
+  loadStageLog(
+    jobPath: string,
+    branch: string,
+    buildNumber: number,
+    nodeId: string,
+  ): Observable<JenkinsStageLog> {
+    return this.http.get<JenkinsStageLog>(
+      `${this.base}/${jobPath}/job/${branch}/${buildNumber}/execution/node/${nodeId}/wfapi/log`,
+    );
   }
 
   loadParameters(jobPath: string, branch: string): Observable<JenkinsParameterDefinition[]> {
-    const params = new HttpParams().set('tree', 'property[parameterDefinitions[name,type,description,defaultParameterValue[value],choices]]');
-    return this.http.get<{ property: { parameterDefinitions?: JenkinsParameterDefinition[] }[] }>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params }).pipe(
-      map(res => {
-        const prop = res.property?.find(p => p.parameterDefinitions);
-        return prop?.parameterDefinitions ?? [];
-      }),
+    const params = new HttpParams().set(
+      'tree',
+      'property[parameterDefinitions[name,type,description,defaultParameterValue[value],choices]]',
     );
+    return this.http
+      .get<{
+        property: { parameterDefinitions?: JenkinsParameterDefinition[] }[];
+      }>(`${this.base}/${jobPath}/job/${branch}/api/json`, { params })
+      .pipe(
+        map((res) => {
+          const prop = res.property?.find((p) => p.parameterDefinitions);
+          return prop?.parameterDefinitions ?? [];
+        }),
+      );
   }
 
-  triggerBuild(jobPath: string, branch: string, params: Record<string, string>): Observable<unknown> {
+  triggerBuild(
+    jobPath: string,
+    branch: string,
+    params: Record<string, string>,
+  ): Observable<unknown> {
     const body = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
       body.set(key, value);
@@ -1121,6 +1409,7 @@ git commit -m "feat(builds): add JenkinsService for branch/build fetching and ac
 ### Task 8: Create BuildLogService
 
 **Files:**
+
 - Create: `src/app/builds/build-log.service.ts`
 - Create: `src/app/builds/build-log.service.spec.ts`
 
@@ -1151,14 +1440,14 @@ describe('BuildLogService', () => {
 
   it('loads full console log', () => {
     service.loadFullLog('job/frontend-app', 'main', 142);
-    const req = httpMock.expectOne(r => r.url.includes('/142/consoleText'));
+    const req = httpMock.expectOne((r) => r.url.includes('/142/consoleText'));
     req.flush('[Pipeline] Start of Pipeline\n[Pipeline] End', { headers: {} });
     expect(service.logText()).toContain('Start of Pipeline');
   });
 
   it('signals not streaming after full load', () => {
     service.loadFullLog('job/frontend-app', 'main', 142);
-    const req = httpMock.expectOne(r => r.url.includes('consoleText'));
+    const req = httpMock.expectOne((r) => r.url.includes('consoleText'));
     req.flush('log text');
     expect(service.isStreaming()).toBe(false);
   });
@@ -1214,26 +1503,28 @@ export class BuildLogService {
     this._isStreaming.set(true);
 
     this.pollingTimer = setInterval(() => {
-      this.http.get(`${this.currentPath}/logText/progressiveText`, {
-        params: { start: String(this.currentOffset) },
-        responseType: 'text',
-        observe: 'response',
-      }).subscribe({
-        next: (response) => {
-          const newText = response.body ?? '';
-          if (newText.length > 0) {
-            this._logText.update(current => current + newText);
-          }
-          const textSize = response.headers.get('X-Text-Size');
-          if (textSize) this.currentOffset = parseInt(textSize, 10);
+      this.http
+        .get(`${this.currentPath}/logText/progressiveText`, {
+          params: { start: String(this.currentOffset) },
+          responseType: 'text',
+          observe: 'response',
+        })
+        .subscribe({
+          next: (response) => {
+            const newText = response.body ?? '';
+            if (newText.length > 0) {
+              this._logText.update((current) => current + newText);
+            }
+            const textSize = response.headers.get('X-Text-Size');
+            if (textSize) this.currentOffset = parseInt(textSize, 10);
 
-          const moreData = response.headers.get('X-More-Data');
-          if (moreData !== 'true') {
-            this.stopStreaming();
-          }
-        },
-        error: () => this._error.set(true),
-      });
+            const moreData = response.headers.get('X-More-Data');
+            if (moreData !== 'true') {
+              this.stopStreaming();
+            }
+          },
+          error: () => this._error.set(true),
+        });
     }, 5000);
   }
 
@@ -1273,6 +1564,7 @@ git commit -m "feat(builds): add BuildLogService with progressive log streaming"
 ### Task 9: Add Jenkins section to settings view
 
 **Files:**
+
 - Modify: `src/app/settings/view-settings/view-settings.ts`
 - Modify: `src/app/settings/view-settings/view-settings.html`
 
@@ -1332,10 +1624,17 @@ In `view-settings.html`, add after the Bitbucket card and before the Vertex AI c
 
 ```html
 <!-- Jenkins -->
-<div data-section="jenkins" id="section-jenkins" class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+<div
+  data-section="jenkins"
+  id="section-jenkins"
+  class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4"
+>
   <div class="flex items-center justify-between mb-4">
     <h4 class="font-bold text-[var(--color-text-heading)]">Jenkins</h4>
-    <span class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Optional</span>
+    <span
+      class="text-xs px-2.5 py-0.5 rounded-full bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]"
+      >Optional</span
+    >
   </div>
 
   <div class="mb-4">
@@ -1345,7 +1644,8 @@ In `view-settings.html`, add after the Bitbucket card and before the Vertex AI c
       class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
       placeholder="https://jenkins.example.com"
       [value]="draft().connections.jenkins.baseUrl"
-      (input)="updateDraft(d => d.connections.jenkins.baseUrl = $any($event.target).value)">
+      (input)="updateDraft(d => d.connections.jenkins.baseUrl = $any($event.target).value)"
+    />
   </div>
 
   <div class="mb-4">
@@ -1354,7 +1654,8 @@ In `view-settings.html`, add after the Bitbucket card and before the Vertex AI c
       type="text"
       class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
       [value]="draft().connections.jenkins.username"
-      (input)="updateDraft(d => d.connections.jenkins.username = $any($event.target).value)">
+      (input)="updateDraft(d => d.connections.jenkins.username = $any($event.target).value)"
+    />
   </div>
 
   <div class="mb-4">
@@ -1364,47 +1665,55 @@ In `view-settings.html`, add after the Bitbucket card and before the Vertex AI c
         [type]="showJenkinsToken() ? 'text' : 'password'"
         class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400 pr-20"
         [value]="draft().connections.jenkins.apiToken"
-        (input)="updateDraft(d => d.connections.jenkins.apiToken = $any($event.target).value)">
+        (input)="updateDraft(d => d.connections.jenkins.apiToken = $any($event.target).value)"
+      />
       <button
         type="button"
         class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-body)] transition-colors cursor-pointer"
-        (click)="showJenkinsToken.set(!showJenkinsToken())">
+        (click)="showJenkinsToken.set(!showJenkinsToken())"
+      >
         {{ showJenkinsToken() ? 'Verbergen' : 'Anzeigen' }}
       </button>
     </div>
-    <p class="text-xs text-[var(--color-text-muted)] mt-1.5">Erstelle einen Token in deinen Jenkins-Benutzereinstellungen unter Konfigurieren → API Token</p>
+    <p class="text-xs text-[var(--color-text-muted)] mt-1.5">
+      Erstelle einen Token in deinen Jenkins-Benutzereinstellungen unter Konfigurieren → API Token
+    </p>
   </div>
 
   <div class="border-t border-[var(--color-border-subtle)] pt-4">
     <label class="block text-sm text-[var(--color-text-body)] mb-2">Multibranch-Jobs</label>
 
     @for (job of draft().connections.jenkins.jobs; track $index) {
-      <div class="flex items-center gap-2 mb-2">
-        <input
-          type="text"
-          class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-          placeholder="Anzeigename"
-          [value]="job.displayName"
-          (input)="updateDraft(d => d.connections.jenkins.jobs[$index].displayName = $any($event.target).value)">
-        <input
-          type="text"
-          class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm font-mono placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
-          placeholder="job/my-project"
-          [value]="job.jobPath"
-          (input)="updateDraft(d => d.connections.jenkins.jobs[$index].jobPath = $any($event.target).value)">
-        <button
-          type="button"
-          class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
-          (click)="removeJenkinsJob($index)">
-          &times;
-        </button>
-      </div>
+    <div class="flex items-center gap-2 mb-2">
+      <input
+        type="text"
+        class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+        placeholder="Anzeigename"
+        [value]="job.displayName"
+        (input)="updateDraft(d => d.connections.jenkins.jobs[$index].displayName = $any($event.target).value)"
+      />
+      <input
+        type="text"
+        class="flex-1 px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm font-mono placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-violet-400/50 focus:border-violet-400"
+        placeholder="job/my-project"
+        [value]="job.jobPath"
+        (input)="updateDraft(d => d.connections.jenkins.jobs[$index].jobPath = $any($event.target).value)"
+      />
+      <button
+        type="button"
+        class="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger-text)] hover:bg-[var(--color-danger-bg)] transition-colors cursor-pointer"
+        (click)="removeJenkinsJob($index)"
+      >
+        &times;
+      </button>
+    </div>
     }
 
     <button
       type="button"
       class="text-sm text-[var(--color-primary-text)] hover:underline cursor-pointer"
-      (click)="addJenkinsJob()">
+      (click)="addJenkinsJob()"
+    >
       + Job hinzufügen
     </button>
   </div>
@@ -1430,6 +1739,7 @@ git commit -m "feat(settings): add Jenkins connection section with job list"
 ### Task 10: Add builds route and rail item
 
 **Files:**
+
 - Modify: `src/app/app.routes.ts`
 - Modify: `src/app/shared/app-rail/app-rail.ts`
 - Modify: `src/app/shared/router-sync.service.ts`
@@ -1534,6 +1844,7 @@ git commit -m "feat: add builds route, rail nav item, and router-sync support"
 ### Task 11: Add sources input to SyncBar
 
 **Files:**
+
 - Modify: `src/app/shared/sync-bar/sync-bar.ts`
 - Modify: `src/app/shared/sync-bar/sync-bar.html`
 - Modify: `src/app/shared/data-refresh.service.ts`
@@ -1606,6 +1917,7 @@ git commit -m "feat(sync-bar): add sources input for view-specific refresh"
 ### Task 12: Build the Builds Sidebar
 
 **Files:**
+
 - Create: `src/app/builds/builds-sidebar/builds-sidebar.ts`
 - Create: `src/app/builds/builds-sidebar/builds-sidebar.html`
 
@@ -1674,82 +1986,91 @@ export class BuildsSidebarComponent {
 <nav class="flex flex-col h-full" aria-label="Builds-Navigator">
   <div class="px-4 py-3 border-b border-[var(--color-border-subtle)]">
     <div class="flex items-center justify-between">
-      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Builds</span>
+      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
+        >Builds</span
+      >
       <span class="text-xs text-[var(--color-text-muted)]">Deine CI/CD Pipelines</span>
     </div>
   </div>
 
   <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable] px-3 py-4 space-y-6">
     @if (jenkins.loading()) {
-      <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Branches werden geladen…</p>
+    <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">
+      Branches werden geladen…
+    </p>
     } @else if (jenkins.error()) {
-      <div class="px-1 py-2" role="alert">
-        <p class="text-xs text-[var(--color-danger-solid)]">Branches konnten nicht geladen werden.</p>
+    <div class="px-1 py-2" role="alert">
+      <p class="text-xs text-[var(--color-danger-solid)]">Branches konnten nicht geladen werden.</p>
+    </div>
+    } @else { @for (entry of jobEntries(); track entry[0]) {
+    <section>
+      <div class="flex items-center gap-2 mb-2 px-1">
+        <span
+          class="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider"
+          >{{ entry[0] }}</span
+        >
+        <orbit-badge color="primary" [counter]="true">{{ entry[1].length }}</orbit-badge>
       </div>
-    } @else {
-      @for (entry of jobEntries(); track entry[0]) {
-        <section>
-          <div class="flex items-center gap-2 mb-2 px-1">
-            <span class="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">{{ entry[0] }}</span>
-            <orbit-badge color="primary" [counter]="true">{{ entry[1].length }}</orbit-badge>
-          </div>
-          <ul class="space-y-1.5" role="list">
-            @for (branch of entry[1]; track branch.branchName) {
-              <li>
-                <button
-                  type="button"
-                  class="w-full text-left rounded-lg p-3 transition-colors cursor-pointer border"
-                  [class.border-[var(--color-primary-border)]]="isSelected(branch)"
-                  [class.bg-[var(--color-bg-surface)]]="isSelected(branch)"
-                  [class.border-transparent]="!isSelected(branch)"
-                  [class.bg-[var(--color-bg-card)]]="!isSelected(branch)"
-                  [class.hover:bg-[var(--color-bg-surface)]]="!isSelected(branch)"
-                  [class.border-l-[var(--color-danger-solid)]]="branch.branchColor.startsWith('red')"
-                  [class.border-l-4]="branch.branchColor.startsWith('red')"
-                  (click)="branchSelect.emit(branch)"
-                >
-                  <div class="text-xs font-semibold font-mono text-[var(--color-text-heading)] truncate">
-                    {{ decodeBranch(branch.branchName) }}
-                  </div>
-                  <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    @switch (getStatusColor(branch.branchColor)) {
-                      @case ('danger') {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                      @case ('info') {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                      @default {
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1">
-                          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
-                          {{ getStatusLabel(branch.branchColor) }}
-                        </span>
-                      }
-                    }
-                    @if (branch.lastBuild) {
-                      <span class="text-[10px] text-[var(--color-text-muted)]">
-                        #{{ branch.lastBuild.number }} · {{ timeAgo(branch.lastBuild.timestamp) }}
-                      </span>
-                    }
-                    @if (branch.prNumber) {
-                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]">
-                        PR #{{ branch.prNumber }}
-                      </span>
-                    }
-                  </div>
-                </button>
-              </li>
-            }
-          </ul>
-        </section>
-      }
-    }
+      <ul class="space-y-1.5" role="list">
+        @for (branch of entry[1]; track branch.branchName) {
+        <li>
+          <button
+            type="button"
+            class="w-full text-left rounded-lg p-3 transition-colors cursor-pointer border"
+            [class.border-[var(--color-primary-border)]]="isSelected(branch)"
+            [class.bg-[var(--color-bg-surface)]]="isSelected(branch)"
+            [class.border-transparent]="!isSelected(branch)"
+            [class.bg-[var(--color-bg-card)]]="!isSelected(branch)"
+            [class.hover:bg-[var(--color-bg-surface)]]="!isSelected(branch)"
+            [class.border-l-[var(--color-danger-solid)]]="branch.branchColor.startsWith('red')"
+            [class.border-l-4]="branch.branchColor.startsWith('red')"
+            (click)="branchSelect.emit(branch)"
+          >
+            <div class="text-xs font-semibold font-mono text-[var(--color-text-heading)] truncate">
+              {{ decodeBranch(branch.branchName) }}
+            </div>
+            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              @switch (getStatusColor(branch.branchColor)) { @case ('danger') {
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
+                {{ getStatusLabel(branch.branchColor) }}
+              </span>
+              } @case ('info') {
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"
+                ></span>
+                {{ getStatusLabel(branch.branchColor) }}
+              </span>
+              } @default {
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
+                {{ getStatusLabel(branch.branchColor) }}
+              </span>
+              } } @if (branch.lastBuild) {
+              <span class="text-[10px] text-[var(--color-text-muted)]">
+                #{{ branch.lastBuild.number }} · {{ timeAgo(branch.lastBuild.timestamp) }}
+              </span>
+              } @if (branch.prNumber) {
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary-bg)] text-[var(--color-primary-text)]"
+              >
+                PR #{{ branch.prNumber }}
+              </span>
+              }
+            </div>
+          </button>
+        </li>
+        }
+      </ul>
+    </section>
+    } }
   </div>
 
   <app-sync-bar [sources]="['jenkins']" />
@@ -1768,6 +2089,7 @@ git commit -m "feat(builds): add builds sidebar with branch cards and job groups
 ### Task 13: Build the Build Detail component
 
 **Files:**
+
 - Create: `src/app/builds/build-detail/build-detail.ts`
 - Create: `src/app/builds/build-detail/build-detail.html`
 
@@ -1787,7 +2109,13 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import AnsiUp from 'ansi_up';
 import { JenkinsService } from '../jenkins.service';
 import { BuildLogService } from '../build-log.service';
-import { BranchBuild, JenkinsBuildDetail, JenkinsRun, JenkinsStage, JenkinsStageLog } from '../jenkins.model';
+import {
+  BranchBuild,
+  JenkinsBuildDetail,
+  JenkinsRun,
+  JenkinsStage,
+  JenkinsStageLog,
+} from '../jenkins.model';
 import { CollapsibleSectionComponent } from '../../shared/collapsible-section/collapsible-section';
 
 @Component({
@@ -1847,20 +2175,24 @@ export class BuildDetailComponent {
   }
 
   private loadFailedStageLogs(b: BranchBuild, detail: JenkinsBuildDetail, run: JenkinsRun): void {
-    const failedStages = run.stages.filter(s => s.status === 'FAILED');
+    const failedStages = run.stages.filter((s) => s.status === 'FAILED');
     for (const stage of failedStages) {
-      this.jenkins.loadStageDetail(b.jobPath, b.branchName, detail.number, stage.id).subscribe(stageDetail => {
-        const failedNode = stageDetail.stageFlowNodes.find(n => n.error);
-        if (failedNode) {
-          this.jenkins.loadStageLog(b.jobPath, b.branchName, detail.number, failedNode.id).subscribe(log => {
-            this.stageLogs.update(map => {
-              const updated = new Map(map);
-              updated.set(stage.id, log);
-              return updated;
-            });
-          });
-        }
-      });
+      this.jenkins
+        .loadStageDetail(b.jobPath, b.branchName, detail.number, stage.id)
+        .subscribe((stageDetail) => {
+          const failedNode = stageDetail.stageFlowNodes.find((n) => n.error);
+          if (failedNode) {
+            this.jenkins
+              .loadStageLog(b.jobPath, b.branchName, detail.number, failedNode.id)
+              .subscribe((log) => {
+                this.stageLogs.update((map) => {
+                  const updated = new Map(map);
+                  updated.set(stage.id, log);
+                  return updated;
+                });
+              });
+          }
+        });
     }
   }
 
@@ -1900,13 +2232,15 @@ export class BuildDetailComponent {
     const raw = this.logService.logText();
     if (!raw) return '';
     const lines = raw.split('\n');
-    const html = lines.map((line, i) => {
-      const num = i + 1;
-      const rendered = this.ansi.ansi_to_html(line);
-      const isError = /\bERROR\b|\bException\b|\bFAILED\b/.test(line);
-      const cls = isError ? 'border-l-2 border-l-[var(--color-danger-solid)]' : '';
-      return `<div class="flex ${cls}"><span class="select-none text-[var(--color-text-muted)] w-12 text-right pr-3 shrink-0">${num}</span><span class="flex-1 whitespace-pre-wrap break-all">${rendered}</span></div>`;
-    }).join('');
+    const html = lines
+      .map((line, i) => {
+        const num = i + 1;
+        const rendered = this.ansi.ansi_to_html(line);
+        const isError = /\bERROR\b|\bException\b|\bFAILED\b/.test(line);
+        const cls = isError ? 'border-l-2 border-l-[var(--color-danger-solid)]' : '';
+        return `<div class="flex ${cls}"><span class="select-none text-[var(--color-text-muted)] w-12 text-right pr-3 shrink-0">${num}</span><span class="flex-1 whitespace-pre-wrap break-all">${rendered}</span></div>`;
+      })
+      .join('');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
@@ -1957,10 +2291,14 @@ export class BuildDetailComponent {
 
   protected stageIcon(status: string): string {
     switch (status) {
-      case 'SUCCESS': return '✓';
-      case 'FAILED': return '✗';
-      case 'IN_PROGRESS': return '●';
-      default: return '○';
+      case 'SUCCESS':
+        return '✓';
+      case 'FAILED':
+        return '✗';
+      case 'IN_PROGRESS':
+        return '●';
+      default:
+        return '○';
     }
   }
 
@@ -1975,181 +2313,208 @@ export class BuildDetailComponent {
 
 ```html
 @if (loadingDetail()) {
-  <div class="flex-1 flex items-center justify-center">
-    <p class="text-sm text-[var(--color-text-muted)]">Build-Details werden geladen…</p>
-  </div>
+<div class="flex-1 flex items-center justify-center">
+  <p class="text-sm text-[var(--color-text-muted)]">Build-Details werden geladen…</p>
+</div>
 } @else if (buildDetail(); as detail) {
-  <!-- Header -->
-  <div class="px-6 pt-6 pb-0">
-    <div class="max-w-2xl mx-auto">
-      <h2 class="text-lg font-bold font-mono text-[var(--color-text-heading)]">{{ decodeBranch(branch().branchName) }}</h2>
-      <div class="flex items-center gap-2 mt-1 flex-wrap text-xs text-[var(--color-text-muted)]">
-        <span>{{ branch().jobDisplayName }}</span>
-        <span class="text-[var(--color-text-muted)]">·</span>
-        <span>#{{ detail.number }}</span>
-        <span class="text-[var(--color-text-muted)]">·</span>
-        @if (detail.building) {
-          <span class="px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
-            Läuft
-          </span>
-        } @else if (detail.result === 'SUCCESS') {
-          <span class="px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
-            Erfolg
-          </span>
-        } @else if (detail.result === 'FAILURE') {
-          <span class="px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
-            Fehler
-          </span>
-        }
-        <span class="text-[var(--color-text-muted)]">·</span>
-        <span>{{ timeAgo(detail.timestamp) }}</span>
-        @if (!detail.building && detail.duration) {
-          <span class="text-[var(--color-text-muted)]">·</span>
-          <span>{{ formatDuration(detail.duration) }}</span>
-        }
-      </div>
+<!-- Header -->
+<div class="px-6 pt-6 pb-0">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="text-lg font-bold font-mono text-[var(--color-text-heading)]">
+      {{ decodeBranch(branch().branchName) }}
+    </h2>
+    <div class="flex items-center gap-2 mt-1 flex-wrap text-xs text-[var(--color-text-muted)]">
+      <span>{{ branch().jobDisplayName }}</span>
+      <span class="text-[var(--color-text-muted)]">·</span>
+      <span>#{{ detail.number }}</span>
+      <span class="text-[var(--color-text-muted)]">·</span>
+      @if (detail.building) {
+      <span
+        class="px-2 py-0.5 rounded-full bg-[var(--color-info-bg)] text-[var(--color-info-text)] flex items-center gap-1"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-info-solid)] animate-pulse"></span>
+        Läuft
+      </span>
+      } @else if (detail.result === 'SUCCESS') {
+      <span
+        class="px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success-text)] flex items-center gap-1"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success-solid)]"></span>
+        Erfolg
+      </span>
+      } @else if (detail.result === 'FAILURE') {
+      <span
+        class="px-2 py-0.5 rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger-text)] flex items-center gap-1"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-danger-solid)]"></span>
+        Fehler
+      </span>
+      }
+      <span class="text-[var(--color-text-muted)]">·</span>
+      <span>{{ timeAgo(detail.timestamp) }}</span>
+      @if (!detail.building && detail.duration) {
+      <span class="text-[var(--color-text-muted)]">·</span>
+      <span>{{ formatDuration(detail.duration) }}</span>
+      }
+    </div>
 
-      <!-- Action Bar -->
-      <div class="flex gap-2 mt-4 pb-4 border-b border-[var(--color-border-subtle)]">
-        @if (detail.building) {
-          <button
-            type="button"
-            class="px-4 py-1.5 text-sm rounded-lg bg-[var(--color-danger-solid)] text-white hover:opacity-90 transition-opacity cursor-pointer"
-            (click)="onStop()">
-            Abbrechen
-          </button>
-        } @else {
-          <button
-            type="button"
-            class="px-4 py-1.5 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors cursor-pointer"
-            (click)="showRestartDialog.set(true)">
-            Neu starten
-          </button>
-        }
-        <a
-          [href]="detail.url"
-          target="_blank"
-          rel="noopener"
-          class="px-4 py-1.5 text-sm rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors">
-          In Jenkins öffnen ↗
-        </a>
-      </div>
+    <!-- Action Bar -->
+    <div class="flex gap-2 mt-4 pb-4 border-b border-[var(--color-border-subtle)]">
+      @if (detail.building) {
+      <button
+        type="button"
+        class="px-4 py-1.5 text-sm rounded-lg bg-[var(--color-danger-solid)] text-white hover:opacity-90 transition-opacity cursor-pointer"
+        (click)="onStop()"
+      >
+        Abbrechen
+      </button>
+      } @else {
+      <button
+        type="button"
+        class="px-4 py-1.5 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors cursor-pointer"
+        (click)="showRestartDialog.set(true)"
+      >
+        Neu starten
+      </button>
+      }
+      <a
+        [href]="detail.url"
+        target="_blank"
+        rel="noopener"
+        class="px-4 py-1.5 text-sm rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors"
+      >
+        In Jenkins öffnen ↗
+      </a>
+    </div>
 
-      <!-- Tabs -->
-      <div class="flex gap-4 mt-4 border-b border-[var(--color-border-subtle)]">
-        <button
-          type="button"
-          class="pb-2 text-sm font-medium transition-colors cursor-pointer"
-          [class.text-[var(--color-primary-text)]]="activeTab() === 'overview'"
-          [class.border-b-2]="activeTab() === 'overview'"
-          [class.border-[var(--color-primary-solid)]]="activeTab() === 'overview'"
-          [class.text-[var(--color-text-muted)]]="activeTab() !== 'overview'"
-          (click)="switchTab('overview')">
-          Übersicht
-        </button>
-        <button
-          type="button"
-          class="pb-2 text-sm font-medium transition-colors cursor-pointer"
-          [class.text-[var(--color-primary-text)]]="activeTab() === 'log'"
-          [class.border-b-2]="activeTab() === 'log'"
-          [class.border-[var(--color-primary-solid)]]="activeTab() === 'log'"
-          [class.text-[var(--color-text-muted)]]="activeTab() !== 'log'"
-          (click)="switchTab('log')">
-          Log
-        </button>
-      </div>
+    <!-- Tabs -->
+    <div class="flex gap-4 mt-4 border-b border-[var(--color-border-subtle)]">
+      <button
+        type="button"
+        class="pb-2 text-sm font-medium transition-colors cursor-pointer"
+        [class.text-[var(--color-primary-text)]]="activeTab() === 'overview'"
+        [class.border-b-2]="activeTab() === 'overview'"
+        [class.border-[var(--color-primary-solid)]]="activeTab() === 'overview'"
+        [class.text-[var(--color-text-muted)]]="activeTab() !== 'overview'"
+        (click)="switchTab('overview')"
+      >
+        Übersicht
+      </button>
+      <button
+        type="button"
+        class="pb-2 text-sm font-medium transition-colors cursor-pointer"
+        [class.text-[var(--color-primary-text)]]="activeTab() === 'log'"
+        [class.border-b-2]="activeTab() === 'log'"
+        [class.border-[var(--color-primary-solid)]]="activeTab() === 'log'"
+        [class.text-[var(--color-text-muted)]]="activeTab() !== 'log'"
+        (click)="switchTab('log')"
+      >
+        Log
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Tab Content -->
-  <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
-    @if (activeTab() === 'overview') {
-      <div class="max-w-2xl mx-auto px-6 py-4 space-y-3">
-        @if (sanitizedDescription()) {
-          <app-collapsible-section label="Beschreibung" [expanded]="true">
-            <div class="text-sm text-[var(--color-text-body)] leading-relaxed [&_a]:text-[var(--color-info-text)] [&_a]:underline" [innerHTML]="sanitizedDescription()"></div>
-          </app-collapsible-section>
-        }
-
-        @if (stages(); as run) {
-          <app-collapsible-section label="Pipeline" [expanded]="true">
-            <div class="space-y-1">
-              @for (stage of run.stages; track stage.id) {
-                <div>
-                  <div class="flex items-center gap-3 py-1.5">
-                    @switch (stage.status) {
-                      @case ('SUCCESS') {
-                        <div class="w-[22px] h-[22px] rounded-full bg-[var(--color-success-bg)] flex items-center justify-center text-[var(--color-success-text)] text-xs shrink-0">✓</div>
-                      }
-                      @case ('FAILED') {
-                        <div class="w-[22px] h-[22px] rounded-full bg-[var(--color-danger-bg)] flex items-center justify-center text-[var(--color-danger-text)] text-xs shrink-0">✗</div>
-                      }
-                      @case ('IN_PROGRESS') {
-                        <div class="w-[22px] h-[22px] rounded-full bg-[var(--color-info-bg)] flex items-center justify-center text-[var(--color-info-text)] text-xs shrink-0 animate-pulse">●</div>
-                      }
-                      @default {
-                        <div class="w-[22px] h-[22px] rounded-full bg-[var(--color-bg-surface)] flex items-center justify-center text-[var(--color-text-muted)] text-xs shrink-0 opacity-50">○</div>
-                      }
-                    }
-                    <span class="text-sm text-[var(--color-text-body)]"
-                      [class.opacity-50]="stage.status === 'NOT_EXECUTED'">{{ stage.name }}</span>
-                    <span class="text-xs text-[var(--color-text-muted)] ml-auto">
-                      @if (stage.status === 'IN_PROGRESS') {
-                        {{ stageSince(stage) }}
-                      } @else if (stage.durationMillis > 0) {
-                        {{ formatDuration(stage.durationMillis) }}
-                      }
-                    </span>
-                  </div>
-                  @if (stageLog(stage.id)) {
-                    <div class="ml-[34px] mb-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] p-3 font-mono text-xs leading-relaxed overflow-x-auto" [innerHTML]="stageLog(stage.id)"></div>
-                  }
-                </div>
-              }
+<!-- Tab Content -->
+<div class="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+  @if (activeTab() === 'overview') {
+  <div class="max-w-2xl mx-auto px-6 py-4 space-y-3">
+    @if (sanitizedDescription()) {
+    <app-collapsible-section label="Beschreibung" [expanded]="true">
+      <div
+        class="text-sm text-[var(--color-text-body)] leading-relaxed [&_a]:text-[var(--color-info-text)] [&_a]:underline"
+        [innerHTML]="sanitizedDescription()"
+      ></div>
+    </app-collapsible-section>
+    } @if (stages(); as run) {
+    <app-collapsible-section label="Pipeline" [expanded]="true">
+      <div class="space-y-1">
+        @for (stage of run.stages; track stage.id) {
+        <div>
+          <div class="flex items-center gap-3 py-1.5">
+            @switch (stage.status) { @case ('SUCCESS') {
+            <div
+              class="w-[22px] h-[22px] rounded-full bg-[var(--color-success-bg)] flex items-center justify-center text-[var(--color-success-text)] text-xs shrink-0"
+            >
+              ✓
             </div>
-          </app-collapsible-section>
-        }
-      </div>
-    }
-
-    @if (activeTab() === 'log') {
-      <div class="px-6 py-4">
-        <div class="flex items-center justify-end mb-3">
-          <a
-            [href]="buildDetail()?.url + 'console'"
-            target="_blank"
-            rel="noopener"
-            class="text-xs text-[var(--color-info-text)] hover:underline">
-            In Jenkins öffnen ↗
-          </a>
+            } @case ('FAILED') {
+            <div
+              class="w-[22px] h-[22px] rounded-full bg-[var(--color-danger-bg)] flex items-center justify-center text-[var(--color-danger-text)] text-xs shrink-0"
+            >
+              ✗
+            </div>
+            } @case ('IN_PROGRESS') {
+            <div
+              class="w-[22px] h-[22px] rounded-full bg-[var(--color-info-bg)] flex items-center justify-center text-[var(--color-info-text)] text-xs shrink-0 animate-pulse"
+            >
+              ●
+            </div>
+            } @default {
+            <div
+              class="w-[22px] h-[22px] rounded-full bg-[var(--color-bg-surface)] flex items-center justify-center text-[var(--color-text-muted)] text-xs shrink-0 opacity-50"
+            >
+              ○
+            </div>
+            } }
+            <span
+              class="text-sm text-[var(--color-text-body)]"
+              [class.opacity-50]="stage.status === 'NOT_EXECUTED'"
+              >{{ stage.name }}</span
+            >
+            <span class="text-xs text-[var(--color-text-muted)] ml-auto">
+              @if (stage.status === 'IN_PROGRESS') { {{ stageSince(stage) }} } @else if
+              (stage.durationMillis > 0) { {{ formatDuration(stage.durationMillis) }} }
+            </span>
+          </div>
+          @if (stageLog(stage.id)) {
+          <div
+            class="ml-[34px] mb-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] p-3 font-mono text-xs leading-relaxed overflow-x-auto"
+            [innerHTML]="stageLog(stage.id)"
+          ></div>
+          }
         </div>
-        @if (logService.logText()) {
-          <div class="font-mono text-xs leading-5 bg-[var(--color-bg-card)] rounded-lg border border-[var(--color-border-subtle)] p-4 overflow-x-auto" [innerHTML]="renderedLog()"></div>
-        } @else {
-          <p class="text-sm text-[var(--color-text-muted)]">Log wird geladen…</p>
-        }
-        @if (logService.isStreaming()) {
-          <p class="text-xs text-[var(--color-text-muted)] mt-2 animate-pulse">Live-Log wird aktualisiert…</p>
         }
       </div>
+    </app-collapsible-section>
     }
   </div>
-}
-
-@if (showRestartDialog()) {
-  <app-restart-dialog
-    [branch]="branch()"
-    (close)="showRestartDialog.set(false)"
-  />
+  } @if (activeTab() === 'log') {
+  <div class="px-6 py-4">
+    <div class="flex items-center justify-end mb-3">
+      <a
+        [href]="buildDetail()?.url + 'console'"
+        target="_blank"
+        rel="noopener"
+        class="text-xs text-[var(--color-info-text)] hover:underline"
+      >
+        In Jenkins öffnen ↗
+      </a>
+    </div>
+    @if (logService.logText()) {
+    <div
+      class="font-mono text-xs leading-5 bg-[var(--color-bg-card)] rounded-lg border border-[var(--color-border-subtle)] p-4 overflow-x-auto"
+      [innerHTML]="renderedLog()"
+    ></div>
+    } @else {
+    <p class="text-sm text-[var(--color-text-muted)]">Log wird geladen…</p>
+    } @if (logService.isStreaming()) {
+    <p class="text-xs text-[var(--color-text-muted)] mt-2 animate-pulse">
+      Live-Log wird aktualisiert…
+    </p>
+    }
+  </div>
+  }
+</div>
+} @if (showRestartDialog()) {
+<app-restart-dialog [branch]="branch()" (close)="showRestartDialog.set(false)" />
 }
 ```
 
 Add the missing `decodeBranch` method and the RestartDialog import. Update the component:
 
 In `build-detail.ts`, add to imports array:
+
 ```typescript
 import { RestartDialogComponent } from '../restart-dialog/restart-dialog';
 ```
@@ -2157,6 +2522,7 @@ import { RestartDialogComponent } from '../restart-dialog/restart-dialog';
 Add `RestartDialogComponent` to the component's `imports` array.
 
 Add method:
+
 ```typescript
 protected decodeBranch(name: string): string {
   return decodeURIComponent(name);
@@ -2175,13 +2541,22 @@ git commit -m "feat(builds): add build detail component with overview and log ta
 ### Task 14: Build the Restart Dialog
 
 **Files:**
+
 - Create: `src/app/builds/restart-dialog/restart-dialog.ts`
 - Create: `src/app/builds/restart-dialog/restart-dialog.html`
 
 - [ ] **Step 1: Create restart-dialog.ts**
 
 ```typescript
-import { ChangeDetectionStrategy, Component, inject, input, output, signal, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JenkinsService } from '../jenkins.service';
 import { BranchBuild, JenkinsParameterDefinition } from '../jenkins.model';
@@ -2191,7 +2566,9 @@ import { BranchBuild, JenkinsParameterDefinition } from '../jenkins.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule],
   templateUrl: './restart-dialog.html',
-  host: { class: 'fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm' },
+  host: {
+    class: 'fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm',
+  },
 })
 export class RestartDialogComponent implements OnInit {
   private readonly jenkins = inject(JenkinsService);
@@ -2221,7 +2598,7 @@ export class RestartDialogComponent implements OnInit {
   }
 
   protected updateValue(name: string, value: string): void {
-    this.values.update(v => ({ ...v, [name]: value }));
+    this.values.update((v) => ({ ...v, [name]: value }));
   }
 
   protected onSubmit(): void {
@@ -2242,85 +2619,94 @@ export class RestartDialogComponent implements OnInit {
 - [ ] **Step 2: Create restart-dialog.html**
 
 ```html
-<div class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col" (click)="$event.stopPropagation()">
+<div
+  class="bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[80vh] flex flex-col"
+  (click)="$event.stopPropagation()"
+>
   <div class="px-6 py-4 border-b border-[var(--color-border-subtle)]">
     <h3 class="font-semibold text-[var(--color-text-heading)]">Build neu starten</h3>
-    <p class="text-sm text-[var(--color-text-muted)] mt-0.5 font-mono">{{ decodeBranch(branch().branchName) }}</p>
+    <p class="text-sm text-[var(--color-text-muted)] mt-0.5 font-mono">
+      {{ decodeBranch(branch().branchName) }}
+    </p>
   </div>
 
   <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
     @if (loading()) {
-      <p class="text-sm text-[var(--color-text-muted)]">Parameter werden geladen…</p>
+    <p class="text-sm text-[var(--color-text-muted)]">Parameter werden geladen…</p>
     } @else if (params().length === 0) {
-      <p class="text-sm text-[var(--color-text-body)]">Dieser Job hat keine Parameter. Build wird mit Standardwerten gestartet.</p>
-    } @else {
-      @for (param of params(); track param.name) {
-        <div>
-          <label class="block text-sm font-medium text-[var(--color-text-body)] mb-1">{{ param.name }}</label>
-          @if (param.description) {
-            <p class="text-xs text-[var(--color-text-muted)] mb-1.5">{{ param.description }}</p>
-          }
-
-          @switch (param.type) {
-            @case ('BooleanParameterDefinition') {
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer"
-                  [checked]="values()[param.name] === 'true'"
-                  (change)="updateValue(param.name, $any($event.target).checked ? 'true' : 'false')">
-                <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+    <p class="text-sm text-[var(--color-text-body)]">
+      Dieser Job hat keine Parameter. Build wird mit Standardwerten gestartet.
+    </p>
+    } @else { @for (param of params(); track param.name) {
+    <div>
+      <label class="block text-sm font-medium text-[var(--color-text-body)] mb-1"
+        >{{ param.name }}</label
+      >
+      @if (param.description) {
+      <p class="text-xs text-[var(--color-text-muted)] mb-1.5">{{ param.description }}</p>
+      } @switch (param.type) { @case ('BooleanParameterDefinition') {
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          class="sr-only peer"
+          [checked]="values()[param.name] === 'true'"
+          (change)="updateValue(param.name, $any($event.target).checked ? 'true' : 'false')"
+        />
+        <div
+          class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
                   after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-                  after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-                </div>
-              </label>
-            }
-            @case ('ChoiceParameterDefinition') {
-              <select
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                [value]="values()[param.name]"
-                (change)="updateValue(param.name, $any($event.target).value)">
-                @for (choice of $any(param).choices; track choice) {
-                  <option [value]="choice">{{ choice }}</option>
-                }
-              </select>
-            }
-            @case ('TextParameterDefinition') {
-              <textarea
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 resize-y min-h-[80px]"
-                [value]="values()[param.name]"
-                (input)="updateValue(param.name, $any($event.target).value)"></textarea>
-            }
-            @case ('PasswordParameterDefinition') {
-              <input
-                type="password"
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                [value]="values()[param.name]"
-                (input)="updateValue(param.name, $any($event.target).value)">
-            }
-            @default {
-              <input
-                type="text"
-                class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                [value]="values()[param.name]"
-                (input)="updateValue(param.name, $any($event.target).value)">
-            }
-          }
-        </div>
-      }
-    }
+                  after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+        ></div>
+      </label>
+      } @case ('ChoiceParameterDefinition') {
+      <select
+        class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+        [value]="values()[param.name]"
+        (change)="updateValue(param.name, $any($event.target).value)"
+      >
+        @for (choice of $any(param).choices; track choice) {
+        <option [value]="choice">{{ choice }}</option>
+        }
+      </select>
+      } @case ('TextParameterDefinition') {
+      <textarea
+        class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50 resize-y min-h-[80px]"
+        [value]="values()[param.name]"
+        (input)="updateValue(param.name, $any($event.target).value)"
+      ></textarea>
+      } @case ('PasswordParameterDefinition') {
+      <input
+        type="password"
+        class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+        [value]="values()[param.name]"
+        (input)="updateValue(param.name, $any($event.target).value)"
+      />
+      } @default {
+      <input
+        type="text"
+        class="w-full px-3 py-2 rounded-lg bg-[var(--color-bg-page)] border border-[var(--color-border-subtle)] text-[var(--color-text-heading)] text-sm focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+        [value]="values()[param.name]"
+        (input)="updateValue(param.name, $any($event.target).value)"
+      />
+      } }
+    </div>
+    } }
   </div>
 
   <div class="px-6 py-4 border-t border-[var(--color-border-subtle)] flex justify-end gap-2">
     <button
       type="button"
       class="px-4 py-2 text-sm rounded-lg text-[var(--color-text-body)] hover:bg-[var(--color-bg-surface)] transition-colors cursor-pointer"
-      (click)="close.emit()">
+      (click)="close.emit()"
+    >
       Abbrechen
     </button>
     <button
       type="button"
       class="px-5 py-2 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors cursor-pointer font-medium"
       [disabled]="triggering()"
-      (click)="onSubmit()">
+      (click)="onSubmit()"
+    >
       {{ triggering() ? 'Wird gestartet…' : 'Starten' }}
     </button>
   </div>
@@ -2339,6 +2725,7 @@ git commit -m "feat(builds): add restart dialog with dynamic parameter form"
 ### Task 15: Wire up ViewBuildsComponent
 
 **Files:**
+
 - Modify: `src/app/builds/view-builds/view-builds.ts`
 - Create: `src/app/builds/view-builds/view-builds.html`
 
@@ -2386,45 +2773,75 @@ export class ViewBuildsComponent {
   class="w-[360px] xl:w-[400px] shrink-0 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-page)] overflow-hidden flex flex-col"
   aria-label="Builds-Navigator"
 >
-  <app-builds-sidebar
-    [selectedBranch]="selectedKey()"
-    (branchSelect)="onBranchSelect($event)"
-  />
+  <app-builds-sidebar [selectedBranch]="selectedKey()" (branchSelect)="onBranchSelect($event)" />
 </aside>
 
 <div class="flex-1 overflow-hidden bg-[var(--color-bg-page)]">
   @if (!settings.jenkinsConfigured()) {
-    <div class="flex-1 flex items-center justify-center h-full">
-      <div class="text-center max-w-sm">
-        <div class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-          <svg class="w-7 h-7 text-[var(--color-primary-solid)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
-          </svg>
-        </div>
-        <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Jenkins nicht konfiguriert</h2>
-        <p class="text-sm text-[var(--color-text-muted)] leading-relaxed mb-4">Richte eine Jenkins-Verbindung ein, um deine Build-Pipelines hier zu sehen.</p>
-        <button
-          type="button"
-          class="px-4 py-2 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors cursor-pointer"
-          (click)="navigateToSettings()">
-          Verbindung einrichten →
-        </button>
+  <div class="flex-1 flex items-center justify-center h-full">
+    <div class="text-center max-w-sm">
+      <div
+        class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4"
+        aria-hidden="true"
+      >
+        <svg
+          class="w-7 h-7 text-[var(--color-primary-solid)]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"
+          />
+        </svg>
       </div>
+      <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">
+        Jenkins nicht konfiguriert
+      </h2>
+      <p class="text-sm text-[var(--color-text-muted)] leading-relaxed mb-4">
+        Richte eine Jenkins-Verbindung ein, um deine Build-Pipelines hier zu sehen.
+      </p>
+      <button
+        type="button"
+        class="px-4 py-2 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 transition-colors cursor-pointer"
+        (click)="navigateToSettings()"
+      >
+        Verbindung einrichten →
+      </button>
     </div>
+  </div>
   } @else if (!selectedBranch()) {
-    <div class="flex-1 flex items-center justify-center h-full">
-      <div class="text-center max-w-sm">
-        <div class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-          <svg class="w-7 h-7 text-[var(--color-primary-solid)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
-          </svg>
-        </div>
-        <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Build auswählen</h2>
-        <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">Wähle einen Branch aus der linken Spalte, um die Build-Details hier anzuzeigen.</p>
+  <div class="flex-1 flex items-center justify-center h-full">
+    <div class="text-center max-w-sm">
+      <div
+        class="w-14 h-14 rounded-2xl bg-[var(--color-primary-bg)] flex items-center justify-center mx-auto mb-4"
+        aria-hidden="true"
+      >
+        <svg
+          class="w-7 h-7 text-[var(--color-primary-solid)]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"
+          />
+        </svg>
       </div>
+      <h2 class="text-lg font-semibold text-[var(--color-text-heading)] mb-1">Build auswählen</h2>
+      <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+        Wähle einen Branch aus der linken Spalte, um die Build-Details hier anzuzeigen.
+      </p>
     </div>
+  </div>
   } @else {
-    <app-build-detail [branch]="selectedBranch()!" />
+  <app-build-detail [branch]="selectedBranch()!" />
   }
 </div>
 ```
@@ -2456,6 +2873,7 @@ npm run start:mock
 - [ ] **Step 2: Open browser and test**
 
 Navigate to `http://localhost:6200/builds`:
+
 1. Verify the Rail shows "Builds" as second nav item
 2. Verify "Jenkins nicht konfiguriert" empty state appears
 3. Go to Settings → Jenkins → configure mock server URL (`http://localhost:6204`), username, token, add a job
@@ -2485,6 +2903,7 @@ git commit -m "fix(builds): address issues found during integration testing"
 ### Task 17: Add ansi_up CSS classes for light/dark mode
 
 **Files:**
+
 - Modify: `src/styles/styles.css` (or create `src/styles/ansi.css` and import it)
 
 - [ ] **Step 1: Add ANSI color classes**
@@ -2492,32 +2911,82 @@ git commit -m "fix(builds): address issues found during integration testing"
 Add to the global styles (or a new `ansi.css` imported in `styles.css`):
 
 ```css
-.ansi-black-fg { color: #3c3836; }
-.ansi-red-fg { color: #cc241d; }
-.ansi-green-fg { color: #98971a; }
-.ansi-yellow-fg { color: #d79921; }
-.ansi-blue-fg { color: #458588; }
-.ansi-magenta-fg { color: #b16286; }
-.ansi-cyan-fg { color: #689d6a; }
-.ansi-white-fg { color: #a89984; }
-.ansi-bright-black-fg { color: #928374; }
-.ansi-bright-red-fg { color: #fb4934; }
-.ansi-bright-green-fg { color: #b8bb26; }
-.ansi-bright-yellow-fg { color: #fabd2f; }
-.ansi-bright-blue-fg { color: #83a598; }
-.ansi-bright-magenta-fg { color: #d3869b; }
-.ansi-bright-cyan-fg { color: #8ec07c; }
-.ansi-bright-white-fg { color: #ebdbb2; }
-.ansi-bold { font-weight: bold; }
+.ansi-black-fg {
+  color: #3c3836;
+}
+.ansi-red-fg {
+  color: #cc241d;
+}
+.ansi-green-fg {
+  color: #98971a;
+}
+.ansi-yellow-fg {
+  color: #d79921;
+}
+.ansi-blue-fg {
+  color: #458588;
+}
+.ansi-magenta-fg {
+  color: #b16286;
+}
+.ansi-cyan-fg {
+  color: #689d6a;
+}
+.ansi-white-fg {
+  color: #a89984;
+}
+.ansi-bright-black-fg {
+  color: #928374;
+}
+.ansi-bright-red-fg {
+  color: #fb4934;
+}
+.ansi-bright-green-fg {
+  color: #b8bb26;
+}
+.ansi-bright-yellow-fg {
+  color: #fabd2f;
+}
+.ansi-bright-blue-fg {
+  color: #83a598;
+}
+.ansi-bright-magenta-fg {
+  color: #d3869b;
+}
+.ansi-bright-cyan-fg {
+  color: #8ec07c;
+}
+.ansi-bright-white-fg {
+  color: #ebdbb2;
+}
+.ansi-bold {
+  font-weight: bold;
+}
 
-:root.light .ansi-black-fg { color: #1d2021; }
-:root.light .ansi-red-fg { color: #9d0006; }
-:root.light .ansi-green-fg { color: #79740e; }
-:root.light .ansi-yellow-fg { color: #b57614; }
-:root.light .ansi-blue-fg { color: #076678; }
-:root.light .ansi-magenta-fg { color: #8f3f71; }
-:root.light .ansi-cyan-fg { color: #427b58; }
-:root.light .ansi-white-fg { color: #7c6f64; }
+:root.light .ansi-black-fg {
+  color: #1d2021;
+}
+:root.light .ansi-red-fg {
+  color: #9d0006;
+}
+:root.light .ansi-green-fg {
+  color: #79740e;
+}
+:root.light .ansi-yellow-fg {
+  color: #b57614;
+}
+:root.light .ansi-blue-fg {
+  color: #076678;
+}
+:root.light .ansi-magenta-fg {
+  color: #8f3f71;
+}
+:root.light .ansi-cyan-fg {
+  color: #427b58;
+}
+:root.light .ansi-white-fg {
+  color: #7c6f64;
+}
 ```
 
 - [ ] **Step 2: Verify in both modes**

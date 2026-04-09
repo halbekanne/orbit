@@ -43,7 +43,9 @@ describe('WorkspaceService', () => {
           provide: DataRefreshService,
           useValue: {
             register: (name: string, fn: () => unknown) => registeredSources.set(name, fn),
-            refreshAll: (force: boolean) => { refreshAllCalled = true; },
+            refreshAll: (force: boolean) => {
+              refreshAllCalled = true;
+            },
             startPolling: () => {},
             startVisibilityListener: () => {},
             destroy: () => {},

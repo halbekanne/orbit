@@ -49,7 +49,12 @@ New file per ticket at `~/.orbit/tickets/<KEY>.json`:
 {
   "key": "COBI-1234",
   "subtasks": [
-    { "id": "st_1", "title": "Auth-Token prüfen", "status": "done", "completedAt": "2026-03-21T10:00:00Z" },
+    {
+      "id": "st_1",
+      "title": "Auth-Token prüfen",
+      "status": "done",
+      "completedAt": "2026-03-21T10:00:00Z"
+    },
     { "id": "st_2", "title": "Redirect-Flow testen", "status": "open", "completedAt": null }
   ]
 }
@@ -83,13 +88,13 @@ subtasksChange = output<SubTask[]>();
 
 **Interactions:**
 
-| Action | Behavior |
-|--------|----------|
-| Add | Input field at bottom of list. Enter creates sub-task, field stays focused for rapid entry |
-| Toggle | Checkbox click toggles status. Confetti + chime on `open → done`. Completed items stay in place (no resorting), get line-through + reduced opacity |
-| Inline edit | Single click on title text → becomes input field. Escape = cancel, Enter = save. Consistent with existing Todo/Idea title editing pattern |
-| Reorder | CDK DragDrop, same pattern as Todo/Idea cards in navigator |
-| Delete | Small X at end of row, visible on hover only. No confirmation dialog |
+| Action      | Behavior                                                                                                                                           |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Add         | Input field at bottom of list. Enter creates sub-task, field stays focused for rapid entry                                                         |
+| Toggle      | Checkbox click toggles status. Confetti + chime on `open → done`. Completed items stay in place (no resorting), get line-through + reduced opacity |
+| Inline edit | Single click on title text → becomes input field. Escape = cancel, Enter = save. Consistent with existing Todo/Idea title editing pattern          |
+| Reorder     | CDK DragDrop, same pattern as Todo/Idea cards in navigator                                                                                         |
+| Delete      | Small X at end of row, visible on hover only. No confirmation dialog                                                                               |
 
 **Section header:**
 
@@ -135,11 +140,11 @@ subtasksChange = output<SubTask[]>();
 
 **States:**
 
-| State | Display |
-|-------|---------|
-| 0 done | Stone-colored checklist icon + `0/4` in stone |
-| Partial | Indigo-colored icon + `2/3` with indigo accent on done count |
-| All done | Emerald-colored icon + `3/3` in emerald |
+| State    | Display                                                      |
+| -------- | ------------------------------------------------------------ |
+| 0 done   | Stone-colored checklist icon + `0/4` in stone                |
+| Partial  | Indigo-colored icon + `2/3` with indigo accent on done count |
+| All done | Emerald-colored icon + `3/3` in emerald                      |
 
 ### No Indicator on Todo/Idea Cards
 
@@ -150,6 +155,7 @@ Cards remain unchanged. Sub-task information is only visible in the detail view.
 ### Per Sub-Task Completion
 
 Reuses existing Todo celebration pattern exactly:
+
 - Checkbox bounce animation (0.5s cubic-bezier)
 - 12 confetti particles from checkbox element
 - 3-note chime (C4, E4, G4 via Web Audio API)
@@ -158,6 +164,7 @@ Reuses existing Todo celebration pattern exactly:
 ### All Sub-Tasks Complete
 
 Additional visual feedback on section header:
+
 - Badge color transitions indigo → emerald (150ms)
 - Counter shows checkmark: `✓ 3/3`
 - No separate large celebration — the confetti from the last sub-task IS the big moment, combined with the header turning green

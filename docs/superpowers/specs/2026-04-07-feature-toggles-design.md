@@ -85,13 +85,8 @@ In templates:
 
 ```html
 @if (notesEnabled()) {
-  <!-- notes UI -->
-}
-
-@switch (focusMode()) {
-  @case ('compact') { ... }
-  @case ('expanded') { ... }
-}
+<!-- notes UI -->
+} @switch (focusMode()) { @case ('compact') { ... } @case ('expanded') { ... } }
 ```
 
 ### No New Backend Routes

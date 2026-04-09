@@ -10,18 +10,18 @@ No external calendar integration — the user manually enters appointments each 
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Time range | 08:00–17:00 fixed | Covers standard workday, keeps grid manageable |
-| Grid snap | 15 minutes | Covers 95% of real appointments, clean grid |
-| Fine-tuning | Via popup time inputs | Allows non-15min precision when needed |
-| Appointment data | Name + start/end only | Minimal v1, no categories or links |
-| Day persistence | Single day, clears on date change | Fresh slate each morning, part of the ritual |
-| History | None | Current day only, keeps feature simple |
-| Drag approach | CSS Grid + pointer events | Full control, no library dependency, simple math |
-| Current time indicator | Red line only | No notifications or emphasis on upcoming appointments |
-| Deletion | Through edit popup only | Double-click → popup → delete button |
-| Panel collapsible | Yes, to ~32px strip | Gives main content more room when needed |
+| Decision               | Choice                            | Rationale                                             |
+| ---------------------- | --------------------------------- | ----------------------------------------------------- |
+| Time range             | 08:00–17:00 fixed                 | Covers standard workday, keeps grid manageable        |
+| Grid snap              | 15 minutes                        | Covers 95% of real appointments, clean grid           |
+| Fine-tuning            | Via popup time inputs             | Allows non-15min precision when needed                |
+| Appointment data       | Name + start/end only             | Minimal v1, no categories or links                    |
+| Day persistence        | Single day, clears on date change | Fresh slate each morning, part of the ritual          |
+| History                | None                              | Current day only, keeps feature simple                |
+| Drag approach          | CSS Grid + pointer events         | Full control, no library dependency, simple math      |
+| Current time indicator | Red line only                     | No notifications or emphasis on upcoming appointments |
+| Deletion               | Through edit popup only           | Double-click → popup → delete button                  |
+| Panel collapsible      | Yes, to ~32px strip               | Gives main content more room when needed              |
 
 ## Data Model
 
@@ -29,14 +29,14 @@ No external calendar integration — the user manually enters appointments each 
 // models/day-schedule.model.ts
 
 interface DayAppointment {
-  id: string;           // 'apt-' + Date.now()
+  id: string; // 'apt-' + Date.now()
   title: string;
-  startTime: string;    // 'HH:mm' format, e.g. '09:00'
-  endTime: string;      // 'HH:mm' format, e.g. '10:15'
+  startTime: string; // 'HH:mm' format, e.g. '09:00'
+  endTime: string; // 'HH:mm' format, e.g. '10:15'
 }
 
 interface DaySchedule {
-  date: string;         // 'YYYY-MM-DD'
+  date: string; // 'YYYY-MM-DD'
   appointments: DayAppointment[];
 }
 ```
@@ -106,14 +106,17 @@ If the user skips the focus question entirely, the calendar setup step is also s
 The core visual component, used in both morning setup and right panel.
 
 **Inputs:**
+
 - `appointments: DayAppointment[]`
 
 **Outputs:**
+
 - `appointmentCreate: { startTime: string, endTime: string }` — drag-to-create completed
 - `appointmentUpdate: DayAppointment` — edit/resize completed
 - `appointmentDelete: string` — appointment id to delete
 
 **Rendering:**
+
 - CSS Grid container, each row = 15 minutes (36 rows for 08:00–17:00)
 - Row height: ~8px per quarter-hour slot (32px per hour)
 - Time labels on the left (every hour, half-hour labels in lighter color)
@@ -122,6 +125,7 @@ The core visual component, used in both morning setup and right panel.
 - Appointment styling: indigo-tinted background (`bg-indigo-50`), left border stripe (`border-l-3 border-indigo-500`), title + time range text
 
 **Current time line:**
+
 - Red horizontal line with a dot on the left
 - Position calculated from current time relative to 08:00–17:00 range
 - Updated every 60 seconds via `setInterval`
@@ -130,6 +134,7 @@ The core visual component, used in both morning setup and right panel.
 ### Interactions
 
 **Drag-to-create:**
+
 1. `pointerdown` on empty grid area → record start slot
 2. `pointermove` → show dashed indigo preview rectangle spanning from start slot to current slot
 3. Preview shows time range text (e.g., "09:15 – 10:00")
@@ -137,6 +142,7 @@ The core visual component, used in both morning setup and right panel.
 5. `pointerup` → emit `appointmentCreate` with startTime/endTime → parent opens popup
 
 **Drag-to-resize:**
+
 1. Hover on appointment block → detect if pointer is within 6px of top or bottom edge
 2. Show `ns-resize` cursor, subtle resize handle bar appears
 3. `pointerdown` on edge → enter resize mode
@@ -145,6 +151,7 @@ The core visual component, used in both morning setup and right panel.
 6. `pointerup` → emit `appointmentUpdate` with new times
 
 **Double-click to edit:**
+
 1. `dblclick` on appointment block → emit edit event
 2. Parent opens `AppointmentPopupComponent` with appointment data
 
@@ -153,15 +160,18 @@ The core visual component, used in both morning setup and right panel.
 Overlay popup for creating and editing appointments.
 
 **Inputs:**
+
 - `appointment: Partial<DayAppointment>` (partial for new, full for edit)
 - `isNew: boolean`
 
 **Outputs:**
+
 - `save: DayAppointment`
 - `delete: string` (appointment id)
 - `cancel: void`
 
 **UI:**
+
 - Positioned as a floating overlay (similar to QuickCapture pattern)
 - Fixed backdrop with `bg-black/20 backdrop-blur-sm`
 - Card: white, rounded-xl, shadow
@@ -175,6 +185,7 @@ Overlay popup for creating and editing appointments.
 Replaces `ActionRailComponent` in the Arbeit view layout.
 
 **Structure:**
+
 - Action buttons at top (same logic as current `ActionRailComponent`, reformatted for horizontal layout)
 - `DayTimelineComponent` below, filling remaining height
 - Collapse/expand chevron button
@@ -183,9 +194,11 @@ Replaces `ActionRailComponent` in the Arbeit view layout.
 ### DayScheduleService (singleton)
 
 **State:**
+
 - `todaySchedule: signal<DaySchedule>` — the current day's schedule
 
 **Methods:**
+
 - `addAppointment(title, startTime, endTime)` → generates id, updates signal, saves
 - `updateAppointment(appointment)` → updates signal, saves
 - `deleteAppointment(id)` → removes from signal, saves
@@ -193,6 +206,7 @@ Replaces `ActionRailComponent` in the Arbeit view layout.
 - `private load()` → `GET /api/day-schedule`, check date, clear if stale
 
 **Backend:**
+
 - New route in proxy server for `/api/day-schedule`
 - Reads/writes `data/day-schedule.json`
 - Same pattern as existing todo/idea endpoints

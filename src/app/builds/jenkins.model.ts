@@ -34,7 +34,12 @@ export interface JenkinsBuildParameter {
   value: string | boolean | number;
 }
 
-export type JenkinsStageStatus = 'SUCCESS' | 'FAILED' | 'IN_PROGRESS' | 'PAUSED_PENDING_INPUT' | 'NOT_EXECUTED';
+export type JenkinsStageStatus =
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'IN_PROGRESS'
+  | 'PAUSED_PENDING_INPUT'
+  | 'NOT_EXECUTED';
 
 export interface JenkinsStage {
   id: string;

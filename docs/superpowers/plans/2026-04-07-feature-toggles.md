@@ -13,6 +13,7 @@
 ### Task 1: Extend the Settings Model
 
 **Files:**
+
 - Modify: `src/app/settings/settings.model.ts`
 - Modify: `src/app/settings/settings.service.ts`
 - Modify: `src/app/settings/settings.service.spec.ts`
@@ -66,6 +67,7 @@ git commit -m "feat(settings): add experiments field to OrbitSettings model"
 ### Task 2: Create the FeatureToggleService
 
 **Files:**
+
 - Create: `src/app/settings/feature-toggle.model.ts`
 - Create: `src/app/settings/feature-toggle.service.ts`
 - Create: `src/app/settings/feature-toggle.service.spec.ts`
@@ -110,10 +112,7 @@ describe('FeatureToggleService', () => {
   function setup(experiments: Record<string, string | boolean> = {}) {
     const settings = signal({ ...createDefaultSettings(), experiments });
     TestBed.configureTestingModule({
-      providers: [
-        FeatureToggleService,
-        { provide: SettingsService, useValue: { settings } },
-      ],
+      providers: [FeatureToggleService, { provide: SettingsService, useValue: { settings } }],
     });
     return TestBed.inject(FeatureToggleService);
   }
@@ -127,13 +126,14 @@ describe('FeatureToggleService', () => {
   });
 
   it('should return saved value when experiment is set', () => {
-    const defs = new FeatureToggleService(
-      { settings: signal(createDefaultSettings()) } as SettingsService,
-    ).getDefinitions();
+    const defs = new FeatureToggleService({
+      settings: signal(createDefaultSettings()),
+    } as SettingsService).getDefinitions();
     if (defs.length === 0) return;
 
     const firstDef = defs[0];
-    const overrideValue = firstDef.type === 'boolean' ? !firstDef.defaultValue : firstDef.defaultValue;
+    const overrideValue =
+      firstDef.type === 'boolean' ? !firstDef.defaultValue : firstDef.defaultValue;
     const service = setup({ [firstDef.id]: overrideValue });
     expect(service.getValue(firstDef.id)()).toBe(overrideValue);
   });
@@ -172,7 +172,7 @@ export class FeatureToggleService {
   getValue(id: string) {
     return computed(() => {
       const experiments = this.settingsService.settings().experiments;
-      const definition = TOGGLE_REGISTRY.find(d => d.id === id);
+      const definition = TOGGLE_REGISTRY.find((d) => d.id === id);
       if (!definition) return experiments[id];
       return experiments[id] ?? definition.defaultValue;
     });
@@ -197,6 +197,7 @@ git commit -m "feat(settings): add FeatureToggleService with typed toggle regist
 ### Task 3: Create the Experiment Section Component
 
 **Files:**
+
 - Create: `src/app/settings/view-settings/experiment-section/experiment-section.ts`
 - Create: `src/app/settings/view-settings/experiment-section/experiment-section.html`
 - Create: `src/app/settings/view-settings/experiment-section/experiment-section.spec.ts`
@@ -232,7 +233,10 @@ describe('ExperimentSectionComponent', () => {
     description: 'Eine Testauswahl',
   };
 
-  function setup(definitions: (BooleanToggle | SelectToggle)[] = [], experiments: Record<string, string | boolean> = {}) {
+  function setup(
+    definitions: (BooleanToggle | SelectToggle)[] = [],
+    experiments: Record<string, string | boolean> = {},
+  ) {
     TestBed.configureTestingModule({
       imports: [ExperimentSectionComponent],
       providers: [
@@ -241,7 +245,7 @@ describe('ExperimentSectionComponent', () => {
           useValue: {
             getDefinitions: () => definitions,
             getValue: (id: string) => {
-              const def = definitions.find(d => d.id === id);
+              const def = definitions.find((d) => d.id === id);
               return () => experiments[id] ?? def?.defaultValue;
             },
           },
@@ -290,58 +294,66 @@ Create `src/app/settings/view-settings/experiment-section/experiment-section.htm
 
 ```html
 @if (definitions.length > 0) {
-  <section data-section="experimente" id="section-experimente" class="mb-12">
-    <div class="flex items-center gap-2 mb-1">
-      <lucide-angular name="flask-conical" class="text-[var(--color-text-muted)]" [size]="18"></lucide-angular>
-      <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Experimentelle Funktionen</h3>
-    </div>
-    <p class="text-sm text-[var(--color-signal-text)] mb-5">
-      Diese Funktionen befinden sich in aktiver Entwicklung. Sie können instabil sein, sich jederzeit ändern oder entfernt werden.
-    </p>
+<section data-section="experimente" id="section-experimente" class="mb-12">
+  <div class="flex items-center gap-2 mb-1">
+    <lucide-angular
+      name="flask-conical"
+      class="text-[var(--color-text-muted)]"
+      [size]="18"
+    ></lucide-angular>
+    <h3 class="text-lg font-bold text-[var(--color-text-heading)]">Experimentelle Funktionen</h3>
+  </div>
+  <p class="text-sm text-[var(--color-signal-text)] mb-5">
+    Diese Funktionen befinden sich in aktiver Entwicklung. Sie können instabil sein, sich jederzeit
+    ändern oder entfernt werden.
+  </p>
 
-    @for (def of definitions; track def.id) {
-      <div class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
-        @switch (def.type) {
-          @case ('boolean') {
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
-                <p class="text-sm text-[var(--color-text-muted)] mt-0.5">{{ def.description }}</p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
-                <input type="checkbox" class="sr-only peer"
-                  [checked]="getValue(def.id)()"
-                  (change)="onToggle(def.id, $any($event.target).checked)">
-                <div class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
+  @for (def of definitions; track def.id) {
+  <div class="bg-[var(--color-bg-card)] rounded-xl p-5 mb-4">
+    @switch (def.type) { @case ('boolean') {
+    <div class="flex items-center justify-between">
+      <div>
+        <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
+        <p class="text-sm text-[var(--color-text-muted)] mt-0.5">{{ def.description }}</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+        <input
+          type="checkbox"
+          class="sr-only peer"
+          [checked]="getValue(def.id)()"
+          (change)="onToggle(def.id, $any($event.target).checked)"
+        />
+        <div
+          class="w-9 h-5 bg-[var(--color-bg-surface)] rounded-full peer peer-checked:bg-violet-500
                   after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-[var(--color-bg-card)]
-                  after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4">
-                </div>
-              </label>
-            </div>
-          }
-          @case ('select') {
-            <div>
-              <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
-              <p class="text-sm text-[var(--color-text-muted)] mt-0.5 mb-3">{{ def.description }}</p>
-              <div class="flex flex-col gap-2">
-                @for (option of def.options; track option.value) {
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio"
-                      [name]="def.id"
-                      [value]="option.value"
-                      [checked]="getValue(def.id)() === option.value"
-                      (change)="onToggle(def.id, option.value)"
-                      class="accent-violet-500">
-                    <span class="text-sm text-[var(--color-text-body)]">{{ option.label }}</span>
-                  </label>
-                }
-              </div>
-            </div>
-          }
+                  after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"
+        ></div>
+      </label>
+    </div>
+    } @case ('select') {
+    <div>
+      <h4 class="font-bold text-[var(--color-text-heading)]">{{ def.label }}</h4>
+      <p class="text-sm text-[var(--color-text-muted)] mt-0.5 mb-3">{{ def.description }}</p>
+      <div class="flex flex-col gap-2">
+        @for (option of def.options; track option.value) {
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            [name]="def.id"
+            [value]="option.value"
+            [checked]="getValue(def.id)() === option.value"
+            (change)="onToggle(def.id, option.value)"
+            class="accent-violet-500"
+          />
+          <span class="text-sm text-[var(--color-text-body)]">{{ option.label }}</span>
+        </label>
         }
       </div>
-    }
-  </section>
+    </div>
+    } }
+  </div>
+  }
+</section>
 }
 ```
 
@@ -394,6 +406,7 @@ git commit -m "feat(settings): add ExperimentSectionComponent with dynamic toggl
 ### Task 4: Integrate into View Settings
 
 **Files:**
+
 - Modify: `src/app/settings/view-settings/view-settings.ts`
 - Modify: `src/app/settings/view-settings/view-settings.html`
 
@@ -434,10 +447,9 @@ updateExperiment(id: string, value: string | boolean): void {
 In `src/app/settings/view-settings/view-settings.html`, add after the closing `</section>` of the "Darstellung" section (after line 436, before the closing `</div>` tags):
 
 ```html
-      <!-- Section: Experimentelle Funktionen -->
-      <app-experiment-section
-        (experimentChanged)="updateExperiment($event.id, $event.value)">
-      </app-experiment-section>
+<!-- Section: Experimentelle Funktionen -->
+<app-experiment-section (experimentChanged)="updateExperiment($event.id, $event.value)">
+</app-experiment-section>
 ```
 
 - [ ] **Step 5: Run tests and build**
@@ -457,6 +469,7 @@ git commit -m "feat(settings): integrate experiment section into settings page"
 ### Task 5: Update AGENTS.md
 
 **Files:**
+
 - Modify: `AGENTS.md`
 
 - [ ] **Step 1: Add feature toggle rule**
@@ -496,6 +509,7 @@ Expected: Build succeeds with no errors.
 - [ ] **Step 3: Verify visually (manual)**
 
 Start the dev server and verify:
+
 - Settings page loads correctly
 - "Experimentell" appears in left nav
 - When the toggle registry is empty, the section does not render

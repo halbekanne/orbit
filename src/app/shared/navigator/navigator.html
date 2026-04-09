@@ -1,38 +1,58 @@
 <nav class="flex flex-col h-full" aria-label="Arbeits-Navigator">
   <div class="px-4 py-3 border-b border-[var(--color-border-subtle)]">
     <div class="flex items-center justify-between">
-      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide">Arbeit</span>
+      <span class="font-semibold text-[var(--color-text-heading)] text-sm tracking-wide"
+        >Arbeit</span
+      >
       <span class="text-xs text-[var(--color-text-muted)]">Dein Command Center</span>
     </div>
   </div>
 
   <div class="flex-1 overflow-y-auto [scrollbar-gutter:stable] px-3 py-4 space-y-6">
-
-    <app-reflection-card
-      [selected]="isReflectionSelected()"
-      (select)="selectReflection()"
-    />
+    <app-reflection-card [selected]="isReflectionSelected()" (select)="selectReflection()" />
 
     @if (focusService.focusedItem(); as focusedItem) {
       <section aria-labelledby="focus-heading" class="mb-2">
         <div class="flex items-center gap-2 mb-2 px-1">
-          <span id="focus-heading" class="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider">🎯 Fokus</span>
-          <div class="flex-1 h-px bg-gradient-to-r from-[var(--color-primary-border)] to-transparent"></div>
+          <span
+            id="focus-heading"
+            class="text-xs font-semibold text-[var(--color-primary-text)] uppercase tracking-wider"
+            >🎯 Fokus</span
+          >
+          <div
+            class="flex-1 h-px bg-gradient-to-r from-[var(--color-primary-border)] to-transparent"
+          ></div>
         </div>
         <ul class="space-y-1.5" role="list">
           <li>
             @switch (focusedItem.type) {
               @case ('ticket') {
-                <app-ticket-card [ticket]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+                <app-ticket-card
+                  [ticket]="$any(focusedItem)"
+                  [selected]="isSelected(focusedItem)"
+                  (select)="selectItem($event)"
+                />
               }
               @case ('pr') {
-                <app-pr-card [pr]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+                <app-pr-card
+                  [pr]="$any(focusedItem)"
+                  [selected]="isSelected(focusedItem)"
+                  (select)="selectItem($event)"
+                />
               }
               @case ('todo') {
-                <app-todo-card [todo]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+                <app-todo-card
+                  [todo]="$any(focusedItem)"
+                  [selected]="isSelected(focusedItem)"
+                  (select)="selectItem($event)"
+                />
               }
               @case ('idea') {
-                <app-idea-card [idea]="$any(focusedItem)" [selected]="isSelected(focusedItem)" (select)="selectItem($event)" />
+                <app-idea-card
+                  [idea]="$any(focusedItem)"
+                  [selected]="isSelected(focusedItem)"
+                  (select)="selectItem($event)"
+                />
               }
             }
           </li>
@@ -40,7 +60,9 @@
       </section>
     }
 
-    <div class="h-px mx-1 bg-gradient-to-r from-transparent via-[var(--color-border-subtle)] to-transparent"></div>
+    <div
+      class="h-px mx-1 bg-gradient-to-r from-transparent via-[var(--color-border-subtle)] to-transparent"
+    ></div>
 
     <section aria-labelledby="tickets-heading">
       <button
@@ -52,22 +74,41 @@
         aria-controls="navigator-tickets-content"
       >
         <div class="flex items-center gap-2">
-          <span id="tickets-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Aktuelle Tickets</span>
+          <span
+            id="tickets-heading"
+            class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >Aktuelle Tickets</span
+          >
           @if (filteredTickets().length > 0) {
-            <orbit-badge color="primary" [counter]="true" [attr.aria-label]="filteredTickets().length + ' aktive Tickets'">{{ filteredTickets().length }}</orbit-badge>
+            <orbit-badge
+              color="primary"
+              [counter]="true"
+              [attr.aria-label]="filteredTickets().length + ' aktive Tickets'"
+              >{{ filteredTickets().length }}</orbit-badge
+            >
           }
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--color-text-muted)]">Jira</span>
-          <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ticketsCollapsed()"></svg>
+          <svg
+            lucideChevronDown
+            [size]="12"
+            [strokeWidth]="2.5"
+            class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+            [class.-rotate-90]="ticketsCollapsed()"
+          ></svg>
         </div>
       </button>
       <div id="navigator-tickets-content" [hidden]="ticketsCollapsed()">
         @if (data.ticketsLoading()) {
-          <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Tickets werden geladen…</p>
+          <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">
+            Tickets werden geladen…
+          </p>
         } @else if (data.ticketsError()) {
           <div class="px-1 py-2" role="alert">
-            <p class="text-xs text-[var(--color-danger-solid)]">Tickets konnten nicht geladen werden.</p>
+            <p class="text-xs text-[var(--color-danger-solid)]">
+              Tickets konnten nicht geladen werden.
+            </p>
             <button
               type="button"
               class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
@@ -80,7 +121,11 @@
           <ul class="space-y-1.5" role="list">
             @for (ticket of filteredTickets(); track ticket.id) {
               <li>
-                <app-ticket-card [ticket]="ticket" [selected]="isSelected(ticket)" (select)="selectItem($event)" />
+                <app-ticket-card
+                  [ticket]="ticket"
+                  [selected]="isSelected(ticket)"
+                  (select)="selectItem($event)"
+                />
               </li>
             }
           </ul>
@@ -98,22 +143,41 @@
         aria-controls="navigator-prs-content"
       >
         <div class="flex items-center gap-2">
-          <span id="prs-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Pull Requests</span>
+          <span
+            id="prs-heading"
+            class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >Pull Requests</span
+          >
           @if (data.awaitingReviewCount() > 0) {
-            <orbit-badge color="signal" [counter]="true" [attr.aria-label]="data.awaitingReviewCount() + ' ausstehende Reviews'">{{ data.awaitingReviewCount() }}</orbit-badge>
+            <orbit-badge
+              color="signal"
+              [counter]="true"
+              [attr.aria-label]="data.awaitingReviewCount() + ' ausstehende Reviews'"
+              >{{ data.awaitingReviewCount() }}</orbit-badge
+            >
           }
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--color-text-muted)]">Bitbucket</span>
-          <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="prsCollapsed()"></svg>
+          <svg
+            lucideChevronDown
+            [size]="12"
+            [strokeWidth]="2.5"
+            class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+            [class.-rotate-90]="prsCollapsed()"
+          ></svg>
         </div>
       </button>
       <div id="navigator-prs-content" [hidden]="prsCollapsed()">
         @if (data.pullRequestsLoading()) {
-          <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">Pull Requests werden geladen…</p>
+          <p class="px-1 py-2 text-xs text-[var(--color-text-muted)]" aria-live="polite">
+            Pull Requests werden geladen…
+          </p>
         } @else if (data.pullRequestsError()) {
           <div class="px-1 py-2" role="alert">
-            <p class="text-xs text-[var(--color-danger-solid)]">Pull Requests konnten nicht geladen werden.</p>
+            <p class="text-xs text-[var(--color-danger-solid)]">
+              Pull Requests konnten nicht geladen werden.
+            </p>
             <button
               type="button"
               class="mt-1 text-xs text-[var(--color-primary-text)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
@@ -124,25 +188,37 @@
           </div>
         } @else {
           @if (filteredReviewPrs().length > 0) {
-            <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide">
+            <div
+              class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide"
+            >
               Wartet auf dein Review
             </div>
             <ul class="space-y-1.5" role="list">
               @for (pr of filteredReviewPrs(); track pr.id) {
                 <li>
-                  <app-pr-card [pr]="pr" [selected]="isSelected(pr)" (select)="selectItem($event)" />
+                  <app-pr-card
+                    [pr]="pr"
+                    [selected]="isSelected(pr)"
+                    (select)="selectItem($event)"
+                  />
                 </li>
               }
             </ul>
           }
           @if (filteredMyPrs().length > 0) {
-            <div class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide">
+            <div
+              class="px-3 pt-3 pb-1.5 text-[10px] font-semibold text-[var(--color-text-muted)] tracking-wide"
+            >
               Deine PRs
             </div>
             <ul class="space-y-1.5" role="list">
               @for (pr of filteredMyPrs(); track pr.id) {
                 <li>
-                  <app-pr-card [pr]="pr" [selected]="isSelected(pr)" (select)="selectItem($event)" />
+                  <app-pr-card
+                    [pr]="pr"
+                    [selected]="isSelected(pr)"
+                    (select)="selectItem($event)"
+                  />
                 </li>
               }
             </ul>
@@ -161,12 +237,27 @@
         aria-controls="navigator-todos-content"
       >
         <div class="flex items-center gap-2">
-          <span id="todos-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Aufgaben</span>
+          <span
+            id="todos-heading"
+            class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >Aufgaben</span
+          >
           @if (todoService.pendingCount() > 0) {
-            <orbit-badge color="primary" [counter]="true" [attr.aria-label]="todoService.pendingCount() + ' offene Aufgaben'">{{ todoService.pendingCount() }}</orbit-badge>
+            <orbit-badge
+              color="primary"
+              [counter]="true"
+              [attr.aria-label]="todoService.pendingCount() + ' offene Aufgaben'"
+              >{{ todoService.pendingCount() }}</orbit-badge
+            >
           }
         </div>
-        <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="todosCollapsed()"></svg>
+        <svg
+          lucideChevronDown
+          [size]="12"
+          [strokeWidth]="2.5"
+          class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+          [class.-rotate-90]="todosCollapsed()"
+        ></svg>
       </button>
       <div id="navigator-todos-content" [hidden]="todosCollapsed()">
         <app-todo-inline-input (add)="addTodo($event)" class="block mb-2" />
@@ -198,13 +289,27 @@
               [attr.aria-expanded]="!todosDoneCollapsed()"
               aria-controls="navigator-todos-done-content"
             >
-              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="todosDoneCollapsed()"></svg>
+              <svg
+                lucideChevronDown
+                [size]="10"
+                class="transition-transform duration-100"
+                [class.-rotate-90]="todosDoneCollapsed()"
+              ></svg>
               Erledigt ({{ todoService.doneTodos().length }})
             </button>
-            <ul id="navigator-todos-done-content" [hidden]="todosDoneCollapsed()" class="space-y-1.5 mt-1" role="list">
+            <ul
+              id="navigator-todos-done-content"
+              [hidden]="todosDoneCollapsed()"
+              class="space-y-1.5 mt-1"
+              role="list"
+            >
               @for (todo of todoService.doneTodos(); track todo.id) {
                 <li>
-                  <app-todo-card [todo]="todo" [selected]="isSelected(todo)" (select)="selectItem($event)" />
+                  <app-todo-card
+                    [todo]="todo"
+                    [selected]="isSelected(todo)"
+                    (select)="selectItem($event)"
+                  />
                 </li>
               }
             </ul>
@@ -220,13 +325,27 @@
               [attr.aria-expanded]="!todosWontDoCollapsed()"
               aria-controls="navigator-todos-wontdo-content"
             >
-              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="todosWontDoCollapsed()"></svg>
+              <svg
+                lucideChevronDown
+                [size]="10"
+                class="transition-transform duration-100"
+                [class.-rotate-90]="todosWontDoCollapsed()"
+              ></svg>
               Nicht verfolgt ({{ todoService.wontDoTodos().length }})
             </button>
-            <ul id="navigator-todos-wontdo-content" [hidden]="todosWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">
+            <ul
+              id="navigator-todos-wontdo-content"
+              [hidden]="todosWontDoCollapsed()"
+              class="space-y-1.5 mt-1"
+              role="list"
+            >
               @for (todo of todoService.wontDoTodos(); track todo.id) {
                 <li>
-                  <app-todo-card [todo]="todo" [selected]="isSelected(todo)" (select)="selectItem($event)" />
+                  <app-todo-card
+                    [todo]="todo"
+                    [selected]="isSelected(todo)"
+                    (select)="selectItem($event)"
+                  />
                 </li>
               }
             </ul>
@@ -245,12 +364,27 @@
         aria-controls="navigator-ideas-content"
       >
         <div class="flex items-center gap-2">
-          <span id="ideas-heading" class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Ideen</span>
+          <span
+            id="ideas-heading"
+            class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >Ideen</span
+          >
           @if (ideaService.activeIdeas().length > 0) {
-            <orbit-badge color="primary" [counter]="true" [attr.aria-label]="ideaService.activeIdeas().length + ' aktive Ideen'">{{ ideaService.activeIdeas().length }}</orbit-badge>
+            <orbit-badge
+              color="primary"
+              [counter]="true"
+              [attr.aria-label]="ideaService.activeIdeas().length + ' aktive Ideen'"
+              >{{ ideaService.activeIdeas().length }}</orbit-badge
+            >
           }
         </div>
-        <svg lucideChevronDown [size]="12" [strokeWidth]="2.5" class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none" [class.-rotate-90]="ideasCollapsed()"></svg>
+        <svg
+          lucideChevronDown
+          [size]="12"
+          [strokeWidth]="2.5"
+          class="text-[var(--color-text-muted)] transition-transform duration-100 [@media(prefers-reduced-motion:reduce)]:transition-none"
+          [class.-rotate-90]="ideasCollapsed()"
+        ></svg>
       </button>
       <div id="navigator-ideas-content" [hidden]="ideasCollapsed()">
         <ul
@@ -262,7 +396,11 @@
         >
           @for (idea of filteredActiveIdeas(); track idea.id) {
             <li cdkDrag [cdkDragData]="idea">
-              <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
+              <app-idea-card
+                [idea]="idea"
+                [selected]="isSelected(idea)"
+                (select)="selectItem($event)"
+              />
             </li>
           }
         </ul>
@@ -276,13 +414,27 @@
               [attr.aria-expanded]="!ideasWontDoCollapsed()"
               aria-controls="navigator-ideas-wontdo-content"
             >
-              <svg lucideChevronDown [size]="10" class="transition-transform duration-100" [class.-rotate-90]="ideasWontDoCollapsed()"></svg>
+              <svg
+                lucideChevronDown
+                [size]="10"
+                class="transition-transform duration-100"
+                [class.-rotate-90]="ideasWontDoCollapsed()"
+              ></svg>
               Nicht verfolgt ({{ ideaService.wontDoIdeas().length }})
             </button>
-            <ul id="navigator-ideas-wontdo-content" [hidden]="ideasWontDoCollapsed()" class="space-y-1.5 mt-1" role="list">
+            <ul
+              id="navigator-ideas-wontdo-content"
+              [hidden]="ideasWontDoCollapsed()"
+              class="space-y-1.5 mt-1"
+              role="list"
+            >
               @for (idea of ideaService.wontDoIdeas(); track idea.id) {
                 <li>
-                  <app-idea-card [idea]="idea" [selected]="isSelected(idea)" (select)="selectItem($event)" />
+                  <app-idea-card
+                    [idea]="idea"
+                    [selected]="isSelected(idea)"
+                    (select)="selectItem($event)"
+                  />
                 </li>
               }
             </ul>
@@ -290,7 +442,6 @@
         }
       </div>
     </section>
-
   </div>
 
   <app-sync-bar [sources]="['jira', 'bitbucket']" />

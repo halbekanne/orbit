@@ -17,6 +17,7 @@
 ### Task 1: Create AgentDefinition typedef and SHARED_CONSTRAINTS
 
 **Files:**
+
 - Create: `proxy/agents/agent-definition.js`
 
 - [ ] **Step 1: Create `proxy/agents/agent-definition.js`**
@@ -83,6 +84,7 @@ git commit -m "feat(cosi): add AgentDefinition typedef and SHARED_CONSTRAINTS"
 ### Task 2: Extract AK-Abgleich agent
 
 **Files:**
+
 - Create: `proxy/agents/ak-abgleich.js`
 - Reference: `proxy/cosi.js:84-112` (schema), `proxy/cosi.js:213-240` (prompt), `proxy/cosi.js:328-341` (buildUserPrompt)
 
@@ -123,33 +125,56 @@ If the Jira ticket description contains no identifiable Akzeptanzkriterien (e.g.
 SCOPE: Do NOT comment on code quality, style, structure, naming, or patterns. Only check AK coverage.`;
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = AK completely unaddressed, important = AK partially addressed but key scenario missing, minor = AK addressed but deviates from spec in a small detail',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import('./agent-definition').AgentDefinition} */
@@ -198,6 +223,7 @@ git commit -m "feat(cosi): extract ak-abgleich agent to own file"
 ### Task 3: Extract Code Quality agent
 
 **Files:**
+
 - Create: `proxy/agents/code-quality.js`
 - Reference: `proxy/cosi.js:114-142` (schema), `proxy/cosi.js:242-275` (prompt), `proxy/cosi.js:343-349` (buildUserPrompt)
 
@@ -245,33 +271,56 @@ SCOPE: Do NOT check Akzeptanzkriterien, design tokens, or accessibility. Focus o
 Do NOT suggest features, abstractions, or patterns not needed for the current change (YAGNI).`;
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of found issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of found issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = runtime error or broken functionality, important = structural problem hurting maintainability or missing cleanup logic, minor = readability improvement or small inconsistency',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description: 'What the problem is and why it matters (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
+        required: ['severity', 'title', 'file', 'line', 'codeSnippet', 'detail', 'suggestion'],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import('./agent-definition').AgentDefinition} */
@@ -309,6 +358,7 @@ git commit -m "feat(cosi): extract code-quality agent to own file"
 ### Task 4: Create registry index and refactor orchestrator
 
 **Files:**
+
 - Create: `proxy/agents/index.js`
 - Modify: `proxy/cosi.js` (major refactor)
 - Modify: `proxy/cosi.test.js` (update imports, adjust test expectations)
@@ -331,6 +381,7 @@ Note: only two agents for now — accessibility is added in Chunk 2.
 - [ ] **Step 2: Refactor `proxy/cosi.js` to use registry**
 
 Remove from `cosi.js`:
+
 - `AK_FINDING_SCHEMA` (lines 84-112)
 - `CODE_QUALITY_FINDING_SCHEMA` (lines 114-142)
 - `SHARED_CONSTRAINTS` (lines 198-211)
@@ -339,6 +390,7 @@ Remove from `cosi.js`:
 - `buildAgent2Prompt` (lines 343-349)
 
 Keep in `cosi.js`:
+
 - `callCoSi()` (lines 5-52)
 - `preprocessDiff()` (lines 54-82)
 - `CONSOLIDATOR_SCHEMA` (lines 144-196) — updated per spec
@@ -360,10 +412,10 @@ async function runReview(diff, jiraTicket, emit) {
   const processedDiff = preprocessDiff(diff);
 
   const applicableAgents = AGENT_REGISTRY.filter(
-    a => !a.isApplicable || a.isApplicable(jiraTicket)
+    (a) => !a.isApplicable || a.isApplicable(jiraTicket),
   );
 
-  const skipped = AGENT_REGISTRY.filter(a => a.isApplicable && !a.isApplicable(jiraTicket));
+  const skipped = AGENT_REGISTRY.filter((a) => a.isApplicable && !a.isApplicable(jiraTicket));
   for (const agent of skipped) {
     if (agent.skipMessage) {
       emit('warning', { message: agent.skipMessage });
@@ -372,7 +424,7 @@ async function runReview(diff, jiraTicket, emit) {
   }
 
   const agentResults = await Promise.all(
-    applicableAgents.map(agent => {
+    applicableAgents.map((agent) => {
       emit('agent:start', {
         agent: agent.id,
         label: agent.label,
@@ -380,16 +432,12 @@ async function runReview(diff, jiraTicket, emit) {
         thinkingBudget: agent.thinkingBudget,
       });
       const start = Date.now();
-      return callCoSi(
-        agent.buildUserPrompt(processedDiff, jiraTicket),
-        agent.systemPrompt,
-        {
-          temperature: agent.temperature,
-          maxOutputTokens: 65536,
-          thinkingConfig: { thinkingBudget: agent.thinkingBudget, includeThoughts: true },
-          responseSchema: agent.responseSchema,
-        }
-      )
+      return callCoSi(agent.buildUserPrompt(processedDiff, jiraTicket), agent.systemPrompt, {
+        temperature: agent.temperature,
+        maxOutputTokens: 65536,
+        thinkingConfig: { thinkingBudget: agent.thinkingBudget, includeThoughts: true },
+        responseSchema: agent.responseSchema,
+      })
         .then(({ result, thoughts }) => {
           emit('agent:done', {
             agent: agent.id,
@@ -401,15 +449,15 @@ async function runReview(diff, jiraTicket, emit) {
           });
           return { id: agent.id, label: agent.label, findings: result.findings };
         })
-        .catch(err => {
+        .catch((err) => {
           emit('agent:error', { agent: agent.id, error: err.message });
           warnings.push(`Agent (${agent.label}) fehlgeschlagen: ${err.message}`);
           return { id: agent.id, label: agent.label, findings: [] };
         });
-    })
+    }),
   );
 
-  const hasFindings = agentResults.some(r => r.findings.length > 0);
+  const hasFindings = agentResults.some((r) => r.findings.length > 0);
   if (!hasFindings) {
     emit('done', {});
     return;
@@ -479,57 +527,87 @@ Update `CONSOLIDATOR_SCHEMA` — change `category` and `decisions.agent` from `e
 
 ```js
 const CONSOLIDATOR_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "Final, filtered list of findings.",
+      type: 'ARRAY',
+      description: 'Final, filtered list of findings.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = real runtime risk, important = structural problem, minor = small improvement",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = real runtime risk, important = structural problem, minor = small improvement',
           },
           category: {
-            type: "STRING",
-            description: "The id of the agent that produced the finding",
+            type: 'STRING',
+            description: 'The id of the agent that produced the finding',
           },
-          title: { type: "STRING", description: "Short German summary" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff" },
-          codeSnippet: { type: "STRING", description: "Exact lines from the diff, copied verbatim" },
-          detail: { type: "STRING", description: "Problem description in German (1-3 sentences)" },
-          suggestion: { type: "STRING", description: "Improvement suggestion in German" },
-          wcagCriterion: { type: "STRING", description: "WCAG criterion reference. Only present for accessibility findings." },
+          title: { type: 'STRING', description: 'Short German summary' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: { type: 'INTEGER', description: 'Line number from the diff' },
+          codeSnippet: {
+            type: 'STRING',
+            description: 'Exact lines from the diff, copied verbatim',
+          },
+          detail: { type: 'STRING', description: 'Problem description in German (1-3 sentences)' },
+          suggestion: { type: 'STRING', description: 'Improvement suggestion in German' },
+          wcagCriterion: {
+            type: 'STRING',
+            description: 'WCAG criterion reference. Only present for accessibility findings.',
+          },
         },
-        required: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion"],
-        propertyOrdering: ["severity", "category", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
+        required: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'category',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
       },
     },
     decisions: {
-      type: "ARRAY",
-      description: "For each input finding, a decision explaining what happened to it.",
+      type: 'ARRAY',
+      description: 'For each input finding, a decision explaining what happened to it.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
-          agent: { type: "STRING", description: "The id of the agent that produced the original finding" },
-          finding: { type: "STRING", description: "Original title of the finding" },
-          action: { type: "STRING", enum: ["kept", "removed", "merged", "severity-changed"] },
-          reason: { type: "STRING", description: "Reasoning in German" },
+          agent: {
+            type: 'STRING',
+            description: 'The id of the agent that produced the original finding',
+          },
+          finding: { type: 'STRING', description: 'Original title of the finding' },
+          action: { type: 'STRING', enum: ['kept', 'removed', 'merged', 'severity-changed'] },
+          reason: { type: 'STRING', description: 'Reasoning in German' },
         },
-        required: ["agent", "finding", "action", "reason"],
-        propertyOrdering: ["agent", "finding", "action", "reason"],
+        required: ['agent', 'finding', 'action', 'reason'],
+        propertyOrdering: ['agent', 'finding', 'action', 'reason'],
       },
     },
     summary: {
-      type: "STRING",
-      description: "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
+      type: 'STRING',
+      description:
+        "German summary, e.g. '3 Auffälligkeiten: 1 Kritisch, 1 Wichtig, 1 Gering' or 'Keine Auffälligkeiten'",
     },
   },
-  required: ["findings", "decisions", "summary"],
-  propertyOrdering: ["findings", "decisions", "summary"],
+  required: ['findings', 'decisions', 'summary'],
+  propertyOrdering: ['findings', 'decisions', 'summary'],
 };
 ```
 
@@ -564,6 +642,7 @@ module.exports = { callCoSi, preprocessDiff, runReview };
 At this point the registry has only 2 agents (accessibility is added in Chunk 2), so the event sequence is identical to the old hardcoded pipeline. The only difference is the internal loop mechanism.
 
 Potential breaking changes to verify:
+
 - `freshRequire()` now imports `proxy/agents/` — these files must exist (they do from Tasks 1-3)
 - `SYSTEM_PROMPTS` is no longer in exports — the tests don't import it, so no change needed
 - `describeConsolidation` is not called directly in tests — it's called internally by `runReview`
@@ -586,6 +665,7 @@ git commit -m "feat(cosi): refactor orchestrator to use agent registry"
 ### Task 5: Create Accessibility agent
 
 **Files:**
+
 - Create: `proxy/agents/accessibility.js`
 - Modify: `proxy/agents/index.js` (add to registry)
 
@@ -677,34 +757,72 @@ SEVERITY CALIBRATION:
 If no accessibility issues are found, return an empty findings array.`;
 
 const RESPONSE_SCHEMA = {
-  type: "OBJECT",
+  type: 'OBJECT',
   properties: {
     findings: {
-      type: "ARRAY",
-      description: "List of accessibility issues. Empty array if no issues found.",
+      type: 'ARRAY',
+      description: 'List of accessibility issues. Empty array if no issues found.',
       items: {
-        type: "OBJECT",
+        type: 'OBJECT',
         properties: {
           severity: {
-            type: "STRING",
-            enum: ["critical", "important", "minor"],
-            description: "critical = component not usable for assistive tech users, important = accessibility degraded but not blocking, minor = improvement opportunity without direct barrier",
+            type: 'STRING',
+            enum: ['critical', 'important', 'minor'],
+            description:
+              'critical = component not usable for assistive tech users, important = accessibility degraded but not blocking, minor = improvement opportunity without direct barrier',
           },
-          title: { type: "STRING", description: "Short German summary of the issue" },
-          file: { type: "STRING", description: "File path from the diff" },
-          line: { type: "INTEGER", description: "Line number from the diff (the number in square brackets)" },
-          codeSnippet: { type: "STRING", description: "The exact 1-2 lines from the diff that this finding targets, copied verbatim" },
-          detail: { type: "STRING", description: "What the problem is and why it matters for accessibility (1-3 sentences, in German)" },
-          suggestion: { type: "STRING", description: "Concrete improvement suggestion (in German, English technical terms allowed inline)" },
-          wcagCriterion: { type: "STRING", description: "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'" },
+          title: { type: 'STRING', description: 'Short German summary of the issue' },
+          file: { type: 'STRING', description: 'File path from the diff' },
+          line: {
+            type: 'INTEGER',
+            description: 'Line number from the diff (the number in square brackets)',
+          },
+          codeSnippet: {
+            type: 'STRING',
+            description:
+              'The exact 1-2 lines from the diff that this finding targets, copied verbatim',
+          },
+          detail: {
+            type: 'STRING',
+            description:
+              'What the problem is and why it matters for accessibility (1-3 sentences, in German)',
+          },
+          suggestion: {
+            type: 'STRING',
+            description:
+              'Concrete improvement suggestion (in German, English technical terms allowed inline)',
+          },
+          wcagCriterion: {
+            type: 'STRING',
+            description:
+              "The relevant WCAG criterion, e.g. '4.1.2 Name, Rolle, Wert' or '2.1.1 Tastatur'",
+          },
         },
-        required: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
-        propertyOrdering: ["severity", "title", "file", "line", "codeSnippet", "detail", "suggestion", "wcagCriterion"],
+        required: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
+        propertyOrdering: [
+          'severity',
+          'title',
+          'file',
+          'line',
+          'codeSnippet',
+          'detail',
+          'suggestion',
+          'wcagCriterion',
+        ],
       },
     },
   },
-  required: ["findings"],
-  propertyOrdering: ["findings"],
+  required: ['findings'],
+  propertyOrdering: ['findings'],
 };
 
 /** @type {import('./agent-definition').AgentDefinition} */
@@ -761,6 +879,7 @@ git commit -m "feat(cosi): add accessibility review agent"
 ### Task 6: Update backend tests for 3-agent pipeline
 
 **Files:**
+
 - Modify: `proxy/cosi.test.js`
 
 - [ ] **Step 1: Update test expectations for 3 agents**
@@ -771,13 +890,69 @@ Update the test's `fetch` mock to return results for 3 agent calls + 1 consolida
 
 ```js
 it('emits agent:start, agent:done for all agents and consolidator events', async () => {
-  const agent1Result = { findings: [{ severity: 'critical', title: 'AK #1 fehlt', file: 'a.ts', line: 1, codeSnippet: '+ code', detail: 'd', suggestion: 's' }] };
-  const agent2Result = { findings: [{ severity: 'minor', title: 'Naming', file: 'b.ts', line: 5, codeSnippet: '+ code', detail: 'd', suggestion: 's' }] };
-  const agent3Result = { findings: [{ severity: 'important', title: 'Fehlende Rolle', file: 'c.ts', line: 10, codeSnippet: '+ code', detail: 'd', suggestion: 's', wcagCriterion: '4.1.2' }] };
+  const agent1Result = {
+    findings: [
+      {
+        severity: 'critical',
+        title: 'AK #1 fehlt',
+        file: 'a.ts',
+        line: 1,
+        codeSnippet: '+ code',
+        detail: 'd',
+        suggestion: 's',
+      },
+    ],
+  };
+  const agent2Result = {
+    findings: [
+      {
+        severity: 'minor',
+        title: 'Naming',
+        file: 'b.ts',
+        line: 5,
+        codeSnippet: '+ code',
+        detail: 'd',
+        suggestion: 's',
+      },
+    ],
+  };
+  const agent3Result = {
+    findings: [
+      {
+        severity: 'important',
+        title: 'Fehlende Rolle',
+        file: 'c.ts',
+        line: 10,
+        codeSnippet: '+ code',
+        detail: 'd',
+        suggestion: 's',
+        wcagCriterion: '4.1.2',
+      },
+    ],
+  };
   const consolidatedResult = {
     findings: [
-      { severity: 'critical', category: 'ak-abgleich', title: 'AK #1 fehlt', file: 'a.ts', line: 1, codeSnippet: '+ code', detail: 'd', suggestion: 's' },
-      { severity: 'important', category: 'accessibility', title: 'Fehlende Rolle', file: 'c.ts', line: 10, codeSnippet: '+ code', detail: 'd', suggestion: 's', wcagCriterion: '4.1.2' },
+      {
+        severity: 'critical',
+        category: 'ak-abgleich',
+        title: 'AK #1 fehlt',
+        file: 'a.ts',
+        line: 1,
+        codeSnippet: '+ code',
+        detail: 'd',
+        suggestion: 's',
+      },
+      {
+        severity: 'important',
+        category: 'accessibility',
+        title: 'Fehlende Rolle',
+        file: 'c.ts',
+        line: 10,
+        codeSnippet: '+ code',
+        detail: 'd',
+        suggestion: 's',
+        wcagCriterion: '4.1.2',
+      },
     ],
     summary: '2 Auffälligkeiten: 1 Kritisch, 1 Wichtig',
     decisions: [
@@ -790,14 +965,16 @@ it('emits agent:start, agent:done for all agents and consolidator events', async
   let callCount = 0;
   mock.method(global, 'fetch', () => {
     callCount++;
-    const result = callCount <= 3
-      ? [agent1Result, agent2Result, agent3Result][callCount - 1]
-      : consolidatedResult;
+    const result =
+      callCount <= 3
+        ? [agent1Result, agent2Result, agent3Result][callCount - 1]
+        : consolidatedResult;
     return Promise.resolve({
       ok: true,
-      json: () => Promise.resolve({
-        candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
-      }),
+      json: () =>
+        Promise.resolve({
+          candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }],
+        }),
     });
   });
 
@@ -805,23 +982,33 @@ it('emits agent:start, agent:done for all agents and consolidator events', async
   const events = [];
   const emit = (type, data) => events.push({ type, data });
 
-  await runReview('diff content', { key: 'DS-1', summary: 'Test', description: 'AK: something' }, emit);
+  await runReview(
+    'diff content',
+    { key: 'DS-1', summary: 'Test', description: 'AK: something' },
+    emit,
+  );
 
-  const types = events.map(e => e.type);
+  const types = events.map((e) => e.type);
   assert.deepEqual(types, [
-    'agent:start', 'agent:start', 'agent:start',
-    'agent:done', 'agent:done', 'agent:done',
+    'agent:start',
+    'agent:start',
+    'agent:start',
+    'agent:done',
+    'agent:done',
+    'agent:done',
     'consolidator:start',
     'consolidator:done',
     'done',
   ]);
 
-  const a11yStart = events.find(e => e.type === 'agent:start' && e.data.agent === 'accessibility');
+  const a11yStart = events.find(
+    (e) => e.type === 'agent:start' && e.data.agent === 'accessibility',
+  );
   assert.ok(a11yStart);
   assert.equal(a11yStart.data.label, 'Barrierefreiheit');
   assert.equal(a11yStart.data.temperature, 0.3);
 
-  const a11yDone = events.find(e => e.type === 'agent:done' && e.data.agent === 'accessibility');
+  const a11yDone = events.find((e) => e.type === 'agent:done' && e.data.agent === 'accessibility');
   assert.ok(a11yDone);
   assert.equal(a11yDone.data.findingCount, 1);
 
@@ -854,6 +1041,7 @@ git commit -m "test(cosi): update tests for 3-agent pipeline"
 ### Task 7: Update ReviewFinding model
 
 **Files:**
+
 - Modify: `src/app/models/review.model.ts:2-3`
 
 - [ ] **Step 1: Change `category` from union to string, add `wcagCriterion`**
@@ -861,7 +1049,7 @@ git commit -m "test(cosi): update tests for 3-agent pipeline"
 In `src/app/models/review.model.ts`, change:
 
 ```typescript
-  category: 'ak-abgleich' | 'code-quality';
+category: 'ak-abgleich' | 'code-quality';
 ```
 
 to:
@@ -888,6 +1076,7 @@ git commit -m "feat(model): widen category to string, add wcagCriterion"
 ### Task 8: Update review-findings component — category badge + WCAG pill
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.ts:241,307,502-507`
 
 - [ ] **Step 1: Replace `categoryLabel` switch with lookup object**
@@ -927,7 +1116,10 @@ with:
 Find the two category badge `<span>` elements (lines ~241 and ~307). They currently have hardcoded classes:
 
 ```html
-<span class="text-[11px] px-1.5 py-0.5 rounded border font-medium bg-stone-100 text-stone-500 border-stone-200">{{ categoryLabel(finding.category) }}</span>
+<span
+  class="text-[11px] px-1.5 py-0.5 rounded border font-medium bg-stone-100 text-stone-500 border-stone-200"
+  >{{ categoryLabel(finding.category) }}</span
+>
 ```
 
 Change to:
@@ -942,7 +1134,10 @@ After each category badge `<span>`, add:
 
 ```html
 @if (finding.wcagCriterion) {
-  <span class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200">WCAG {{ finding.wcagCriterion }}</span>
+<span
+  class="text-[10px] px-1.5 py-0.5 rounded border font-mono bg-stone-100 text-stone-500 border-stone-200"
+  >WCAG {{ finding.wcagCriterion }}</span
+>
 }
 ```
 
@@ -965,6 +1160,7 @@ git commit -m "feat(review-findings): add accessibility badge and WCAG criterion
 ### Task 9: Add accessibility mock scenario
 
 **Files:**
+
 - Modify: `proxy/cosi-mock.js`
 
 - [ ] **Step 1: Add accessibility findings to FINDINGS object**
@@ -1076,7 +1272,12 @@ The existing 4 scenarios only emit `agent:start` for `ak-abgleich` and `code-qua
 In each existing scenario, add after the `code-quality` `agent:start`:
 
 ```js
-emit('agent:start', { agent: 'accessibility', label: 'Barrierefreiheit', temperature: 0.3, thinkingBudget: 16384 });
+emit('agent:start', {
+  agent: 'accessibility',
+  label: 'Barrierefreiheit',
+  temperature: 0.3,
+  thinkingBudget: 16384,
+});
 ```
 
 And add a corresponding `agent:done` with empty findings after the other agents complete:
@@ -1120,6 +1321,7 @@ git commit -m "feat(cosi-mock): add accessibility agent to mock scenarios"
 ### Task 10: Add frontend test for accessibility findings
 
 **Files:**
+
 - Modify: `src/app/components/review-findings/review-findings.spec.ts`
 
 - [ ] **Step 1: Add test for accessibility category badge and WCAG pill**
@@ -1130,11 +1332,13 @@ it('shows accessibility badge with teal styling and WCAG criterion', () => {
     status: 'result',
     pipeline: createInitialPipeline(),
     data: {
-      findings: [makeFinding({
-        category: 'accessibility',
-        title: 'Fehlende Rolle',
-        wcagCriterion: '4.1.2 Name, Rolle, Wert',
-      })],
+      findings: [
+        makeFinding({
+          category: 'accessibility',
+          title: 'Fehlende Rolle',
+          wcagCriterion: '4.1.2 Name, Rolle, Wert',
+        }),
+      ],
       summary: '1 Auffälligkeit',
       warnings: [],
       reviewedAt: new Date().toISOString(),

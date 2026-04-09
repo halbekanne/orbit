@@ -40,11 +40,14 @@ An `effect()` persists state back on every change. Because signals are already i
 
 ```ts
 effect(() => {
-  localStorage.setItem('orbit.navigator.collapsed', JSON.stringify({
-    tickets: this.ticketsCollapsed(),
-    prs: this.prsCollapsed(),
-    todos: this.todosCollapsed(),
-  }));
+  localStorage.setItem(
+    'orbit.navigator.collapsed',
+    JSON.stringify({
+      tickets: this.ticketsCollapsed(),
+      prs: this.prsCollapsed(),
+      todos: this.todosCollapsed(),
+    }),
+  );
 });
 ```
 
@@ -54,11 +57,11 @@ No new service is needed. All logic lives in `NavigatorComponent`.
 
 Badges render only when count > 0. They appear in the header row at all times (expanded and collapsed). Section title text remains visible alongside the badge at all times, ensuring color-blind users are not reliant on badge color alone.
 
-| Section           | Value                         | Color  |
-|-------------------|-------------------------------|--------|
-| Aktuelle Tickets  | `data.tickets().length`       | Indigo |
-| Pull Requests     | `data.awaitingReviewCount()`  | Amber  |
-| Meine Todos       | `data.pendingTodoCount()`     | Indigo |
+| Section          | Value                        | Color  |
+| ---------------- | ---------------------------- | ------ |
+| Aktuelle Tickets | `data.tickets().length`      | Indigo |
+| Pull Requests    | `data.awaitingReviewCount()` | Amber  |
+| Meine Todos      | `data.pendingTodoCount()`    | Indigo |
 
 **Tickets badge invariant:** `WorkDataService.tickets` only ever contains active/in-progress tickets assigned to the user — there is no "done" state in the tickets signal. `tickets().length` therefore represents the correct active count. If a done-filter is added to `WorkDataService` in the future, the badge source must be revisited.
 
@@ -81,10 +84,10 @@ Badges render only when count > 0. They appear in the header row at all times (e
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `navigator.ts` | Add collapse signals (localStorage-initialized), `loadCollapsed()` helper, `effect()` for persistence, toggle methods: `toggleTickets()`, `togglePrs()`, `toggleTodos()` |
-| `navigator.html` | Convert headers to `<button>`, add chevron SVG with rotation class, `[hidden]` on section content, badges for all three sections |
+| File             | Change                                                                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `navigator.ts`   | Add collapse signals (localStorage-initialized), `loadCollapsed()` helper, `effect()` for persistence, toggle methods: `toggleTickets()`, `togglePrs()`, `toggleTodos()` |
+| `navigator.html` | Convert headers to `<button>`, add chevron SVG with rotation class, `[hidden]` on section content, badges for all three sections                                         |
 
 No changes to `WorkDataService` — `tickets().length` is accessed directly in the template.
 

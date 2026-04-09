@@ -15,6 +15,7 @@
 ### Task 1: Rename mock server
 
 **Files:**
+
 - Rename: `mock-server/index.js` → `mock-server/jira.js`
 - Modify: `package.json`
 
@@ -50,6 +51,7 @@ git commit -m "chore: rename mock-server/index.js to mock-server/jira.js"
 ### Task 2: Update proxy for dual-service routing
 
 **Files:**
+
 - Modify: `proxy/index.js`
 - Modify: `src/app/services/jira.service.ts`
 - Modify: `.env.example`
@@ -67,7 +69,9 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const { JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL, BITBUCKET_API_KEY } = process.env;
 
 if (!JIRA_BASE_URL || !JIRA_API_KEY || !BITBUCKET_BASE_URL || !BITBUCKET_API_KEY) {
-  console.error('ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL and BITBUCKET_API_KEY must be set in .env');
+  console.error(
+    'ERROR: JIRA_BASE_URL, JIRA_API_KEY, BITBUCKET_BASE_URL and BITBUCKET_API_KEY must be set in .env',
+  );
   process.exit(1);
 }
 
@@ -157,9 +161,11 @@ git commit -m "feat: update proxy for /jira and /bitbucket path-prefix routing"
 ### Task 3: Update smoke test for Jira path changes
 
 **Files:**
+
 - Modify: `smoke-test/index.js`
 
 The smoke test needs 3 changes for Jira (Bitbucket assertion comes in Task 5):
+
 1. Spawn `mock-server/jira.js` instead of `mock-server/index.js`
 2. Add all 4 env vars to the proxy spawn
 3. Update the Jira assertion URL from `/rest/api/2/search` to `/jira/rest/api/2/search`
@@ -169,29 +175,32 @@ The smoke test needs 3 changes for Jira (Bitbucket assertion comes in Task 5):
 Apply these three changes to `smoke-test/index.js`:
 
 Change the mock server spawn (currently line 60):
+
 ```js
 const mockServer = spawn('node', ['mock-server/jira.js'], { cwd: ROOT, stdio: 'pipe' });
 ```
 
 Replace the entire proxy `spawn` call (find the block that starts with `const proxy = spawn(`) with:
+
 ```js
-  const proxy = spawn('node', ['proxy/index.js'], {
-    cwd: ROOT,
-    stdio: 'pipe',
-    env: {
-      ...process.env,
-      JIRA_BASE_URL: 'http://localhost:6202',
-      JIRA_API_KEY: 'smoke-test-token',
-      BITBUCKET_BASE_URL: 'http://localhost:6203',
-      BITBUCKET_API_KEY: 'smoke-test-token',
-    },
-  });
+const proxy = spawn('node', ['proxy/index.js'], {
+  cwd: ROOT,
+  stdio: 'pipe',
+  env: {
+    ...process.env,
+    JIRA_BASE_URL: 'http://localhost:6202',
+    JIRA_API_KEY: 'smoke-test-token',
+    BITBUCKET_BASE_URL: 'http://localhost:6203',
+    BITBUCKET_API_KEY: 'smoke-test-token',
+  },
+});
 ```
 
 Change the assertion URL (currently line 73):
+
 ```js
-    const url =
-      'http://localhost:6201/jira/rest/api/2/search?jql=assignee%20%3D%20currentUser()%20AND%20statusCategory%20%3D%20%22In%20Progress%22';
+const url =
+  'http://localhost:6201/jira/rest/api/2/search?jql=assignee%20%3D%20currentUser()%20AND%20statusCategory%20%3D%20%22In%20Progress%22';
 ```
 
 - [ ] **Step 2: Verify the smoke test still passes**
@@ -218,6 +227,7 @@ git commit -m "test: update smoke test for /jira proxy prefix"
 ### Task 4: Create mock Bitbucket server
 
 **Files:**
+
 - Create: `mock-server/bitbucket.js`
 
 - [ ] **Step 1: Create mock-server/bitbucket.js**
@@ -288,13 +298,19 @@ const REPO_SL = makeRepo(2, 'versicherung-shared-lib', 'SL', 'Versicherung Share
 const SARAH = makeUser(101, 'sarah.kowalski', 'Sarah Kowalski', 'sarah.kowalski@example.org');
 const THOMAS = makeUser(102, 'thomas.bauer', 'Thomas Bauer', 'thomas.bauer@example.org');
 const ANNA = makeUser(103, 'anna.lehmann', 'Anna Lehmann', 'anna.lehmann@example.org');
-const MICHAEL = makeUser(104, 'michael.hoffmann', 'Michael Hoffmann', 'michael.hoffmann@example.org');
+const MICHAEL = makeUser(
+  104,
+  'michael.hoffmann',
+  'Michael Hoffmann',
+  'michael.hoffmann@example.org',
+);
 
 const mockPullRequests = [
   {
     id: 412,
     title: 'feat: Add customer portal navigation component',
-    description: 'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
+    description:
+      'Implementiert die neue Navigation für das Kundenportal. Beinhaltet responsive Sidebar, Breadcrumbs und Accessibility-Verbesserungen (WCAG AA).',
     state: 'OPEN',
     open: true,
     closed: false,
@@ -307,12 +323,15 @@ const mockPullRequests = [
     reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'UNAPPROVED')],
     participants: [],
     properties: { commentCount: 2, openTaskCount: 0 },
-    links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/412` }] },
+    links: {
+      self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/412` }],
+    },
   },
   {
     id: 415,
     title: 'fix: Resolve SSO redirect loop on session expiry',
-    description: 'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
+    description:
+      'Behebt den SSO-Redirect-Loop (VERS-2799). Der AuthGuard wurde angepasst, um abgelaufene Sessions korrekt zu erkennen.',
     state: 'OPEN',
     open: true,
     closed: false,
@@ -325,7 +344,9 @@ const mockPullRequests = [
     reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'UNAPPROVED')],
     participants: [],
     properties: { commentCount: 0, openTaskCount: 0 },
-    links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/415` }] },
+    links: {
+      self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/415` }],
+    },
   },
   {
     id: 89,
@@ -343,12 +364,15 @@ const mockPullRequests = [
     reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'NEEDS_WORK')],
     participants: [],
     properties: { commentCount: 5, openTaskCount: 2 },
-    links: { self: [{ href: `${BASE}/projects/SL/repos/versicherung-shared-lib/pull-requests/89` }] },
+    links: {
+      self: [{ href: `${BASE}/projects/SL/repos/versicherung-shared-lib/pull-requests/89` }],
+    },
   },
   {
     id: 408,
     title: 'feat: Implement SEPA mandate form with validation',
-    description: 'SEPA-Lastschriftmandat Formular mit vollständiger clientseitiger Validierung. IBAN-Format, BIC, Pflichtfelder.',
+    description:
+      'SEPA-Lastschriftmandat Formular mit vollständiger clientseitiger Validierung. IBAN-Format, BIC, Pflichtfelder.',
     state: 'OPEN',
     open: true,
     closed: false,
@@ -361,7 +385,9 @@ const mockPullRequests = [
     reviewers: [makeParticipant(CURRENT_USER, 'REVIEWER', 'APPROVED')],
     participants: [],
     properties: { commentCount: 3, openTaskCount: 0 },
-    links: { self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/408` }] },
+    links: {
+      self: [{ href: `${BASE}/projects/VF/repos/versicherung-frontend/pull-requests/408` }],
+    },
   },
 ];
 
@@ -406,6 +432,7 @@ git commit -m "feat: add mock Bitbucket server on port 6203"
 ### Task 5: Update smoke test to add Bitbucket assertions
 
 **Files:**
+
 - Modify: `smoke-test/index.js`
 
 - [ ] **Step 1: Update smoke-test/index.js**
@@ -413,34 +440,37 @@ git commit -m "feat: add mock Bitbucket server on port 6203"
 Add a second mock server spawn immediately after the Jira mock spawn (after line 60):
 
 ```js
-  const mockBitbucket = spawn('node', ['mock-server/bitbucket.js'], { cwd: ROOT, stdio: 'pipe' });
-  children.push(mockBitbucket);
-  mockBitbucket.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`)); });
+const mockBitbucket = spawn('node', ['mock-server/bitbucket.js'], { cwd: ROOT, stdio: 'pipe' });
+children.push(mockBitbucket);
+mockBitbucket.on('exit', (code) => {
+  if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`));
+});
 ```
 
 Update the `waitForPort` call to also wait for port 6203:
 
 ```js
-    await Promise.all([waitForPort(6202), waitForPort(6203), waitForPort(6201)]);
+await Promise.all([waitForPort(6202), waitForPort(6203), waitForPort(6201)]);
 ```
 
 After the existing Jira assertion block (after the `if (data.issues.length < 1)` check), add:
 
 ```js
-    const bbUrl = 'http://localhost:6201/bitbucket/rest/api/1.0/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
-    const { status: bbStatus, data: bbData } = await get(bbUrl);
+const bbUrl =
+  'http://localhost:6201/bitbucket/rest/api/1.0/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
+const { status: bbStatus, data: bbData } = await get(bbUrl);
 
-    if (bbStatus !== 200) {
-      throw new Error(`Bitbucket: Expected status 200, got ${bbStatus}`);
-    }
+if (bbStatus !== 200) {
+  throw new Error(`Bitbucket: Expected status 200, got ${bbStatus}`);
+}
 
-    if (!Array.isArray(bbData.values)) {
-      throw new Error(`Bitbucket: Response missing "values" array`);
-    }
+if (!Array.isArray(bbData.values)) {
+  throw new Error(`Bitbucket: Response missing "values" array`);
+}
 
-    if (bbData.values.length < 1) {
-      throw new Error(`Bitbucket: Expected at least 1 PR, got ${bbData.values.length}`);
-    }
+if (bbData.values.length < 1) {
+  throw new Error(`Bitbucket: Expected at least 1 PR, got ${bbData.values.length}`);
+}
 ```
 
 - [ ] **Step 2: Run the full smoke test**
@@ -467,6 +497,7 @@ git commit -m "test: extend smoke test for Bitbucket proxy + mock server"
 ### Task 6: Replace PullRequest model
 
 **Files:**
+
 - Modify: `src/app/models/work-item.model.ts`
 - Modify: `src/app/services/work-data.service.ts` (temporary: empty pullRequests + fix awaitingReviewCount)
 
@@ -573,6 +604,7 @@ git commit -m "feat: replace PullRequest model with rich Bitbucket-aligned shape
 ### Task 7: Update pr-card component
 
 **Files:**
+
 - Modify: `src/app/components/pr-card/pr-card.ts`
 
 - [ ] **Step 1: Update pr-card.ts**
@@ -590,15 +622,19 @@ import { PullRequest } from '../../models/work-item.model';
     <button
       type="button"
       class="group w-full text-left rounded-lg border px-3 py-2.5 transition-all duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      [class]="selected()
-        ? 'bg-indigo-50 border-indigo-300 shadow-sm'
-        : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm'"
+      [class]="
+        selected()
+          ? 'bg-indigo-50 border-indigo-300 shadow-sm'
+          : 'bg-white border-stone-200 hover:border-stone-300 hover:shadow-sm'
+      "
       (click)="select.emit(pr())"
       [attr.aria-pressed]="selected()"
       [attr.aria-label]="'PR: ' + pr().title"
     >
       <div class="flex items-start justify-between gap-2">
-        <span class="text-xs font-medium text-stone-400 truncate">{{ pr().fromRef.repository.slug }}</span>
+        <span class="text-xs font-medium text-stone-400 truncate">{{
+          pr().fromRef.repository.slug
+        }}</span>
         <a
           [href]="pr().url"
           target="_blank"
@@ -607,19 +643,52 @@ import { PullRequest } from '../../models/work-item.model';
           [attr.aria-label]="'Öffne PR in Bitbucket'"
           (click)="$event.stopPropagation()"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 3h6v6" />
+            <path d="M10 14 21 3" />
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          </svg>
         </a>
       </div>
 
-      <p class="mt-1 text-sm font-medium leading-snug text-stone-800 line-clamp-2">{{ pr().title }}</p>
+      <p class="mt-1 text-sm font-medium leading-snug text-stone-800 line-clamp-2">
+        {{ pr().title }}
+      </p>
 
       <div class="mt-2 flex items-center justify-between gap-2">
-        <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium" [class]="statusClass()">
+        <span
+          class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium"
+          [class]="statusClass()"
+        >
           {{ pr().myReviewStatus }}
         </span>
         @if (pr().commentCount > 0) {
           <span class="flex items-center gap-1 text-xs text-stone-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
             {{ pr().commentCount }}
           </span>
         }
@@ -636,7 +705,7 @@ export class PrCardComponent {
     const map: Record<string, string> = {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
       'Changes Requested': 'bg-red-100 text-red-700',
-      'Approved': 'bg-emerald-100 text-emerald-700',
+      Approved: 'bg-emerald-100 text-emerald-700',
     };
     return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
   }
@@ -655,6 +724,7 @@ git commit -m "feat: update pr-card for new PullRequest model"
 ### Task 8: Update pr-detail component
 
 **Files:**
+
 - Modify: `src/app/components/pr-detail/pr-detail.ts`
 
 `pr-detail` uses a local `formatDate(iso: string)` method which must be removed. `DatePipe` is used directly in the template instead. `DatePipe` accepts a Unix millisecond timestamp (`number`) natively.
@@ -678,11 +748,33 @@ import { PullRequest } from '../../models/work-item.model';
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-2 flex-wrap">
-              <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium bg-stone-100 text-stone-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/></svg>
+              <span
+                class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium bg-stone-100 text-stone-500"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="18" cy="18" r="3" />
+                  <circle cx="6" cy="6" r="3" />
+                  <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+                  <line x1="6" x2="6" y1="9" y2="21" />
+                </svg>
                 {{ pr().fromRef.repository.slug }}
               </span>
-              <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium" [class]="statusClass()">{{ pr().myReviewStatus }}</span>
+              <span
+                class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                [class]="statusClass()"
+                >{{ pr().myReviewStatus }}</span
+              >
             </div>
             <h1 class="text-xl font-semibold text-stone-900 leading-snug">{{ pr().title }}</h1>
           </div>
@@ -694,7 +786,22 @@ import { PullRequest } from '../../models/work-item.model';
             aria-label="Öffne PR in Bitbucket"
           >
             In Bitbucket öffnen
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 3h6v6" />
+              <path d="M10 14 21 3" />
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            </svg>
           </a>
         </div>
       </header>
@@ -710,19 +817,27 @@ import { PullRequest } from '../../models/work-item.model';
             <dd class="text-sm text-stone-700 font-mono truncate">{{ pr().fromRef.displayId }}</dd>
           </div>
           <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Kommentare</dt>
+            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">
+              Kommentare
+            </dt>
             <dd class="text-sm text-stone-700 font-medium">{{ pr().commentCount }}</dd>
           </div>
           <div>
-            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">Aktualisiert</dt>
-            <dd class="text-sm text-stone-700">{{ pr().updatedDate | date:'dd.MM.yyyy' }}</dd>
+            <dt class="text-xs font-medium text-stone-400 uppercase tracking-wide mb-1">
+              Aktualisiert
+            </dt>
+            <dd class="text-sm text-stone-700">{{ pr().updatedDate | date: 'dd.MM.yyyy' }}</dd>
           </div>
         </dl>
       </div>
 
       <div class="flex-1 py-5 overflow-y-auto">
-        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">Beschreibung</h2>
-        <div class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">{{ pr().description }}</div>
+        <h2 class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
+          Beschreibung
+        </h2>
+        <div class="text-sm text-stone-700 leading-relaxed whitespace-pre-line">
+          {{ pr().description }}
+        </div>
       </div>
     </article>
   `,
@@ -734,7 +849,7 @@ export class PrDetailComponent {
     const map: Record<string, string> = {
       'Awaiting Review': 'bg-amber-100 text-amber-700',
       'Changes Requested': 'bg-red-100 text-red-700',
-      'Approved': 'bg-emerald-100 text-emerald-700',
+      Approved: 'bg-emerald-100 text-emerald-700',
     };
     return map[this.pr().myReviewStatus] ?? 'bg-stone-100 text-stone-600';
   }
@@ -763,6 +878,7 @@ git commit -m "feat: update pr-detail for new PullRequest model"
 ### Task 9: Create BitbucketService (TDD)
 
 **Files:**
+
 - Create: `src/app/services/bitbucket.service.spec.ts`
 - Create: `src/app/services/bitbucket.service.ts`
 
@@ -795,7 +911,9 @@ const makeRepo = () => ({
   slug: 'versicherung-frontend',
   name: 'versicherung-frontend',
   project: { key: 'VF', id: 10, name: 'Versicherung Frontend' },
-  links: { self: [{ href: 'http://localhost:6203/projects/VF/repos/versicherung-frontend/browse' }] },
+  links: {
+    self: [{ href: 'http://localhost:6203/projects/VF/repos/versicherung-frontend/browse' }],
+  },
 });
 
 const makeUser = (slug: string) => ({
@@ -847,13 +965,20 @@ const makePrRaw = (reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED') => 
   ],
   participants: [],
   properties: { commentCount: 3, openTaskCount: 1 },
-  links: { self: [{ href: 'http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412' }] },
+  links: {
+    self: [
+      { href: 'http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412' },
+    ],
+  },
 });
 
-const flushRequests = (httpTesting: HttpTestingController, reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED') => {
-  httpTesting.expectOne(req => req.url.includes('/myself')).flush(mockMyself);
+const flushRequests = (
+  httpTesting: HttpTestingController,
+  reviewerStatus: 'UNAPPROVED' | 'NEEDS_WORK' | 'APPROVED',
+) => {
+  httpTesting.expectOne((req) => req.url.includes('/myself')).flush(mockMyself);
   httpTesting
-    .expectOne(req => req.url.includes('dashboard/pull-requests'))
+    .expectOne((req) => req.url.includes('dashboard/pull-requests'))
     .flush({ values: [makePrRaw(reviewerStatus)], isLastPage: true });
 };
 
@@ -873,8 +998,8 @@ describe('BitbucketService', () => {
 
   it('calls /myself then /dashboard/pull-requests', () => {
     service.getReviewerPullRequests().subscribe();
-    httpTesting.expectOne(req => req.url.includes('/myself')).flush(mockMyself);
-    const prReq = httpTesting.expectOne(req => req.url.includes('dashboard/pull-requests'));
+    httpTesting.expectOne((req) => req.url.includes('/myself')).flush(mockMyself);
+    const prReq = httpTesting.expectOne((req) => req.url.includes('dashboard/pull-requests'));
     expect(prReq.request.params.get('role')).toBe('REVIEWER');
     expect(prReq.request.params.get('state')).toBe('OPEN');
     prReq.flush({ values: [], isLastPage: true });
@@ -882,28 +1007,28 @@ describe('BitbucketService', () => {
 
   it('maps UNAPPROVED reviewer status to Awaiting Review', () => {
     let result: PullRequest[] | undefined;
-    service.getReviewerPullRequests().subscribe(prs => (result = prs));
+    service.getReviewerPullRequests().subscribe((prs) => (result = prs));
     flushRequests(httpTesting, 'UNAPPROVED');
     expect(result![0].myReviewStatus).toBe('Awaiting Review');
   });
 
   it('maps NEEDS_WORK reviewer status to Changes Requested', () => {
     let result: PullRequest[] | undefined;
-    service.getReviewerPullRequests().subscribe(prs => (result = prs));
+    service.getReviewerPullRequests().subscribe((prs) => (result = prs));
     flushRequests(httpTesting, 'NEEDS_WORK');
     expect(result![0].myReviewStatus).toBe('Changes Requested');
   });
 
   it('maps APPROVED reviewer status to Approved', () => {
     let result: PullRequest[] | undefined;
-    service.getReviewerPullRequests().subscribe(prs => (result = prs));
+    service.getReviewerPullRequests().subscribe((prs) => (result = prs));
     flushRequests(httpTesting, 'APPROVED');
     expect(result![0].myReviewStatus).toBe('Approved');
   });
 
   it('maps PullRequest fields from raw API response', () => {
     let result: PullRequest[] | undefined;
-    service.getReviewerPullRequests().subscribe(prs => (result = prs));
+    service.getReviewerPullRequests().subscribe((prs) => (result = prs));
     flushRequests(httpTesting, 'UNAPPROVED');
     const pr = result![0];
     expect(pr.type).toBe('pr');
@@ -915,18 +1040,22 @@ describe('BitbucketService', () => {
     expect(pr.author.user.displayName).toBe('Test User');
     expect(pr.commentCount).toBe(3);
     expect(pr.openTaskCount).toBe(1);
-    expect(pr.url).toBe('http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412');
+    expect(pr.url).toBe(
+      'http://localhost:6203/projects/VF/repos/versicherung-frontend/pull-requests/412',
+    );
   });
 
   it('falls back to Awaiting Review when current user is not in reviewers', () => {
     let result: PullRequest[] | undefined;
-    service.getReviewerPullRequests().subscribe(prs => (result = prs));
-    httpTesting.expectOne(req => req.url.includes('/myself')).flush({
-      ...mockMyself,
-      slug: 'someone-else',
-    });
+    service.getReviewerPullRequests().subscribe((prs) => (result = prs));
     httpTesting
-      .expectOne(req => req.url.includes('dashboard/pull-requests'))
+      .expectOne((req) => req.url.includes('/myself'))
+      .flush({
+        ...mockMyself,
+        slug: 'someone-else',
+      });
+    httpTesting
+      .expectOne((req) => req.url.includes('dashboard/pull-requests'))
       .flush({ values: [makePrRaw('APPROVED')], isLastPage: true });
     expect(result![0].myReviewStatus).toBe('Awaiting Review');
   });
@@ -1082,7 +1211,7 @@ export class BitbucketService {
 
   getReviewerPullRequests(): Observable<PullRequest[]> {
     return this.http.get<BitbucketUserRaw>(`${this.baseUrl}/myself`).pipe(
-      switchMap(myself =>
+      switchMap((myself) =>
         this.http
           .get<BitbucketPrPageRaw>(`${this.baseUrl}/dashboard/pull-requests`, {
             params: new HttpParams()
@@ -1090,13 +1219,13 @@ export class BitbucketService {
               .set('state', 'OPEN')
               .set('limit', '50'),
           })
-          .pipe(map(page => page.values.map(pr => this.mapPr(pr, myself.slug))))
-      )
+          .pipe(map((page) => page.values.map((pr) => this.mapPr(pr, myself.slug)))),
+      ),
     );
   }
 
   private mapPr(raw: BitbucketPrRaw, currentUserSlug: string): PullRequest {
-    const reviewer = raw.reviewers.find(r => r.user.slug === currentUserSlug);
+    const reviewer = raw.reviewers.find((r) => r.user.slug === currentUserSlug);
     const myReviewStatus: PrStatus = reviewer
       ? mapReviewStatus(reviewer.status)
       : 'Awaiting Review';
@@ -1146,6 +1275,7 @@ git commit -m "feat: add BitbucketService with reviewer PR fetching and mapping"
 ### Task 10: Wire BitbucketService into WorkDataService (TDD)
 
 **Files:**
+
 - Modify: `src/app/services/work-data.service.spec.ts`
 - Modify: `src/app/services/work-data.service.ts`
 
@@ -1165,7 +1295,9 @@ import { PullRequest } from '../models/work-item.model';
 Add this helper and nested `describe` block at the end of the file, **outside** any existing `describe` block:
 
 ```typescript
-const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review'): PullRequest => ({
+const makePr = (
+  myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review',
+): PullRequest => ({
   type: 'pr',
   id: 1,
   title: 'Test PR',
@@ -1180,16 +1312,39 @@ const makePr = (myReviewStatus: PullRequest['myReviewStatus'] = 'Awaiting Review
     id: 'refs/heads/feature/test',
     displayId: 'feature/test',
     latestCommit: 'abc',
-    repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'Project', browseUrl: '' },
+    repository: {
+      id: 1,
+      slug: 'repo',
+      name: 'repo',
+      projectKey: 'P',
+      projectName: 'Project',
+      browseUrl: '',
+    },
   },
   toRef: {
     id: 'refs/heads/main',
     displayId: 'main',
     latestCommit: 'def',
-    repository: { id: 1, slug: 'repo', name: 'repo', projectKey: 'P', projectName: 'Project', browseUrl: '' },
+    repository: {
+      id: 1,
+      slug: 'repo',
+      name: 'repo',
+      projectKey: 'P',
+      projectName: 'Project',
+      browseUrl: '',
+    },
   },
   author: {
-    user: { id: 1, name: 'u', displayName: 'User', emailAddress: '', slug: 'u', active: true, type: 'NORMAL', profileUrl: '' },
+    user: {
+      id: 1,
+      name: 'u',
+      displayName: 'User',
+      emailAddress: '',
+      slug: 'u',
+      active: true,
+      type: 'NORMAL',
+      profileUrl: '',
+    },
     role: 'AUTHOR',
     approved: false,
     status: 'UNAPPROVED',
@@ -1231,7 +1386,9 @@ describe('WorkDataService — pullRequests loading', () => {
   });
 
   it('sets pullRequestsError on BitbucketService failure', () => {
-    const mockBitbucket = { getReviewerPullRequests: () => throwError(() => new Error('Network error')) };
+    const mockBitbucket = {
+      getReviewerPullRequests: () => throwError(() => new Error('Network error')),
+    };
     TestBed.overrideProvider(BitbucketService, { useValue: mockBitbucket });
     const service = TestBed.inject(WorkDataService);
     TestBed.tick();
@@ -1261,16 +1418,19 @@ Expected: new tests fail because `WorkDataService` still has the empty hardcoded
 - [ ] **Step 3: Update work-data.service.ts**
 
 1. Add `BitbucketService` import:
+
 ```typescript
 import { BitbucketService } from './bitbucket.service';
 ```
 
 2. Add `BitbucketService` injection after the existing `jira` injection:
+
 ```typescript
 private readonly bitbucket = inject(BitbucketService);
 ```
 
 3. Replace `readonly pullRequests = signal<PullRequest[]>([]);` with:
+
 ```typescript
 readonly pullRequestsLoading = signal(true);
 readonly pullRequestsError = signal(false);
@@ -1320,6 +1480,7 @@ git commit -m "feat: wire BitbucketService into WorkDataService for live PR data
 ## Done
 
 The Bitbucket integration is complete. The app now:
+
 - Fetches open PRs where the current user is a reviewer from `GET /bitbucket/rest/api/1.0/dashboard/pull-requests`
 - Maps the full Bitbucket API response to a rich `PullRequest` model
 - Shows loading and error states in the PR column

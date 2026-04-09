@@ -33,32 +33,80 @@ const minute = 60000;
 
 const BUILDS = {
   'frontend-app': {
-    'main': [
-      { number: 142, result: 'SUCCESS', timestamp: now - 12 * minute, duration: 245832, building: false },
-      { number: 141, result: 'FAILURE', timestamp: now - 2 * hour, duration: 89234, building: false },
+    main: [
+      {
+        number: 142,
+        result: 'SUCCESS',
+        timestamp: now - 12 * minute,
+        duration: 245832,
+        building: false,
+      },
+      {
+        number: 141,
+        result: 'FAILURE',
+        timestamp: now - 2 * hour,
+        duration: 89234,
+        building: false,
+      },
     ],
-    'develop': [
-      { number: 312, result: 'SUCCESS', timestamp: now - 3 * hour, duration: 198000, building: false },
+    develop: [
+      {
+        number: 312,
+        result: 'SUCCESS',
+        timestamp: now - 3 * hour,
+        duration: 198000,
+        building: false,
+      },
     ],
     'feature/ORBIT-189-dashboard': [
-      { number: 45, result: 'FAILURE', timestamp: now - 1 * hour, duration: 178000, building: false },
+      {
+        number: 45,
+        result: 'FAILURE',
+        timestamp: now - 1 * hour,
+        duration: 178000,
+        building: false,
+      },
     ],
     'feature/ORBIT-234-user-auth': [
-      { number: 47, result: 'SUCCESS', timestamp: now - 30 * minute, duration: 210000, building: false },
+      {
+        number: 47,
+        result: 'SUCCESS',
+        timestamp: now - 30 * minute,
+        duration: 210000,
+        building: false,
+      },
     ],
     'bugfix/ORBIT-301-login-fix': [
       { number: 48, result: null, timestamp: now - 4 * minute, duration: 0, building: true },
     ],
   },
   'backend-api': {
-    'main': [
-      { number: 89, result: 'SUCCESS', timestamp: now - 2 * hour, duration: 312000, building: false },
+    main: [
+      {
+        number: 89,
+        result: 'SUCCESS',
+        timestamp: now - 2 * hour,
+        duration: 312000,
+        building: false,
+      },
     ],
-    'develop': [
-      { number: 156, result: 'SUCCESS', timestamp: now - 5 * hour, duration: 280000, building: false },
+    develop: [
+      {
+        number: 156,
+        result: 'SUCCESS',
+        timestamp: now - 5 * hour,
+        duration: 280000,
+        building: false,
+      },
     ],
     'feature/ORBIT-210-api-cache': [
-      { number: 23, result: 'FAILURE', timestamp: now - 45 * minute, duration: 95000, building: false },
+      {
+        number: 23,
+        result: 'FAILURE',
+        timestamp: now - 45 * minute,
+        duration: 95000,
+        building: false,
+      },
     ],
   },
 };
@@ -74,73 +122,289 @@ const DESCRIPTIONS = {
 
 const STAGES = {
   142: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 12 * minute, durationMillis: 3200 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 3200, durationMillis: 120000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 123200, durationMillis: 85000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 12 * minute + 208200, durationMillis: 37632 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute,
+      durationMillis: 3200,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 3200,
+      durationMillis: 120000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 123200,
+      durationMillis: 85000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 12 * minute + 208200,
+      durationMillis: 37632,
+    },
   ],
   45: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 1 * hour, durationMillis: 2800 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 1 * hour + 2800, durationMillis: 95000 },
-    { id: '27', name: 'Test', status: 'FAILED', startTimeMillis: now - 1 * hour + 97800, durationMillis: 73000 },
-    { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: now - 1 * hour + 170800, durationMillis: 0 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 1 * hour,
+      durationMillis: 2800,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 1 * hour + 2800,
+      durationMillis: 95000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'FAILED',
+      startTimeMillis: now - 1 * hour + 97800,
+      durationMillis: 73000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'NOT_EXECUTED',
+      startTimeMillis: now - 1 * hour + 170800,
+      durationMillis: 0,
+    },
   ],
   48: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 4 * minute, durationMillis: 3100 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 4 * minute + 3100, durationMillis: 110000 },
-    { id: '27', name: 'Test', status: 'IN_PROGRESS', startTimeMillis: now - 4 * minute + 113100, durationMillis: 0 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 4 * minute,
+      durationMillis: 3100,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 4 * minute + 3100,
+      durationMillis: 110000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'IN_PROGRESS',
+      startTimeMillis: now - 4 * minute + 113100,
+      durationMillis: 0,
+    },
     { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: 0, durationMillis: 0 },
   ],
   23: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 45 * minute, durationMillis: 2500 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 45 * minute + 2500, durationMillis: 60000 },
-    { id: '27', name: 'Test', status: 'FAILED', startTimeMillis: now - 45 * minute + 62500, durationMillis: 32500 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 45 * minute,
+      durationMillis: 2500,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 45 * minute + 2500,
+      durationMillis: 60000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'FAILED',
+      startTimeMillis: now - 45 * minute + 62500,
+      durationMillis: 32500,
+    },
     { id: '45', name: 'Deploy', status: 'NOT_EXECUTED', startTimeMillis: 0, durationMillis: 0 },
   ],
   312: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 3 * hour, durationMillis: 2900 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 3 * hour + 2900, durationMillis: 100000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 3 * hour + 102900, durationMillis: 65000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 3 * hour + 167900, durationMillis: 30100 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 3 * hour,
+      durationMillis: 2900,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 3 * hour + 2900,
+      durationMillis: 100000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 3 * hour + 102900,
+      durationMillis: 65000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 3 * hour + 167900,
+      durationMillis: 30100,
+    },
   ],
   47: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 30 * minute, durationMillis: 3000 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 30 * minute + 3000, durationMillis: 105000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 30 * minute + 108000, durationMillis: 72000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 30 * minute + 180000, durationMillis: 30000 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 30 * minute,
+      durationMillis: 3000,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 30 * minute + 3000,
+      durationMillis: 105000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 30 * minute + 108000,
+      durationMillis: 72000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 30 * minute + 180000,
+      durationMillis: 30000,
+    },
   ],
   89: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 2 * hour, durationMillis: 3500 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 2 * hour + 3500, durationMillis: 150000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 2 * hour + 153500, durationMillis: 100000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 2 * hour + 253500, durationMillis: 58500 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 2 * hour,
+      durationMillis: 3500,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 2 * hour + 3500,
+      durationMillis: 150000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 2 * hour + 153500,
+      durationMillis: 100000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 2 * hour + 253500,
+      durationMillis: 58500,
+    },
   ],
   156: [
-    { id: '6', name: 'Checkout', status: 'SUCCESS', startTimeMillis: now - 5 * hour, durationMillis: 3200 },
-    { id: '14', name: 'Build', status: 'SUCCESS', startTimeMillis: now - 5 * hour + 3200, durationMillis: 140000 },
-    { id: '27', name: 'Test', status: 'SUCCESS', startTimeMillis: now - 5 * hour + 143200, durationMillis: 95000 },
-    { id: '45', name: 'Deploy', status: 'SUCCESS', startTimeMillis: now - 5 * hour + 238200, durationMillis: 41800 },
+    {
+      id: '6',
+      name: 'Checkout',
+      status: 'SUCCESS',
+      startTimeMillis: now - 5 * hour,
+      durationMillis: 3200,
+    },
+    {
+      id: '14',
+      name: 'Build',
+      status: 'SUCCESS',
+      startTimeMillis: now - 5 * hour + 3200,
+      durationMillis: 140000,
+    },
+    {
+      id: '27',
+      name: 'Test',
+      status: 'SUCCESS',
+      startTimeMillis: now - 5 * hour + 143200,
+      durationMillis: 95000,
+    },
+    {
+      id: '45',
+      name: 'Deploy',
+      status: 'SUCCESS',
+      startTimeMillis: now - 5 * hour + 238200,
+      durationMillis: 41800,
+    },
   ],
 };
 
 const STAGE_FLOW_NODES = {
   '27_45': [
-    { id: '28', name: 'Shell Script', status: 'SUCCESS', parameterDescription: 'npm run lint', durationMillis: 12000, parentNodes: ['27'] },
-    { id: '31', name: 'Shell Script', status: 'FAILED', parameterDescription: 'npm test', durationMillis: 73000, parentNodes: ['28'], error: { message: 'script returned exit code 1', type: 'hudson.AbortException' } },
+    {
+      id: '28',
+      name: 'Shell Script',
+      status: 'SUCCESS',
+      parameterDescription: 'npm run lint',
+      durationMillis: 12000,
+      parentNodes: ['27'],
+    },
+    {
+      id: '31',
+      name: 'Shell Script',
+      status: 'FAILED',
+      parameterDescription: 'npm test',
+      durationMillis: 73000,
+      parentNodes: ['28'],
+      error: { message: 'script returned exit code 1', type: 'hudson.AbortException' },
+    },
   ],
   '27_23': [
-    { id: '28', name: 'Shell Script', status: 'SUCCESS', parameterDescription: 'mvn compile', durationMillis: 20000, parentNodes: ['27'] },
-    { id: '31', name: 'Shell Script', status: 'FAILED', parameterDescription: 'mvn test', durationMillis: 12500, parentNodes: ['28'], error: { message: 'script returned exit code 1', type: 'hudson.AbortException' } },
+    {
+      id: '28',
+      name: 'Shell Script',
+      status: 'SUCCESS',
+      parameterDescription: 'mvn compile',
+      durationMillis: 20000,
+      parentNodes: ['27'],
+    },
+    {
+      id: '31',
+      name: 'Shell Script',
+      status: 'FAILED',
+      parameterDescription: 'mvn test',
+      durationMillis: 12500,
+      parentNodes: ['28'],
+      error: { message: 'script returned exit code 1', type: 'hudson.AbortException' },
+    },
   ],
 };
 
 const STAGE_LOGS = {
   '31_45': {
-    nodeId: '31', nodeStatus: 'FAILED', length: 842, hasMore: false,
+    nodeId: '31',
+    nodeStatus: 'FAILED',
+    length: 842,
+    hasMore: false,
     text: '<span class="pipeline-node-31">09:08:41 [2026-03-30T07:08:41.003Z] [336/338] [chromium] \u001b[31m› libs/storybook-host/docs/components/table-footer/table-footer.e2e.ts:3:5 › TableFooter Default Test ---\u001b[0m\n09:08:41 [2026-03-30T07:08:41.120Z] [337/338] [chromium] \u001b[31m› libs/storybook-host/docs/components/login/login.e2e.ts:12:5 › Login › should validate email\u001b[0m\n09:08:42 [2026-03-30T07:08:42.450Z]\n09:08:42 [2026-03-30T07:08:42.451Z]   \u001b[31m1) Login › should validate email\u001b[0m\n09:08:42 [2026-03-30T07:08:42.452Z]     Expected: true\n09:08:42 [2026-03-30T07:08:42.453Z]     Received: false\n09:08:42 [2026-03-30T07:08:42.454Z]\n09:08:42 [2026-03-30T07:08:42.455Z]     at Object.<anonymous> (libs/storybook-host/docs/components/login/login.e2e.ts:42:18)\n09:08:43 [2026-03-30T07:08:43.100Z]\n09:08:43 [2026-03-30T07:08:43.101Z]   \u001b[31m338 passed, 2 failed\u001b[0m\n</span>',
   },
   '31_23': {
-    nodeId: '31', nodeStatus: 'FAILED', length: 520, hasMore: false,
+    nodeId: '31',
+    nodeStatus: 'FAILED',
+    length: 520,
+    hasMore: false,
     text: '<span class="pipeline-node-31">14:22:10 [2026-03-30T12:22:10.200Z] \u001b[31m[ERROR]\u001b[0m Tests run: 15, Failures: 2, Errors: 0\n14:22:10 [2026-03-30T12:22:10.300Z] \u001b[31mFailed tests:\u001b[0m\n14:22:10 [2026-03-30T12:22:10.400Z]   CacheServiceTest.testEviction\n14:22:10 [2026-03-30T12:22:10.500Z]   CacheServiceTest.testConcurrentAccess\n</span>',
   },
 };
@@ -218,11 +482,37 @@ const CONSOLE_LOG_FAILED = `[2026-03-30T07:05:00.100Z] \u001b[36m[Pipeline]\u001
 `;
 
 const PARAMETER_DEFINITIONS = [
-  { name: 'DEPLOY_ENV', type: 'ChoiceParameterDefinition', description: 'Target environment', defaultParameterValue: { value: 'staging' }, choices: ['staging', 'production'] },
-  { name: 'DRY_RUN', type: 'BooleanParameterDefinition', description: 'Skip actual deployment', defaultParameterValue: { value: true } },
-  { name: 'VERSION', type: 'StringParameterDefinition', description: 'Version to deploy (leave empty for latest)', defaultParameterValue: { value: '' } },
-  { name: 'RELEASE_NOTES', type: 'TextParameterDefinition', description: 'Release notes for this deployment', defaultParameterValue: { value: '' } },
-  { name: 'SECRET_KEY', type: 'PasswordParameterDefinition', description: 'Deployment secret', defaultParameterValue: { value: '' } },
+  {
+    name: 'DEPLOY_ENV',
+    type: 'ChoiceParameterDefinition',
+    description: 'Target environment',
+    defaultParameterValue: { value: 'staging' },
+    choices: ['staging', 'production'],
+  },
+  {
+    name: 'DRY_RUN',
+    type: 'BooleanParameterDefinition',
+    description: 'Skip actual deployment',
+    defaultParameterValue: { value: true },
+  },
+  {
+    name: 'VERSION',
+    type: 'StringParameterDefinition',
+    description: 'Version to deploy (leave empty for latest)',
+    defaultParameterValue: { value: '' },
+  },
+  {
+    name: 'RELEASE_NOTES',
+    type: 'TextParameterDefinition',
+    description: 'Release notes for this deployment',
+    defaultParameterValue: { value: '' },
+  },
+  {
+    name: 'SECRET_KEY',
+    type: 'PasswordParameterDefinition',
+    description: 'Deployment secret',
+    defaultParameterValue: { value: '' },
+  },
 ];
 
 function getBuilds(jobName, branchName) {
@@ -236,7 +526,16 @@ function parseRequest(rawUrl) {
   const jobName = decodeURIComponent(m[1]);
   const rest = m[2];
 
-  const endpointMarkers = ['/api/json', '/wfapi/', '/consoleText', '/logText/', '/execution/', '/buildWithParameters', '/build', '/stop'];
+  const endpointMarkers = [
+    '/api/json',
+    '/wfapi/',
+    '/consoleText',
+    '/logText/',
+    '/execution/',
+    '/buildWithParameters',
+    '/build',
+    '/stop',
+  ];
   let splitIdx = rest.length;
   for (const marker of endpointMarkers) {
     const idx = rest.indexOf(marker);
@@ -269,7 +568,7 @@ app.use((req, res, next) => {
     const jobName = decodeURIComponent(jobListMatch[1]);
     const branches = BRANCHES[jobName] || [];
     return res.json({
-      jobs: branches.map(b => ({
+      jobs: branches.map((b) => ({
         name: encodeURIComponent(b.name),
         color: b.color,
         url: `http://localhost:${PORT}/job/${jobName}/job/${encodeURIComponent(b.name)}/`,
@@ -286,7 +585,7 @@ app.use((req, res, next) => {
 
   if (endpoint.startsWith('/api/json') || endpoint === '') {
     if (buildNumber) {
-      const build = builds.find(b => b.number === buildNumber);
+      const build = builds.find((b) => b.number === buildNumber);
       if (!build) return res.status(404).json({ error: 'Build not found' });
       return res.json({
         ...build,
@@ -294,7 +593,10 @@ app.use((req, res, next) => {
         estimatedDuration: 240000,
         url: `http://localhost:${PORT}/job/${jobName}/job/${encodeURIComponent(branch)}/${build.number}/`,
         actions: [
-          { _class: 'hudson.model.ParametersAction', parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }] },
+          {
+            _class: 'hudson.model.ParametersAction',
+            parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }],
+          },
           { _class: 'hudson.model.CauseAction' },
         ],
       });
@@ -305,7 +607,12 @@ app.use((req, res, next) => {
     }
 
     if (tree.includes('builds')) {
-      return res.json({ builds: builds.map(b => ({ ...b, url: `http://localhost:${PORT}/job/${jobName}/job/${encodeURIComponent(branch)}/${b.number}/` })) });
+      return res.json({
+        builds: builds.map((b) => ({
+          ...b,
+          url: `http://localhost:${PORT}/job/${jobName}/job/${encodeURIComponent(branch)}/${b.number}/`,
+        })),
+      });
     }
 
     const build = builds[0];
@@ -316,7 +623,13 @@ app.use((req, res, next) => {
       estimatedDuration: 240000,
       url: `http://localhost:${PORT}/job/${jobName}/job/${encodeURIComponent(branch)}/${build.number}/`,
       actions: [
-        { _class: 'hudson.model.ParametersAction', parameters: [{ name: 'DEPLOY_ENV', value: 'staging' }, { name: 'DRY_RUN', value: 'false' }] },
+        {
+          _class: 'hudson.model.ParametersAction',
+          parameters: [
+            { name: 'DEPLOY_ENV', value: 'staging' },
+            { name: 'DRY_RUN', value: 'false' },
+          ],
+        },
         { _class: 'hudson.model.CauseAction' },
       ],
     });
@@ -327,8 +640,11 @@ app.use((req, res, next) => {
     const stages = STAGES[bn];
     if (!stages) return res.json({ id: String(bn), name: `#${bn}`, status: 'SUCCESS', stages: [] });
 
-    const overallStatus = stages.some(s => s.status === 'FAILED') ? 'FAILED'
-      : stages.some(s => s.status === 'IN_PROGRESS') ? 'IN_PROGRESS' : 'SUCCESS';
+    const overallStatus = stages.some((s) => s.status === 'FAILED')
+      ? 'FAILED'
+      : stages.some((s) => s.status === 'IN_PROGRESS')
+        ? 'IN_PROGRESS'
+        : 'SUCCESS';
 
     return res.json({
       id: String(bn),
@@ -336,7 +652,7 @@ app.use((req, res, next) => {
       status: overallStatus,
       startTimeMillis: stages[0].startTimeMillis,
       durationMillis: stages.reduce((sum, s) => sum + s.durationMillis, 0),
-      stages: stages.map(s => ({ ...s, execNode: '' })),
+      stages: stages.map((s) => ({ ...s, execNode: '' })),
     });
   }
 
@@ -347,7 +663,8 @@ app.use((req, res, next) => {
       const bn = buildNumber || builds[0]?.number;
       const key = `${nodeId}_${bn}`;
       const flowNodes = STAGE_FLOW_NODES[key];
-      if (!flowNodes) return res.json({ id: nodeId, name: 'Unknown', status: 'SUCCESS', stageFlowNodes: [] });
+      if (!flowNodes)
+        return res.json({ id: nodeId, name: 'Unknown', status: 'SUCCESS', stageFlowNodes: [] });
       return res.json({ id: nodeId, name: 'Test', status: 'FAILED', stageFlowNodes: flowNodes });
     }
   }
@@ -359,14 +676,15 @@ app.use((req, res, next) => {
       const bn = buildNumber || builds[0]?.number;
       const key = `${nodeId}_${bn}`;
       const log = STAGE_LOGS[key];
-      if (!log) return res.json({ nodeId, nodeStatus: 'SUCCESS', length: 0, hasMore: false, text: '' });
+      if (!log)
+        return res.json({ nodeId, nodeStatus: 'SUCCESS', length: 0, hasMore: false, text: '' });
       return res.json(log);
     }
   }
 
   if (endpoint.includes('/consoleText')) {
     const bn = buildNumber || builds[0]?.number;
-    const build = builds.find(b => b.number === bn);
+    const build = builds.find((b) => b.number === bn);
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     return res.send(build?.result === 'FAILURE' ? CONSOLE_LOG_FAILED : CONSOLE_LOG);
   }
@@ -374,7 +692,7 @@ app.use((req, res, next) => {
   if (endpoint.includes('/logText/progressiveText')) {
     const start = parseInt(req.query.start || '0');
     const bn = buildNumber || builds[0]?.number;
-    const build = builds.find(b => b.number === bn);
+    const build = builds.find((b) => b.number === bn);
     const fullLog = build?.result === 'FAILURE' ? CONSOLE_LOG_FAILED : CONSOLE_LOG;
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -388,8 +706,14 @@ app.use((req, res, next) => {
     return res.send(fullLog.substring(start));
   }
 
-  if (req.method === 'POST' && (endpoint.includes('/build') || endpoint.includes('/buildWithParameters'))) {
-    return res.status(201).setHeader('Location', `http://localhost:${PORT}/queue/item/12345/`).send();
+  if (
+    req.method === 'POST' &&
+    (endpoint.includes('/build') || endpoint.includes('/buildWithParameters'))
+  ) {
+    return res
+      .status(201)
+      .setHeader('Location', `http://localhost:${PORT}/queue/item/12345/`)
+      .send();
   }
 
   if (req.method === 'POST' && endpoint.includes('/stop')) {

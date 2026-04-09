@@ -16,12 +16,12 @@ In the versions before Jira 10.0, the REST APIs of Jira Core and Jira Software w
 
 The following authentication methods are supported for the Jira REST APIs:
 
-*   Recommended:
-  *   [OAuth 2.0](https://confluence.atlassian.com/adminjiraserver/jira-oauth-2-0-provider-api-1115659070.html) - This method provides APIs to allow external services to access resources on a user's behalf with the OAuth 2.0 protocol. This protocol is not compatible with Oauth 1.0a.
-  *   [Personal access token (PAT)](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) - This method incorporates the user account in the access token. It is a safe alternative to using username and password for authentication with various services.
-*   Other:
-  *   [OAuth 1.0a](https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+OAuth+authentication) - This method provides APIs to allow external services to access resources on a user's behalf with the OAuth 1.0 protocol. This protocol is deprecated.
-  *   [Basic HTTP](https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+Basic+Authentication) - This method is only recommended for tools like scripts or bots. It is easier to implement but much less secure.
+- Recommended:
+- [OAuth 2.0](https://confluence.atlassian.com/adminjiraserver/jira-oauth-2-0-provider-api-1115659070.html) - This method provides APIs to allow external services to access resources on a user's behalf with the OAuth 2.0 protocol. This protocol is not compatible with Oauth 1.0a.
+- [Personal access token (PAT)](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) - This method incorporates the user account in the access token. It is a safe alternative to using username and password for authentication with various services.
+- Other:
+- [OAuth 1.0a](https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+OAuth+authentication) - This method provides APIs to allow external services to access resources on a user's behalf with the OAuth 1.0 protocol. This protocol is deprecated.
+- [Basic HTTP](https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+Basic+Authentication) - This method is only recommended for tools like scripts or bots. It is easier to implement but much less secure.
 
 Jira uses cookie-based authentication in the browser, so you can call the REST API from Javascript on the page and rely on the authentication the browser has established. To reproduce the behavior of the Jira log-in page, you can POST to the /auth/1/session resource. You can use it, for example, to display authentication error messages to users.
 
@@ -38,9 +38,9 @@ http://host:port/context/rest/api-name/api-version/resource-name
 
 Currently there are three API names available, which will be discussed further below. Each of those names are versioned independently. The available API names are
 
-*   `auth` - for authentication-related operations. Current version is `1`.
-*   `agile` - for agile boards and sprints. Current version is `1`.
-*   `api` - for everything else. Current version is `2`.
+- `auth` - for authentication-related operations. Current version is `1`.
+- `agile` - for agile boards and sprints. Current version is `1`.
+- `api` - for everything else. Current version is `2`.
 
 There is also a symbolic version, called `latest`, which resolves to the latest version supported by the given Jira instance. As an example, if you wanted to retrieve the JSON representation of issue [JRA-9](https://jira.atlassian.com/browse/JRA-9) from Atlassian's public issue tracker, you would access:
 
@@ -113,9 +113,9 @@ http://host:port/context/rest/api-name/api-version/resource-name?startAt=0&maxRe
 }
 ```
 
-*   `startAt` - the item used as the first item in the page of results.
-*   `maxResults` - how many results to return per page.
-*   `total` - the number of items that the calling user has permissions for. This number _may change_ while the client requests the next pages. A client should always assume that the requested page can be empty. REST API consumers should also consider the field to be optional. This value may not be included in the response, if it is too expensive to calculate.
+- `startAt` - the item used as the first item in the page of results.
+- `maxResults` - how many results to return per page.
+- `total` - the number of items that the calling user has permissions for. This number _may change_ while the client requests the next pages. A client should always assume that the requested page can be empty. REST API consumers should also consider the field to be optional. This value may not be included in the response, if it is too expensive to calculate.
 
 Clients can use the `startAt`, `maxResults`, and `total` parameters to retrieve the desired number of results. Note, each API resource or method may have a different limit on the number of items returned, which means you can ask for more than you are given. The actual number of items returned is an implementation detail and this can be changed over time.
 
@@ -162,8 +162,8 @@ Methods marked as experimental may change without an earlier notice. We are look
 
 ## Special request and response headers
 
-*   **X-AUSERNAME** - Response header which contains either username of the authenticated user or 'anonymous'.
-*   **X-Atlassian-Token** - methods which accept multipart/form-data will only process requests with 'X-Atlassian-Token: no-check' header.
+- **X-AUSERNAME** - Response header which contains either username of the authenticated user or 'anonymous'.
+- **X-Atlassian-Token** - methods which accept multipart/form-data will only process requests with 'X-Atlassian-Token: no-check' header.
 
 ## Error responses
 
@@ -427,11 +427,11 @@ We've also provided a simple example below to get you started. The example shows
 
 Note:
 
-*   The input file is denoted by the `--data @filename` syntax. The data is shown separately, and uses the JSON format.
-*   Make sure the content type in the request is set to `application/json`, as shown in the example.
-*   POST the JSON to your Jira server. In the example, the server is `http://localhost:8080/jira/rest/api/2/issue/`.
-*   The example uses basic authentication with admin/admin credentials.
-*   You'll need to add a project to the instance before running and get the project ID of the project to which you want to add the issue beforehand.
+- The input file is denoted by the `--data @filename` syntax. The data is shown separately, and uses the JSON format.
+- Make sure the content type in the request is set to `application/json`, as shown in the example.
+- POST the JSON to your Jira server. In the example, the server is `http://localhost:8080/jira/rest/api/2/issue/`.
+- The example uses basic authentication with admin/admin credentials.
+- You'll need to add a project to the instance before running and get the project ID of the project to which you want to add the issue beforehand.
 
 To create an issue using the Jira REST API, follow these steps:
 
@@ -487,7 +487,6 @@ To create an issue using the Jira REST API, follow these steps:
     ```
 
     That's it! You can use the issue ID, issue key, and the URL to the issue for additional requests, if you wish.
-
 
 To get an issue you just created, use `http://localhost:8080/jira/rest/api/2/issue/{issueIdOrKey}` endpoint:
 

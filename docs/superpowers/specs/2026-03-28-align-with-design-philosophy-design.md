@@ -25,12 +25,14 @@ The action rail component lives in the right calendar sidebar. Actions are invis
 Move all item actions into the workbench detail view. The header uses a two-phase behavior:
 
 **Phase 1 — Full header (scroll position = 0):**
+
 - Full detail header with type, title, badges, dates (existing content)
 - Action bar directly below the header with a subtle `--color-bg-surface` background
 - Action bar border-bottom separates it from content
 - Primary and secondary actions separated by a vertical divider
 
 **Phase 2 — Compact bar (scroll position > threshold):**
+
 - Full header and action bar scroll away naturally
 - A 36px sticky compact bar slides in from the top (150ms ease transition)
 - Compact bar contains: 3px status stripe, key/emoji (for tickets/ideas), truncated title, status badge
@@ -41,25 +43,32 @@ Move all item actions into the workbench detail view. The header uses a two-phas
 The "Fokus setzen" button toggles: it shows "Fokus setzen" when unfocused and "Fokus entfernen" when the item is the current focus. Visual style changes from primary to neutral when focused.
 
 **Ticket:**
+
 - `☆ Fokus setzen` (primary) | divider | `In Jira öffnen ↗` (neutral)
 
 **Pull Request:**
+
 - `☆ Fokus setzen` (primary) | divider | `KI-Review starten` (success) · `In Bitbucket öffnen ↗` (neutral)
 - KI-Review button states: "KI-Review starten" / "Review läuft..." (disabled) / "Erneut reviewen"
 
 **Todo (open):**
+
 - `☆ Fokus setzen` (primary) · `✓ Erledigt` (success) | divider | `⚡ Dringend` (warning toggle) · `→ Zur Idee machen` (neutral) · `✗ Nicht erledigen` (danger)
 
 **Todo (done):**
+
 - `Wieder öffnen` (neutral) · `→ Zur Idee machen` (neutral)
 
 **Todo (won't-do):**
+
 - `Wieder öffnen` (neutral)
 
 **Idea (active):**
+
 - `☆ Fokus setzen` (primary) · `→ Zur Aufgabe machen` (success) | divider | `✗ Nicht verfolgen` (neutral)
 
 **Idea (won't-do):**
+
 - `Wieder aufgreifen` (neutral)
 
 ### Button Styling
@@ -111,6 +120,7 @@ Split the PR list into two non-interactive subgroups with smart sorting within e
 ### Subgroup Labels
 
 Two static text labels separate the groups:
+
 - **"Wartet auf dein Review"** — PRs where the user is a reviewer
 - **"Deine PRs"** — PRs authored by the user
 
@@ -133,25 +143,25 @@ Business day calculation: Monday–Friday only. Saturdays and Sundays are exclud
 
 ### New Badges
 
-| Badge | Text | Background | Text Color | When |
-|---|---|---|---|---|
-| Build fail | `✗ Build fehlgeschlagen` | `--color-danger-bg` | `--color-danger-text` | My PR, build status red |
-| Changes requested | `Änderungen angefordert` | `--color-signal-bg` | `--color-signal-text` | My PR, unresolved review comments |
-| Review waiting | `Review seit X Tagen` | `--color-signal-bg` | `--color-signal-text` | Others' PR, ≥2 business days |
-| Already reviewed | `✓ Bereits reviewed` | `--color-success-bg` | `--color-success-text` | Others' PR, another reviewer approved |
-| Approved | `✓ Approved` | `--color-success-bg` | `--color-success-text` | My PR, approved status |
-| Small change | `Kleine Änderung` | `--color-success-bg` | `--color-success-text` | Any PR, changed lines below threshold |
+| Badge             | Text                     | Background           | Text Color             | When                                  |
+| ----------------- | ------------------------ | -------------------- | ---------------------- | ------------------------------------- |
+| Build fail        | `✗ Build fehlgeschlagen` | `--color-danger-bg`  | `--color-danger-text`  | My PR, build status red               |
+| Changes requested | `Änderungen angefordert` | `--color-signal-bg`  | `--color-signal-text`  | My PR, unresolved review comments     |
+| Review waiting    | `Review seit X Tagen`    | `--color-signal-bg`  | `--color-signal-text`  | Others' PR, ≥2 business days          |
+| Already reviewed  | `✓ Bereits reviewed`     | `--color-success-bg` | `--color-success-text` | Others' PR, another reviewer approved |
+| Approved          | `✓ Approved`             | `--color-success-bg` | `--color-success-text` | My PR, approved status                |
+| Small change      | `Kleine Änderung`        | `--color-success-bg` | `--color-success-text` | Any PR, changed lines below threshold |
 
 ### Card Attention States (Extended)
 
 The existing card state system gains one new state:
 
-| State | Border | When |
-|---|---|---|
-| Inactive | none, opacity reduced | Done/declined PRs, or already reviewed by others |
-| Normal | none | Default |
-| Attention (amber) | `border-l-4 border-amber-500` | Unresolved comments, review waiting ≥2 days |
-| **Attention (red)** | `border-l-4 border-red-500` | Build failing on my PR |
+| State               | Border                        | When                                             |
+| ------------------- | ----------------------------- | ------------------------------------------------ |
+| Inactive            | none, opacity reduced         | Done/declined PRs, or already reviewed by others |
+| Normal              | none                          | Default                                          |
+| Attention (amber)   | `border-l-4 border-amber-500` | Unresolved comments, review waiting ≥2 days      |
+| **Attention (red)** | `border-l-4 border-red-500`   | Build failing on my PR                           |
 
 Red attention is new. Add a `--color-card-attention-bar-danger` token (or reuse `--color-danger-text`) for the red-500 left border.
 
@@ -162,6 +172,7 @@ A PR is considered "klein" when the total changed lines (additions + deletions) 
 ### Data Requirements
 
 All data needed for sorting is already available from the Bitbucket API or can be derived:
+
 - Build status: already fetched per PR
 - Review comments resolved/unresolved: available in PR activity/comments endpoint
 - Reviewer list and their status: available in PR participants

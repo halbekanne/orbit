@@ -37,10 +37,10 @@ interface Todo {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'done' | 'wont-do';  // replaces done: boolean
+  status: 'open' | 'done' | 'wont-do'; // replaces done: boolean
   urgent: boolean;
   createdAt: string;
-  completedAt: string | null;            // set when status becomes 'done', null otherwise
+  completedAt: string | null; // set when status becomes 'done', null otherwise
 }
 ```
 
@@ -88,6 +88,7 @@ Only two operations per resource: read all, write all. The frontend always sends
 ### Atomic writes
 
 Writes use a write-then-rename strategy:
+
 1. Write to `~/.orbit/todos.tmp.json`
 2. Rename to `~/.orbit/todos.json`
 
@@ -105,36 +106,36 @@ If `todos.json` or `ideas.json` does not exist on first load, the BFF returns `[
 
 Owns all todo state and todo-only mutations.
 
-| Member | Type | Description |
-|---|---|---|
-| `todos` | `signal<Todo[]>` | Full array from BFF; position = order |
-| `today` | `private readonly string` | `new Date().toDateString()` captured once at service construction — not reactive |
-| `openTodos` | `computed` | `status === 'open'` OR (`status === 'done'` AND `completedAt` is today) — urgent open items first, then non-urgent open items, then today's completed items at the bottom |
-| `doneTodos` | `computed` | `status === 'done'` AND `completedAt` is before today |
-| `wontDoTodos` | `computed` | `status === 'wont-do'` |
-| `pendingCount` | `computed` | `openTodos().length` |
-| `todosLoading` | `signal<boolean>` | True during initial load |
-| `todosError` | `signal<boolean>` | True if load failed |
-| `load()` | method | Fetches from BFF on init |
-| `add(title, description?)` | method | Prepends new todo with `status: 'open'`, `urgent: false`, `completedAt: null`; saves |
-| `update(todo: Todo)` | method | Replaces item by id in array; saves |
-| `reorder(fromIndex, toIndex)` | method | Moves item in array; saves |
-| `save()` | private method | POSTs full array to BFF |
+| Member                        | Type                      | Description                                                                                                                                                               |
+| ----------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `todos`                       | `signal<Todo[]>`          | Full array from BFF; position = order                                                                                                                                     |
+| `today`                       | `private readonly string` | `new Date().toDateString()` captured once at service construction — not reactive                                                                                          |
+| `openTodos`                   | `computed`                | `status === 'open'` OR (`status === 'done'` AND `completedAt` is today) — urgent open items first, then non-urgent open items, then today's completed items at the bottom |
+| `doneTodos`                   | `computed`                | `status === 'done'` AND `completedAt` is before today                                                                                                                     |
+| `wontDoTodos`                 | `computed`                | `status === 'wont-do'`                                                                                                                                                    |
+| `pendingCount`                | `computed`                | `openTodos().length`                                                                                                                                                      |
+| `todosLoading`                | `signal<boolean>`         | True during initial load                                                                                                                                                  |
+| `todosError`                  | `signal<boolean>`         | True if load failed                                                                                                                                                       |
+| `load()`                      | method                    | Fetches from BFF on init                                                                                                                                                  |
+| `add(title, description?)`    | method                    | Prepends new todo with `status: 'open'`, `urgent: false`, `completedAt: null`; saves                                                                                      |
+| `update(todo: Todo)`          | method                    | Replaces item by id in array; saves                                                                                                                                       |
+| `reorder(fromIndex, toIndex)` | method                    | Moves item in array; saves                                                                                                                                                |
+| `save()`                      | private method            | POSTs full array to BFF                                                                                                                                                   |
 
 ### IdeaService (`providedIn: 'root'`)
 
-| Member | Type | Description |
-|---|---|---|
-| `ideas` | `signal<Idea[]>` | Full array from BFF; position = order |
-| `activeIdeas` | `computed` | `status === 'active'` |
-| `wontDoIdeas` | `computed` | `status === 'wont-do'` |
-| `ideasLoading` | `signal<boolean>` | True during initial load |
-| `ideasError` | `signal<boolean>` | True if load failed |
-| `load()` | method | Fetches from BFF on init |
-| `add(title, description?)` | method | Prepends new idea with `status: 'active'`; saves |
-| `update(idea: Idea)` | method | Replaces item by id in array; saves |
-| `reorder(fromIndex, toIndex)` | method | Moves item in array; saves |
-| `save()` | private method | POSTs full array to BFF |
+| Member                        | Type              | Description                                      |
+| ----------------------------- | ----------------- | ------------------------------------------------ |
+| `ideas`                       | `signal<Idea[]>`  | Full array from BFF; position = order            |
+| `activeIdeas`                 | `computed`        | `status === 'active'`                            |
+| `wontDoIdeas`                 | `computed`        | `status === 'wont-do'`                           |
+| `ideasLoading`                | `signal<boolean>` | True during initial load                         |
+| `ideasError`                  | `signal<boolean>` | True if load failed                              |
+| `load()`                      | method            | Fetches from BFF on init                         |
+| `add(title, description?)`    | method            | Prepends new idea with `status: 'active'`; saves |
+| `update(idea: Idea)`          | method            | Replaces item by id in array; saves              |
+| `reorder(fromIndex, toIndex)` | method            | Moves item in array; saves                       |
+| `save()`                      | private method    | POSTs full array to BFF                          |
 
 ### WorkDataService (updated)
 
@@ -167,6 +168,7 @@ demoteToIdea(todo: Todo): void
 The workbench wrapper in `app.html` is split to accommodate the action rail:
 
 **Before:**
+
 ```html
 <div class="flex-1 overflow-hidden bg-stone-50">
   <app-workbench />
@@ -174,6 +176,7 @@ The workbench wrapper in `app.html` is split to accommodate the action rail:
 ```
 
 **After:**
+
 ```html
 <div class="flex-1 overflow-hidden flex">
   <div class="flex-1 overflow-hidden bg-stone-50">
@@ -196,16 +199,16 @@ The action rail is a column peer of the entire workbench area — it sits outsid
 - **Reads:** `WorkDataService.selectedItem` via `inject(WorkDataService)`
 - **Renders:** context-specific action buttons per item type
 
-| Item type | Actions |
-|---|---|
-| Todo (open) | Erledigt, Dringend toggle (amber when active), Zur Idee machen, Nicht erledigen |
-| Todo (done) | Wieder öffnen, Zur Idee machen |
-| Todo (wont-do) | Wieder öffnen |
-| Idea (active) | Zur Aufgabe machen, Nicht verfolgen |
-| Idea (wont-do) | Wieder aufgreifen |
-| Ticket | In Jira öffnen — `<a [href]="item.url" target="_blank">` |
-| PR | In Bitbucket öffnen — `<a [href]="item.url" target="_blank">` |
-| Nothing selected | Empty, stone-50 background (empty state deferred to future work) |
+| Item type        | Actions                                                                         |
+| ---------------- | ------------------------------------------------------------------------------- |
+| Todo (open)      | Erledigt, Dringend toggle (amber when active), Zur Idee machen, Nicht erledigen |
+| Todo (done)      | Wieder öffnen, Zur Idee machen                                                  |
+| Todo (wont-do)   | Wieder öffnen                                                                   |
+| Idea (active)    | Zur Aufgabe machen, Nicht verfolgen                                             |
+| Idea (wont-do)   | Wieder aufgreifen                                                               |
+| Ticket           | In Jira öffnen — `<a [href]="item.url" target="_blank">`                        |
+| PR               | In Bitbucket öffnen — `<a [href]="item.url" target="_blank">`                   |
+| Nothing selected | Empty, stone-50 background (empty state deferred to future work)                |
 
 Action buttons call methods on `TodoService`, `IdeaService`, or `WorkDataService` as appropriate.
 
@@ -260,10 +263,10 @@ Updated `CollapsedState` interface:
 interface CollapsedState {
   tickets: boolean;
   prs: boolean;
-  todos: boolean;       // open todos section
-  todosDone: boolean;   // "Erledigt" sub-section
+  todos: boolean; // open todos section
+  todosDone: boolean; // "Erledigt" sub-section
   todosWontDo: boolean; // "Nicht verfolgt" sub-section
-  ideas: boolean;       // active ideas section
+  ideas: boolean; // active ideas section
   ideasWontDo: boolean; // "Nicht verfolgt" sub-section
 }
 ```
@@ -271,6 +274,7 @@ interface CollapsedState {
 Default (no saved state): all `false`. The `effect()` and `loadCollapsed()` in `NavigatorComponent` are updated to serialise and deserialise all seven keys.
 
 **Navigator section order:**
+
 1. Aktuelle Tickets (Jira)
 2. Pull Requests (Bitbucket)
 3. Aufgaben — open todos + today's completed todos (draggable open items only), then collapsed "Erledigt (n)" (completed before today) and "Nicht verfolgt (n)" (won't-do)
@@ -285,10 +289,8 @@ Gains an Aufgabe/Idee toggle below the text input. Defaults to Aufgabe on open. 
 Gains `@if (item?.type === 'idea')` branch rendering `<app-idea-detail>`. The full switch structure becomes:
 
 ```html
-@if (item?.type === 'ticket') { ... }
-@if (item?.type === 'pr') { ... }
-@if (item?.type === 'todo') { ... }
-@if (item?.type === 'idea') { ... }
+@if (item?.type === 'ticket') { ... } @if (item?.type === 'pr') { ... } @if (item?.type === 'todo')
+{ ... } @if (item?.type === 'idea') { ... }
 ```
 
 The existing `null` / no-selection empty state ("Bereit loszulegen?") is unchanged.
@@ -316,12 +318,14 @@ Angular templates do not narrow discriminated union types inside `@if` blocks. T
 ### Todo completion — celebration
 
 The celebration is triggered by both interactions that can complete a todo:
+
 - Clicking the checkbox in `TodoCardComponent`
 - Clicking "Erledigt" in the action rail
 
 `TodoService` exposes a `lastCompletedId` signal (similar to the existing `lastAddedId` pattern). `TodoCardComponent` watches this signal and plays the animation when its todo's id matches.
 
 Animation sequence:
+
 1. Checkbox bounce (0.5s, cubic-bezier spring)
 2. Confetti particle burst from the checkbox (12 particles, 6 colors, 0.65s)
 3. Ascending 3-note chime (do–mi–sol via Web Audio API)

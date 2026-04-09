@@ -132,7 +132,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           role="status"
         >
           <div class="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-2">
-            <svg lucideCircleAlert class="text-[var(--color-signal-text)] shrink-0" [size]="16"></svg>
+            <svg
+              lucideCircleAlert
+              class="text-[var(--color-signal-text)] shrink-0"
+              [size]="16"
+            ></svg>
             <span class="text-sm font-medium text-[var(--color-signal-text)]"
               >Entwurf — dieser PR ist noch nicht bereit zum Review oder Mergen.</span
             >
@@ -222,7 +226,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 class="font-mono text-[13px] text-[var(--color-text-body)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all"
                 >{{ pr().fromRef.displayId }}</code
               >
-              <svg lucideArrowRight class="text-[var(--color-text-muted)] shrink-0" [size]="14"></svg>
+              <svg
+                lucideArrowRight
+                class="text-[var(--color-text-muted)] shrink-0"
+                [size]="14"
+              ></svg>
               @if (isNonDefaultTarget()) {
                 <code
                   class="font-mono text-[13px] text-amber-700 font-semibold bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1.5 py-0.5 break-all"
@@ -240,7 +248,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
               <div class="flex items-center gap-4 mt-2.5">
                 @if (pr().commentCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg lucideMessageSquare class="text-[var(--color-text-muted)]" [size]="14"></svg>
+                    <svg
+                      lucideMessageSquare
+                      class="text-[var(--color-text-muted)]"
+                      [size]="14"
+                    ></svg>
                     <span class="text-sm text-[var(--color-text-muted)]"
                       >{{ pr().commentCount }} Kommentar{{
                         pr().commentCount === 1 ? '' : 'e'
@@ -250,7 +262,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                 }
                 @if (pr().openTaskCount > 0) {
                   <div class="flex items-center gap-1.5">
-                    <svg lucideSquareCheck class="text-[var(--color-signal-text)]" [size]="14"></svg>
+                    <svg
+                      lucideSquareCheck
+                      class="text-[var(--color-signal-text)]"
+                      [size]="14"
+                    ></svg>
                     <span class="text-sm text-[var(--color-signal-text)] font-medium"
                       >{{ pr().openTaskCount }} offene{{
                         pr().openTaskCount === 1 ? 'r Task' : ' Tasks'
@@ -263,7 +279,11 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
                     @if (build.type === 'failed') {
                       <svg lucideX class="text-[var(--color-danger-text)]" [size]="14"></svg>
                     } @else if (build.type === 'running') {
-                      <svg lucideLoaderCircle class="text-[var(--color-primary-solid)] animate-spin" [size]="14"></svg>
+                      <svg
+                        lucideLoaderCircle
+                        class="text-[var(--color-primary-solid)] animate-spin"
+                        [size]="14"
+                      ></svg>
                     } @else {
                       <svg lucideCheck class="text-[var(--color-success-text)]" [size]="14"></svg>
                     }
@@ -284,7 +304,12 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
 
       <div class="max-w-2xl mx-auto space-y-3 py-4 px-2">
         <app-collapsible-section label="Jira-Ticket">
-          <svg lucideNotepadText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
+          <svg
+            lucideNotepadText
+            sectionIcon
+            class="text-[var(--color-text-muted)] shrink-0"
+            [size]="16"
+          ></svg>
           <ng-container sectionMeta>
             @if (resolvedJiraTicket(); as ticket) {
               <span class="font-mono text-xs text-[var(--color-primary-text)] font-semibold">{{
@@ -297,7 +322,12 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         </app-collapsible-section>
 
         <app-collapsible-section label="Beschreibung" [expanded]="true">
-          <svg lucideFileText sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
+          <svg
+            lucideFileText
+            sectionIcon
+            class="text-[var(--color-text-muted)] shrink-0"
+            [size]="16"
+          ></svg>
           @if (pr().description) {
             <div class="jira-markup" [innerHTML]="pr().description | jiraMarkup"></div>
           } @else {
@@ -313,7 +343,12 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
           <div
             class="bg-[var(--color-bg-card)] rounded-xl border border-[var(--color-border-subtle)] px-6 py-4 flex items-center gap-3"
           >
-            <svg lucideSparkles class="shrink-0 text-[var(--color-text-muted)]" [size]="20" [strokeWidth]="1.5"></svg>
+            <svg
+              lucideSparkles
+              class="shrink-0 text-[var(--color-text-muted)]"
+              [size]="20"
+              [strokeWidth]="1.5"
+            ></svg>
             <p class="text-sm text-[var(--color-text-muted)]">
               KI-gestützte Reviews können in den Einstellungen aktiviert werden.
             </p>
@@ -321,7 +356,12 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
         }
 
         <app-collapsible-section label="Änderungen">
-          <svg lucideFile sectionIcon class="text-[var(--color-text-muted)] shrink-0" [size]="16"></svg>
+          <svg
+            lucideFile
+            sectionIcon
+            class="text-[var(--color-text-muted)] shrink-0"
+            [size]="16"
+          ></svg>
           <ng-container sectionMeta>
             @if (diffFileCount() > 0) {
               <span class="text-xs text-[var(--color-text-muted)]"

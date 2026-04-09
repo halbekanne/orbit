@@ -32,15 +32,20 @@ export class ViewSettingsComponent {
     const d = this.draft();
     if (!this.isDirty()) return false;
 
-    const jiraOk = d.connections.jira.baseUrl.trim() !== '' && d.connections.jira.apiKey.trim() !== '';
-    const bbOk = d.connections.bitbucket.baseUrl.trim() !== '' && d.connections.bitbucket.apiKey.trim() !== '' && d.connections.bitbucket.userSlug.trim() !== '';
+    const jiraOk =
+      d.connections.jira.baseUrl.trim() !== '' && d.connections.jira.apiKey.trim() !== '';
+    const bbOk =
+      d.connections.bitbucket.baseUrl.trim() !== '' &&
+      d.connections.bitbucket.apiKey.trim() !== '' &&
+      d.connections.bitbucket.userSlug.trim() !== '';
     if (!jiraOk || !bbOk) return false;
 
     const j = d.connections.jenkins;
     if (j?.baseUrl?.trim()) {
       if (j.username.trim() === '' || j.apiToken.trim() === '') return false;
       if (j.jobs.length === 0) return false;
-      if (j.jobs.some(job => job.displayName.trim() === '' || job.jobPath.trim() === '')) return false;
+      if (j.jobs.some((job) => job.displayName.trim() === '' || job.jobPath.trim() === ''))
+        return false;
     }
 
     return true;
@@ -80,15 +85,18 @@ export class ViewSettingsComponent {
   readonly agentDescriptions: Record<string, { label: string; description: string }> = {
     'code-quality': {
       label: 'Code-Qualität',
-      description: 'Prüft auf Bugs, Logikfehler, Lesbarkeit und Wartbarkeit. Empfohlen für alle Projekte.',
+      description:
+        'Prüft auf Bugs, Logikfehler, Lesbarkeit und Wartbarkeit. Empfohlen für alle Projekte.',
     },
     'ak-abgleich': {
       label: 'AK-Abgleich',
-      description: 'Vergleicht den Code mit den Akzeptanzkriterien aus dem verknüpften Jira-Ticket. Empfohlen wenn Jira genutzt wird.',
+      description:
+        'Vergleicht den Code mit den Akzeptanzkriterien aus dem verknüpften Jira-Ticket. Empfohlen wenn Jira genutzt wird.',
     },
-    'accessibility': {
+    accessibility: {
       label: 'Barrierefreiheit',
-      description: 'Prüft WCAG AA Konformität für HTML und UI-Komponenten. Empfohlen für Frontend-Projekte.',
+      description:
+        'Prüft WCAG AA Konformität für HTML und UI-Komponenten. Empfohlen für Frontend-Projekte.',
     },
   };
 
@@ -114,11 +122,11 @@ export class ViewSettingsComponent {
   }
 
   addJenkinsJob(): void {
-    this.updateDraft(d => d.connections.jenkins.jobs.push({ displayName: '', jobPath: '' }));
+    this.updateDraft((d) => d.connections.jenkins.jobs.push({ displayName: '', jobPath: '' }));
   }
 
   removeJenkinsJob(index: number): void {
-    this.updateDraft(d => d.connections.jenkins.jobs.splice(index, 1));
+    this.updateDraft((d) => d.connections.jenkins.jobs.splice(index, 1));
   }
 
   addCustomHeader(): void {
@@ -130,7 +138,7 @@ export class ViewSettingsComponent {
   }
 
   toggleAgent(agentId: string, enabled: boolean): void {
-    this.updateDraft(d => {
+    this.updateDraft((d) => {
       const agents = d.features.aiReviews.enabledAgents;
       if (enabled && !agents.includes(agentId)) {
         agents.push(agentId);
@@ -142,7 +150,7 @@ export class ViewSettingsComponent {
   }
 
   updateExperiment(id: string, value: string | boolean): void {
-    this.updateDraft(d => d.experiments[id] = value);
+    this.updateDraft((d) => (d.experiments[id] = value));
   }
 
   setTheme(theme: 'light' | 'dark' | 'system'): void {

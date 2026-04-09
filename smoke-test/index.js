@@ -59,11 +59,15 @@ function get(url) {
 async function run() {
   const mockServer = spawn('node', ['mock-server/jira.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockServer);
-  mockServer.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-server exited with code ${code}`)); });
+  mockServer.on('exit', (code) => {
+    if (code !== null && code !== 0) fail(new Error(`mock-server exited with code ${code}`));
+  });
 
   const mockBitbucket = spawn('node', ['mock-server/bitbucket.js'], { cwd: ROOT, stdio: 'pipe' });
   children.push(mockBitbucket);
-  mockBitbucket.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`)); });
+  mockBitbucket.on('exit', (code) => {
+    if (code !== null && code !== 0) fail(new Error(`mock-bitbucket exited with code ${code}`));
+  });
 
   const server = spawn('node', ['server/index.js'], {
     cwd: ROOT,
@@ -78,7 +82,9 @@ async function run() {
     },
   });
   children.push(server);
-  server.on('exit', (code) => { if (code !== null && code !== 0) fail(new Error(`server exited with code ${code}`)); });
+  server.on('exit', (code) => {
+    if (code !== null && code !== 0) fail(new Error(`server exited with code ${code}`));
+  });
 
   try {
     await Promise.all([waitForPort(6202), waitForPort(6203), waitForPort(6201)]);
@@ -99,7 +105,8 @@ async function run() {
       throw new Error(`Expected at least 1 issue, got ${data.issues.length}`);
     }
 
-    const bbUrl = 'http://localhost:6201/bitbucket/rest/api/latest/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
+    const bbUrl =
+      'http://localhost:6201/bitbucket/rest/api/latest/dashboard/pull-requests?role=REVIEWER&state=OPEN&limit=50';
     const { status: bbStatus, data: bbData } = await get(bbUrl);
 
     if (bbStatus !== 200) {

@@ -10,16 +10,12 @@ export const routes: Routes = [
   {
     path: 'arbeit',
     component: ViewArbeitComponent,
-    children: [
-      { path: '**', children: [] },
-    ],
+    children: [{ path: '**', children: [] }],
   },
   {
     path: 'builds',
     component: ViewBuildsComponent,
-    children: [
-      { path: '**', children: [] },
-    ],
+    children: [{ path: '**', children: [] }],
   },
   { path: 'logbuch', component: ViewLogbuchComponent },
   {

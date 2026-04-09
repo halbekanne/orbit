@@ -92,12 +92,12 @@ The daily rhythm is surfaced as a special card at the very top of the navigator 
 
 The card transitions through four visual states during the day:
 
-| State | Visual | Left Stripe | Icon | When |
-|-------|--------|-------------|------|------|
-| **Morning open** | Indigo gradient bg, pulsing border | Indigo gradient (4px) | Sun ☀ | No morning focus set |
-| **Morning filled** | White bg, indigo border | Solid indigo (4px) | Sun ☀ | Morning focus saved |
-| **Evening open** | Amber gradient bg, pulsing border | Amber gradient (4px) | Moon 🌙 | After 15:00, morning done, no evening reflection |
-| **Evening filled** | White bg, stone border | Indigo→Amber gradient (4px) | Checkmark ✓ | Both morning and evening complete |
+| State              | Visual                             | Left Stripe                 | Icon        | When                                             |
+| ------------------ | ---------------------------------- | --------------------------- | ----------- | ------------------------------------------------ |
+| **Morning open**   | Indigo gradient bg, pulsing border | Indigo gradient (4px)       | Sun ☀       | No morning focus set                             |
+| **Morning filled** | White bg, indigo border            | Solid indigo (4px)          | Sun ☀       | Morning focus saved                              |
+| **Evening open**   | Amber gradient bg, pulsing border  | Amber gradient (4px)        | Moon 🌙     | After 15:00, morning done, no evening reflection |
+| **Evening filled** | White bg, stone border             | Indigo→Amber gradient (4px) | Checkmark ✓ | Both morning and evening complete                |
 
 ### Card Content by State
 
@@ -112,6 +112,7 @@ The card transitions through four visual states during the day:
 ### Card Visual Distinction
 
 The rhythm card is visually distinct from work-item cards:
+
 - **4px stripe** (vs 3px on tickets) — slightly bolder
 - **Gradient background** when open (vs flat white)
 - **Instrument Serif** for question/answer text — journalhafte Anmutung
@@ -160,6 +161,7 @@ When the rhythm card is selected, the workbench shows a centered detail view. Th
 - Escape key triggers skip
 
 For the evening input view, a completion summary is shown above the question:
+
 - Lists all `completedItems` for the day
 - If empty: "Kein Problem — nicht jeder Tag ist ein Produktivitätstag." (supportive, non-blaming)
 
@@ -281,6 +283,7 @@ export class DayRhythmService {
 ## Scope Boundaries
 
 **In scope:**
+
 - `DayRhythmService` with `days.json` persistence
 - Rhythm card component (navigator integration, 4 visual states, pulsing animation)
 - Rhythm detail component (input view, read-only view, success animation)
@@ -291,6 +294,7 @@ export class DayRhythmService {
 - Card transition from morning to evening (at 15:00, via `currentHour` signal)
 
 **Out of scope:**
+
 - Streaks or streak visualization
 - Achievements triggered by daily rhythm usage
 - Weekly/monthly aggregation views

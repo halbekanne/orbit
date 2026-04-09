@@ -26,10 +26,10 @@ Views are defined statically in the app component. No dynamic registration or la
 
 Initial views:
 
-| ID | Label | Icon | Content |
-|----|-------|------|---------|
-| `arbeit` | Arbeit | lightning bolt / Zap | Existing Navigator + Workbench + Action Rail |
-| `timeline` | Timeline | calendar / history | Timeline view (built in separate spec) |
+| ID         | Label    | Icon                 | Content                                      |
+| ---------- | -------- | -------------------- | -------------------------------------------- |
+| `arbeit`   | Arbeit   | lightning bolt / Zap | Existing Navigator + Workbench + Action Rail |
+| `timeline` | Timeline | calendar / history   | Timeline view (built in separate spec)       |
 
 Future candidates (not part of this spec): Tools, Einstellungen.
 
@@ -132,18 +132,13 @@ The existing `app.html` template moves almost entirely into `ViewArbeitComponent
 
 ```html
 <div class="flex h-screen overflow-hidden">
-  <app-hybrid-rail
-    [activeView]="activeView()"
-    (viewChange)="activeView.set($event)" />
+  <app-hybrid-rail [activeView]="activeView()" (viewChange)="activeView.set($event)" />
 
-  @switch (activeView()) {
-    @case ('arbeit') {
-      <app-view-arbeit class="flex-1 overflow-hidden" />
-    }
-    @case ('timeline') {
-      <app-view-timeline class="flex-1 overflow-hidden" />
-    }
-  }
+  @switch (activeView()) { @case ('arbeit') {
+  <app-view-arbeit class="flex-1 overflow-hidden" />
+  } @case ('timeline') {
+  <app-view-timeline class="flex-1 overflow-hidden" />
+  } }
 </div>
 <app-quick-capture [open]="overlayOpen()" (close)="onOverlayClose()" />
 ```
@@ -160,6 +155,7 @@ The existing `app.html` template moves almost entirely into `ViewArbeitComponent
 ## Scope Boundaries
 
 **In scope:**
+
 - HybridRailComponent with static view definitions
 - ViewArbeitComponent extracting existing layout
 - ViewTimelineComponent as empty placeholder
@@ -167,6 +163,7 @@ The existing `app.html` template moves almost entirely into `ViewArbeitComponent
 - Keyboard and screen reader accessibility
 
 **Out of scope:**
+
 - Timeline content (separate spec)
 - Tagesrhythmus features (separate spec)
 - Animation/transitions between views

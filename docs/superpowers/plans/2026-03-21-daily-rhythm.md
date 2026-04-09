@@ -18,32 +18,33 @@
 
 ## File Structure
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src/app/models/day-entry.model.ts` | DayEntry, CompletedItem interfaces |
-| Create | `src/app/data/daily-questions.ts` | Morning + evening question pools, selection algorithm |
-| Create | `src/app/services/day-rhythm.service.ts` | Core service: persistence, completions, morning/evening save, rhythm phase |
-| Create | `src/app/services/day-rhythm.service.spec.ts` | Service tests |
-| Create | `src/app/components/rhythm-card/rhythm-card.ts` | Navigator card with 4 visual states + stripe-expand animation |
-| Create | `src/app/components/rhythm-card/rhythm-card.spec.ts` | Card tests |
-| Create | `src/app/components/rhythm-detail/rhythm-detail.ts` | Workbench detail view: input form, read-only view, success animation |
-| Create | `src/app/components/rhythm-detail/rhythm-detail.spec.ts` | Detail tests |
-| Modify | `src/app/views/view-timeline/view-timeline.ts` | Replace placeholder with journal timeline |
-| Create | `src/app/views/view-timeline/view-timeline.spec.ts` | Timeline view tests |
-| Create | `src/app/views/view-timeline/view-timeline.html` | Timeline template with journal layout |
-| Modify | `src/app/components/navigator/navigator.ts` | Add RhythmCardComponent import, rhythm card at top |
-| Modify | `src/app/components/navigator/navigator.html` | Add rhythm card section above tickets |
-| Modify | `src/app/components/workbench/workbench.ts` | Add RhythmDetailComponent import, handle 'rhythm' item type |
-| Modify | `src/app/components/workbench/workbench.html` | Add @case for rhythm detail view |
-| Modify | `src/app/services/todo.service.ts:84-93` | Hook into update() to record todo completions |
-| Modify | `src/app/services/work-data.service.ts` | Track ticket status changes to record ticket completions |
-| Modify | `src/styles.css` | Import Instrument Serif, add stagger + card animations |
+| Action | Path                                                     | Responsibility                                                             |
+| ------ | -------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Create | `src/app/models/day-entry.model.ts`                      | DayEntry, CompletedItem interfaces                                         |
+| Create | `src/app/data/daily-questions.ts`                        | Morning + evening question pools, selection algorithm                      |
+| Create | `src/app/services/day-rhythm.service.ts`                 | Core service: persistence, completions, morning/evening save, rhythm phase |
+| Create | `src/app/services/day-rhythm.service.spec.ts`            | Service tests                                                              |
+| Create | `src/app/components/rhythm-card/rhythm-card.ts`          | Navigator card with 4 visual states + stripe-expand animation              |
+| Create | `src/app/components/rhythm-card/rhythm-card.spec.ts`     | Card tests                                                                 |
+| Create | `src/app/components/rhythm-detail/rhythm-detail.ts`      | Workbench detail view: input form, read-only view, success animation       |
+| Create | `src/app/components/rhythm-detail/rhythm-detail.spec.ts` | Detail tests                                                               |
+| Modify | `src/app/views/view-timeline/view-timeline.ts`           | Replace placeholder with journal timeline                                  |
+| Create | `src/app/views/view-timeline/view-timeline.spec.ts`      | Timeline view tests                                                        |
+| Create | `src/app/views/view-timeline/view-timeline.html`         | Timeline template with journal layout                                      |
+| Modify | `src/app/components/navigator/navigator.ts`              | Add RhythmCardComponent import, rhythm card at top                         |
+| Modify | `src/app/components/navigator/navigator.html`            | Add rhythm card section above tickets                                      |
+| Modify | `src/app/components/workbench/workbench.ts`              | Add RhythmDetailComponent import, handle 'rhythm' item type                |
+| Modify | `src/app/components/workbench/workbench.html`            | Add @case for rhythm detail view                                           |
+| Modify | `src/app/services/todo.service.ts:84-93`                 | Hook into update() to record todo completions                              |
+| Modify | `src/app/services/work-data.service.ts`                  | Track ticket status changes to record ticket completions                   |
+| Modify | `src/styles.css`                                         | Import Instrument Serif, add stagger + card animations                     |
 
 ---
 
 ### Task 1: Data model and question pools
 
 **Files:**
+
 - Create: `src/app/models/day-entry.model.ts`
 - Create: `src/app/data/daily-questions.ts`
 
@@ -120,13 +121,12 @@ export function pickQuestion(pool: string[], storageKey: string): string {
     if (raw) recent = JSON.parse(raw);
   } catch {}
 
-  const eligible = pool
-    .map((q, i) => ({ q, i }))
-    .filter(({ i }) => !recent.includes(i));
+  const eligible = pool.map((q, i) => ({ q, i })).filter(({ i }) => !recent.includes(i));
 
-  const pick = eligible.length > 0
-    ? eligible[Math.floor(Math.random() * eligible.length)]
-    : { q: pool[0], i: 0 };
+  const pick =
+    eligible.length > 0
+      ? eligible[Math.floor(Math.random() * eligible.length)]
+      : { q: pool[0], i: 0 };
 
   const updated = [pick.i, ...recent].slice(0, 5);
   localStorage.setItem(storageKey, JSON.stringify(updated));
@@ -155,6 +155,7 @@ git commit -m "feat(daily-rhythm): add DayEntry model and question pools"
 ### Task 2: DayRhythmService with tests
 
 **Files:**
+
 - Create: `src/app/services/day-rhythm.service.ts`
 - Create: `src/app/services/day-rhythm.service.spec.ts`
 
@@ -233,7 +234,12 @@ describe('DayRhythmService', () => {
     httpMock.expectOne('/api/days').flush([]);
     service.ensureToday();
     httpMock.expectOne('/api/days').flush([]);
-    service.recordCompletion({ type: 'todo', id: 'td-1', title: 'Test', completedAt: new Date().toISOString() });
+    service.recordCompletion({
+      type: 'todo',
+      id: 'td-1',
+      title: 'Test',
+      completedAt: new Date().toISOString(),
+    });
     httpMock.expectOne('/api/days').flush([]);
     expect(service.todayEntry()!.completedItems.length).toBe(1);
     expect(service.todayEntry()!.completedItems[0].title).toBe('Test');
@@ -284,7 +290,7 @@ export class DayRhythmService {
 
   readonly todayEntry = computed(() => {
     const today = new Date().toISOString().split('T')[0];
-    return this.days().find(d => d.date === today) ?? null;
+    return this.days().find((d) => d.date === today) ?? null;
   });
 
   readonly needsMorning = computed(() => {
@@ -305,7 +311,9 @@ export class DayRhythmService {
 
   // Determines which of the 4 card states to show:
   // 'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'
-  readonly rhythmPhase = computed<'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'>(() => {
+  readonly rhythmPhase = computed<
+    'morning-open' | 'morning-filled' | 'evening-open' | 'evening-filled'
+  >(() => {
     const entry = this.todayEntry();
     if (!entry || entry.morningAnsweredAt === null) return 'morning-open';
     if (entry.eveningAnsweredAt !== null) return 'evening-filled';
@@ -319,8 +327,8 @@ export class DayRhythmService {
 
   private load(): void {
     this.http.get<DayEntry[]>(this.baseUrl).subscribe({
-      next: days => this.days.set(days),
-      error: err => console.error('Failed to load days:', err),
+      next: (days) => this.days.set(days),
+      error: (err) => console.error('Failed to load days:', err),
     });
   }
 
@@ -337,12 +345,12 @@ export class DayRhythmService {
       eveningAnsweredAt: null,
       completedItems: [],
     };
-    this.days.update(days => [entry, ...days]);
+    this.days.update((days) => [entry, ...days]);
     this.save();
   }
 
   saveMorning(focus: string, question: string): void {
-    this.updateToday(entry => ({
+    this.updateToday((entry) => ({
       ...entry,
       morningFocus: focus,
       morningQuestion: question,
@@ -351,14 +359,14 @@ export class DayRhythmService {
   }
 
   skipMorning(): void {
-    this.updateToday(entry => ({
+    this.updateToday((entry) => ({
       ...entry,
       morningAnsweredAt: 'skipped',
     }));
   }
 
   saveEvening(reflection: string, question: string): void {
-    this.updateToday(entry => ({
+    this.updateToday((entry) => ({
       ...entry,
       eveningReflection: reflection,
       eveningQuestion: question,
@@ -367,7 +375,7 @@ export class DayRhythmService {
   }
 
   skipEvening(): void {
-    this.updateToday(entry => ({
+    this.updateToday((entry) => ({
       ...entry,
       eveningAnsweredAt: 'skipped',
     }));
@@ -375,7 +383,7 @@ export class DayRhythmService {
 
   recordCompletion(item: CompletedItem): void {
     this.ensureToday();
-    this.updateToday(entry => ({
+    this.updateToday((entry) => ({
       ...entry,
       completedItems: [...entry.completedItems, item],
     }));
@@ -383,15 +391,13 @@ export class DayRhythmService {
 
   private updateToday(fn: (entry: DayEntry) => DayEntry): void {
     const today = new Date().toISOString().split('T')[0];
-    this.days.update(days =>
-      days.map(d => d.date === today ? fn(d) : d)
-    );
+    this.days.update((days) => days.map((d) => (d.date === today ? fn(d) : d)));
     this.save();
   }
 
   private save(): void {
     this.http.post<DayEntry[]>(this.baseUrl, this.days()).subscribe({
-      error: err => console.error('Failed to save days:', err),
+      error: (err) => console.error('Failed to save days:', err),
     });
   }
 }
@@ -414,6 +420,7 @@ git commit -m "feat(daily-rhythm): add DayRhythmService with persistence and com
 ### Task 3: Global styles (Instrument Serif + animations)
 
 **Files:**
+
 - Modify: `src/styles.css`
 
 - [ ] **Step 1: Add Instrument Serif font and animations to global styles**
@@ -424,59 +431,125 @@ Append to `src/styles.css`:
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 @keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(16px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes gentlePulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.04), 0 2px 8px rgba(99,102,241,0.06); }
-  50% { box-shadow: 0 0 0 2px rgba(99,102,241,0.08), 0 2px 12px rgba(99,102,241,0.1); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(99, 102, 241, 0.04),
+      0 2px 8px rgba(99, 102, 241, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(99, 102, 241, 0.08),
+      0 2px 12px rgba(99, 102, 241, 0.1);
+  }
 }
 
 @keyframes gentlePulseAmber {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(251,191,36,0.04), 0 2px 8px rgba(251,191,36,0.06); }
-  50% { box-shadow: 0 0 0 2px rgba(251,191,36,0.08), 0 2px 12px rgba(251,191,36,0.1); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.04),
+      0 2px 8px rgba(251, 191, 36, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(251, 191, 36, 0.08),
+      0 2px 12px rgba(251, 191, 36, 0.1);
+  }
 }
 
 @keyframes stripeExpand {
-  0% { width: 4px; }
-  100% { width: 100%; }
+  0% {
+    width: 4px;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 @keyframes stripeCollapse {
-  0% { width: 100%; }
-  100% { width: 4px; }
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 4px;
+  }
 }
 
 @keyframes drawCheck {
-  0% { stroke-dashoffset: 36; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 36;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes successCirclePop {
-  0% { opacity: 0; transform: scale(0.5); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes successCheckDraw {
-  0% { stroke-dashoffset: 44; }
-  100% { stroke-dashoffset: 0; }
+  0% {
+    stroke-dashoffset: 44;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes successTextFade {
-  0% { opacity: 0; transform: translateY(6px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @layer utilities {
-  .stagger { opacity: 0; animation: fadeUp 0.5s ease-out both; }
-  .font-serif { font-family: 'Instrument Serif', Georgia, serif; }
+  .stagger {
+    opacity: 0;
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .font-serif {
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
 }
 ```
 
@@ -492,6 +565,7 @@ git commit -m "feat(daily-rhythm): add Instrument Serif font and rhythm animatio
 ### Task 4: RhythmCardComponent (navigator card)
 
 **Files:**
+
 - Create: `src/app/components/rhythm-card/rhythm-card.ts`
 - Create: `src/app/components/rhythm-card/rhythm-card.spec.ts`
 
@@ -549,6 +623,7 @@ Expected: FAIL — component does not exist yet.
 The component reads from `DayRhythmService` and exposes a `rhythmPhase` computed that determines which of the 4 states to render. It has a public `playSubmitAnimation()` method that can be called by the parent to trigger the stripe-expand + checkmark animation.
 
 Key design points from the validated mockup (`.superpowers/brainstorm/84490-1774128488/rhythm-cards.html`):
+
 - 4px left stripe (gradient for open states, solid for filled)
 - Gradient background for open states (indigo-50 for morning, amber-50 for evening), white for filled
 - Subtle pulsing border glow for open states (`gentlePulse` / `gentlePulseAmber`), stops on hover
@@ -560,6 +635,7 @@ Key design points from the validated mockup (`.superpowers/brainstorm/84490-1774
 - `select` output emitted on click
 
 The stripe-expand animation:
+
 1. Card content + header fade to opacity 0 (250ms)
 2. A `stripe-expand` overlay div transitions `width` from 4px to 100% with `cubic-bezier(0.22, 1, 0.36, 1)` (500ms)
 3. A white SVG checkmark (`stroke-dasharray: 36; stroke-dashoffset: 36`) draws itself via `drawCheck` animation (350ms)
@@ -584,6 +660,7 @@ git commit -m "feat(daily-rhythm): add RhythmCardComponent with 4 states and str
 ### Task 5: RhythmDetailComponent (workbench detail view)
 
 **Files:**
+
 - Create: `src/app/components/rhythm-detail/rhythm-detail.ts`
 - Create: `src/app/components/rhythm-detail/rhythm-detail.spec.ts`
 
@@ -664,6 +741,7 @@ Run: `npx ng test --no-watch`
 The component reads `DayRhythmService.todayEntry()` and the `rhythmPhase` to decide what to show. Key design points from the validated mockup (`.superpowers/brainstorm/84490-1774128488/focus-moment.html`):
 
 **Input view (morning or evening open):**
+
 - Centered content, max-width ~460px, generous whitespace, `bg-stone-50` background
 - Header: icon (sun 36px indigo / moon 36px amber) + "Tagesfokus" / "Tagesreflektion" + date
 - Question in Instrument Serif italic 20px with indigo/amber gradient accent line (3px, left)
@@ -673,12 +751,14 @@ The component reads `DayRhythmService.todayEntry()` and the `rhythmPhase` to dec
 - Escape key triggers skip
 
 **Read-only view (morning or evening filled):**
+
 - Same header layout
 - Question displayed (Instrument Serif italic 16px, with accent line)
 - Answer in a white card with stone-50 bg, rounded-xl, Instrument Serif italic 18px
 - For evening: "Heute geschafft" list below with items + timestamps
 
 **Success animation (triggered on submit):**
+
 1. Form fades out + slides up (400ms)
 2. Indigo circle pops in at center (550ms, `successCirclePop`)
 3. White checkmark draws itself (850ms, `successCheckDraw` 500ms)
@@ -706,6 +786,7 @@ git commit -m "feat(daily-rhythm): add RhythmDetailComponent with input/readonly
 ### Task 6: Timeline View (replace placeholder)
 
 **Files:**
+
 - Modify: `src/app/views/view-timeline/view-timeline.ts`
 - Create: `src/app/views/view-timeline/view-timeline.spec.ts`
 
@@ -743,16 +824,18 @@ describe('ViewTimelineComponent', () => {
 
   it('should render day entries', () => {
     const fixture = TestBed.createComponent(ViewTimelineComponent);
-    httpMock.expectOne('/api/days').flush([{
-      date: '2026-03-21',
-      morningQuestion: 'Test-Frage?',
-      morningFocus: 'Mein Fokus',
-      morningAnsweredAt: '2026-03-21T08:00:00Z',
-      eveningQuestion: null,
-      eveningReflection: null,
-      eveningAnsweredAt: null,
-      completedItems: [],
-    }]);
+    httpMock.expectOne('/api/days').flush([
+      {
+        date: '2026-03-21',
+        morningQuestion: 'Test-Frage?',
+        morningFocus: 'Mein Fokus',
+        morningAnsweredAt: '2026-03-21T08:00:00Z',
+        eveningQuestion: null,
+        eveningReflection: null,
+        eveningAnsweredAt: null,
+        completedItems: [],
+      },
+    ]);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Mein Fokus');
     expect(fixture.nativeElement.textContent).toContain('Test-Frage?');
@@ -760,16 +843,18 @@ describe('ViewTimelineComponent', () => {
 
   it('should show evening question and reflection when present', () => {
     const fixture = TestBed.createComponent(ViewTimelineComponent);
-    httpMock.expectOne('/api/days').flush([{
-      date: '2026-03-20',
-      morningQuestion: 'Morgen-Frage?',
-      morningFocus: 'Fokus',
-      morningAnsweredAt: '2026-03-20T08:00:00Z',
-      eveningQuestion: 'Abend-Frage?',
-      eveningReflection: 'Guter Tag',
-      eveningAnsweredAt: '2026-03-20T17:30:00Z',
-      completedItems: [],
-    }]);
+    httpMock.expectOne('/api/days').flush([
+      {
+        date: '2026-03-20',
+        morningQuestion: 'Morgen-Frage?',
+        morningFocus: 'Fokus',
+        morningAnsweredAt: '2026-03-20T08:00:00Z',
+        eveningQuestion: 'Abend-Frage?',
+        eveningReflection: 'Guter Tag',
+        eveningAnsweredAt: '2026-03-20T17:30:00Z',
+        completedItems: [],
+      },
+    ]);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Abend-Frage?');
     expect(fixture.nativeElement.textContent).toContain('Guter Tag');
@@ -777,12 +862,18 @@ describe('ViewTimelineComponent', () => {
 
   it('should render day cards as article elements', () => {
     const fixture = TestBed.createComponent(ViewTimelineComponent);
-    httpMock.expectOne('/api/days').flush([{
-      date: '2026-03-21',
-      morningQuestion: 'Q?', morningFocus: 'F', morningAnsweredAt: '2026-03-21T08:00:00Z',
-      eveningQuestion: null, eveningReflection: null, eveningAnsweredAt: null,
-      completedItems: [],
-    }]);
+    httpMock.expectOne('/api/days').flush([
+      {
+        date: '2026-03-21',
+        morningQuestion: 'Q?',
+        morningFocus: 'F',
+        morningAnsweredAt: '2026-03-21T08:00:00Z',
+        eveningQuestion: null,
+        eveningReflection: null,
+        eveningAnsweredAt: null,
+        completedItems: [],
+      },
+    ]);
     fixture.detectChanges();
     const articles = fixture.nativeElement.querySelectorAll('article');
     expect(articles.length).toBe(1);
@@ -797,6 +888,7 @@ Run: `npx ng test --no-watch`
 - [ ] **Step 3: Implement ViewTimelineComponent**
 
 Replace the placeholder with the full journal-style timeline. Key design points from the validated mockup:
+
 - Instrument Serif italic for focus and reflection texts
 - Indigo gradient line for morning sections, amber gradient for evening
 - Questions shown above answers in colored italic
@@ -822,7 +914,7 @@ export class ViewTimelineComponent {
   private readonly todayISO = new Date().toISOString().split('T')[0];
 
   readonly entries = computed(() =>
-    this.dayRhythm.days().filter(d => this.hasMeaningfulContent(d))
+    this.dayRhythm.days().filter((d) => this.hasMeaningfulContent(d)),
   );
 
   isToday(date: string): boolean {
@@ -865,97 +957,174 @@ Create `src/app/views/view-timeline/view-timeline.html` with the journal layout 
 <div class="flex flex-col h-full">
   <div class="px-12 pt-5 pb-4 border-b border-stone-200 shrink-0">
     <h1 class="font-serif text-[26px] text-stone-800">Dein Journal</h1>
-    <p class="text-sm text-stone-400 font-medium mt-0.5">Tage, Fokus, Reflexionen — dein persönlicher Rückblick</p>
+    <p class="text-sm text-stone-400 font-medium mt-0.5">
+      Tage, Fokus, Reflexionen — dein persönlicher Rückblick
+    </p>
   </div>
 
   <div class="flex-1 overflow-y-auto px-12 py-8">
     @if (entries().length === 0) {
-      <div class="flex items-center justify-center h-full">
-        <div class="text-center max-w-sm">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-          </div>
-          <h2 class="text-lg font-semibold text-stone-800 mb-1">Noch keine Einträge</h2>
-          <p class="text-sm text-stone-400 leading-relaxed">Starte deinen ersten Tag mit einem Fokus!</p>
+    <div class="flex items-center justify-center h-full">
+      <div class="text-center max-w-sm">
+        <div
+          class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-4"
+          aria-hidden="true"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-indigo-400"
+          >
+            <path d="M8 2v4" />
+            <path d="M16 2v4" />
+            <rect width="18" height="18" x="3" y="4" rx="2" />
+            <path d="M3 10h18" />
+          </svg>
         </div>
+        <h2 class="text-lg font-semibold text-stone-800 mb-1">Noch keine Einträge</h2>
+        <p class="text-sm text-stone-400 leading-relaxed">
+          Starte deinen ersten Tag mit einem Fokus!
+        </p>
       </div>
+    </div>
     } @else {
-      <div class="max-w-[580px] mx-auto flex flex-col gap-10">
-        @for (entry of entries(); track entry.date) {
-          <article>
-            <div class="flex items-center gap-3 mb-4">
-              <span class="text-sm font-semibold whitespace-nowrap" [class]="isToday(entry.date) ? 'text-indigo-600' : 'text-stone-500'">
-                {{ formatDate(entry.date) }}
-              </span>
-              @if (isToday(entry.date)) {
-                <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded uppercase tracking-wide shrink-0">Heute</span>
-              }
-              <div class="flex-1 h-px bg-stone-200"></div>
+    <div class="max-w-[580px] mx-auto flex flex-col gap-10">
+      @for (entry of entries(); track entry.date) {
+      <article>
+        <div class="flex items-center gap-3 mb-4">
+          <span
+            class="text-sm font-semibold whitespace-nowrap"
+            [class]="isToday(entry.date) ? 'text-indigo-600' : 'text-stone-500'"
+          >
+            {{ formatDate(entry.date) }}
+          </span>
+          @if (isToday(entry.date)) {
+          <span
+            class="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded uppercase tracking-wide shrink-0"
+            >Heute</span
+          >
+          }
+          <div class="flex-1 h-px bg-stone-200"></div>
+        </div>
+
+        @if (isFull(entry)) {
+        <div
+          class="bg-white rounded-2xl border overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
+          [class]="isToday(entry.date) ? 'border-indigo-200 shadow-[0_1px_4px_rgba(99,102,241,0.06)]' : 'border-stone-200'"
+        >
+          <div class="p-5 flex flex-col gap-5">
+            @if (hasMorning(entry)) {
+            <div class="pl-5 relative">
+              <span
+                class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-indigo-400 to-indigo-200"
+                aria-hidden="true"
+              ></span>
+              <div class="text-xs font-medium italic text-indigo-400 mb-1">
+                {{ entry.morningQuestion }}
+              </div>
+              <div class="font-serif text-base italic text-stone-600 leading-relaxed">
+                {{ entry.morningFocus }}
+              </div>
             </div>
-
-            @if (isFull(entry)) {
-              <div class="bg-white rounded-2xl border overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
-                [class]="isToday(entry.date) ? 'border-indigo-200 shadow-[0_1px_4px_rgba(99,102,241,0.06)]' : 'border-stone-200'">
-                <div class="p-5 flex flex-col gap-5">
-
-                  @if (hasMorning(entry)) {
-                    <div class="pl-5 relative">
-                      <span class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-indigo-400 to-indigo-200" aria-hidden="true"></span>
-                      <div class="text-xs font-medium italic text-indigo-400 mb-1">{{ entry.morningQuestion }}</div>
-                      <div class="font-serif text-base italic text-stone-600 leading-relaxed">{{ entry.morningFocus }}</div>
-                    </div>
-                  }
-
-                  @if (entry.completedItems.length > 0) {
-                    <div class="p-3.5 bg-stone-50 rounded-xl">
-                      <div class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        Erledigt
-                        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 rounded">{{ entry.completedItems.length }}</span>
-                      </div>
-                      @for (item of entry.completedItems; track item.id; let i = $index) {
-                        @if (i < 3) {
-                          <div class="flex items-center gap-2 py-1">
-                            <div class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                            </div>
-                            <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
-                            <span class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0">{{ item.type }}</span>
-                          </div>
-                        }
-                      }
-                      @if (entry.completedItems.length > 3) {
-                        <div class="text-xs text-stone-400 font-medium mt-1 pl-[22px]">+ {{ entry.completedItems.length - 3 }} weitere</div>
-                      }
-                    </div>
-                  }
-
-                  @if (hasEvening(entry)) {
-                    <div class="h-px bg-stone-100"></div>
-                    <div class="pl-5 relative">
-                      <span class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-amber-400 to-amber-300" aria-hidden="true"></span>
-                      <div class="text-xs font-medium italic text-amber-500 mb-1">{{ entry.eveningQuestion }}</div>
-                      <div class="font-serif text-base italic text-stone-600 leading-relaxed">{{ entry.eveningReflection }}</div>
-                    </div>
-                  }
-
+            } @if (entry.completedItems.length > 0) {
+            <div class="p-3.5 bg-stone-50 rounded-xl">
+              <div
+                class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"
+              >
+                Erledigt
+                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 rounded"
+                  >{{ entry.completedItems.length }}</span
+                >
+              </div>
+              @for (item of entry.completedItems; track item.id; let i = $index) { @if (i < 3) {
+              <div class="flex items-center gap-2 py-1">
+                <div
+                  class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0"
+                >
+                  <svg
+                    width="8"
+                    height="8"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="3.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
                 </div>
+                <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
+                <span
+                  class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0"
+                  >{{ item.type }}</span
+                >
               </div>
-            } @else {
-              <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-                @for (item of entry.completedItems; track item.id) {
-                  <div class="flex items-center gap-2 py-1">
-                    <div class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                    </div>
-                    <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
-                    <span class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0">{{ item.type }}</span>
-                  </div>
-                }
+              } } @if (entry.completedItems.length > 3) {
+              <div class="text-xs text-stone-400 font-medium mt-1 pl-[22px]">
+                + {{ entry.completedItems.length - 3 }} weitere
               </div>
+              }
+            </div>
+            } @if (hasEvening(entry)) {
+            <div class="h-px bg-stone-100"></div>
+            <div class="pl-5 relative">
+              <span
+                class="absolute left-0 top-0.5 bottom-0.5 w-[3px] rounded-sm bg-gradient-to-b from-amber-400 to-amber-300"
+                aria-hidden="true"
+              ></span>
+              <div class="text-xs font-medium italic text-amber-500 mb-1">
+                {{ entry.eveningQuestion }}
+              </div>
+              <div class="font-serif text-base italic text-stone-600 leading-relaxed">
+                {{ entry.eveningReflection }}
+              </div>
+            </div>
             }
-          </article>
+          </div>
+        </div>
+        } @else {
+        <div
+          class="bg-white rounded-2xl border border-stone-200 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]"
+        >
+          @for (item of entry.completedItems; track item.id) {
+          <div class="flex items-center gap-2 py-1">
+            <div
+              class="w-3.5 h-3.5 rounded bg-emerald-500 flex items-center justify-center shrink-0"
+            >
+              <svg
+                width="8"
+                height="8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            </div>
+            <span class="text-sm text-stone-600 font-medium flex-1">{{ item.title }}</span>
+            <span
+              class="text-[9px] font-bold text-stone-400 bg-white px-1.5 py-0.5 rounded border border-stone-200 uppercase tracking-wide shrink-0"
+              >{{ item.type }}</span
+            >
+          </div>
+          }
+        </div>
         }
-      </div>
+      </article>
+      }
+    </div>
     }
   </div>
 </div>
@@ -978,6 +1147,7 @@ git commit -m "feat(daily-rhythm): implement journal-style Timeline view"
 ### Task 7: Hook completion tracking into TodoService
 
 **Files:**
+
 - Modify: `src/app/services/todo.service.ts:84-93`
 
 - [ ] **Step 1: Add completion recording to TodoService.update()**
@@ -1017,6 +1187,7 @@ git commit -m "feat(daily-rhythm): hook todo completion tracking into DayRhythmS
 ### Task 8: Hook ticket completion tracking into WorkDataService
 
 **Files:**
+
 - Modify: `src/app/services/work-data.service.ts`
 
 Tickets and PRs are fetched from external APIs — there is no local "mark as done" action. To track completions, `WorkDataService` needs to detect state changes between API fetches using an effect that compares previous and current ticket data.
@@ -1072,6 +1243,7 @@ git commit -m "feat(daily-rhythm): detect and track ticket completions on status
 ### Task 9: Wire rhythm card into Navigator and rhythm detail into Workbench
 
 **Files:**
+
 - Modify: `src/app/components/navigator/navigator.ts`
 - Modify: `src/app/components/navigator/navigator.html`
 - Modify: `src/app/components/workbench/workbench.ts`
@@ -1099,10 +1271,7 @@ In `workbench.ts`, import `RhythmDetailComponent`. In `workbench.html`, add a `@
 
 ```html
 @case ('rhythm') {
-  <app-rhythm-detail
-    (submitted)="onRhythmSubmitted()"
-    (skipped)="onRhythmSkipped()"
-  />
+<app-rhythm-detail (submitted)="onRhythmSubmitted()" (skipped)="onRhythmSkipped()" />
 }
 ```
 
@@ -1150,6 +1319,7 @@ Expected: All tests pass, zero failures.
 Run: `npm start`
 
 Verify checklist:
+
 - Rhythm card appears at top of navigator, above tickets section
 - Morning-open state: indigo gradient bg, sun icon, "TAGESFOKUS" label, "Fokus setzen →" CTA, pulsing border
 - Clicking the rhythm card shows the detail view in the workbench

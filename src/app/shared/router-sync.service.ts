@@ -147,11 +147,7 @@ export class RouterSyncService {
     }
   }
 
-  private resolvePending(
-    pending: PendingRoute,
-    tickets: JiraTicket[],
-    prs: PullRequest[],
-  ): void {
+  private resolvePending(pending: PendingRoute, tickets: JiraTicket[], prs: PullRequest[]): void {
     let resolved: WorkItem | undefined;
 
     switch (pending.type) {
@@ -218,7 +214,13 @@ export class RouterSyncService {
       case 'ticket':
         return ['/arbeit', 'ticket', item.key];
       case 'pr':
-        return ['/arbeit', 'pr', item.toRef.repository.projectKey, item.toRef.repository.slug, String(item.prNumber)];
+        return [
+          '/arbeit',
+          'pr',
+          item.toRef.repository.projectKey,
+          item.toRef.repository.slug,
+          String(item.prNumber),
+        ];
       case 'todo':
         return ['/arbeit', 'todo', item.id];
       case 'idea':
