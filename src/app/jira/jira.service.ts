@@ -119,11 +119,43 @@ export class JiraService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.proxyUrl}/jira/rest/api/2`;
   private readonly userDisplayNameCache = new Map<string, string>();
+  private readonly STORAGE_KEY = 'jira.userDisplayNameCache';
   private hasLoadedOnce = false;
   readonly loading = signal(true);
   readonly error = signal(false);
   private readonly _tickets = signal<JiraTicket[]>([]);
   readonly tickets = this._tickets.asReadonly();
+
+  constructor() {
+    this.loadCacheFromLocalStorage();
+  }
+
+  private loadCacheFromLocalStorage(): void {
+    try {
+      const cachedData = localStorage.getItem(this.STORAGE_KEY);
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        if (typeof parsed === 'object' && parsed !== null) {
+          Object.entries(parsed).forEach(([slug, displayName]) => {
+            if (typeof slug === 'string' && typeof displayName === 'string') {
+              this.userDisplayNameCache.set(slug, displayName);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user display name cache from localStorage:', error);
+    }
+  }
+
+  private saveCacheToLocalStorage(): void {
+    try {
+      const cacheObject = Object.fromEntries(this.userDisplayNameCache.entries());
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cacheObject));
+    } catch (error) {
+      console.error('Failed to save user display name cache to localStorage:', error);
+    }
+  }
 
   loadTickets(): Observable<unknown> {
     if (!this.hasLoadedOnce) {
@@ -167,9 +199,16 @@ export class JiraService {
       ),
     ).pipe(
       map((results) => {
+        let cacheUpdated = false;
         results.forEach((result, i) => {
-          if (result) this.userDisplayNameCache.set(unknown[i], result.displayName);
+          if (result) {
+            this.userDisplayNameCache.set(unknown[i], result.displayName);
+            cacheUpdated = true;
+          }
         });
+        if (cacheUpdated) {
+          this.saveCacheToLocalStorage();
+        }
       }),
     );
   }
