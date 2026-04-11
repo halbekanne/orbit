@@ -398,6 +398,8 @@
         ></svg>
       </button>
       <div id="navigator-ideas-content" [hidden]="ideasCollapsed()">
+        <app-idea-inline-input (add)="addIdea($event)" class="block mb-2" />
+
         <ul
           cdkDropList
           [cdkDropListData]="filteredActiveIdeas()"
