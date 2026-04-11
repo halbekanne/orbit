@@ -96,6 +96,7 @@ Every UI element, interaction, or feature must be evaluated against these princi
 - **Zoneless project** — do NOT use `fakeAsync` or `tick` from `@angular/core/testing`
 - **Flush effects:** `TestBed.tick()` (not the deprecated `flushEffects()`)
 - **Component tests:** `TestBed.configureTestingModule({ imports: [MyComponent] })`
+- **Mocking:** use `vi.spyOn()` / `vi.fn()` from Vitest globals — never use bare `spyOn()` (Jasmine syntax)
 
 ### After Making Changes
 

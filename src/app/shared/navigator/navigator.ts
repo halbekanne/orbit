@@ -19,6 +19,7 @@ import { PrCardComponent } from '../../bitbucket/pr-card/pr-card';
 import { TodoCardComponent } from '../../todos/todo-card/todo-card';
 import { IdeaCardComponent } from '../../ideas/idea-card/idea-card';
 import { TodoInlineInputComponent } from '../../todos/todo-inline-input/todo-inline-input';
+import { IdeaInlineInputComponent } from '../../ideas/idea-inline-input/idea-inline-input';
 import { ReflectionCardComponent } from '../../reflection/reflection-card/reflection-card';
 import { BadgeComponent } from '../badge/badge';
 import { SyncBarComponent } from '../sync-bar/sync-bar';
@@ -46,6 +47,7 @@ interface CollapsedState {
     TodoCardComponent,
     IdeaCardComponent,
     TodoInlineInputComponent,
+    IdeaInlineInputComponent,
     ReflectionCardComponent,
     CdkDrag,
     CdkDropList,
@@ -167,6 +169,10 @@ export class NavigatorComponent {
 
   addTodo(title: string): void {
     this.todoService.add(title);
+  }
+
+  addIdea(title: string): void {
+    this.ideaService.add(title);
   }
 
   onTodoDrop(event: CdkDragDrop<Todo[]>): void {
