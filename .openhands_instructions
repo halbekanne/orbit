@@ -1,0 +1,3 @@
+Read and follow `/AGENTS.md` — it is the single source of truth for project rules, coding standards, and design constraints.
+
+Do not commit documentation files, standalone test scripts, or debugging artifacts. Only commit production code and its corresponding spec files.

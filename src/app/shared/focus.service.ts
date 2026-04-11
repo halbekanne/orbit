@@ -24,7 +24,7 @@ export class FocusService {
     effect(() => {
       const item = this.focusedItem();
       const target = this.focusTarget();
-      if (target && !item) {
+      if (target && !item && this.isDataLoadedForTarget(target)) {
         this.focusTarget.set(null);
       }
     });
@@ -61,6 +61,18 @@ export class FocusService {
         return this.todoService.todos().find((t) => t.id === target.id) ?? null;
       case 'idea':
         return this.ideaService.ideas().find((i) => i.id === target.id) ?? null;
+    }
+  }
+
+  private isDataLoadedForTarget(target: FocusTarget): boolean {
+    switch (target.type) {
+      case 'ticket':
+        return !this.data.ticketsLoading();
+      case 'pr':
+        return !this.data.pullRequestsLoading();
+      case 'todo':
+      case 'idea':
+        return true;
     }
   }
 

@@ -56,6 +56,8 @@ describe('FocusService', () => {
   const ideasSignal = signal<Idea[]>([makeIdea('id-1')]);
   const ticketsSignal = signal<JiraTicket[]>([makeTicket('tk-1')]);
   const pullRequestsSignal = signal<any[]>([]);
+  const ticketsLoadingSignal = signal(false);
+  const pullRequestsLoadingSignal = signal(false);
 
   beforeEach(() => {
     localStorage.clear();
@@ -63,6 +65,8 @@ describe('FocusService', () => {
     ideasSignal.set([makeIdea('id-1')]);
     ticketsSignal.set([makeTicket('tk-1')]);
     pullRequestsSignal.set([]);
+    ticketsLoadingSignal.set(false);
+    pullRequestsLoadingSignal.set(false);
     TestBed.configureTestingModule({
       providers: [
         FocusService,
@@ -70,7 +74,12 @@ describe('FocusService', () => {
         { provide: IdeaService, useValue: { ideas: ideasSignal } },
         {
           provide: WorkspaceService,
-          useValue: { tickets: ticketsSignal, pullRequests: pullRequestsSignal },
+          useValue: {
+            tickets: ticketsSignal,
+            pullRequests: pullRequestsSignal,
+            ticketsLoading: ticketsLoadingSignal,
+            pullRequestsLoading: pullRequestsLoadingSignal
+          },
         },
       ],
     });
@@ -132,5 +141,53 @@ describe('FocusService', () => {
     expect(localStorage.getItem('orbit.focus.state')).toEqual(
       JSON.stringify({ id: 'td-1', type: 'todo' }),
     );
+  });
+
+  it('preserves focus when data is not loaded yet', () => {
+    // Set focus on a ticket
+    service.setFocus({ id: 'tk-1', type: 'ticket' });
+    TestBed.tick();
+
+    // Verify focus is set
+    expect(service.focusTarget()).toEqual({ id: 'tk-1', type: 'ticket' });
+    expect(service.focusedItem()).toEqual(makeTicket('tk-1'));
+
+    // Simulate data being cleared (but loading is complete)
+    ticketsSignal.set([]);
+    TestBed.tick();
+
+    // Focus should be cleared because data is loaded and item doesn't exist
+    expect(service.focusTarget()).toBeNull();
+
+    // Now simulate the actual issue: focus loaded from storage but data not loaded yet
+    ticketsLoadingSignal.set(true);
+
+    // Set focus again and clear data
+    service.setFocus({ id: 'tk-1', type: 'ticket' });
+    ticketsSignal.set([]);
+    TestBed.tick();
+
+    // Focus should be preserved because data is still loading
+    expect(service.focusTarget()).toEqual({ id: 'tk-1', type: 'ticket' });
+    expect(service.focusedItem()).toBeNull();
+
+    // Now mark data as loaded
+    ticketsLoadingSignal.set(false);
+    TestBed.tick();
+
+    // Focus should be cleared because data is loaded and item doesn't exist
+    expect(service.focusTarget()).toBeNull();
+  });
+
+  it('clears focus when item no longer exists after data is loaded', () => {
+    service.setFocus({ id: 'tk-1', type: 'ticket' });
+    TestBed.tick();
+
+    // Remove the ticket from data
+    ticketsSignal.set([]);
+    TestBed.tick();
+
+    // Focus should be cleared because data is loaded and item doesn't exist
+    expect(service.focusTarget()).toBeNull();
   });
 });
