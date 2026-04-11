@@ -1,4 +1,3 @@
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IdeaInlineInputComponent } from './idea-inline-input';
 
@@ -21,7 +20,7 @@ describe('IdeaInlineInputComponent', () => {
   });
 
   it('should emit add event when Enter is pressed with valid input', () => {
-    spyOn(component.add, 'emit');
+    vi.spyOn(component.add, 'emit');
     const inputEl = fixture.nativeElement.querySelector('input');
     inputEl.value = 'Test Idea';
     inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
@@ -32,7 +31,7 @@ describe('IdeaInlineInputComponent', () => {
   });
 
   it('should not emit add event when Enter is pressed with empty input', () => {
-    spyOn(component.add, 'emit');
+    vi.spyOn(component.add, 'emit');
     const inputEl = fixture.nativeElement.querySelector('input');
     inputEl.value = '   ';
     inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
@@ -51,7 +50,7 @@ describe('IdeaInlineInputComponent', () => {
   });
 
   it('should not emit add event for non-Enter keys', () => {
-    spyOn(component.add, 'emit');
+    vi.spyOn(component.add, 'emit');
     const inputEl = fixture.nativeElement.querySelector('input');
     inputEl.value = 'Test Idea';
     inputEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
