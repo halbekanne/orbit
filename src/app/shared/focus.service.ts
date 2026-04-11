@@ -25,7 +25,11 @@ export class FocusService {
       const item = this.focusedItem();
       const target = this.focusTarget();
       if (target && !item) {
-        this.focusTarget.set(null);
+        // Only clear focus if data has been loaded and item still doesn't exist
+        const dataLoaded = this.isDataLoadedForTarget(target);
+        if (dataLoaded) {
+          this.focusTarget.set(null);
+        }
       }
     });
 
@@ -62,6 +66,20 @@ export class FocusService {
       case 'idea':
         return this.ideaService.ideas().find((i) => i.id === target.id) ?? null;
     }
+  }
+
+  private isDataLoadedForTarget(target: FocusTarget): boolean {
+    switch (target.type) {
+      case 'ticket':
+        return !this.data.ticketsLoading();
+      case 'pr':
+        return !this.data.pullRequestsLoading();
+      case 'todo':
+      case 'idea':
+        // Todo and Idea data is available immediately from local storage
+        return true;
+    }
+    return true;
   }
 
   private loadFromStorage(): FocusTarget | null {
