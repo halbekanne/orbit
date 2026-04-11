@@ -9,6 +9,8 @@ describe('JiraService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    localStorage.removeItem('jira.userDisplayNameCache');
+
     TestBed.configureTestingModule({
       providers: [provideHttpClient(withFetch()), provideHttpClientTesting()],
     });
@@ -368,5 +370,77 @@ describe('JiraService', () => {
       .expectOne((r) => r.url.includes('/issue/TEST-1'))
       .flush(makeRawIssue({ description: 'Kein Erwähnungen hier.' }));
     httpMock.expectNone((r) => r.url.includes('/user'));
+  });
+
+  it('loads user display name cache from localStorage on service initialization', () => {
+    localStorage.setItem(
+      'jira.userDisplayNameCache',
+      JSON.stringify({ u1: 'User One', u2: 'User Two' }),
+    );
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withFetch()), provideHttpClientTesting()],
+    });
+    const freshService = TestBed.inject(JiraService);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    expect(freshService['userDisplayNameCache'].size).toBe(2);
+    expect(freshService['userDisplayNameCache'].get('u1')).toBe('User One');
+    expect(freshService['userDisplayNameCache'].get('u2')).toBe('User Two');
+  });
+
+  it('saves resolved user display names to localStorage', () => {
+    let result: JiraTicket | undefined;
+    service.getTicketByKey('TEST-1').subscribe((t) => (result = t));
+
+    httpMock
+      .expectOne((r) => r.url.includes('/issue/TEST-1'))
+      .flush(makeRawIssue({ description: '[~newuser]' }));
+    httpMock
+      .expectOne((r) => r.url.includes('/user') && r.params.get('username') === 'newuser')
+      .flush({ displayName: 'New User' });
+
+    expect(result!.description).toBe('[~New User]');
+
+    const parsed = JSON.parse(localStorage.getItem('jira.userDisplayNameCache')!);
+    expect(parsed['newuser']).toBe('New User');
+  });
+
+  it('uses cached user display names from localStorage instead of making API calls', () => {
+    localStorage.setItem('jira.userDisplayNameCache', JSON.stringify({ cacheduser: 'Cached User' }));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withFetch()), provideHttpClientTesting()],
+    });
+    const freshService = TestBed.inject(JiraService);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    let result: JiraTicket | undefined;
+    freshService.getTicketByKey('TEST-1').subscribe((t) => (result = t));
+
+    httpMock
+      .expectOne((r) => r.url.includes('/issue/TEST-1'))
+      .flush(makeRawIssue({ description: '[~cacheduser]' }));
+
+    httpMock.expectNone((r) => r.url.includes('/user'));
+    expect(result!.description).toBe('[~Cached User]');
+  });
+
+  it('handles corrupted localStorage cache gracefully', () => {
+    localStorage.setItem('jira.userDisplayNameCache', 'invalid json data');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(withFetch()), provideHttpClientTesting()],
+    });
+
+    expect(() => {
+      const freshService = TestBed.inject(JiraService);
+      expect(freshService['userDisplayNameCache'].size).toBe(0);
+    }).not.toThrow();
+
+    httpMock = TestBed.inject(HttpTestingController);
   });
 });

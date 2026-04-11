@@ -164,6 +164,11 @@ Every card (ticket, PR, todo, idea) has exactly one state:
 
 Cards never have colored backgrounds. Color lives only in badges, icons, text, and the amber attention bar. Type badges ("Fehler", "Aufgabe", "User Story") are always neutral stone — only status badges carry semantic colors.
 
+## Commit Hygiene
+
+- Do not commit documentation files, standalone test scripts, or debugging artifacts
+- Only commit production code and its corresponding spec files
+
 ## Accessibility
 
 - Must pass all AXE checks
