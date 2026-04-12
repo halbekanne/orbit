@@ -484,13 +484,24 @@ export class PrDetailComponent {
     { initialValue: 'loading' as const },
   );
 
-  private readonly diffParsed = computed(() => {
+  private readonly diffParsed = computed<Diff2Html.Diff[] | 'too-many-files' | null>(() => {
     const data = this.diffData();
     if (data === 'loading' || data === 'error') return null;
-    return Diff2Html.parse(data);
+
+    // Check if the diff is too large (50+ files)
+    const parsedDiff = Diff2Html.parse(data);
+    if (parsedDiff.length >= 50) {
+      return 'too-many-files';
+    }
+
+    return parsedDiff;
   });
 
-  readonly diffFileCount = computed(() => this.diffParsed()?.length ?? 0);
+  readonly diffFileCount = computed(() => {
+    const parsed = this.diffParsed();
+    if (parsed === 'too-many-files') return 50;
+    return parsed?.length ?? 0;
+  });
 
   private readonly dataReady = computed(() => {
     const diff = this.diffData();
@@ -507,21 +518,119 @@ export class PrDetailComponent {
     if (!container) return;
     const data = this.diffData();
     if (data === 'loading' || data === 'error') return;
+
+    const parsed = this.diffParsed();
+    if (parsed === 'too-many-files') {
+      // Show message for too many files
+      setTimeout(() => {
+        container.nativeElement.innerHTML = `
+          <div class="p-4 text-sm text-[var(--color-text-muted)]">
+            <p class="mb-2">Die Diff-Ansicht kann nicht angezeigt werden, da dieser Pull Request zu viele geänderte Dateien enthält (50+).</p>
+            <p>Bitte öffnen Sie den Pull Request in Bitbucket, um die vollständigen Änderungen anzusehen.</p>
+          </div>
+        `;
+      });
+      return;
+    }
+
+    if (!parsed || parsed.length === 0) return;
+
+    // Filter out files that are too large
+    const filteredFiles = parsed.filter(file => {
+      // Skip files that are likely binary (large file size)
+      // or have too many changes (like package-lock.json)
+      const diffContent = file?.diff || '';
+      const lineCount = diffContent.split('\n').length;
+
+      // Skip files with too many lines in the diff (arbitrary threshold of 1000 lines)
+      // This catches files like package-lock.json with many changes
+      if (lineCount > 1000) {
+        return false;
+      }
+
+      // Skip files with very large diff content (arbitrary threshold of 50KB)
+      // This catches binary files or very large files
+      if (diffContent.length > 50000) {
+        return false;
+      }
+
+      return true;
+    });
+
+    const skippedFiles = parsed.length - filteredFiles.length;
+
     setTimeout(() => {
-      const ui = new Diff2HtmlUI(
-        container.nativeElement,
-        data,
-        {
-          outputFormat: 'line-by-line',
-          drawFileList: false,
-          matching: 'lines',
-          diffStyle: 'word',
-          colorScheme: ColorSchemeType.LIGHT,
-        },
-        hljs,
-      );
-      ui.draw();
-      ui.highlightCode();
+      if (filteredFiles.length === 0) {
+        // All files were filtered out
+        container.nativeElement.innerHTML = `
+          <div class="p-4 text-sm text-[var(--color-text-muted)]">
+            <p class="mb-2">Die Diff-Ansicht kann nicht angezeigt werden, da alle geänderten Dateien zu groß sind.</p>
+            <p>Bitte öffnen Sie den Pull Request in Bitbucket, um die vollständigen Änderungen anzusehen.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Show warning if some files were skipped
+      if (skippedFiles > 0) {
+        const warningMessage = `
+          <div class="p-4 bg-[var(--color-signal-bg)] border-b border-[var(--color-signal-border)]">
+            <p class="text-sm text-[var(--color-signal-text)]">
+              ${skippedFiles} Datei${skippedFiles === 1 ? '' : 'en'} ${skippedFiles === 1 ? 'wurde' : 'wurden'} nicht angezeigt,
+              da ${skippedFiles === 1 ? 'sie' : 'diese'} zu groß ${skippedFiles === 1 ? 'ist' : 'sind'} (vermutlich binäre Dateien oder Dateien mit vielen Änderungen wie package-lock.json).
+              Alle Änderungen können in Bitbucket eingesehen werden.
+            </p>
+          </div>
+        `;
+
+        // Create a custom diff that only includes the filtered files
+        const filteredDiff = filteredFiles.map(file => {
+          // Extract file names from the diff header if available, otherwise use generic names
+          const fileNames = file.diff?.match(/diff --git a\/(.+) b\/(.+)/);
+          const oldName = fileNames?.[1] || 'old-file';
+          const newName = fileNames?.[2] || 'new-file';
+          return `diff --git a/${oldName} b/${newName}\n${file.diff}`;
+        }).join('\n\n');
+
+        const ui = new Diff2HtmlUI(
+          container.nativeElement,
+          filteredDiff,
+          {
+            outputFormat: 'line-by-line',
+            drawFileList: false,
+            matching: 'lines',
+            diffStyle: 'word',
+            colorScheme: ColorSchemeType.LIGHT,
+          },
+          hljs,
+        );
+
+        // Insert warning before the diff
+        const originalDraw = ui.draw;
+        ui.draw = function() {
+          container.nativeElement.innerHTML = warningMessage + container.nativeElement.innerHTML;
+          originalDraw.call(this);
+        };
+
+        ui.draw();
+        ui.highlightCode();
+      } else {
+        // No files were skipped, render normally
+        const ui = new Diff2HtmlUI(
+          container.nativeElement,
+          data,
+          {
+            outputFormat: 'line-by-line',
+            drawFileList: false,
+            matching: 'lines',
+            diffStyle: 'word',
+            colorScheme: ColorSchemeType.LIGHT,
+          },
+          hljs,
+        );
+        ui.draw();
+        ui.highlightCode();
+      }
     });
   });
 

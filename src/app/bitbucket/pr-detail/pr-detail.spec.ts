@@ -371,6 +371,75 @@ describe('PrDetailComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Dein PR');
   });
 
+  it('shows error message when PR has too many files (50+)', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    // Create a diff with 51 files to trigger the too-many-files case
+    const manyFilesDiff = Array(51).fill(SAMPLE_DIFF).join('\n\n');
+    getPullRequestDiff.mockReturnValue(of(manyFilesDiff));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => b.textContent!.includes('Änderungen'),
+    ) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('zu viele geänderte Dateien enthält (50+)');
+    expect(fixture.nativeElement.textContent).toContain('Bitte öffnen Sie den Pull Request in Bitbucket');
+  });
+
+  it('filters out large files and shows warning message', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    // Create a diff with one normal file and one very large file
+    const largeFileDiff = 'diff --git a/large-file.json b/large-file.json\n' + 'a'.repeat(60000);
+    const mixedDiff = SAMPLE_DIFF + '\n\n' + largeFileDiff;
+    getPullRequestDiff.mockReturnValue(of(mixedDiff));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => b.textContent!.includes('Änderungen'),
+    ) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
+    // Should show warning about skipped files
+    expect(fixture.nativeElement.textContent).toContain('wurde nicht angezeigt');
+    expect(fixture.nativeElement.textContent).toContain('zu groß');
+    expect(fixture.nativeElement.textContent).toContain('package-lock.json');
+  });
+
+  it('filters out large files and shows warning message', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    // Create a diff with one normal file and one very large file
+    const largeFileDiff = 'diff --git a/large-file.json b/large-file.json\n' + 'a'.repeat(60000);
+    const mixedDiff = SAMPLE_DIFF + '\n\n' + largeFileDiff;
+    getPullRequestDiff.mockReturnValue(of(mixedDiff));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => b.textContent!.includes('Änderungen'),
+    ) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
+    // Should show warning about skipped files
+    expect(fixture.nativeElement.textContent).toContain('wurde nicht angezeigt');
+    expect(fixture.nativeElement.textContent).toContain('zu groß');
+    expect(fixture.nativeElement.textContent).toContain('package-lock.json');
+  });
+
   it('shows reviewer status badges for authored PRs', async () => {
     getTicketByKey.mockReturnValue(of(mockTicket));
     getPullRequestDiff.mockReturnValue(of(SAMPLE_DIFF));
