@@ -39,7 +39,7 @@ const VIEWS: OrbitView[] = [
 
     <button
       type="button"
-      class="w-[52px] h-12 flex flex-col items-center justify-center rounded-lg text-[var(--color-primary-text)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 mt-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+      class="w-[52px] h-12 flex flex-col items-center justify-center rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-800 transition-colors duration-100 mt-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
       aria-label="Quick Capture"
       (click)="quickCapture.emit()"
     >
