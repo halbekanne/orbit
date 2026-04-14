@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { LucideZap, LucideActivity, LucideBookOpen, LucideSettings, LucidePlus } from '@lucide/angular';
+import {
+  LucideZap,
+  LucideActivity,
+  LucideBookOpen,
+  LucideSettings,
+  LucidePlus,
+} from '@lucide/angular';
 
 interface OrbitView {
   id: string;
