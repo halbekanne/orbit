@@ -70,6 +70,13 @@ type CaptureMode = 'todo' | 'idea';
               💡 Idee
             </button>
           </div>
+          <div
+            data-testid="keyboard-hints"
+            class="text-xs text-[var(--color-text-muted)] text-center mt-2"
+            aria-hidden="true"
+          >
+            ↵ Speichern · Esc Abbrechen · Tab Wechseln
+          </div>
         </div>
       </div>
     }
