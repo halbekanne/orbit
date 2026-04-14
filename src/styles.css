@@ -180,6 +180,8 @@
   color: var(--color-primary-text);
   text-decoration: underline;
   text-underline-offset: 2px;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 .jira-markup .jira-link:hover {
   color: var(--color-primary-solid);

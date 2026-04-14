@@ -110,6 +110,12 @@ function applyInline(text: string): string {
   });
 
   text = text.replace(
+    /(^|[\s(])(https?:\/\/[^\s<>"'()]+[^\s<>"'().,!?])/gi,
+    (_, prefix, url) =>
+      `${prefix}<a href="${url}" target="_blank" rel="noopener noreferrer" class="jira-link">${url}</a>`,
+  );
+
+  text = text.replace(
     /!([^!|]+)(?:\|[^!]*)?!/g,
     (_, filename) => `<span class="jira-image-placeholder">🖼 ${filename}</span>`,
   );
