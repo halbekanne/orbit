@@ -21,6 +21,7 @@ import { ReflectionDetailComponent } from '../../reflection/reflection-detail/re
 })
 export class WorkbenchComponent {
   protected readonly data = inject(WorkspaceService);
+  protected readonly shortcutLabel = navigator.platform?.includes('Mac') ? '⌘K' : 'Ctrl+K';
 
   onReflectionSubmitted(): void {}
   onReflectionSkipped(): void {}
