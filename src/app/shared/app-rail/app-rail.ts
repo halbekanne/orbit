@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { LucideZap, LucideActivity, LucideBookOpen, LucideSettings } from '@lucide/angular';
+import { LucideZap, LucideActivity, LucideBookOpen, LucideSettings, LucidePlus } from '@lucide/angular';
 
 interface OrbitView {
   id: string;
@@ -15,7 +15,7 @@ const VIEWS: OrbitView[] = [
 @Component({
   selector: 'app-rail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LucideZap, LucideActivity, LucideBookOpen, LucideSettings],
+  imports: [LucideZap, LucideActivity, LucideBookOpen, LucideSettings, LucidePlus],
   host: {
     class: 'w-16 shrink-0 bg-[var(--color-rail-bg)] flex flex-col items-center',
   },
@@ -30,6 +30,16 @@ const VIEWS: OrbitView[] = [
         <div class="w-3 h-3 rounded-full border-2 border-white"></div>
       </div>
     </div>
+
+    <button
+      type="button"
+      class="w-[52px] h-12 flex flex-col items-center justify-center rounded-lg text-[var(--color-primary-text)] hover:bg-[var(--color-bg-surface)] transition-colors duration-100 mt-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+      aria-label="Quick Capture"
+      (click)="quickCapture.emit()"
+    >
+      <svg lucidePlus [size]="20" [strokeWidth]="1.5"></svg>
+      <span class="text-[10px] font-medium leading-tight mt-0.5">{{ shortcutLabel }}</span>
+    </button>
 
     <nav aria-label="Hauptnavigation" class="flex flex-col items-center gap-1 mt-2">
       @for (view of views; track view.id) {
@@ -81,7 +91,9 @@ const VIEWS: OrbitView[] = [
 export class AppRailComponent {
   activeView = input.required<string>();
   viewChange = output<string>();
+  quickCapture = output<void>();
 
+  protected readonly shortcutLabel = navigator.platform?.includes('Mac') ? '⌘K' : 'Ctrl+K';
   protected readonly views = VIEWS;
 
   onKeydown(event: KeyboardEvent): void {
