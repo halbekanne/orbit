@@ -82,12 +82,6 @@ function extractBlocks(text: string, stash: string[]): string {
 }
 
 function applyInline(text: string): string {
-  // Auto-detect and convert plain URLs to clickable links
-  text = text.replace(
-    /(^|[\s(])((?:https?|ftp):\/\/[^\s<>"'()]+[^\s<>"'().,!?])/gi,
-    (_, prefix, url) => `${prefix}<a href="${url}" target="_blank" rel="noopener noreferrer" class="jira-link">${url}</a>`,
-  );
-
   text = text.replace(
     /\{color:([^}]+)\}(.*?)\{color\}/gi,
     (_, color, inner) => `<span style="color:${color}">${inner}</span>`,
@@ -114,6 +108,12 @@ function applyInline(text: string): string {
     }
     return `<a href="${content}" target="_blank" rel="noopener noreferrer" class="jira-link">${content}</a>`;
   });
+
+  text = text.replace(
+    /(^|[\s(])(https?:\/\/[^\s<>"'()]+[^\s<>"'().,!?])/gi,
+    (_, prefix, url) =>
+      `${prefix}<a href="${url}" target="_blank" rel="noopener noreferrer" class="jira-link">${url}</a>`,
+  );
 
   text = text.replace(
     /!([^!|]+)(?:\|[^!]*)?!/g,
