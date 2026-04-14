@@ -62,4 +62,13 @@ describe('App', () => {
     const rail = fixture.nativeElement.querySelector('app-rail');
     expect(rail).toBeTruthy();
   });
+
+  it('should open quick capture when rail emits quickCapture', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const rail = fixture.nativeElement.querySelector('app-rail');
+    rail.dispatchEvent(new Event('quickCapture'));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.overlayOpen()).toBe(true);
+  });
 });
