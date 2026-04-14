@@ -408,7 +408,10 @@ describe('JiraService', () => {
   });
 
   it('uses cached user display names from localStorage instead of making API calls', () => {
-    localStorage.setItem('jira.userDisplayNameCache', JSON.stringify({ cacheduser: 'Cached User' }));
+    localStorage.setItem(
+      'jira.userDisplayNameCache',
+      JSON.stringify({ cacheduser: 'Cached User' }),
+    );
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

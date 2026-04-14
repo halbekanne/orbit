@@ -45,7 +45,7 @@ describe('AppRailComponent', () => {
     const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
-    const buttons = fixture.nativeElement.querySelectorAll('button');
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
     expect(buttons[0].getAttribute('aria-current')).toBe('page');
     expect(buttons[1].getAttribute('aria-current')).toBeNull();
     expect(buttons[2].getAttribute('aria-current')).toBeNull();
@@ -57,7 +57,7 @@ describe('AppRailComponent', () => {
     fixture.detectChanges();
     const spy = vi.fn();
     fixture.componentInstance.viewChange.subscribe(spy);
-    const buttons = fixture.nativeElement.querySelectorAll('button');
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
     buttons[2].click();
     expect(spy).toHaveBeenCalledWith('logbuch');
   });
@@ -66,7 +66,7 @@ describe('AppRailComponent', () => {
     const fixture = TestBed.createComponent(AppRailComponent);
     fixture.componentRef.setInput('activeView', 'arbeit');
     fixture.detectChanges();
-    const buttons = fixture.nativeElement.querySelectorAll('button');
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
     buttons[0].focus();
     buttons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
     expect(document.activeElement).toBe(buttons[1]);
@@ -78,5 +78,33 @@ describe('AppRailComponent', () => {
     fixture.detectChanges();
     const nav = fixture.nativeElement.querySelector('nav');
     expect(nav.getAttribute('aria-label')).toBe('Hauptnavigation');
+  });
+
+  it('should render a quick capture button', () => {
+    const fixture = TestBed.createComponent(AppRailComponent);
+    fixture.componentRef.setInput('activeView', 'arbeit');
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('[aria-label="Quick Capture"]');
+    expect(button).toBeTruthy();
+  });
+
+  it('should show shortcut hint on quick capture button', () => {
+    const fixture = TestBed.createComponent(AppRailComponent);
+    fixture.componentRef.setInput('activeView', 'arbeit');
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('[aria-label="Quick Capture"]');
+    const text = button.textContent;
+    expect(text).toMatch(/[⌘Ctrl]\+?K/);
+  });
+
+  it('should emit quickCapture on button click', () => {
+    const fixture = TestBed.createComponent(AppRailComponent);
+    fixture.componentRef.setInput('activeView', 'arbeit');
+    fixture.detectChanges();
+    const spy = vi.fn();
+    fixture.componentInstance.quickCapture.subscribe(spy);
+    const button = fixture.nativeElement.querySelector('[aria-label="Quick Capture"]');
+    button.click();
+    expect(spy).toHaveBeenCalled();
   });
 });

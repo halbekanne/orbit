@@ -78,7 +78,7 @@ describe('FocusService', () => {
             tickets: ticketsSignal,
             pullRequests: pullRequestsSignal,
             ticketsLoading: ticketsLoadingSignal,
-            pullRequestsLoading: pullRequestsLoadingSignal
+            pullRequestsLoading: pullRequestsLoadingSignal,
           },
         },
       ],

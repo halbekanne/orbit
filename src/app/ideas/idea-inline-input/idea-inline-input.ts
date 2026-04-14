@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, ElementRef, output, viewChild } from '@angular/core';
 
 @Component({
