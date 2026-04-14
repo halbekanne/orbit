@@ -43,6 +43,7 @@ import {
 } from '@lucide/angular';
 import * as Diff2Html from 'diff2html';
 import { Diff2HtmlUI } from 'diff2html/lib/ui/js/diff2html-ui-base';
+import type { DiffFile } from 'diff2html/lib/types';
 import { ColorSchemeType } from 'diff2html/lib/types';
 import hljs from 'highlight.js/lib/core';
 import typescript from 'highlight.js/lib/languages/typescript';
@@ -377,7 +378,31 @@ import plaintext from 'highlight.js/lib/languages/plaintext';
             </p>
           } @else if (diffFileCount() === 0) {
             <p class="text-sm text-[var(--color-text-muted)] italic">Keine Änderungen vorhanden.</p>
+          } @else if (tooManyFiles()) {
+            <div class="space-y-2">
+              <p class="text-sm text-[var(--color-text-muted)] italic">
+                Dieser PR enthält {{ diffFileCount() }} geänderte Dateien. Die Diff-Ansicht wird bei
+                mehr als 50 Dateien nicht angezeigt, um Performance-Probleme zu
+                vermeiden.
+              </p>
+            </div>
           } @else {
+            @if (skippedFiles().length > 0) {
+              <div
+                class="mb-3 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3"
+              >
+                <p class="text-sm text-[var(--color-text-muted)] mb-2">
+                  {{ skippedFiles().length === 1 ? 'Eine Datei wird' : skippedFiles().length + ' Dateien werden' }}
+                  nicht als Diff angezeigt, da sie zu viele Änderungen
+                  {{ skippedFiles().length === 1 ? 'enthält' : 'enthalten' }}:
+                </p>
+                <ul class="list-none space-y-0.5">
+                  @for (file of skippedFiles(); track file) {
+                    <li class="font-mono text-xs text-[var(--color-text-body)]">{{ file }}</li>
+                  }
+                </ul>
+              </div>
+            }
             <div
               #diffContainer
               class="overflow-x-auto rounded border border-[var(--color-border-subtle)]"
@@ -484,6 +509,9 @@ export class PrDetailComponent {
     { initialValue: 'loading' as const },
   );
 
+  private static readonly MAX_CHANGED_LINES = 1500;
+  private static readonly MAX_FILES = 50;
+
   private readonly diffParsed = computed(() => {
     const data = this.diffData();
     if (data === 'loading' || data === 'error') return null;
@@ -491,6 +519,28 @@ export class PrDetailComponent {
   });
 
   readonly diffFileCount = computed(() => this.diffParsed()?.length ?? 0);
+
+  readonly tooManyFiles = computed(() => this.diffFileCount() >= PrDetailComponent.MAX_FILES);
+
+  private readonly diffFiltered = computed((): {
+    renderable: DiffFile[];
+    skipped: string[];
+  } | null => {
+    const files = this.diffParsed();
+    if (!files) return null;
+    const renderable: DiffFile[] = [];
+    const skipped: string[] = [];
+    for (const file of files) {
+      if (file.addedLines + file.deletedLines > PrDetailComponent.MAX_CHANGED_LINES) {
+        skipped.push(file.newName || file.oldName);
+      } else {
+        renderable.push(file);
+      }
+    }
+    return { renderable, skipped };
+  });
+
+  readonly skippedFiles = computed(() => this.diffFiltered()?.skipped ?? []);
 
   private readonly dataReady = computed(() => {
     const diff = this.diffData();
@@ -505,12 +555,14 @@ export class PrDetailComponent {
   private renderEffect = effect(() => {
     const container = this.diffContainer();
     if (!container) return;
-    const data = this.diffData();
-    if (data === 'loading' || data === 'error') return;
+    const filtered = this.diffFiltered();
+    if (!filtered || this.tooManyFiles()) return;
+    const files = filtered.renderable;
+    if (files.length === 0) return;
     setTimeout(() => {
       const ui = new Diff2HtmlUI(
         container.nativeElement,
-        data,
+        files,
         {
           outputFormat: 'line-by-line',
           drawFileList: false,

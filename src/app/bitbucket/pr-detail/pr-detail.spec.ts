@@ -117,6 +117,22 @@ index 0000001..0000002 100644
 +const b = 3;
  const c = 4;`;
 
+function makeFileDiff(name: string, changedLines: number): string {
+  const oldLines = Array.from({ length: changedLines }, (_, i) => `-old${i}`).join('\n');
+  const newLines = Array.from({ length: changedLines }, (_, i) => `+new${i}`).join('\n');
+  return `diff --git a/${name} b/${name}
+index 0000001..0000002 100644
+--- a/${name}
++++ b/${name}
+@@ -1,${changedLines} +1,${changedLines} @@
+${oldLines}
+${newLines}`;
+}
+
+function makeManyFilesDiff(count: number): string {
+  return Array.from({ length: count }, (_, i) => makeFileDiff(`file${i}.ts`, 1)).join('\n');
+}
+
 describe('PrDetailComponent', () => {
   let fixture: ComponentFixture<PrDetailComponent>;
   const getTicketByKey = vi.fn();
@@ -403,5 +419,45 @@ describe('PrDetailComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Reviewer:');
     expect(fixture.nativeElement.textContent).toContain('Reviewer One');
+  });
+
+  it('shows too-many-files message when diff has 50+ files', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    getPullRequestDiff.mockReturnValue(of(makeManyFilesDiff(50)));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => b.textContent!.includes('Änderungen'),
+    ) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('50 geänderte Dateien');
+    expect(fixture.nativeElement.textContent).toContain('Performance-Probleme');
+    expect(fixture.nativeElement.querySelector('.overflow-x-auto')).toBeNull();
+  });
+
+  it('filters out large files and shows skipped file names', async () => {
+    getTicketByKey.mockReturnValue(of(mockTicket));
+    const diff = SAMPLE_DIFF + '\n' + makeFileDiff('package-lock.json', 800);
+    getPullRequestDiff.mockReturnValue(of(diff));
+    fixture = TestBed.createComponent(PrDetailComponent);
+    fixture.componentRef.setInput('pr', basePr);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const diffButton = Array.from<Element>(fixture.nativeElement.querySelectorAll('button')).find(
+      (b) => b.textContent!.includes('Änderungen'),
+    ) as HTMLButtonElement;
+    diffButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('package-lock.json');
+    expect(fixture.nativeElement.textContent).toContain('nicht als Diff angezeigt');
   });
 });
